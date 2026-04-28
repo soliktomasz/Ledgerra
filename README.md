@@ -105,6 +105,62 @@ Before production use, change:
 - `POSTGRES_PASSWORD`
 - any public-facing reverse proxy or TLS configuration
 
+### Unraid OS Setup
+
+Ledgerra can run on Unraid with the Docker Compose Manager plugin or from the
+Unraid terminal with Docker Compose.
+
+1. Install the **Docker Compose Manager** plugin from Unraid Community
+   Applications, or confirm that `docker compose` is available in the Unraid
+   terminal.
+2. Create an application directory:
+
+   ```bash
+   mkdir -p /mnt/user/appdata/ledgerra/postgres
+   ```
+
+3. Copy this repository's `docker-compose.yml` to
+   `/mnt/user/appdata/ledgerra/docker-compose.yml`.
+4. Edit `/mnt/user/appdata/ledgerra/docker-compose.yml` before first start:
+
+   - Change `POSTGRES_PASSWORD`.
+   - Use the same password in `ConnectionStrings__Ledgerra`.
+   - Replace `Auth__SigningKey` with a long random secret.
+   - Change the frontend port mapping if Unraid already uses `8080`, for
+     example `8088:80`.
+   - For Unraid-friendly backups, replace the `postgres` volume mapping with:
+
+     ```yaml
+     volumes:
+       - /mnt/user/appdata/ledgerra/postgres:/var/lib/postgresql/data
+     ```
+
+     If you use this bind mount, remove the top-level `volumes:` block for the
+     named `ledgerra-postgres` volume.
+
+5. Start Ledgerra:
+
+   ```bash
+   cd /mnt/user/appdata/ledgerra
+   docker compose up --build -d
+   ```
+
+6. Open Ledgerra at `http://<unraid-server-ip>:8080`, or the alternate host
+   port you configured.
+
+Useful maintenance commands:
+
+```bash
+cd /mnt/user/appdata/ledgerra
+docker compose pull
+docker compose up --build -d
+docker compose logs -f
+docker compose down
+```
+
+Keep `/mnt/user/appdata/ledgerra/postgres` in your Unraid backup plan. That
+directory contains the PostgreSQL data when using the recommended bind mount.
+
 ## Verification
 
 Backend checks:
