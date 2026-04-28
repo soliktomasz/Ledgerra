@@ -26,6 +26,39 @@ Ledgerra is a self-hosted budget planner and spending tracker built with an ASP.
 
 ### Backend
 
+#### Local PostgreSQL setup
+
+You can run PostgreSQL locally with Docker:
+
+```bash
+docker run --name ledgerra-postgres \
+  -e POSTGRES_DB=ledgerra \
+  -e POSTGRES_USER=ledgerra \
+  -e POSTGRES_PASSWORD=ledgerra \
+  -p 5432:5432 \
+  -d postgres:17-alpine
+```
+
+Use this connection string for local backend development:
+
+```bash
+ConnectionStrings__Ledgerra="Host=localhost;Port=5432;Database=ledgerra;Username=ledgerra;Password=ledgerra"
+```
+
+Example:
+
+```bash
+cd backend
+ConnectionStrings__Ledgerra="Host=localhost;Port=5432;Database=ledgerra;Username=ledgerra;Password=ledgerra" \
+dotnet run --project src/Ledgerra.Api/Ledgerra.Api.csproj
+```
+
+If you already run PostgreSQL natively, create:
+
+- database: `ledgerra`
+- user: `ledgerra`
+- password: `ledgerra`
+
 ```bash
 cd backend
 dotnet test Ledgerra.sln
