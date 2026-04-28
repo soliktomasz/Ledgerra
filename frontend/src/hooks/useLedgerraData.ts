@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import { useAuth } from "../state/AuthContext";
-import type { Account, BudgetSummary, Category, DashboardSummary, Transaction } from "../types";
+import type { Account, BudgetSummary, Category, DashboardSummary, Profile, Transaction } from "../types";
 
 function currentMonthKey() {
   return new Date().toISOString().slice(0, 7);
@@ -10,6 +10,7 @@ function currentMonthKey() {
 export function useLedgerraData() {
   const { auth } = useAuth();
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -27,7 +28,8 @@ export function useLedgerraData() {
 
     try {
       const month = currentMonthKey();
-      const [dashboardPayload, accountsPayload, categoriesPayload, transactionsPayload, budgetPayload] = await Promise.all([
+      const [profilePayload, dashboardPayload, accountsPayload, categoriesPayload, transactionsPayload, budgetPayload] = await Promise.all([
+        apiClient.getProfile(auth.accessToken),
         apiClient.getDashboard(auth.accessToken, month),
         apiClient.getAccounts(auth.accessToken),
         apiClient.getCategories(auth.accessToken),
@@ -35,6 +37,7 @@ export function useLedgerraData() {
         apiClient.getBudget(auth.accessToken, Number(month.slice(0, 4)), Number(month.slice(5, 7)))
       ]);
 
+      setProfile(profilePayload);
       setDashboard(dashboardPayload);
       setAccounts(accountsPayload);
       setCategories(categoriesPayload);
@@ -53,6 +56,7 @@ export function useLedgerraData() {
 
   return {
     dashboard,
+    profile,
     accounts,
     categories,
     transactions,

@@ -314,6 +314,19 @@ label {
   gap: 1rem;
 }
 
+.account-settings-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.inline-settings-form {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem;
+}
+
 .chip-list {
   display: flex;
   flex-wrap: wrap;
@@ -454,6 +467,11 @@ label {
   }
 
   .budget-progress-row {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-row,
+  .inline-settings-form {
     grid-template-columns: 1fr;
   }
 }

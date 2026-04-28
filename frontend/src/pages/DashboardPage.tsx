@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { PageHeader } from "../ui/PageHeader";
 import { MetricCard } from "../ui/MetricCard";
@@ -6,7 +7,12 @@ import { EmptyState } from "../ui/EmptyState";
 import { formatCurrency } from "../utils/format";
 
 export function DashboardPage() {
-  const { dashboard, budget, loading, error } = useLedgerraData();
+  const { accounts, dashboard, budget, loading, error, profile } = useLedgerraData();
+  const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
+  const accountCurrencyCodes = useMemo(
+    () => new Map(accounts.map((account) => [account.id, account.currencyCode])),
+    [accounts]
+  );
 
   return (
     <div className="page-stack">
@@ -21,25 +27,25 @@ export function DashboardPage() {
       <div className="metric-grid">
         <MetricCard
           label="Income"
-          value={formatCurrency(dashboard?.income ?? 0)}
+          value={formatCurrency(dashboard?.income ?? 0, mainCurrencyCode)}
           tone="positive"
           detail="All monthly inflows."
         />
         <MetricCard
           label="Expenses"
-          value={formatCurrency(dashboard?.expenses ?? 0)}
+          value={formatCurrency(dashboard?.expenses ?? 0, mainCurrencyCode)}
           tone="negative"
           detail="Transfers excluded."
         />
         <MetricCard
           label="Net"
-          value={formatCurrency(dashboard?.net ?? 0)}
+          value={formatCurrency(dashboard?.net ?? 0, mainCurrencyCode)}
           tone={(dashboard?.net ?? 0) >= 0 ? "positive" : "negative"}
           detail="Income minus expenses."
         />
         <MetricCard
           label="Budget Remaining"
-          value={formatCurrency(budget?.totalRemaining ?? dashboard?.budgetRemaining ?? 0)}
+          value={formatCurrency(budget?.totalRemaining ?? dashboard?.budgetRemaining ?? 0, mainCurrencyCode)}
           detail="Across tracked budget categories."
         />
       </div>
@@ -61,7 +67,7 @@ export function DashboardPage() {
                   <div className="bar-item" key={category.categoryId}>
                     <div>
                       <strong>{category.categoryName}</strong>
-                      <span>{formatCurrency(category.amount)}</span>
+                      <span>{formatCurrency(category.amount, mainCurrencyCode)}</span>
                     </div>
                     <div className="bar-track">
                       <div className="bar-fill" style={{ width }} />
@@ -87,7 +93,7 @@ export function DashboardPage() {
                     <strong>{account.name}</strong>
                     <p>Live balance</p>
                   </div>
-                  <strong>{formatCurrency(account.balance)}</strong>
+                  <strong>{formatCurrency(account.balance, accountCurrencyCodes.get(account.accountId) ?? mainCurrencyCode)}</strong>
                 </article>
               ))}
             </div>

@@ -8,7 +8,8 @@ import { formatCurrency } from "../utils/format";
 
 export function BudgetsPage() {
   const { auth } = useAuth();
-  const { categories, budget, refresh } = useLedgerraData();
+  const { categories, budget, profile, refresh } = useLedgerraData();
+  const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const expenseCategories = useMemo(
     () => categories.filter((category) => category.kind === "Expense"),
     [categories]
@@ -86,13 +87,13 @@ export function BudgetsPage() {
                   <div className="budget-progress-copy">
                     <strong>{item.categoryName}</strong>
                     <span>
-                      {formatCurrency(item.spent)} of {formatCurrency(item.planned)}
+                      {formatCurrency(item.spent, mainCurrencyCode)} of {formatCurrency(item.planned, mainCurrencyCode)}
                     </span>
                   </div>
                   <div className="budget-progress-bar">
                     <div style={{ width: `${ratio}%` }} />
                   </div>
-                  <strong>{formatCurrency(item.remaining)}</strong>
+                  <strong>{formatCurrency(item.remaining, mainCurrencyCode)}</strong>
                 </article>
               );
             })}
