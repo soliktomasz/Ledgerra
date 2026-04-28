@@ -10,7 +10,7 @@ export function MetricCard({
   detail?: string;
 }) {
   return (
-    <section className={`metric-card ${tone}`}>
+    <section className={`metric-card metric-card--${tone}`}>
       <span>{label}</span>
       <strong>{value}</strong>
       {detail ? <p>{detail}</p> : null}
