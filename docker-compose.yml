@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: ledgerra-postgres
+    environment:
+      POSTGRES_DB: ledgerra
+      POSTGRES_USER: ledgerra
+      POSTGRES_PASSWORD: ledgerra
+    volumes:
+      - ledgerra-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledgerra -d ledgerra"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ledgerra-backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Ledgerra: Host=postgres;Port=5432;Database=ledgerra;Username=ledgerra;Password=ledgerra
+      Auth__Issuer: Ledgerra
+      Auth__Audience: Ledgerra.Clients
+      Auth__SigningKey: change-this-before-production
+      Auth__AccessTokenMinutes: 60
+      Auth__RefreshTokenDays: 30
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8080"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: ledgerra-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  ledgerra-postgres:
