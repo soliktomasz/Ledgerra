@@ -1,0 +1,7 @@
+.git
+.worktrees
+**/bin
+**/obj
+frontend/node_modules
+frontend/dist
+README.md
