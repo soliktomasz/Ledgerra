@@ -32,12 +32,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               to={item.to}
               className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
             >
-              {item.label}
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="sidebar-footer">
+        <div className="sidebar-footer account-panel">
           <div>
             <small>Signed in as</small>
             <strong>{auth?.email}</strong>

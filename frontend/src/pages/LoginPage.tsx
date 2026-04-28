@@ -26,20 +26,34 @@ export function LoginPage() {
   return (
     <div className="login-screen">
       <div className="login-hero">
-        <span className="eyebrow">Self-hosted budgeting</span>
-        <h1>Steady planning for the money you actually live with.</h1>
+        <span className="eyebrow">Ledgerra finance console</span>
+        <h1>Clean visibility for every account, budget, and transaction.</h1>
         <p>
-          Ledgerra brings accounts, spending, and category budgets into one calm dashboard
-          built for homelabs, shared households, and future mobile clients.
+          Ledgerra brings day-to-day money tracking into one focused workspace for
+          self-hosted households and future mobile clients.
         </p>
-        <ul className="hero-points">
-          <li>Track income and expenses across separate accounts.</li>
-          <li>Set monthly category budgets and watch remaining room update live.</li>
-          <li>Run it yourself with a clean API that future mobile apps can reuse.</li>
-        </ul>
+        <div className="login-preview" aria-label="Ledgerra workspace preview">
+          <div>
+            <span>Monthly net</span>
+            <strong>$2,840</strong>
+          </div>
+          <div>
+            <span>Budget room</span>
+            <strong>$910</strong>
+          </div>
+          <div>
+            <span>Accounts</span>
+            <strong>5 active</strong>
+          </div>
+        </div>
       </div>
 
       <form className="auth-card" onSubmit={handleSubmit}>
+        <div className="auth-card-header">
+          <span className="eyebrow">Secure access</span>
+          <h2>{mode === "login" ? "Sign in to Ledgerra" : "Create your workspace"}</h2>
+        </div>
+
         <div className="segmented-control">
           <button type="button" className={mode === "login" ? "active" : ""} onClick={() => setMode("login")}>
             Sign in
