@@ -4,6 +4,7 @@ import type {
   BudgetSummary,
   Category,
   DashboardSummary,
+  Profile,
   Transaction
 } from "../types";
 
@@ -61,6 +62,29 @@ export const apiClient = {
       method: "POST",
       token,
       body: payload
+    });
+  },
+  updateAccount(token: string, account: Account) {
+    return request<Account>(`/api/accounts/${account.id}`, {
+      method: "PUT",
+      token,
+      body: {
+        name: account.name,
+        type: account.type,
+        currencyCode: account.currencyCode,
+        openingBalance: account.openingBalance,
+        isActive: account.isActive
+      }
+    });
+  },
+  getProfile(token: string) {
+    return request<Profile>("/api/settings/profile", { token });
+  },
+  updateProfile(token: string, preferredCurrencyCode: string) {
+    return request<Profile>("/api/settings/profile", {
+      method: "PUT",
+      token,
+      body: { preferredCurrencyCode }
     });
   },
   getCategories(token: string) {

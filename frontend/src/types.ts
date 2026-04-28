@@ -16,6 +16,11 @@ export type Account = {
   isActive: boolean;
 };
 
+export type Profile = {
+  email: string;
+  preferredCurrencyCode: string;
+};
+
 export type Category = {
   id: string;
   name: string;

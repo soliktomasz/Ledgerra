@@ -160,6 +160,34 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal(320m, budgetPayload.GetProperty("totalRemaining").GetDecimal());
     }
 
+    [Fact]
+    public async Task AuthenticatedUser_CanUpdatePreferredCurrency()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var initialResponse = await client.GetAsync("/api/settings/profile");
+        Assert.Equal(HttpStatusCode.OK, initialResponse.StatusCode);
+
+        var initialPayload = await initialResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("USD", initialPayload.GetProperty("preferredCurrencyCode").GetString());
+
+        var updateResponse = await client.PutAsJsonAsync("/api/settings/profile", new
+        {
+            preferredCurrencyCode = "eur"
+        });
+        if (updateResponse.StatusCode != HttpStatusCode.OK)
+        {
+            var body = await updateResponse.Content.ReadAsStringAsync();
+            throw new Xunit.Sdk.XunitException($"Profile update failed with {(int)updateResponse.StatusCode}: {body}");
+        }
+
+        var updatePayload = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("EUR", updatePayload.GetProperty("preferredCurrencyCode").GetString());
+    }
+
     private static async Task<AuthResult> RegisterAndAuthenticateAsync(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new

@@ -142,7 +142,7 @@ export function TransactionsPage() {
                     <p>{account?.name ?? "Unknown account"} • {formatDate(transaction.occurredOnUtc)}</p>
                   </div>
                   <div className="align-right">
-                    <strong>{formatCurrency(transaction.amount)}</strong>
+                    <strong>{formatCurrency(transaction.amount, account?.currencyCode)}</strong>
                     <p>{transaction.type}</p>
                   </div>
                 </article>
