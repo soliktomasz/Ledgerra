@@ -1,4 +1,5 @@
 using System.Text;
+using Ledgerra.Api.Services.Imports;
 using Ledgerra.Infrastructure.Authentication;
 using Ledgerra.Infrastructure.Persistence;
 using Ledgerra.Infrastructure.Security;
@@ -12,6 +13,9 @@ builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<ISecretProtector, DataProtectionSecretProtector>();
+builder.Services.AddScoped<CsvReportContentExtractor>();
+builder.Services.AddScoped<PdfReportContentExtractor>();
+builder.Services.AddScoped<IReportContentExtractor, ReportContentExtractor>();
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
