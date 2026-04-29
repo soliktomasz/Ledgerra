@@ -1,5 +1,7 @@
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
+using Ledgerra.Api.Services.Ai;
+using Ledgerra.Api.Services.Imports;
 using Ledgerra.Domain.Transactions;
 using Ledgerra.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
@@ -14,10 +16,63 @@ namespace Ledgerra.Api.Controllers;
 public sealed class MonthlyReportImportsController : ControllerBase
 {
     private readonly LedgerraDbContext _dbContext;
+    private readonly IReportContentExtractor _reportContentExtractor;
+    private readonly AiReportAnalysisService _aiReportAnalysisService;
 
-    public MonthlyReportImportsController(LedgerraDbContext dbContext)
+    public MonthlyReportImportsController(
+        LedgerraDbContext dbContext,
+        IReportContentExtractor reportContentExtractor,
+        AiReportAnalysisService aiReportAnalysisService)
     {
         _dbContext = dbContext;
+        _reportContentExtractor = reportContentExtractor;
+        _aiReportAnalysisService = aiReportAnalysisService;
+    }
+
+    [HttpPost("analyze")]
+    public async Task<ActionResult<MonthlyReportAnalysisResponse>> Analyze(
+        [FromForm] Guid accountId,
+        [FromForm] string month,
+        [FromForm] string provider,
+        [FromForm] IFormFile file,
+        CancellationToken cancellationToken)
+    {
+        if (!AiProviderParsingExtensions.TryParseAiProvider(provider, out var parsedProvider))
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["provider"] = ["Supported providers are OpenAi and Anthropic."]
+            });
+        }
+
+        try
+        {
+            var report = await _reportContentExtractor.ExtractAsync(file, cancellationToken);
+            var result = await _aiReportAnalysisService.AnalyzeAsync(
+                User.GetRequiredUserId(),
+                accountId,
+                parsedProvider,
+                month,
+                report,
+                cancellationToken);
+
+            var transactions = result.Transactions.Select(transaction => new MonthlyReportDraftTransactionResponse(
+                transaction.SourceId,
+                Guid.Parse(transaction.AccountId),
+                transaction.CategoryId is null ? null : Guid.Parse(transaction.CategoryId),
+                transaction.Amount,
+                transaction.Type,
+                DateTime.Parse(transaction.OccurredOnUtc).ToUniversalTime(),
+                transaction.Note,
+                transaction.Confidence,
+                transaction.Warnings)).ToList();
+
+            return Ok(new MonthlyReportAnalysisResponse(transactions, result.Warnings));
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new ProblemDetails { Title = exception.Message });
+        }
     }
 
     [HttpPost("commit")]

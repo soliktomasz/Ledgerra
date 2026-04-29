@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 
 namespace Ledgerra.Api.Tests;
@@ -306,6 +307,56 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         var transactionsResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}");
         var transactionsPayload = await transactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal(0, transactionsPayload.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CanAnalyzeCsvMonthlyReportIntoDrafts()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("OpenAi"), "provider");
+        form.Add(new ByteArrayContent(Encoding.UTF8.GetBytes($"Date,Description,Amount\n2026-04-10,Market,-42.17\ncategory:{groceriesCategoryId}\n")), "file", "statement.csv");
+
+        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(1, payload.GetProperty("transactions").GetArrayLength());
+        Assert.Equal(checkingId, payload.GetProperty("transactions")[0].GetProperty("accountId").GetGuid());
+        Assert.Equal(groceriesCategoryId, payload.GetProperty("transactions")[0].GetProperty("categoryId").GetGuid());
+        Assert.Equal(42.17m, payload.GetProperty("transactions")[0].GetProperty("amount").GetDecimal());
+    }
+
+    [Fact]
+    public async Task MonthlyReportAnalyze_RequiresConfiguredProviderKey()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("Anthropic"), "provider");
+        form.Add(new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\n")), "file", "statement.csv");
+
+        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     private static async Task<AuthResult> RegisterAndAuthenticateAsync(HttpClient client)

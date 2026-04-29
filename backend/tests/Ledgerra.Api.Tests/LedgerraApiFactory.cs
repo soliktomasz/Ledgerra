@@ -1,3 +1,6 @@
+using Ledgerra.Api.Services.Ai;
+using Ledgerra.Api.Tests.Fakes;
+using Ledgerra.Domain.Ai;
 using Ledgerra.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -22,10 +25,18 @@ public sealed class LedgerraApiFactory : WebApplicationFactory<Program>
                 services.Remove(descriptor);
             }
 
+            foreach (var aiClientDescriptor in services.Where(service => service.ServiceType == typeof(IAiReportAnalysisClient)).ToList())
+            {
+                services.Remove(aiClientDescriptor);
+            }
+
             services.AddDbContext<LedgerraDbContext>(options =>
             {
                 options.UseInMemoryDatabase(_databaseName);
             });
+
+            services.AddScoped<IAiReportAnalysisClient>(_ => new FakeAiReportAnalysisClient(AiProvider.OpenAi));
+            services.AddScoped<IAiReportAnalysisClient>(_ => new FakeAiReportAnalysisClient(AiProvider.Anthropic));
         });
     }
 }

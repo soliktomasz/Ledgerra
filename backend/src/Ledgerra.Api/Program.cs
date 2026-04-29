@@ -1,4 +1,5 @@
 using System.Text;
+using Ledgerra.Api.Services.Ai;
 using Ledgerra.Api.Services.Imports;
 using Ledgerra.Infrastructure.Authentication;
 using Ledgerra.Infrastructure.Persistence;
@@ -16,6 +17,12 @@ builder.Services.AddScoped<ISecretProtector, DataProtectionSecretProtector>();
 builder.Services.AddScoped<CsvReportContentExtractor>();
 builder.Services.AddScoped<PdfReportContentExtractor>();
 builder.Services.AddScoped<IReportContentExtractor, ReportContentExtractor>();
+builder.Services.AddHttpClient<OpenAiReportAnalysisClient>();
+builder.Services.AddHttpClient<AnthropicReportAnalysisClient>();
+builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<OpenAiReportAnalysisClient>());
+builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<AnthropicReportAnalysisClient>());
+builder.Services.AddScoped<AiReportAnalysisClientFactory>();
+builder.Services.AddScoped<AiReportAnalysisService>();
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
