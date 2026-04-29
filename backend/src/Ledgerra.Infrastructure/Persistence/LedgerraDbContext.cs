@@ -1,4 +1,5 @@
 using Ledgerra.Domain.Accounts;
+using Ledgerra.Domain.Ai;
 using Ledgerra.Domain.Auth;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
@@ -27,6 +28,10 @@ public sealed class LedgerraDbContext : DbContext
     public DbSet<BudgetCategoryLimit> BudgetCategoryLimits => Set<BudgetCategoryLimit>();
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public DbSet<AiProviderCredential> AiProviderCredentials => Set<AiProviderCredential>();
+
+    public DbSet<UserAiPreference> UserAiPreferences => Set<UserAiPreference>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -114,6 +119,29 @@ public sealed class LedgerraDbContext : DbContext
             builder.HasOne(token => token.User)
                 .WithMany(user => user.RefreshTokens)
                 .HasForeignKey(token => token.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AiProviderCredential>(builder =>
+        {
+            builder.HasKey(credential => credential.Id);
+            builder.HasIndex(credential => new { credential.UserId, credential.Provider }).IsUnique();
+            builder.Property(credential => credential.Provider).HasConversion<string>().HasMaxLength(32);
+            builder.Property(credential => credential.EncryptedApiKey).HasMaxLength(4096);
+            builder.Property(credential => credential.MaskedKey).HasMaxLength(32);
+            builder.HasOne<AppUser>()
+                .WithMany(user => user.AiProviderCredentials)
+                .HasForeignKey(credential => credential.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<UserAiPreference>(builder =>
+        {
+            builder.HasKey(preference => preference.UserId);
+            builder.Property(preference => preference.DefaultProvider).HasConversion<string>().HasMaxLength(32);
+            builder.HasOne<AppUser>()
+                .WithOne(user => user.AiPreference)
+                .HasForeignKey<UserAiPreference>(preference => preference.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

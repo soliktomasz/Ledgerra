@@ -8,12 +8,20 @@ import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 
 export function SettingsPage() {
   const { auth } = useAuth();
-  const { profile, refresh } = useLedgerraData();
+  const { profile, aiSettings, refresh } = useLedgerraData();
   const [preferredCurrencyCode, setPreferredCurrencyCode] = useState("USD");
+  const [defaultProvider, setDefaultProvider] = useState("OpenAi");
+  const [openAiKey, setOpenAiKey] = useState("");
+  const [anthropicKey, setAnthropicKey] = useState("");
+  const [aiProviderError, setAiProviderError] = useState<string | null>(null);
 
   useEffect(() => {
     setPreferredCurrencyCode(profile?.preferredCurrencyCode ?? "USD");
   }, [profile?.preferredCurrencyCode]);
+
+  useEffect(() => {
+    setDefaultProvider(aiSettings?.defaultProvider ?? "OpenAi");
+  }, [aiSettings?.defaultProvider]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -24,6 +32,46 @@ export function SettingsPage() {
     await apiClient.updateProfile(auth.accessToken, normalizeCurrencyCode(preferredCurrencyCode));
     await refresh();
   };
+
+  const handleAiProviderSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    try {
+      setAiProviderError(null);
+      if (openAiKey.trim()) {
+        await apiClient.saveAiProviderKey(auth.accessToken, "openai", openAiKey.trim());
+      }
+
+      if (anthropicKey.trim()) {
+        await apiClient.saveAiProviderKey(auth.accessToken, "anthropic", anthropicKey.trim());
+      }
+
+      await apiClient.updateDefaultAiProvider(auth.accessToken, defaultProvider);
+      await refresh();
+    } catch (exception) {
+      console.error(exception);
+      setAiProviderError(exception instanceof Error ? exception.message : "Unable to save AI settings.");
+      return;
+    } finally {
+      setOpenAiKey("");
+      setAnthropicKey("");
+    }
+  };
+
+  const handleRemoveProvider = async (provider: string) => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    await apiClient.removeAiProviderKey(auth.accessToken, provider);
+    await refresh();
+  };
+
+  const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
+  const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
 
   return (
     <div className="page-stack">
@@ -49,6 +97,84 @@ export function SettingsPage() {
             Save currency
           </button>
         </form>
+      </SectionCard>
+
+      <SectionCard title="AI providers">
+        <form className="stack-form" onSubmit={handleAiProviderSubmit}>
+          {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
+          <label>
+            Default provider
+            <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
+              <option value="OpenAi">OpenAI</option>
+              <option value="Anthropic">Anthropic</option>
+            </select>
+          </label>
+          <label>
+            OpenAI API key
+            <input
+              value={openAiKey}
+              onChange={(event) => setOpenAiKey(event.target.value)}
+              type="password"
+              placeholder={aiSettings?.providers.openAi.maskedKey ?? "Not configured"}
+            />
+          </label>
+          <label>
+            Anthropic API key
+            <input
+              value={anthropicKey}
+              onChange={(event) => setAnthropicKey(event.target.value)}
+              type="password"
+              placeholder={aiSettings?.providers.anthropic.maskedKey ?? "Not configured"}
+            />
+          </label>
+          <button className="primary-button" type="submit">
+            Save AI settings
+          </button>
+        </form>
+        <div className="table-list compact-list">
+          <article className="table-row">
+            <div>
+              <strong>OpenAI</strong>
+              <p>{aiSettings?.providers.openAi.isConfigured ? "Configured" : "Not configured"}</p>
+            </div>
+            <div className="settings-provider-actions">
+              <strong>{aiSettings?.providers.openAi.maskedKey ?? "Not configured"}</strong>
+              <button
+                className="ghost-button"
+                type="button"
+                disabled={!isOpenAiConfigured}
+                onClick={() => {
+                  if (isOpenAiConfigured) {
+                    handleRemoveProvider("openai");
+                  }
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </article>
+          <article className="table-row">
+            <div>
+              <strong>Anthropic</strong>
+              <p>{aiSettings?.providers.anthropic.isConfigured ? "Configured" : "Not configured"}</p>
+            </div>
+            <div className="settings-provider-actions">
+              <strong>{aiSettings?.providers.anthropic.maskedKey ?? "Not configured"}</strong>
+              <button
+                className="ghost-button"
+                type="button"
+                disabled={!isAnthropicConfigured}
+                onClick={() => {
+                  if (isAnthropicConfigured) {
+                    handleRemoveProvider("anthropic");
+                  }
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </article>
+        </div>
       </SectionCard>
 
       <SectionCard title="Current session">

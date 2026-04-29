@@ -1,4 +1,5 @@
 using Ledgerra.Domain.Accounts;
+using Ledgerra.Domain.Ai;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
 using Ledgerra.Domain.Transactions;
@@ -26,4 +27,8 @@ public sealed class AppUser
     public List<BudgetPeriod> BudgetPeriods { get; set; } = [];
 
     public List<RefreshToken> RefreshTokens { get; set; } = [];
+
+    public List<AiProviderCredential> AiProviderCredentials { get; set; } = [];
+
+    public UserAiPreference? AiPreference { get; set; }
 }

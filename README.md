@@ -24,6 +24,20 @@ Ledgerra is a self-hosted budget planner and spending tracker built with an ASP.
 
 ## Local Development
 
+Run the whole development stack from the repository root:
+
+```bash
+./scripts/dev-stack.sh
+```
+
+The script reuses an existing `ledgerra-postgres` container or starts
+PostgreSQL with Docker Compose if needed, then starts the backend and Vite
+frontend if they are not already running. Defaults:
+
+- API: `http://127.0.0.1:5027`
+- Frontend: `http://127.0.0.1:5173`
+- PostgreSQL: `localhost:5432`
+
 ### Backend
 
 #### Local PostgreSQL setup
