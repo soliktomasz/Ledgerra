@@ -569,6 +569,53 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task MonthlyReportAnalyze_AppliesActiveImportRuleMetadata()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+        var ruleResponse = await client.PostAsJsonAsync("/api/import-rules", new
+        {
+            name = "Market groceries",
+            matchField = "Note",
+            matchOperator = "Contains",
+            matchValue = "market",
+            assignCategoryId = groceriesCategoryId,
+            assignTransactionType = "Expense",
+            priority = 1,
+            isActive = true
+        });
+        var rulePayload = await ruleResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var ruleId = rulePayload.GetProperty("id").GetGuid();
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("OpenAi"), "provider");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
+
+        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var draft = payload.GetProperty("transactions")[0];
+        Assert.Equal(groceriesCategoryId, draft.GetProperty("categoryId").GetGuid());
+        Assert.Equal("Expense", draft.GetProperty("type").GetString());
+        Assert.Equal(ruleId, draft.GetProperty("appliedRuleId").GetGuid());
+        Assert.Equal("Market groceries", draft.GetProperty("appliedRuleName").GetString());
+        Assert.True(draft.GetProperty("isSelectedByDefault").GetBoolean());
+        Assert.False(draft.GetProperty("isLikelyDuplicate").GetBoolean());
+    }
+
+    [Fact]
     public async Task MonthlyReportAnalyze_RequiresConfiguredProviderKey()
     {
         using var client = _factory.CreateClient();

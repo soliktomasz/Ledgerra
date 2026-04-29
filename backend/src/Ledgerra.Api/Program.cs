@@ -23,6 +23,7 @@ builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequ
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<AnthropicReportAnalysisClient>());
 builder.Services.AddScoped<AiReportAnalysisClientFactory>();
 builder.Services.AddScoped<AiReportAnalysisService>();
+builder.Services.AddScoped<IImportCategorizationRuleMatcher, ImportCategorizationRuleMatcher>();
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();

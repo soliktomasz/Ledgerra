@@ -18,15 +18,18 @@ public sealed class MonthlyReportImportsController : ControllerBase
     private readonly LedgerraDbContext _dbContext;
     private readonly IReportContentExtractor _reportContentExtractor;
     private readonly AiReportAnalysisService _aiReportAnalysisService;
+    private readonly IImportCategorizationRuleMatcher _categorizationRuleMatcher;
 
     public MonthlyReportImportsController(
         LedgerraDbContext dbContext,
         IReportContentExtractor reportContentExtractor,
-        AiReportAnalysisService aiReportAnalysisService)
+        AiReportAnalysisService aiReportAnalysisService,
+        IImportCategorizationRuleMatcher categorizationRuleMatcher)
     {
         _dbContext = dbContext;
         _reportContentExtractor = reportContentExtractor;
         _aiReportAnalysisService = aiReportAnalysisService;
+        _categorizationRuleMatcher = categorizationRuleMatcher;
     }
 
     [HttpPost("analyze")]
@@ -47,16 +50,17 @@ public sealed class MonthlyReportImportsController : ControllerBase
 
         try
         {
+            var userId = User.GetRequiredUserId();
             var report = await _reportContentExtractor.ExtractAsync(file, cancellationToken);
             var result = await _aiReportAnalysisService.AnalyzeAsync(
-                User.GetRequiredUserId(),
+                userId,
                 accountId,
                 parsedProvider,
                 month,
                 report,
                 cancellationToken);
 
-            var transactions = new List<MonthlyReportDraftTransactionResponse>();
+            var analyzedDrafts = new List<ImportDraftReviewItem>();
             foreach (var transaction in result.Transactions)
             {
                 if (!Guid.TryParse(transaction.AccountId, out var parsedAccountId) ||
@@ -70,7 +74,7 @@ public sealed class MonthlyReportImportsController : ControllerBase
                 }
 
                 var parsedCategoryId = transaction.CategoryId is null ? (Guid?)null : Guid.Parse(transaction.CategoryId);
-                transactions.Add(new MonthlyReportDraftTransactionResponse(
+                analyzedDrafts.Add(ImportDraftReviewItem.FromAnalyzedDraft(
                     transaction.SourceId,
                     parsedAccountId,
                     parsedCategoryId,
@@ -82,7 +86,8 @@ public sealed class MonthlyReportImportsController : ControllerBase
                     transaction.Warnings));
             }
 
-            return Ok(new MonthlyReportAnalysisResponse(transactions, result.Warnings));
+            var transactions = await _categorizationRuleMatcher.ApplyAsync(userId, analyzedDrafts, cancellationToken);
+            return Ok(new MonthlyReportAnalysisResponse(transactions.Select(MapDraft).ToList(), result.Warnings));
         }
         catch (InvalidOperationException exception)
         {
@@ -177,5 +182,25 @@ public sealed class MonthlyReportImportsController : ControllerBase
             transaction.OccurredOnUtc,
             transaction.Note,
             transaction.TransferGroupId);
+    }
+
+    private static MonthlyReportDraftTransactionResponse MapDraft(ImportDraftReviewItem draft)
+    {
+        return new MonthlyReportDraftTransactionResponse(
+            draft.SourceId,
+            draft.AccountId,
+            draft.CategoryId,
+            draft.Amount,
+            draft.Type,
+            draft.OccurredOnUtc,
+            draft.Note,
+            draft.Confidence,
+            draft.Warnings,
+            draft.AppliedRuleId,
+            draft.AppliedRuleName,
+            draft.IsLikelyDuplicate,
+            draft.DuplicateTransactionId,
+            draft.DuplicateReason,
+            draft.IsSelectedByDefault);
     }
 }
