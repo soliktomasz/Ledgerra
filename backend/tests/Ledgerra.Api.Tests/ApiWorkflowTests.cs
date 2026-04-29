@@ -188,6 +188,56 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal("EUR", updatePayload.GetProperty("preferredCurrencyCode").GetString());
     }
 
+    [Fact]
+    public async Task AuthenticatedUser_CanSaveAndRemoveEncryptedAiProviderKeys()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var saveResponse = await client.PutAsJsonAsync("/api/settings/ai/openai", new
+        {
+            apiKey = "sk-test-openai-secret-123456"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
+        var savePayload = await saveResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(savePayload.GetProperty("providers").GetProperty("openAi").GetProperty("isConfigured").GetBoolean());
+        Assert.Equal("OpenAi", savePayload.GetProperty("defaultProvider").GetString());
+        Assert.DoesNotContain("sk-test-openai-secret-123456", savePayload.ToString(), StringComparison.Ordinal);
+
+        var statusResponse = await client.GetAsync("/api/settings/ai");
+        Assert.Equal(HttpStatusCode.OK, statusResponse.StatusCode);
+        var statusPayload = await statusResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(statusPayload.GetProperty("providers").GetProperty("openAi").GetProperty("isConfigured").GetBoolean());
+        Assert.Equal("...3456", statusPayload.GetProperty("providers").GetProperty("openAi").GetProperty("maskedKey").GetString());
+        Assert.DoesNotContain("sk-test-openai-secret-123456", statusPayload.ToString(), StringComparison.Ordinal);
+
+        var deleteResponse = await client.DeleteAsync("/api/settings/ai/openai");
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+        var deletePayload = await deleteResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(deletePayload.GetProperty("providers").GetProperty("openAi").GetProperty("isConfigured").GetBoolean());
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CanChooseDefaultAiProvider()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var updateResponse = await client.PutAsJsonAsync("/api/settings/ai/default-provider", new
+        {
+            provider = "Anthropic"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+        var payload = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Anthropic", payload.GetProperty("defaultProvider").GetString());
+    }
+
     private static async Task<AuthResult> RegisterAndAuthenticateAsync(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new
