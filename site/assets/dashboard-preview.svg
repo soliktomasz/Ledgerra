@@ -1,0 +1,41 @@
+<svg width="1180" height="820" viewBox="0 0 1180 820" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Ledgerra dashboard preview</title>
+  <desc id="desc">A stylized dashboard with budget metrics, account balances, charts, and transaction rows.</desc>
+  <rect width="1180" height="820" rx="28" fill="#17211C"/>
+  <rect x="36" y="36" width="1108" height="748" rx="22" fill="#F6F4EF"/>
+  <rect x="36" y="36" width="232" height="748" rx="22" fill="#21372D"/>
+  <circle cx="83" cy="90" r="22" fill="#D89A33"/>
+  <rect x="120" y="78" width="94" height="16" rx="8" fill="#F6F4EF"/>
+  <rect x="74" y="160" width="142" height="14" rx="7" fill="#9FB7A9"/>
+  <rect x="74" y="214" width="102" height="14" rx="7" fill="#F6F4EF"/>
+  <rect x="74" y="270" width="124" height="14" rx="7" fill="#9FB7A9"/>
+  <rect x="74" y="326" width="92" height="14" rx="7" fill="#9FB7A9"/>
+  <rect x="74" y="382" width="132" height="14" rx="7" fill="#9FB7A9"/>
+  <rect x="74" y="658" width="142" height="54" rx="8" fill="#2B5642"/>
+  <rect x="316" y="86" width="236" height="18" rx="9" fill="#17211C"/>
+  <rect x="316" y="124" width="366" height="12" rx="6" fill="#758178"/>
+  <rect x="316" y="184" width="238" height="144" rx="12" fill="#FFFFFF"/>
+  <rect x="584" y="184" width="238" height="144" rx="12" fill="#FFFFFF"/>
+  <rect x="852" y="184" width="238" height="144" rx="12" fill="#FFFFFF"/>
+  <rect x="346" y="216" width="84" height="12" rx="6" fill="#758178"/>
+  <rect x="346" y="250" width="138" height="24" rx="12" fill="#256C4F"/>
+  <rect x="346" y="292" width="164" height="10" rx="5" fill="#D9DDD5"/>
+  <rect x="614" y="216" width="94" height="12" rx="6" fill="#758178"/>
+  <rect x="614" y="250" width="120" height="24" rx="12" fill="#C85F4B"/>
+  <rect x="614" y="292" width="164" height="10" rx="5" fill="#D9DDD5"/>
+  <rect x="882" y="216" width="94" height="12" rx="6" fill="#758178"/>
+  <rect x="882" y="250" width="138" height="24" rx="12" fill="#355F7C"/>
+  <rect x="882" y="292" width="164" height="10" rx="5" fill="#D9DDD5"/>
+  <rect x="316" y="370" width="498" height="326" rx="12" fill="#FFFFFF"/>
+  <rect x="346" y="404" width="154" height="16" rx="8" fill="#17211C"/>
+  <rect x="346" y="642" width="414" height="12" rx="6" fill="#D9DDD5"/>
+  <path d="M362 594C391 528 430 548 460 500C492 449 541 462 570 508C603 562 646 506 678 454C707 407 742 410 780 438" stroke="#256C4F" stroke-width="18" stroke-linecap="round"/>
+  <path d="M362 562C400 536 432 576 474 548C516 520 535 456 588 438C642 419 670 475 706 486C740 496 752 472 780 464" stroke="#D89A33" stroke-width="18" stroke-linecap="round"/>
+  <rect x="852" y="370" width="238" height="326" rx="12" fill="#FFFFFF"/>
+  <rect x="882" y="404" width="126" height="16" rx="8" fill="#17211C"/>
+  <circle cx="971" cy="536" r="80" stroke="#D9DDD5" stroke-width="30"/>
+  <path d="M971 456A80 80 0 1 1 895 511" stroke="#256C4F" stroke-width="30" stroke-linecap="round"/>
+  <rect x="900" y="650" width="58" height="10" rx="5" fill="#256C4F"/>
+  <rect x="976" y="650" width="74" height="10" rx="5" fill="#D9DDD5"/>
+  <rect x="316" y="724" width="774" height="28" rx="8" fill="#E7ECE5"/>
+</svg>
