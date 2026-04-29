@@ -295,6 +295,113 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task AuthenticatedUser_CanManageImportRules()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var createResponse = await client.PostAsJsonAsync("/api/import-rules", new
+        {
+            name = "Market groceries",
+            matchField = "Note",
+            matchOperator = "Contains",
+            matchValue = "Market",
+            assignCategoryId = groceriesCategoryId,
+            assignTransactionType = "Expense",
+            priority = 10,
+            isActive = true
+        });
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var created = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var ruleId = created.GetProperty("id").GetGuid();
+        Assert.Equal("Market groceries", created.GetProperty("name").GetString());
+        Assert.Equal("Note", created.GetProperty("matchField").GetString());
+        Assert.Equal("Contains", created.GetProperty("matchOperator").GetString());
+        Assert.Equal("Market", created.GetProperty("matchValue").GetString());
+        Assert.Equal(groceriesCategoryId, created.GetProperty("assignCategoryId").GetGuid());
+        Assert.Equal("Expense", created.GetProperty("assignTransactionType").GetString());
+        Assert.Equal(10, created.GetProperty("priority").GetInt32());
+        Assert.True(created.GetProperty("isActive").GetBoolean());
+
+        var listResponse = await client.GetAsync("/api/import-rules");
+        Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+        var listed = await listResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(listed.EnumerateArray());
+
+        var updateResponse = await client.PutAsJsonAsync($"/api/import-rules/{ruleId}", new
+        {
+            name = "Market disabled",
+            matchField = "Note",
+            matchOperator = "Contains",
+            matchValue = "Imported: Market",
+            assignCategoryId = groceriesCategoryId,
+            assignTransactionType = "Expense",
+            priority = 5,
+            isActive = false
+        });
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+        var updated = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Market disabled", updated.GetProperty("name").GetString());
+        Assert.False(updated.GetProperty("isActive").GetBoolean());
+        Assert.Equal(5, updated.GetProperty("priority").GetInt32());
+
+        var deleteResponse = await client.DeleteAsync($"/api/import-rules/{ruleId}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        var emptyListResponse = await client.GetAsync("/api/import-rules");
+        var emptyList = await emptyListResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Empty(emptyList.EnumerateArray());
+    }
+
+    [Fact]
+    public async Task ImportRules_ValidateRuleShapeAndCategoryOwnership()
+    {
+        using var ownerClient = _factory.CreateClient();
+        var ownerAuth = await RegisterAndAuthenticateAsync(ownerClient);
+        ownerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAuth.AccessToken);
+
+        using var otherClient = _factory.CreateClient();
+        var otherAuth = await RegisterAndAuthenticateAsync(otherClient);
+        otherClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", otherAuth.AccessToken);
+
+        var otherCategoryId = await CreateCategoryAsync(otherClient, "Other groceries", "Expense");
+
+        var unsupportedFieldResponse = await ownerClient.PostAsJsonAsync("/api/import-rules", new
+        {
+            name = "Bad field",
+            matchField = "Amount",
+            matchOperator = "Contains",
+            matchValue = "Market",
+            assignCategoryId = otherCategoryId,
+            assignTransactionType = "Expense",
+            priority = 1,
+            isActive = true
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, unsupportedFieldResponse.StatusCode);
+
+        var foreignCategoryResponse = await ownerClient.PostAsJsonAsync("/api/import-rules", new
+        {
+            name = "Foreign category",
+            matchField = "Note",
+            matchOperator = "Contains",
+            matchValue = "Market",
+            assignCategoryId = otherCategoryId,
+            assignTransactionType = "Expense",
+            priority = 1,
+            isActive = true
+        });
+
+        Assert.Equal(HttpStatusCode.NotFound, foreignCategoryResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanCommitReviewedMonthlyReportDrafts()
     {
         using var client = _factory.CreateClient();

@@ -3,6 +3,7 @@ using Ledgerra.Domain.Ai;
 using Ledgerra.Domain.Auth;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
+using Ledgerra.Domain.Imports;
 using Ledgerra.Domain.Transactions;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +33,8 @@ public sealed class LedgerraDbContext : DbContext
     public DbSet<AiProviderCredential> AiProviderCredentials => Set<AiProviderCredential>();
 
     public DbSet<UserAiPreference> UserAiPreferences => Set<UserAiPreference>();
+
+    public DbSet<CategorizationRule> CategorizationRules => Set<CategorizationRule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -143,6 +146,26 @@ public sealed class LedgerraDbContext : DbContext
                 .WithOne(user => user.AiPreference)
                 .HasForeignKey<UserAiPreference>(preference => preference.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CategorizationRule>(builder =>
+        {
+            builder.HasKey(rule => rule.Id);
+            builder.HasIndex(rule => new { rule.UserId, rule.Priority });
+            builder.HasIndex(rule => new { rule.UserId, rule.Name }).IsUnique();
+            builder.Property(rule => rule.Name).HasMaxLength(120);
+            builder.Property(rule => rule.MatchField).HasConversion<string>().HasMaxLength(32);
+            builder.Property(rule => rule.MatchOperator).HasConversion<string>().HasMaxLength(32);
+            builder.Property(rule => rule.MatchValue).HasMaxLength(200);
+            builder.Property(rule => rule.AssignTransactionType).HasConversion<string>().HasMaxLength(32);
+            builder.HasOne(rule => rule.User)
+                .WithMany(user => user.CategorizationRules)
+                .HasForeignKey(rule => rule.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(rule => rule.AssignCategory)
+                .WithMany()
+                .HasForeignKey(rule => rule.AssignCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
