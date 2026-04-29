@@ -36,7 +36,6 @@ export function useLedgerraData() {
         dashboardPayload,
         accountsPayload,
         categoriesPayload,
-        importRulesPayload,
         transactionsPayload,
         budgetPayload
       ] = await Promise.all([
@@ -45,7 +44,6 @@ export function useLedgerraData() {
         apiClient.getDashboard(auth.accessToken, month),
         apiClient.getAccounts(auth.accessToken),
         apiClient.getCategories(auth.accessToken),
-        apiClient.getImportRules(auth.accessToken),
         apiClient.getTransactions(auth.accessToken),
         apiClient.getBudget(auth.accessToken, Number(month.slice(0, 4)), Number(month.slice(5, 7)))
       ]);
@@ -55,9 +53,14 @@ export function useLedgerraData() {
       setDashboard(dashboardPayload);
       setAccounts(accountsPayload);
       setCategories(categoriesPayload);
-      setImportRules(importRulesPayload);
       setTransactions(transactionsPayload);
       setBudget(budgetPayload);
+
+      try {
+        setImportRules(await apiClient.getImportRules(auth.accessToken));
+      } catch {
+        setImportRules([]);
+      }
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Unknown error");
     } finally {
