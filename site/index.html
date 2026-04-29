@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Ledgerra is a self-hosted budget planner and spending tracker for homelab deployments."
+    />
+    <title>Ledgerra | Self-hosted budget planning</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Ledgerra home">
+        <span class="brand-mark">L</span>
+        <span>Ledgerra</span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#features">Features</a>
+        <a href="#stack">Stack</a>
+        <a href="#deploy">Deploy</a>
+        <a href="https://github.com/soliktomasz/Ledgerra">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Self-hosted personal finance</p>
+          <h1>Ledgerra</h1>
+          <p class="lede">
+            A calm budget planner and spending tracker built for homelabs,
+            private data, and clear month-to-month money decisions.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/soliktomasz/Ledgerra">View on GitHub</a>
+            <a class="button secondary" href="#deploy">Self-host it</a>
+          </div>
+        </div>
+
+        <div class="product-visual" aria-label="Ledgerra dashboard preview">
+          <img src="assets/dashboard-preview.svg" alt="Ledgerra dashboard preview" />
+        </div>
+      </section>
+
+      <section class="summary-band" aria-label="Project highlights">
+        <div>
+          <strong>Accounts</strong>
+          <span>Track balances across cash, bank, and custom accounts.</span>
+        </div>
+        <div>
+          <strong>Budgets</strong>
+          <span>Plan category limits and compare them with actual spending.</span>
+        </div>
+        <div>
+          <strong>Imports</strong>
+          <span>Turn monthly reports into draft transactions with AI assistance.</span>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-heading">
+          <p class="eyebrow">What it does</p>
+          <h2>Budgeting without surrendering your data</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>Private by default</h3>
+            <p>
+              Run Ledgerra on your own server with PostgreSQL storage, local
+              authentication, and deployment settings you control.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Daily money workflow</h3>
+            <p>
+              Manage accounts, transactions, categories, transfers, dashboards,
+              and monthly budgets from one focused web app.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>API-first foundation</h3>
+            <p>
+              The ASP.NET Core backend exposes a clean JSON API for the React
+              frontend and future clients.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Homelab friendly</h3>
+            <p>
+              Docker Compose support keeps local development and Unraid-style
+              deployment straightforward.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="split-section" id="stack">
+        <div>
+          <p class="eyebrow">Stack</p>
+          <h2>Modern app pieces, simple deployment shape</h2>
+          <p>
+            Ledgerra pairs a typed React frontend with a .NET API and relational
+            persistence, wrapped in Docker for self-hosted environments.
+          </p>
+        </div>
+        <ul class="stack-list" aria-label="Technology stack">
+          <li><span>Frontend</span><strong>React, TypeScript, Vite</strong></li>
+          <li><span>Backend</span><strong>ASP.NET Core, C#</strong></li>
+          <li><span>Database</span><strong>PostgreSQL</strong></li>
+          <li><span>Deployment</span><strong>Docker Compose, Unraid-ready</strong></li>
+        </ul>
+      </section>
+
+      <section class="section deploy" id="deploy">
+        <div class="section-heading">
+          <p class="eyebrow">Run it yourself</p>
+          <h2>Start Ledgerra with Docker Compose</h2>
+        </div>
+        <div class="code-panel">
+          <code>docker compose up --build -d</code>
+        </div>
+        <p class="deploy-copy">
+          The compose stack runs PostgreSQL, the ASP.NET Core API, and the React
+          frontend behind an internal API proxy. For production, change the
+          signing key, database password, and reverse proxy or TLS settings.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Ledgerra</span>
+      <a href="https://github.com/soliktomasz/Ledgerra">github.com/soliktomasz/Ledgerra</a>
+    </footer>
+  </body>
+</html>

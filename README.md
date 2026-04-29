@@ -99,6 +99,16 @@ VITE_API_BASE_URL=http://localhost:5027
 
 If you do not set it, the frontend assumes same-origin `/api`, which is the production Docker behavior.
 
+## Project Website
+
+The `site/` directory contains a static project website for GitHub Pages. It is
+separate from the Ledgerra application and only describes the project, features,
+stack, and self-hosting workflow. The included GitHub Actions workflow publishes
+that static site after changes are merged to `main`.
+
+In the repository settings, set **Pages > Build and deployment > Source** to
+**GitHub Actions**.
+
 ## Self-Hosted Deployment
 
 The included compose file is suitable for Docker or Unraid-style deployments:
