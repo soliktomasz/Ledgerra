@@ -238,6 +238,76 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal("Anthropic", payload.GetProperty("defaultProvider").GetString());
     }
 
+    [Fact]
+    public async Task AuthenticatedUser_CanCommitReviewedMonthlyReportDrafts()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var commitResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[]
+            {
+                new
+                {
+                    accountId = checkingId,
+                    categoryId = groceriesCategoryId,
+                    amount = 42.17m,
+                    type = "Expense",
+                    occurredOnUtc = "2026-04-10T12:00:00Z",
+                    note = "Imported: Market"
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.Created, commitResponse.StatusCode);
+        var payload = await commitResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(1, payload.GetProperty("created").GetArrayLength());
+
+        var transactionsResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}&from=2026-04-01&to=2026-04-30");
+        var transactionsPayload = await transactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(1, transactionsPayload.GetArrayLength());
+        Assert.Equal(42.17m, transactionsPayload[0].GetProperty("amount").GetDecimal());
+    }
+
+    [Fact]
+    public async Task MonthlyReportCommit_RejectsInvalidDraftWithoutPartialSave()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+
+        var commitResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[]
+            {
+                new
+                {
+                    accountId = checkingId,
+                    categoryId = Guid.NewGuid(),
+                    amount = 42.17m,
+                    type = "Expense",
+                    occurredOnUtc = "2026-04-10T12:00:00Z",
+                    note = "Invalid category"
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.NotFound, commitResponse.StatusCode);
+
+        var transactionsResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}");
+        var transactionsPayload = await transactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, transactionsPayload.GetArrayLength());
+    }
+
     private static async Task<AuthResult> RegisterAndAuthenticateAsync(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new
