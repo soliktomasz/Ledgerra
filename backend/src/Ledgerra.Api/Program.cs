@@ -93,6 +93,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<LedgerraDbContext>();
     await dbContext.Database.EnsureCreatedAsync();
+    await CategorizationRuleSchemaInitializer.InitializeAsync(dbContext);
 }
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));

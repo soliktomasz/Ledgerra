@@ -402,6 +402,36 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task Categories_DeleteReturnsBadRequestWhenImportRulesUseCategory()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+        var createRuleResponse = await client.PostAsJsonAsync("/api/import-rules", new
+        {
+            name = "Market groceries",
+            matchField = "Note",
+            matchOperator = "Contains",
+            matchValue = "Market",
+            assignCategoryId = groceriesCategoryId,
+            assignTransactionType = "Expense",
+            priority = 10,
+            isActive = true
+        });
+
+        Assert.Equal(HttpStatusCode.Created, createRuleResponse.StatusCode);
+
+        var deleteResponse = await client.DeleteAsync($"/api/categories/{groceriesCategoryId}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, deleteResponse.StatusCode);
+        var problem = await deleteResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Category is used by import rules", problem.GetProperty("title").GetString());
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanCommitReviewedMonthlyReportDrafts()
     {
         using var client = _factory.CreateClient();

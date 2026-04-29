@@ -103,13 +103,27 @@ public sealed class CategoriesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
+        var userId = User.GetRequiredUserId();
         var category = await _dbContext.Categories.SingleOrDefaultAsync(
-            item => item.UserId == User.GetRequiredUserId() && item.Id == id,
+            item => item.UserId == userId && item.Id == id,
             cancellationToken);
 
         if (category is null)
         {
             return NotFound();
+        }
+
+        var isUsedByImportRules = await _dbContext.CategorizationRules.AnyAsync(
+            rule => rule.UserId == userId && rule.AssignCategoryId == id,
+            cancellationToken);
+
+        if (isUsedByImportRules)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Category is used by import rules",
+                Detail = "Delete or move those import rules before deleting this category."
+            });
         }
 
         _dbContext.Categories.Remove(category);
