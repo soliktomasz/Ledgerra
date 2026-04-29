@@ -112,6 +112,12 @@ public sealed class MonthlyReportImportsController : ControllerBase
             return sourceIdValidation;
         }
 
+        var acceptedSourceIdValidation = ValidateAcceptedDuplicateSourceIds(request.AcceptedDuplicateSourceIds);
+        if (acceptedSourceIdValidation is not null)
+        {
+            return acceptedSourceIdValidation;
+        }
+
         foreach (var draft in request.Transactions)
         {
             var validation = await ValidateDraftAsync(userId, draft, cancellationToken);
@@ -180,6 +186,31 @@ public sealed class MonthlyReportImportsController : ControllerBase
             return this.ValidationError(new Dictionary<string, string[]>
             {
                 ["sourceId"] = [$"Imported report draft sourceId '{duplicateSourceId.Key}' must be unique within the request."]
+            });
+        }
+
+        return null;
+    }
+
+    private BadRequestObjectResult? ValidateAcceptedDuplicateSourceIds(IReadOnlyList<string> sourceIds)
+    {
+        if (sourceIds.Any(string.IsNullOrWhiteSpace))
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["acceptedDuplicateSourceIds"] = ["Accepted duplicate source ids must not be blank."]
+            });
+        }
+
+        var duplicateSourceId = sourceIds
+            .GroupBy(sourceId => sourceId, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() > 1);
+
+        if (duplicateSourceId is not null)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["acceptedDuplicateSourceIds"] = [$"Accepted duplicate source id '{duplicateSourceId.Key}' must be unique within the request."]
             });
         }
 
