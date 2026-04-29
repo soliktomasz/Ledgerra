@@ -657,6 +657,38 @@ label {
   text-align: center;
 }
 
+.compact-list {
+  margin-top: 1rem;
+}
+
+.settings-provider-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.import-table {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.import-row {
+  display: grid;
+  grid-template-columns: 2rem 10rem 8rem minmax(10rem, 1fr) 8rem minmax(12rem, 1.4fr) 4rem;
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.import-row input[type="checkbox"] {
+  width: auto;
+}
+
 @media (max-width: 1180px) {
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -664,7 +696,8 @@ label {
 
   .dashboard-grid,
   .split-grid,
-  .split-grid.wide {
+  .split-grid.wide,
+  .import-row {
     grid-template-columns: 1fr;
   }
 }
@@ -738,8 +771,14 @@ label {
 
   .account-settings-row,
   .inline-settings-form,
-  .budget-progress-row {
+  .budget-progress-row,
+  .settings-provider-actions {
     grid-template-columns: 1fr;
+  }
+
+  .settings-provider-actions {
+    align-items: flex-start;
+    justify-content: flex-start;
   }
 
   .bar-item > div:first-child,

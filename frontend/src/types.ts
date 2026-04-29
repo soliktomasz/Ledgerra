@@ -21,6 +21,19 @@ export type Profile = {
   preferredCurrencyCode: string;
 };
 
+export type AiProviderStatus = {
+  isConfigured: boolean;
+  maskedKey?: string | null;
+};
+
+export type AiSettings = {
+  providers: {
+    openAi: AiProviderStatus;
+    anthropic: AiProviderStatus;
+  };
+  defaultProvider: string;
+};
+
 export type Category = {
   id: string;
   name: string;
@@ -38,6 +51,23 @@ export type Transaction = {
   occurredOnUtc: string;
   note?: string | null;
   transferGroupId?: string | null;
+};
+
+export type MonthlyReportDraftTransaction = {
+  sourceId: string;
+  accountId: string;
+  categoryId?: string | null;
+  amount: number;
+  type: string;
+  occurredOnUtc: string;
+  note?: string | null;
+  confidence: number;
+  warnings: string[];
+};
+
+export type MonthlyReportAnalysis = {
+  transactions: MonthlyReportDraftTransaction[];
+  warnings: string[];
 };
 
 export type BudgetCategory = {

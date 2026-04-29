@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import { useAuth } from "../state/AuthContext";
-import type { Account, BudgetSummary, Category, DashboardSummary, Profile, Transaction } from "../types";
+import type { Account, AiSettings, BudgetSummary, Category, DashboardSummary, Profile, Transaction } from "../types";
 
 function currentMonthKey() {
   return new Date().toISOString().slice(0, 7);
@@ -11,6 +11,7 @@ export function useLedgerraData() {
   const { auth } = useAuth();
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [aiSettings, setAiSettings] = useState<AiSettings | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -28,8 +29,9 @@ export function useLedgerraData() {
 
     try {
       const month = currentMonthKey();
-      const [profilePayload, dashboardPayload, accountsPayload, categoriesPayload, transactionsPayload, budgetPayload] = await Promise.all([
+      const [profilePayload, aiSettingsPayload, dashboardPayload, accountsPayload, categoriesPayload, transactionsPayload, budgetPayload] = await Promise.all([
         apiClient.getProfile(auth.accessToken),
+        apiClient.getAiSettings(auth.accessToken),
         apiClient.getDashboard(auth.accessToken, month),
         apiClient.getAccounts(auth.accessToken),
         apiClient.getCategories(auth.accessToken),
@@ -38,6 +40,7 @@ export function useLedgerraData() {
       ]);
 
       setProfile(profilePayload);
+      setAiSettings(aiSettingsPayload);
       setDashboard(dashboardPayload);
       setAccounts(accountsPayload);
       setCategories(categoriesPayload);
@@ -57,6 +60,7 @@ export function useLedgerraData() {
   return {
     dashboard,
     profile,
+    aiSettings,
     accounts,
     categories,
     transactions,

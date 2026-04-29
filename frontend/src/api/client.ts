@@ -1,9 +1,12 @@
 import type {
   Account,
+  AiSettings,
   AuthPayload,
   BudgetSummary,
   Category,
   DashboardSummary,
+  MonthlyReportAnalysis,
+  MonthlyReportDraftTransaction,
   Profile,
   Transaction
 } from "../types";
@@ -87,6 +90,29 @@ export const apiClient = {
       body: { preferredCurrencyCode }
     });
   },
+  getAiSettings(token: string) {
+    return request<AiSettings>("/api/settings/ai", { token });
+  },
+  saveAiProviderKey(token: string, provider: string, apiKey: string) {
+    return request<AiSettings>(`/api/settings/ai/${provider}`, {
+      method: "PUT",
+      token,
+      body: { apiKey }
+    });
+  },
+  removeAiProviderKey(token: string, provider: string) {
+    return request<AiSettings>(`/api/settings/ai/${provider}`, {
+      method: "DELETE",
+      token
+    });
+  },
+  updateDefaultAiProvider(token: string, provider: string) {
+    return request<AiSettings>("/api/settings/ai/default-provider", {
+      method: "PUT",
+      token,
+      body: { provider }
+    });
+  },
   getCategories(token: string) {
     return request<Category[]>("/api/categories", { token });
   },
@@ -116,6 +142,32 @@ export const apiClient = {
       method: "POST",
       token,
       body: payload
+    });
+  },
+  analyzeMonthlyReport(token: string, payload: { accountId: string; month: string; provider: string; file: File }) {
+    const body = new FormData();
+    body.append("accountId", payload.accountId);
+    body.append("month", payload.month);
+    body.append("provider", payload.provider);
+    body.append("file", payload.file);
+
+    return fetch(`${API_BASE_URL}/api/imports/monthly-report/analyze`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body
+    }).then(async (response) => {
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      return response.json() as Promise<MonthlyReportAnalysis>;
+    });
+  },
+  commitMonthlyReportDrafts(token: string, transactions: MonthlyReportDraftTransaction[]) {
+    return request<{ created: Transaction[] }>("/api/imports/monthly-report/commit", {
+      method: "POST",
+      token,
+      body: { transactions }
     });
   },
   getBudget(token: string, year: number, month: number) {
