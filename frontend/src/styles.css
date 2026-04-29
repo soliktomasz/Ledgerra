@@ -686,7 +686,9 @@ label {
 
 .import-row {
   display: grid;
-  grid-template-columns: 2rem 10rem 8rem minmax(10rem, 1fr) 8rem minmax(12rem, 1.2fr) 4rem minmax(10rem, 1fr);
+  grid-template-columns:
+    2rem minmax(7.25rem, 0.85fr) minmax(6rem, 0.7fr) minmax(8rem, 1fr)
+    minmax(6rem, 0.7fr) minmax(8rem, 1.1fr) 3.25rem minmax(8rem, 1fr);
   gap: 0.55rem;
   align-items: center;
   padding: 0.65rem;
@@ -740,6 +742,23 @@ label {
   padding: 0.35rem 0.55rem;
   font-size: 0.82rem;
   box-shadow: none;
+  white-space: nowrap;
+}
+
+.compact-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  transform: none;
+}
+
+@media (max-width: 1320px) {
+  .import-row {
+    grid-template-columns: 2rem minmax(7.5rem, 1fr) minmax(6.5rem, 0.8fr) minmax(9rem, 1fr);
+  }
+
+  .import-review-flags {
+    grid-column: 2 / -1;
+  }
 }
 
 @media (max-width: 1180px) {
@@ -749,9 +768,16 @@ label {
 
   .dashboard-grid,
   .split-grid,
-  .split-grid.wide,
+  .split-grid.wide {
+    grid-template-columns: 1fr;
+  }
+
   .import-row {
     grid-template-columns: 1fr;
+  }
+
+  .import-review-flags {
+    grid-column: auto;
   }
 }
 

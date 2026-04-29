@@ -6,6 +6,17 @@ import type { MonthlyReportDraftTransaction } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 
+const MAX_IMPORT_RULE_NAME_LENGTH = 120;
+const MAX_IMPORT_RULE_MATCH_VALUE_LENGTH = 200;
+
+function truncateText(value: string, maxLength: number) {
+  return value.length > maxLength ? value.slice(0, maxLength) : value;
+}
+
+function getErrorMessage(exception: unknown, fallback: string) {
+  return exception instanceof Error ? exception.message : fallback;
+}
+
 export function ImportsPage() {
   const { auth } = useAuth();
   const { accounts, categories, aiSettings, refresh } = useLedgerraData();
@@ -19,6 +30,8 @@ export function ImportsPage() {
   const [error, setError] = useState<string | null>(null);
   const [ruleMessage, setRuleMessage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [rememberingRuleSourceId, setRememberingRuleSourceId] = useState<string | null>(null);
 
   useEffect(() => {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
@@ -49,7 +62,7 @@ export function ImportsPage() {
       );
       setAcceptedDuplicateSourceIds(new Set());
     } catch (exception) {
-      setError(exception instanceof Error ? exception.message : "Unable to analyze report.");
+      setError(getErrorMessage(exception, "Unable to analyze report."));
     } finally {
       setIsAnalyzing(false);
     }
@@ -64,19 +77,28 @@ export function ImportsPage() {
       return;
     }
 
-    const note = draft.note.trim();
+    const note = truncateText(draft.note.trim(), MAX_IMPORT_RULE_MATCH_VALUE_LENGTH);
     const category = categories.find((item) => item.id === draft.categoryId);
-    await apiClient.createImportRule(auth.accessToken, {
-      name: `${note} -> ${category?.name ?? draft.type}`,
-      matchField: "Note",
-      matchOperator: "Contains",
-      matchValue: note,
-      assignCategoryId: draft.categoryId,
-      assignTransactionType: draft.type,
-      priority: 100,
-      isActive: true
-    });
-    setRuleMessage("Import rule saved.");
+    setError(null);
+    setRuleMessage(null);
+    setRememberingRuleSourceId(draft.sourceId);
+    try {
+      await apiClient.createImportRule(auth.accessToken, {
+        name: truncateText(`${note} -> ${category?.name ?? draft.type}`, MAX_IMPORT_RULE_NAME_LENGTH),
+        matchField: "Note",
+        matchOperator: "Contains",
+        matchValue: note,
+        assignCategoryId: draft.categoryId,
+        assignTransactionType: draft.type,
+        priority: 100,
+        isActive: true
+      });
+      setRuleMessage("Import rule saved.");
+    } catch (exception) {
+      setError(getErrorMessage(exception, "Unable to save import rule."));
+    } finally {
+      setRememberingRuleSourceId(null);
+    }
   };
 
   const handleCommit = async () => {
@@ -84,15 +106,30 @@ export function ImportsPage() {
       return;
     }
 
-    await apiClient.commitMonthlyReportDrafts(
-      auth.accessToken,
-      drafts.filter((draft) => selected.has(draft.sourceId)),
-      Array.from(acceptedDuplicateSourceIds)
-    );
-    setDrafts([]);
-    setSelected(new Set());
-    setAcceptedDuplicateSourceIds(new Set());
-    await refresh();
+    if (selected.size === 0) {
+      setError("Select at least one draft to save.");
+      setRuleMessage(null);
+      return;
+    }
+
+    setError(null);
+    setRuleMessage(null);
+    setIsCommitting(true);
+    try {
+      await apiClient.commitMonthlyReportDrafts(
+        auth.accessToken,
+        drafts.filter((draft) => selected.has(draft.sourceId)),
+        Array.from(acceptedDuplicateSourceIds)
+      );
+      setDrafts([]);
+      setSelected(new Set());
+      setAcceptedDuplicateSourceIds(new Set());
+      await refresh();
+    } catch (exception) {
+      setError(getErrorMessage(exception, "Unable to save selected drafts."));
+    } finally {
+      setIsCommitting(false);
+    }
   };
 
   return (
@@ -218,16 +255,21 @@ export function ImportsPage() {
                     <small key={warning}>{warning}</small>
                   ))}
                   {draft.note?.trim() && draft.categoryId ? (
-                    <button className="ghost-button compact-button" type="button" onClick={() => rememberRule(draft)}>
-                      Remember this
+                    <button
+                      className="ghost-button compact-button"
+                      type="button"
+                      onClick={() => rememberRule(draft)}
+                      disabled={rememberingRuleSourceId === draft.sourceId}
+                    >
+                      {rememberingRuleSourceId === draft.sourceId ? "Saving rule..." : "Remember this"}
                     </button>
                   ) : null}
                 </div>
               </article>
             ))}
           </div>
-          <button className="primary-button" onClick={handleCommit} type="button">
-            Save selected drafts
+          <button className="primary-button" onClick={handleCommit} type="button" disabled={isCommitting}>
+            {isCommitting ? "Saving..." : "Save selected drafts"}
           </button>
         </SectionCard>
       )}
