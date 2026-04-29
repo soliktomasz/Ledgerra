@@ -25,14 +25,24 @@ public sealed class ReportContentExtractor : IReportContentExtractor
         }
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (extension == ".csv" || file.ContentType.Equals("text/csv", StringComparison.OrdinalIgnoreCase))
+        var isCsvExtension = extension == ".csv";
+        var isCsvContentType = file.ContentType.Equals("text/csv", StringComparison.OrdinalIgnoreCase);
+        var isPdfExtension = extension == ".pdf";
+        var isPdfContentType = file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase);
+
+        if (isCsvExtension && isCsvContentType)
         {
             return _csvExtractor.ExtractAsync(file, cancellationToken);
         }
 
-        if (extension == ".pdf" || file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+        if (isPdfExtension && isPdfContentType)
         {
             return _pdfExtractor.ExtractAsync(file, cancellationToken);
+        }
+
+        if (isCsvExtension || isCsvContentType || isPdfExtension || isPdfContentType)
+        {
+            throw new InvalidOperationException("Report file extension and content type must match.");
         }
 
         throw new InvalidOperationException("Supported report formats are PDF and CSV.");

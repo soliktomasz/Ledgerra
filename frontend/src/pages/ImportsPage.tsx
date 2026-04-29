@@ -15,6 +15,8 @@ export function ImportsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [drafts, setDrafts] = useState<MonthlyReportDraftTransaction[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [error, setError] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
@@ -30,9 +32,17 @@ export function ImportsPage() {
       return;
     }
 
-    const analysis = await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file });
-    setDrafts(analysis.transactions);
-    setSelected(new Set(analysis.transactions.map((transaction) => transaction.sourceId)));
+    setError(null);
+    setIsAnalyzing(true);
+    try {
+      const analysis = await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file });
+      setDrafts(analysis.transactions);
+      setSelected(new Set(analysis.transactions.map((transaction) => transaction.sourceId)));
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Unable to analyze report.");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const updateDraft = (sourceId: string, updates: Partial<MonthlyReportDraftTransaction>) => {
@@ -60,9 +70,10 @@ export function ImportsPage() {
 
       <SectionCard title="Analyze report">
         <form className="stack-form" onSubmit={handleAnalyze}>
+          {error ? <p className="error-banner">{error}</p> : null}
           <label>
             Account
-            <select value={accountId} onChange={(event) => setAccountId(event.target.value)} required>
+            <select value={accountId} onChange={(event) => setAccountId(event.target.value)} required disabled={isAnalyzing}>
               <option value="">Select account</option>
               {accounts.map((account) => (
                 <option key={account.id} value={account.id}>
@@ -73,21 +84,21 @@ export function ImportsPage() {
           </label>
           <label>
             Month
-            <input value={month} onChange={(event) => setMonth(event.target.value)} type="month" required />
+            <input value={month} onChange={(event) => setMonth(event.target.value)} type="month" required disabled={isAnalyzing} />
           </label>
           <label>
             Provider
-            <select value={provider} onChange={(event) => setProvider(event.target.value)}>
+            <select value={provider} onChange={(event) => setProvider(event.target.value)} disabled={isAnalyzing}>
               <option value="OpenAi">OpenAI</option>
               <option value="Anthropic">Anthropic</option>
             </select>
           </label>
           <label>
             Report file
-            <input accept=".pdf,.csv,application/pdf,text/csv" onChange={handleFileChange} type="file" required />
+            <input accept=".pdf,.csv,application/pdf,text/csv" onChange={handleFileChange} type="file" required disabled={isAnalyzing} />
           </label>
-          <button className="primary-button" type="submit">
-            Analyze report
+          <button className="primary-button" type="submit" disabled={isAnalyzing}>
+            {isAnalyzing ? "Analyzing..." : "Analyze report"}
           </button>
         </form>
       </SectionCard>
@@ -116,7 +127,18 @@ export function ImportsPage() {
                 />
                 <input
                   value={draft.occurredOnUtc.slice(0, 10)}
-                  onChange={(event) => updateDraft(draft.sourceId, { occurredOnUtc: new Date(event.target.value).toISOString() })}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    if (!value) {
+                      updateDraft(draft.sourceId, { occurredOnUtc: "" });
+                      return;
+                    }
+
+                    const parsedDate = new Date(value);
+                    if (!Number.isNaN(parsedDate.getTime())) {
+                      updateDraft(draft.sourceId, { occurredOnUtc: parsedDate.toISOString() });
+                    }
+                  }}
                   type="date"
                 />
                 <select value={draft.type} onChange={(event) => updateDraft(draft.sourceId, { type: event.target.value })}>
@@ -133,7 +155,10 @@ export function ImportsPage() {
                 </select>
                 <input
                   value={draft.amount}
-                  onChange={(event) => updateDraft(draft.sourceId, { amount: Number(event.target.value) })}
+                  onChange={(event) => {
+                    const parsedAmount = Number.parseFloat(event.target.value);
+                    updateDraft(draft.sourceId, { amount: Number.isFinite(parsedAmount) ? parsedAmount : 0 });
+                  }}
                   type="number"
                   step="0.01"
                 />

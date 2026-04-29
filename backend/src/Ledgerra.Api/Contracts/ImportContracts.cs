@@ -23,7 +23,7 @@ public sealed class CommitMonthlyReportDraftsRequest
     public IReadOnlyList<CommitMonthlyReportDraftRequest> Transactions { get; init; } = [];
 }
 
-public sealed class CommitMonthlyReportDraftRequest
+public sealed class CommitMonthlyReportDraftRequest : IValidatableObject
 {
     [Required]
     public Guid AccountId { get; init; }
@@ -41,6 +41,23 @@ public sealed class CommitMonthlyReportDraftRequest
 
     [MaxLength(400)]
     public string? Note { get; init; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (AccountId == Guid.Empty)
+        {
+            yield return new ValidationResult("AccountId must not be empty.", [nameof(AccountId)]);
+        }
+
+        if (OccurredOnUtc == default || OccurredOnUtc == DateTime.MinValue)
+        {
+            yield return new ValidationResult("OccurredOnUtc must be set.", [nameof(OccurredOnUtc)]);
+        }
+        else if (OccurredOnUtc.Kind != DateTimeKind.Utc)
+        {
+            yield return new ValidationResult("OccurredOnUtc must be a UTC date/time.", [nameof(OccurredOnUtc)]);
+        }
+    }
 }
 
 public sealed record CommitMonthlyReportDraftsResponse(IReadOnlyList<TransactionResponse> Created);

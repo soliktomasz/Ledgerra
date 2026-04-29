@@ -222,12 +222,67 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task AiProviderKeyUpdates_DoNotImplicitlyChangeExistingDefaultProvider()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+        await client.PutAsJsonAsync("/api/settings/ai/anthropic", new { apiKey = "sk-test-anthropic-secret-abcdef" });
+        await client.PutAsJsonAsync("/api/settings/ai/default-provider", new { provider = "Anthropic" });
+
+        var saveResponse = await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-654321" });
+
+        Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
+        var payload = await saveResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Anthropic", payload.GetProperty("defaultProvider").GetString());
+    }
+
+    [Fact]
+    public async Task AiDefaultProvider_RequiresConfiguredCredential()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var updateResponse = await client.PutAsJsonAsync("/api/settings/ai/default-provider", new
+        {
+            provider = "Anthropic"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task AiProviderKeyRemoval_ClearsDeletedDefaultProvider()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+
+        var deleteResponse = await client.DeleteAsync("/api/settings/ai/openai");
+
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+        var payload = await deleteResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(payload.GetProperty("providers").GetProperty("openAi").GetProperty("isConfigured").GetBoolean());
+        Assert.Null(payload.GetProperty("defaultProvider").GetString());
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanChooseDefaultAiProvider()
     {
         using var client = _factory.CreateClient();
 
         var auth = await RegisterAndAuthenticateAsync(client);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        await client.PutAsJsonAsync("/api/settings/ai/anthropic", new { apiKey = "sk-test-anthropic-secret-abcdef" });
 
         var updateResponse = await client.PutAsJsonAsync("/api/settings/ai/default-provider", new
         {
@@ -285,11 +340,21 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
 
         var commitResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
         {
             transactions = new[]
             {
+                new
+                {
+                    accountId = checkingId,
+                    categoryId = groceriesCategoryId,
+                    amount = 15.25m,
+                    type = "Expense",
+                    occurredOnUtc = "2026-04-09T12:00:00Z",
+                    note = "Valid draft before invalid one"
+                },
                 new
                 {
                     accountId = checkingId,
@@ -310,6 +375,32 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task MonthlyReportCommit_RejectsEmptyAccountAndDefaultDateBeforeProcessing()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var commitResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[]
+            {
+                new
+                {
+                    accountId = Guid.Empty,
+                    amount = 42.17m,
+                    type = "Expense",
+                    occurredOnUtc = "0001-01-01T00:00:00Z",
+                    note = "Invalid identifiers"
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, commitResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanAnalyzeCsvMonthlyReportIntoDrafts()
     {
         using var client = _factory.CreateClient();
@@ -326,7 +417,9 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         form.Add(new StringContent(checkingId.ToString()), "accountId");
         form.Add(new StringContent("2026-04"), "month");
         form.Add(new StringContent("OpenAi"), "provider");
-        form.Add(new ByteArrayContent(Encoding.UTF8.GetBytes($"Date,Description,Amount\n2026-04-10,Market,-42.17\ncategory:{groceriesCategoryId}\n")), "file", "statement.csv");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes($"Date,Description,Amount\n2026-04-10,Market,-42.17\ncategory:{groceriesCategoryId}\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
 
         var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
 

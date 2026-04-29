@@ -48,15 +48,30 @@ public sealed class AiReportAnalysisService
             throw new InvalidOperationException("Account not found.");
         }
 
-        var categories = await _dbContext.Categories.Where(item => item.UserId == userId).ToListAsync(cancellationToken);
-        var request = new AiReportAnalysisRequest(
-            _secretProtector.Unprotect(credential.EncryptedApiKey),
-            report.Content,
-            month,
-            [new AiAccountContext(account.Id, account.Name, account.CurrencyCode)],
-            categories.Select(item => new AiCategoryContext(item.Id, item.Name, item.Kind.ToString())).ToList());
+        try
+        {
+            var categories = await _dbContext.Categories.Where(item => item.UserId == userId).ToListAsync(cancellationToken);
+            var request = new AiReportAnalysisRequest(
+                _secretProtector.Unprotect(credential.EncryptedApiKey),
+                report.Content,
+                month,
+                [new AiAccountContext(account.Id, account.Name, account.CurrencyCode)],
+                categories.Select(item => new AiCategoryContext(item.Id, item.Name, item.Kind.ToString())).ToList());
 
-        var result = await _clientFactory.GetClient(provider).AnalyzeAsync(request, cancellationToken);
-        return AiReportAnalysisResult.Normalize(result);
+            var result = await _clientFactory.GetClient(provider).AnalyzeAsync(request, cancellationToken);
+            return AiReportAnalysisResult.Normalize(result);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or InvalidDataException or TimeoutException)
+        {
+            throw new InvalidOperationException(exception.Message, exception);
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException($"Unable to analyze report with {provider}. Check the saved API key and try again.", exception);
+        }
     }
 }

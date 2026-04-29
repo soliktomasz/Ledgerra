@@ -73,7 +73,7 @@ public sealed class AiSettingsController : ControllerBase
         credential.MaskedKey = MaskKey(trimmedKey);
         credential.UpdatedAtUtc = DateTime.UtcNow;
 
-        await EnsurePreferenceAsync(userId, parsedProvider, cancellationToken);
+        await EnsurePreferenceAsync(userId, parsedProvider, setDefaultProvider: false, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(await BuildResponseAsync(userId, cancellationToken));
@@ -98,6 +98,7 @@ public sealed class AiSettingsController : ControllerBase
         if (credential is not null)
         {
             _dbContext.AiProviderCredentials.Remove(credential);
+            await ResetDefaultProviderIfRemovedAsync(userId, parsedProvider, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
@@ -118,13 +119,25 @@ public sealed class AiSettingsController : ControllerBase
         }
 
         var userId = User.GetRequiredUserId();
-        await EnsurePreferenceAsync(userId, parsedProvider, cancellationToken);
+        var hasCredential = await _dbContext.AiProviderCredentials.AnyAsync(
+            item => item.UserId == userId && item.Provider == parsedProvider,
+            cancellationToken);
+
+        if (!hasCredential)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["provider"] = [$"{parsedProvider} requires a saved API key before it can become the default provider."]
+            });
+        }
+
+        await EnsurePreferenceAsync(userId, parsedProvider, setDefaultProvider: true, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(await BuildResponseAsync(userId, cancellationToken));
     }
 
-    private async Task EnsurePreferenceAsync(Guid userId, AiProvider provider, CancellationToken cancellationToken)
+    private async Task EnsurePreferenceAsync(Guid userId, AiProvider provider, bool setDefaultProvider, CancellationToken cancellationToken)
     {
         var preference = await _dbContext.UserAiPreferences.SingleOrDefaultAsync(item => item.UserId == userId, cancellationToken);
         if (preference is null)
@@ -137,7 +150,29 @@ public sealed class AiSettingsController : ControllerBase
             return;
         }
 
+        if (!setDefaultProvider)
+        {
+            return;
+        }
+
         preference.DefaultProvider = provider;
+        preference.UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    private async Task ResetDefaultProviderIfRemovedAsync(Guid userId, AiProvider removedProvider, CancellationToken cancellationToken)
+    {
+        var preference = await _dbContext.UserAiPreferences.SingleOrDefaultAsync(item => item.UserId == userId, cancellationToken);
+        if (preference?.DefaultProvider != removedProvider)
+        {
+            return;
+        }
+
+        var replacement = await _dbContext.AiProviderCredentials
+            .Where(item => item.UserId == userId && item.Provider != removedProvider)
+            .Select(item => (AiProvider?)item.Provider)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        preference.DefaultProvider = replacement;
         preference.UpdatedAtUtc = DateTime.UtcNow;
     }
 
@@ -152,7 +187,7 @@ public sealed class AiSettingsController : ControllerBase
                 ["openAi"] = BuildStatus(credentials, AiProvider.OpenAi),
                 ["anthropic"] = BuildStatus(credentials, AiProvider.Anthropic)
             },
-            (preference?.DefaultProvider ?? AiProvider.OpenAi).ToString());
+            preference?.DefaultProvider?.ToString());
     }
 
     private static AiProviderStatusResponse BuildStatus(IReadOnlyCollection<AiProviderCredential> credentials, AiProvider provider)

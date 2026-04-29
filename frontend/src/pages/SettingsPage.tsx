@@ -13,6 +13,7 @@ export function SettingsPage() {
   const [defaultProvider, setDefaultProvider] = useState("OpenAi");
   const [openAiKey, setOpenAiKey] = useState("");
   const [anthropicKey, setAnthropicKey] = useState("");
+  const [aiProviderError, setAiProviderError] = useState<string | null>(null);
 
   useEffect(() => {
     setPreferredCurrencyCode(profile?.preferredCurrencyCode ?? "USD");
@@ -38,18 +39,26 @@ export function SettingsPage() {
       return;
     }
 
-    if (openAiKey.trim()) {
-      await apiClient.saveAiProviderKey(auth.accessToken, "openai", openAiKey.trim());
-    }
+    try {
+      setAiProviderError(null);
+      if (openAiKey.trim()) {
+        await apiClient.saveAiProviderKey(auth.accessToken, "openai", openAiKey.trim());
+      }
 
-    if (anthropicKey.trim()) {
-      await apiClient.saveAiProviderKey(auth.accessToken, "anthropic", anthropicKey.trim());
-    }
+      if (anthropicKey.trim()) {
+        await apiClient.saveAiProviderKey(auth.accessToken, "anthropic", anthropicKey.trim());
+      }
 
-    await apiClient.updateDefaultAiProvider(auth.accessToken, defaultProvider);
-    setOpenAiKey("");
-    setAnthropicKey("");
-    await refresh();
+      await apiClient.updateDefaultAiProvider(auth.accessToken, defaultProvider);
+      await refresh();
+    } catch (exception) {
+      console.error(exception);
+      setAiProviderError(exception instanceof Error ? exception.message : "Unable to save AI settings.");
+      return;
+    } finally {
+      setOpenAiKey("");
+      setAnthropicKey("");
+    }
   };
 
   const handleRemoveProvider = async (provider: string) => {
@@ -60,6 +69,9 @@ export function SettingsPage() {
     await apiClient.removeAiProviderKey(auth.accessToken, provider);
     await refresh();
   };
+
+  const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
+  const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
 
   return (
     <div className="page-stack">
@@ -89,6 +101,7 @@ export function SettingsPage() {
 
       <SectionCard title="AI providers">
         <form className="stack-form" onSubmit={handleAiProviderSubmit}>
+          {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
           <label>
             Default provider
             <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
@@ -126,7 +139,16 @@ export function SettingsPage() {
             </div>
             <div className="settings-provider-actions">
               <strong>{aiSettings?.providers.openAi.maskedKey ?? "Not configured"}</strong>
-              <button className="ghost-button" type="button" onClick={() => handleRemoveProvider("openai")}>
+              <button
+                className="ghost-button"
+                type="button"
+                disabled={!isOpenAiConfigured}
+                onClick={() => {
+                  if (isOpenAiConfigured) {
+                    handleRemoveProvider("openai");
+                  }
+                }}
+              >
                 Remove
               </button>
             </div>
@@ -138,7 +160,16 @@ export function SettingsPage() {
             </div>
             <div className="settings-provider-actions">
               <strong>{aiSettings?.providers.anthropic.maskedKey ?? "Not configured"}</strong>
-              <button className="ghost-button" type="button" onClick={() => handleRemoveProvider("anthropic")}>
+              <button
+                className="ghost-button"
+                type="button"
+                disabled={!isAnthropicConfigured}
+                onClick={() => {
+                  if (isAnthropicConfigured) {
+                    handleRemoveProvider("anthropic");
+                  }
+                }}
+              >
                 Remove
               </button>
             </div>

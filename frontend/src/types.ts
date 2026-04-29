@@ -31,7 +31,7 @@ export type AiSettings = {
     openAi: AiProviderStatus;
     anthropic: AiProviderStatus;
   };
-  defaultProvider: string;
+  defaultProvider?: string | null;
 };
 
 export type Category = {

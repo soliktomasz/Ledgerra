@@ -11,6 +11,11 @@ public sealed class CsvReportContentExtractor
         var content = await reader.ReadToEndAsync(cancellationToken);
         var rows = ParseCsv(content);
         var normalized = string.Join(Environment.NewLine, rows.Select(row => string.Join(" | ", row.Select(cell => cell.Trim()))));
+        if (rows.Count == 0 || string.IsNullOrWhiteSpace(normalized))
+        {
+            throw new InvalidOperationException("CSV report did not contain any readable rows.");
+        }
+
         return new ExtractedReport(file.FileName, "text/csv", normalized);
     }
 

@@ -30,8 +30,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
 
   if (!response.ok) {
-    const payload = await response.text();
-    throw new Error(payload || `Request failed with status ${response.status}`);
+    throw new Error(await readErrorMessage(response));
   }
 
   if (response.status === 204) {
@@ -39,6 +38,30 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   return response.json() as Promise<T>;
+}
+
+async function readErrorMessage(response: Response): Promise<string> {
+  const fallback = `Request failed with status ${response.status}`;
+
+  try {
+    const responseBody = await response.clone().json();
+    if (responseBody && typeof responseBody === "object") {
+      const problem = responseBody as { title?: unknown; detail?: unknown };
+      if (typeof problem.title === "string" && problem.title.trim()) {
+        return problem.title;
+      }
+
+      if (typeof problem.detail === "string" && problem.detail.trim()) {
+        return problem.detail;
+      }
+    }
+
+    const serialized = JSON.stringify(responseBody);
+    return serialized || fallback;
+  } catch {
+    const text = await response.text();
+    return text || fallback;
+  }
 }
 
 export const apiClient = {
@@ -157,7 +180,7 @@ export const apiClient = {
       body
     }).then(async (response) => {
       if (!response.ok) {
-        throw new Error(await response.text());
+        throw new Error(await readErrorMessage(response));
       }
 
       return response.json() as Promise<MonthlyReportAnalysis>;

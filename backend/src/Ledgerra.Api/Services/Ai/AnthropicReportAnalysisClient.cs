@@ -41,13 +41,42 @@ public sealed class AnthropicReportAnalysisClient : IAiReportAnalysisClient
         using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
-        var outputText = json.GetProperty("content")
-            .EnumerateArray()
-            .First(item => item.GetProperty("type").GetString() == "text")
-            .GetProperty("text")
-            .GetString();
+        var outputText = ExtractOutputText(json);
+        if (string.IsNullOrWhiteSpace(outputText))
+        {
+            return new AiReportAnalysisResult([], ["Anthropic returned an empty analysis."]);
+        }
 
-        return JsonSerializer.Deserialize<AiReportAnalysisResult>(outputText!, JsonSerializerOptions.Web)
-            ?? new AiReportAnalysisResult([], ["Anthropic returned an empty analysis."]);
+        try
+        {
+            return JsonSerializer.Deserialize<AiReportAnalysisResult>(outputText, JsonSerializerOptions.Web)
+                ?? new AiReportAnalysisResult([], ["Anthropic returned an empty analysis."]);
+        }
+        catch (JsonException)
+        {
+            return new AiReportAnalysisResult([], ["Anthropic returned an empty analysis."]);
+        }
+    }
+
+    private static string? ExtractOutputText(JsonElement json)
+    {
+        if (!json.TryGetProperty("content", out var content) || content.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        foreach (var item in content.EnumerateArray())
+        {
+            if (!item.TryGetProperty("type", out var type) ||
+                type.GetString() != "text" ||
+                !item.TryGetProperty("text", out var text))
+            {
+                continue;
+            }
+
+            return text.GetString();
+        }
+
+        return null;
     }
 }

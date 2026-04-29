@@ -13,6 +13,7 @@ public sealed class AiReportAnalysisClientFactory
 
     public IAiReportAnalysisClient GetClient(AiProvider provider)
     {
-        return _clients.Single(client => client.Provider == provider);
+        return _clients.SingleOrDefault(client => client.Provider == provider)
+            ?? throw new InvalidOperationException($"No AI report analysis client registered for provider '{provider}'.");
     }
 }

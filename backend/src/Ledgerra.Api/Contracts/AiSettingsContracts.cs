@@ -6,7 +6,7 @@ public sealed record AiProviderStatusResponse(bool IsConfigured, string? MaskedK
 
 public sealed record AiProviderSettingsResponse(
     IReadOnlyDictionary<string, AiProviderStatusResponse> Providers,
-    string DefaultProvider);
+    string? DefaultProvider);
 
 public sealed class SaveAiProviderKeyRequest
 {

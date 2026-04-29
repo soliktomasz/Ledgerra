@@ -56,16 +56,31 @@ public sealed class MonthlyReportImportsController : ControllerBase
                 report,
                 cancellationToken);
 
-            var transactions = result.Transactions.Select(transaction => new MonthlyReportDraftTransactionResponse(
-                transaction.SourceId,
-                Guid.Parse(transaction.AccountId),
-                transaction.CategoryId is null ? null : Guid.Parse(transaction.CategoryId),
-                transaction.Amount,
-                transaction.Type,
-                DateTime.Parse(transaction.OccurredOnUtc).ToUniversalTime(),
-                transaction.Note,
-                transaction.Confidence,
-                transaction.Warnings)).ToList();
+            var transactions = new List<MonthlyReportDraftTransactionResponse>();
+            foreach (var transaction in result.Transactions)
+            {
+                if (!Guid.TryParse(transaction.AccountId, out var parsedAccountId) ||
+                    (transaction.CategoryId is not null && !Guid.TryParse(transaction.CategoryId, out _)) ||
+                    !DateTime.TryParse(transaction.OccurredOnUtc, out var parsedOccurredOnUtc))
+                {
+                    return this.ValidationError(new Dictionary<string, string[]>
+                    {
+                        ["analysis"] = ["AI report analysis returned a malformed transaction draft."]
+                    });
+                }
+
+                var parsedCategoryId = transaction.CategoryId is null ? (Guid?)null : Guid.Parse(transaction.CategoryId);
+                transactions.Add(new MonthlyReportDraftTransactionResponse(
+                    transaction.SourceId,
+                    parsedAccountId,
+                    parsedCategoryId,
+                    transaction.Amount,
+                    transaction.Type,
+                    parsedOccurredOnUtc.ToUniversalTime(),
+                    transaction.Note,
+                    transaction.Confidence,
+                    transaction.Warnings));
+            }
 
             return Ok(new MonthlyReportAnalysisResponse(transactions, result.Warnings));
         }
@@ -117,6 +132,14 @@ public sealed class MonthlyReportImportsController : ControllerBase
         if (!accountExists)
         {
             return NotFound(new ProblemDetails { Title = "Account not found" }) as ObjectResult;
+        }
+
+        if (draft.Amount <= 0)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["amount"] = ["Imported report draft amount must be positive."]
+            });
         }
 
         if (!EnumParsingExtensions.TryParseTransactionType(draft.Type, out var parsedType) ||
