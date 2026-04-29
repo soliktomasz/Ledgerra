@@ -542,6 +542,75 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task MonthlyReportCommit_RejectsMissingOrDuplicateSourceIdsBeforeDuplicateAcceptance()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var duplicateSourceIdResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[]
+            {
+                new
+                {
+                    sourceId = "row-duplicate",
+                    accountId = checkingId,
+                    categoryId = groceriesCategoryId,
+                    amount = 15.25m,
+                    type = "Expense",
+                    occurredOnUtc = "2026-04-09T12:00:00Z",
+                    note = "First duplicate source id"
+                },
+                new
+                {
+                    sourceId = "ROW-DUPLICATE",
+                    accountId = checkingId,
+                    categoryId = groceriesCategoryId,
+                    amount = 42.17m,
+                    type = "Expense",
+                    occurredOnUtc = "2026-04-10T12:00:00Z",
+                    note = "Second duplicate source id"
+                }
+            },
+            acceptedDuplicateSourceIds = new[] { "row-duplicate" }
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, duplicateSourceIdResponse.StatusCode);
+
+        var transactionsAfterDuplicateResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}");
+        var transactionsAfterDuplicatePayload = await transactionsAfterDuplicateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, transactionsAfterDuplicatePayload.GetArrayLength());
+
+        var missingSourceIdResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[]
+            {
+                new
+                {
+                    sourceId = "   ",
+                    accountId = checkingId,
+                    categoryId = groceriesCategoryId,
+                    amount = 18.50m,
+                    type = "Expense",
+                    occurredOnUtc = "2026-04-11T12:00:00Z",
+                    note = "Missing source id"
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, missingSourceIdResponse.StatusCode);
+
+        var transactionsAfterMissingResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}");
+        var transactionsAfterMissingPayload = await transactionsAfterMissingResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, transactionsAfterMissingPayload.GetArrayLength());
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanAnalyzeCsvMonthlyReportIntoDrafts()
     {
         using var client = _factory.CreateClient();

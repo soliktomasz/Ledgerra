@@ -106,6 +106,12 @@ public sealed class MonthlyReportImportsController : ControllerBase
     {
         var userId = User.GetRequiredUserId();
 
+        var sourceIdValidation = ValidateSourceIds(request.Transactions);
+        if (sourceIdValidation is not null)
+        {
+            return sourceIdValidation;
+        }
+
         foreach (var draft in request.Transactions)
         {
             var validation = await ValidateDraftAsync(userId, draft, cancellationToken);
@@ -153,6 +159,31 @@ public sealed class MonthlyReportImportsController : ControllerBase
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Created("/api/transactions", new CommitMonthlyReportDraftsResponse(transactions.Select(MapTransaction).ToList()));
+    }
+
+    private BadRequestObjectResult? ValidateSourceIds(IReadOnlyList<CommitMonthlyReportDraftRequest> drafts)
+    {
+        if (drafts.Any(draft => string.IsNullOrWhiteSpace(draft.SourceId)))
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["sourceId"] = ["Imported report draft sourceId must be set."]
+            });
+        }
+
+        var duplicateSourceId = drafts
+            .GroupBy(draft => draft.SourceId, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() > 1);
+
+        if (duplicateSourceId is not null)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["sourceId"] = [$"Imported report draft sourceId '{duplicateSourceId.Key}' must be unique within the request."]
+            });
+        }
+
+        return null;
     }
 
     private async Task<ObjectResult?> ValidateDraftAsync(Guid userId, CommitMonthlyReportDraftRequest draft, CancellationToken cancellationToken)

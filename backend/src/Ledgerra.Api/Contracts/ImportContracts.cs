@@ -33,7 +33,7 @@ public sealed class CommitMonthlyReportDraftsRequest
 
 public sealed class CommitMonthlyReportDraftRequest : IValidatableObject
 {
-    [MaxLength(120)]
+    [Required, MaxLength(120)]
     public string SourceId { get; init; } = string.Empty;
 
     [Required]
