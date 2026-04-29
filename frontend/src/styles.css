@@ -678,6 +678,38 @@ label {
   gap: 0.65rem;
 }
 
+.rule-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+
+.rule-form .error-banner {
+  grid-column: 1 / -1;
+}
+
+.rule-list .empty-state {
+  margin: 0;
+}
+
+.rule-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.rule-row p {
+  overflow-wrap: anywhere;
+}
+
+.rule-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.danger-button {
+  color: var(--danger);
+}
+
 .import-table {
   display: grid;
   gap: 0.6rem;
@@ -859,6 +891,16 @@ label {
     align-items: flex-start;
     justify-content: flex-start;
     width: 100%;
+  }
+
+  .rule-form,
+  .rule-row {
+    grid-template-columns: 1fr;
+  }
+
+  .rule-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .bar-item > div:first-child,

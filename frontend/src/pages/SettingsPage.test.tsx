@@ -9,6 +9,9 @@ const mocks = vi.hoisted(() => ({
   saveAiProviderKey: vi.fn(),
   removeAiProviderKey: vi.fn(),
   updateDefaultAiProvider: vi.fn(),
+  createImportRule: vi.fn(),
+  updateImportRule: vi.fn(),
+  deleteImportRule: vi.fn(),
   aiSettings: {
     providers: {
       openAi: { isConfigured: true, maskedKey: "...3456" as string | null },
@@ -27,7 +30,10 @@ vi.mock("../api/client", () => ({
     updateProfile: mocks.updateProfile,
     saveAiProviderKey: mocks.saveAiProviderKey,
     removeAiProviderKey: mocks.removeAiProviderKey,
-    updateDefaultAiProvider: mocks.updateDefaultAiProvider
+    updateDefaultAiProvider: mocks.updateDefaultAiProvider,
+    createImportRule: mocks.createImportRule,
+    updateImportRule: mocks.updateImportRule,
+    deleteImportRule: mocks.deleteImportRule
   }
 }));
 
@@ -35,6 +41,25 @@ vi.mock("../hooks/useLedgerraData", () => ({
   useLedgerraData: () => ({
     profile: { email: "owner@ledgerra.local", preferredCurrencyCode: "USD" },
     aiSettings: mocks.aiSettings,
+    categories: [
+      { id: "category-1", name: "Groceries", kind: "Expense", isSystem: false },
+      { id: "category-2", name: "Salary", kind: "Income", isSystem: false }
+    ],
+    importRules: [
+      {
+        id: "rule-1",
+        name: "Market groceries",
+        matchField: "Note",
+        matchOperator: "Contains",
+        matchValue: "Market",
+        assignCategoryId: "category-1",
+        assignTransactionType: "Expense",
+        priority: 10,
+        isActive: true,
+        createdAtUtc: "2026-04-29T10:00:00Z",
+        updatedAtUtc: "2026-04-29T10:00:00Z"
+      }
+    ],
     refresh: mocks.refresh
   })
 }));
@@ -95,6 +120,67 @@ describe("SettingsPage", () => {
     rerender(<SettingsPage />);
 
     expect(screen.getAllByText("Not configured").length).toBeGreaterThanOrEqual(2);
+  });
+
+  test("manages import categorization rules", async () => {
+    const user = userEvent.setup();
+    mocks.createImportRule.mockResolvedValue({ id: "rule-2" });
+    mocks.updateImportRule.mockResolvedValue({ id: "rule-1", isActive: false });
+    mocks.deleteImportRule.mockResolvedValue(undefined);
+
+    render(<SettingsPage />);
+
+    expect(screen.getByText("Import rules")).toBeInTheDocument();
+    expect(screen.getByText("Market groceries")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Rule name"), "Coffee");
+    await user.type(screen.getByLabelText("Match text"), "Cafe");
+    await user.click(screen.getByRole("button", { name: "Add rule" }));
+
+    await waitFor(() => {
+      expect(mocks.createImportRule).toHaveBeenCalledWith("token", {
+        name: "Coffee",
+        matchField: "Note",
+        matchOperator: "Contains",
+        matchValue: "Cafe",
+        assignCategoryId: "category-1",
+        assignTransactionType: "Expense",
+        priority: 100,
+        isActive: true
+      });
+    });
+
+    await user.click(screen.getByRole("button", { name: "Disable Market groceries" }));
+
+    await waitFor(() => {
+      expect(mocks.updateImportRule).toHaveBeenCalledWith(
+        "token",
+        expect.objectContaining({
+          id: "rule-1",
+          isActive: false
+        })
+      );
+    });
+
+    await user.click(screen.getByRole("button", { name: "Delete Market groceries" }));
+
+    await waitFor(() => {
+      expect(mocks.deleteImportRule).toHaveBeenCalledWith("token", "rule-1");
+    });
+  });
+
+  test("shows import rule creation errors", async () => {
+    const user = userEvent.setup();
+    mocks.createImportRule.mockRejectedValue(new Error("Rule name already exists."));
+
+    render(<SettingsPage />);
+
+    await user.type(screen.getByLabelText("Rule name"), "Coffee");
+    await user.type(screen.getByLabelText("Match text"), "Cafe");
+    await user.click(screen.getByRole("button", { name: "Add rule" }));
+
+    expect(await screen.findByText("Rule name already exists.")).toBeInTheDocument();
+    expect(mocks.refresh).not.toHaveBeenCalled();
   });
 
   test("changes the default provider through the settings form", async () => {
