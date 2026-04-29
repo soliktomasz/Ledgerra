@@ -6,6 +6,7 @@ import { ImportsPage } from "./ImportsPage";
 const mocks = vi.hoisted(() => ({
   analyzeMonthlyReport: vi.fn(),
   commitMonthlyReportDrafts: vi.fn(),
+  createImportRule: vi.fn(),
   refresh: vi.fn()
 }));
 
@@ -16,7 +17,8 @@ vi.mock("../state/AuthContext", () => ({
 vi.mock("../api/client", () => ({
   apiClient: {
     analyzeMonthlyReport: mocks.analyzeMonthlyReport,
-    commitMonthlyReportDrafts: mocks.commitMonthlyReportDrafts
+    commitMonthlyReportDrafts: mocks.commitMonthlyReportDrafts,
+    createImportRule: mocks.createImportRule
   }
 }));
 
@@ -110,5 +112,128 @@ describe("ImportsPage", () => {
     const [, submittedDrafts] = mocks.commitMonthlyReportDrafts.mock.calls[0];
     expect(Number.isFinite(submittedDrafts[0].amount)).toBe(true);
     expect(submittedDrafts[0].occurredOnUtc).toBe("");
+  });
+
+  test("renders duplicate and rule metadata with duplicate rows unselected by default", async () => {
+    mocks.analyzeMonthlyReport.mockResolvedValue({
+      warnings: [],
+      transactions: [
+        {
+          sourceId: "row-1",
+          accountId: "account-1",
+          categoryId: "category-1",
+          amount: 42.17,
+          type: "Expense",
+          occurredOnUtc: "2026-04-10T12:00:00Z",
+          note: "Imported: Market",
+          confidence: 0.92,
+          warnings: [],
+          appliedRuleId: "rule-1",
+          appliedRuleName: "Market groceries",
+          isLikelyDuplicate: true,
+          duplicateTransactionId: "transaction-1",
+          duplicateReason: "Matches an existing transaction with the same account, date, type, amount, and note.",
+          isSelectedByDefault: false
+        }
+      ]
+    });
+
+    render(<ImportsPage />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["a,b"], "report.csv", { type: "text/csv" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    expect(await screen.findByText("Market groceries")).toBeInTheDocument();
+    expect(screen.getByText(/duplicate/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("Select row-1")).not.toBeChecked();
+  });
+
+  test("sends accepted duplicate source ids for duplicate rows selected by the user", async () => {
+    const user = userEvent.setup();
+    mocks.analyzeMonthlyReport.mockResolvedValue({
+      warnings: [],
+      transactions: [
+        {
+          sourceId: "row-1",
+          accountId: "account-1",
+          categoryId: "category-1",
+          amount: 42.17,
+          type: "Expense",
+          occurredOnUtc: "2026-04-10T12:00:00Z",
+          note: "Imported: Market",
+          confidence: 0.92,
+          warnings: [],
+          appliedRuleId: null,
+          appliedRuleName: null,
+          isLikelyDuplicate: true,
+          duplicateTransactionId: "transaction-1",
+          duplicateReason: "Matches an existing transaction.",
+          isSelectedByDefault: false
+        }
+      ]
+    });
+    mocks.commitMonthlyReportDrafts.mockResolvedValue({ created: [] });
+
+    render(<ImportsPage />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["a,b"], "report.csv", { type: "text/csv" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    await screen.findByText("92%");
+    await user.click(screen.getByLabelText("Select row-1"));
+    await user.click(screen.getByRole("button", { name: "Save selected drafts" }));
+
+    await waitFor(() => {
+      expect(mocks.commitMonthlyReportDrafts).toHaveBeenCalledWith("token", expect.any(Array), ["row-1"]);
+    });
+  });
+
+  test("creates an import rule from a reviewed draft", async () => {
+    const user = userEvent.setup();
+    mocks.analyzeMonthlyReport.mockResolvedValue({
+      warnings: [],
+      transactions: [
+        {
+          sourceId: "row-1",
+          accountId: "account-1",
+          categoryId: "category-1",
+          amount: 42.17,
+          type: "Expense",
+          occurredOnUtc: "2026-04-10T12:00:00Z",
+          note: "Imported: Market",
+          confidence: 0.92,
+          warnings: []
+        }
+      ]
+    });
+    mocks.createImportRule.mockResolvedValue({ id: "rule-1" });
+
+    render(<ImportsPage />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["a,b"], "report.csv", { type: "text/csv" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    await user.click(await screen.findByRole("button", { name: "Remember this" }));
+
+    expect(mocks.createImportRule).toHaveBeenCalledWith("token", {
+      name: "Imported: Market -> Groceries",
+      matchField: "Note",
+      matchOperator: "Contains",
+      matchValue: "Imported: Market",
+      assignCategoryId: "category-1",
+      assignTransactionType: "Expense",
+      priority: 100,
+      isActive: true
+    });
+    expect(await screen.findByText("Import rule saved.")).toBeInTheDocument();
   });
 });

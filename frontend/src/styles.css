@@ -647,6 +647,16 @@ label {
   font-weight: 650;
 }
 
+.success-banner {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #99f6e4;
+  border-radius: var(--radius-sm);
+  background: #f0fdfa;
+  color: var(--accent-strong);
+  font-weight: 650;
+}
+
 .empty-state {
   display: grid;
   gap: 0.45rem;
@@ -676,7 +686,7 @@ label {
 
 .import-row {
   display: grid;
-  grid-template-columns: 2rem 10rem 8rem minmax(10rem, 1fr) 8rem minmax(12rem, 1.4fr) 4rem;
+  grid-template-columns: 2rem 10rem 8rem minmax(10rem, 1fr) 8rem minmax(12rem, 1.2fr) 4rem minmax(10rem, 1fr);
   gap: 0.55rem;
   align-items: center;
   padding: 0.65rem;
@@ -687,6 +697,49 @@ label {
 
 .import-row input[type="checkbox"] {
   width: auto;
+}
+
+.import-review-flags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.import-review-flags small {
+  flex-basis: 100%;
+  color: var(--muted-strong);
+  line-height: 1.35;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.25rem 0.45rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.status-badge.success {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.status-badge.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.compact-button {
+  min-height: 2rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.82rem;
+  box-shadow: none;
 }
 
 @media (max-width: 1180px) {
