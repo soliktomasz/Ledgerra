@@ -19,17 +19,20 @@ public sealed class MonthlyReportImportsController : ControllerBase
     private readonly IReportContentExtractor _reportContentExtractor;
     private readonly AiReportAnalysisService _aiReportAnalysisService;
     private readonly IImportCategorizationRuleMatcher _categorizationRuleMatcher;
+    private readonly IImportDuplicateDetector _duplicateDetector;
 
     public MonthlyReportImportsController(
         LedgerraDbContext dbContext,
         IReportContentExtractor reportContentExtractor,
         AiReportAnalysisService aiReportAnalysisService,
-        IImportCategorizationRuleMatcher categorizationRuleMatcher)
+        IImportCategorizationRuleMatcher categorizationRuleMatcher,
+        IImportDuplicateDetector duplicateDetector)
     {
         _dbContext = dbContext;
         _reportContentExtractor = reportContentExtractor;
         _aiReportAnalysisService = aiReportAnalysisService;
         _categorizationRuleMatcher = categorizationRuleMatcher;
+        _duplicateDetector = duplicateDetector;
     }
 
     [HttpPost("analyze")]
@@ -86,8 +89,9 @@ public sealed class MonthlyReportImportsController : ControllerBase
                     transaction.Warnings));
             }
 
-            var transactions = await _categorizationRuleMatcher.ApplyAsync(userId, analyzedDrafts, cancellationToken);
-            return Ok(new MonthlyReportAnalysisResponse(transactions.Select(MapDraft).ToList(), result.Warnings));
+            var categorizedDrafts = await _categorizationRuleMatcher.ApplyAsync(userId, analyzedDrafts, cancellationToken);
+            var reviewedDrafts = await _duplicateDetector.MarkDuplicatesAsync(userId, categorizedDrafts, cancellationToken);
+            return Ok(new MonthlyReportAnalysisResponse(reviewedDrafts.Select(MapDraft).ToList(), result.Warnings));
         }
         catch (InvalidOperationException exception)
         {
@@ -101,7 +105,6 @@ public sealed class MonthlyReportImportsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
-        var transactions = new List<Transaction>();
 
         foreach (var draft in request.Transactions)
         {
@@ -110,7 +113,28 @@ public sealed class MonthlyReportImportsController : ControllerBase
             {
                 return validation;
             }
+        }
 
+        var acceptedDuplicateSourceIds = request.AcceptedDuplicateSourceIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var reviewedDrafts = await _duplicateDetector.MarkDuplicatesAsync(
+            userId,
+            request.Transactions.Select(ImportDraftFromCommitRequest).ToList(),
+            cancellationToken);
+
+        var unacceptedDuplicate = reviewedDrafts.FirstOrDefault(draft =>
+            draft.IsLikelyDuplicate && !acceptedDuplicateSourceIds.Contains(draft.SourceId));
+
+        if (unacceptedDuplicate is not null)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["duplicates"] = [$"Draft {unacceptedDuplicate.SourceId} appears to duplicate an existing transaction."]
+            });
+        }
+
+        var transactions = new List<Transaction>();
+        foreach (var draft in request.Transactions)
+        {
             EnumParsingExtensions.TryParseTransactionType(draft.Type, out var parsedType);
             transactions.Add(new Transaction
             {
@@ -202,5 +226,19 @@ public sealed class MonthlyReportImportsController : ControllerBase
             draft.DuplicateTransactionId,
             draft.DuplicateReason,
             draft.IsSelectedByDefault);
+    }
+
+    private static ImportDraftReviewItem ImportDraftFromCommitRequest(CommitMonthlyReportDraftRequest draft)
+    {
+        return ImportDraftReviewItem.FromAnalyzedDraft(
+            draft.SourceId,
+            draft.AccountId,
+            draft.CategoryId,
+            draft.Amount,
+            draft.Type,
+            draft.OccurredOnUtc.ToUniversalTime(),
+            draft.Note,
+            1m,
+            []);
     }
 }

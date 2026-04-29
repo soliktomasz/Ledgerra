@@ -448,6 +448,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
             {
                 new
                 {
+                    sourceId = "row-1",
                     accountId = checkingId,
                     categoryId = groceriesCategoryId,
                     amount = 42.17m,
@@ -485,6 +486,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
             {
                 new
                 {
+                    sourceId = "row-valid",
                     accountId = checkingId,
                     categoryId = groceriesCategoryId,
                     amount = 15.25m,
@@ -494,6 +496,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
                 },
                 new
                 {
+                    sourceId = "row-invalid",
                     accountId = checkingId,
                     categoryId = Guid.NewGuid(),
                     amount = 42.17m,
@@ -525,6 +528,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
             {
                 new
                 {
+                    sourceId = "row-1",
                     accountId = Guid.Empty,
                     amount = 42.17m,
                     type = "Expense",
@@ -613,6 +617,98 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal("Market groceries", draft.GetProperty("appliedRuleName").GetString());
         Assert.True(draft.GetProperty("isSelectedByDefault").GetBoolean());
         Assert.False(draft.GetProperty("isLikelyDuplicate").GetBoolean());
+    }
+
+    [Fact]
+    public async Task MonthlyReportAnalyze_MarksLikelyDuplicatesUnselectedByDefault()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+
+        var existingResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-10T08:00:00Z",
+            note = "Imported: Market"
+        });
+        var existingPayload = await existingResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var existingId = existingPayload.GetProperty("id").GetGuid();
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("OpenAi"), "provider");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
+
+        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var draft = payload.GetProperty("transactions")[0];
+        Assert.True(draft.GetProperty("isLikelyDuplicate").GetBoolean());
+        Assert.Equal(existingId, draft.GetProperty("duplicateTransactionId").GetGuid());
+        Assert.Contains("same account, date, type, amount, and note", draft.GetProperty("duplicateReason").GetString(), StringComparison.OrdinalIgnoreCase);
+        Assert.False(draft.GetProperty("isSelectedByDefault").GetBoolean());
+    }
+
+    [Fact]
+    public async Task MonthlyReportCommit_RejectsUnacceptedDuplicateAndAcceptsExplicitDuplicate()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-10T08:00:00Z",
+            note = "Imported: Market"
+        });
+
+        var duplicateDraft = new
+        {
+            sourceId = "row-1",
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-10T12:00:00Z",
+            note = "Imported: Market"
+        };
+
+        var rejectedResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[] { duplicateDraft },
+            acceptedDuplicateSourceIds = Array.Empty<string>()
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, rejectedResponse.StatusCode);
+
+        var acceptedResponse = await client.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[] { duplicateDraft },
+            acceptedDuplicateSourceIds = new[] { "row-1" }
+        });
+
+        Assert.Equal(HttpStatusCode.Created, acceptedResponse.StatusCode);
     }
 
     [Fact]

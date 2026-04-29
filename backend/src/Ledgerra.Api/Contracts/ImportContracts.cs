@@ -27,10 +27,15 @@ public sealed class CommitMonthlyReportDraftsRequest
 {
     [Required, MinLength(1)]
     public IReadOnlyList<CommitMonthlyReportDraftRequest> Transactions { get; init; } = [];
+
+    public IReadOnlyList<string> AcceptedDuplicateSourceIds { get; init; } = [];
 }
 
 public sealed class CommitMonthlyReportDraftRequest : IValidatableObject
 {
+    [MaxLength(120)]
+    public string SourceId { get; init; } = string.Empty;
+
     [Required]
     public Guid AccountId { get; init; }
 

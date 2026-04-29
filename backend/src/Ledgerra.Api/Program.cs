@@ -24,6 +24,7 @@ builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequ
 builder.Services.AddScoped<AiReportAnalysisClientFactory>();
 builder.Services.AddScoped<AiReportAnalysisService>();
 builder.Services.AddScoped<IImportCategorizationRuleMatcher, ImportCategorizationRuleMatcher>();
+builder.Services.AddScoped<IImportDuplicateDetector, ImportDuplicateDetector>();
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
