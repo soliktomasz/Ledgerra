@@ -13,6 +13,7 @@
   --accent: #0f766e;
   --accent-strong: #0f5f59;
   --accent-soft: #ecfdf5;
+  --accent-border: #99f6e4;
   --positive: #059669;
   --positive-soft: #ecfdf5;
   --negative: #dc2626;
@@ -479,7 +480,7 @@ label {
 
 .onboarding-checklist-item.is-complete {
   background: linear-gradient(180deg, var(--surface) 0%, var(--accent-soft) 150%);
-  border-color: #99f6e4;
+  border-color: var(--accent-border);
 }
 
 .onboarding-checklist-item > div {
