@@ -127,8 +127,33 @@ public sealed class CategoriesController : ControllerBase
         }
 
         _dbContext.Categories.Remove(category);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (IsImportRuleCategoryReferenceViolation(exception))
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Category is used by import rules",
+                Detail = "Delete or move those import rules before deleting this category."
+            });
+        }
+
         return NoContent();
+    }
+
+    private static bool IsImportRuleCategoryReferenceViolation(DbUpdateException exception)
+    {
+        var innerException = exception.InnerException;
+        if (innerException?.GetType().FullName != "Npgsql.PostgresException")
+        {
+            return false;
+        }
+
+        var sqlState = innerException.GetType().GetProperty("SqlState")?.GetValue(innerException) as string;
+        var constraintName = innerException.GetType().GetProperty("ConstraintName")?.GetValue(innerException) as string;
+        return sqlState == "23503" && constraintName == "FK_CategorizationRules_Categories_AssignCategoryId";
     }
 
     private static CategoryResponse MapCategory(Category category)

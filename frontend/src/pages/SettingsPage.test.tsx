@@ -169,6 +169,46 @@ describe("SettingsPage", () => {
     });
   });
 
+  test("creates income import rules with income categories", async () => {
+    const user = userEvent.setup();
+    mocks.createImportRule.mockResolvedValue({ id: "rule-2" });
+
+    render(<SettingsPage />);
+
+    await user.selectOptions(screen.getByLabelText("Transaction type"), "Income");
+    expect(screen.getByLabelText("Category")).toHaveValue("category-2");
+
+    await user.type(screen.getByLabelText("Rule name"), "Paycheck");
+    await user.type(screen.getByLabelText("Match text"), "Payroll");
+    await user.click(screen.getByRole("button", { name: "Add rule" }));
+
+    await waitFor(() => {
+      expect(mocks.createImportRule).toHaveBeenCalledWith("token", {
+        name: "Paycheck",
+        matchField: "Note",
+        matchOperator: "Contains",
+        matchValue: "Payroll",
+        assignCategoryId: "category-2",
+        assignTransactionType: "Income",
+        priority: 100,
+        isActive: true
+      });
+    });
+  });
+
+  test("does not submit whitespace-only import rule fields", async () => {
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+
+    await user.type(screen.getByLabelText("Rule name"), "   ");
+    await user.type(screen.getByLabelText("Match text"), "   ");
+    await user.click(screen.getByRole("button", { name: "Add rule" }));
+
+    expect(mocks.createImportRule).not.toHaveBeenCalled();
+    expect(await screen.findByText("Rule name and match text are required.")).toBeInTheDocument();
+  });
+
   test("shows import rule creation errors", async () => {
     const user = userEvent.setup();
     mocks.createImportRule.mockRejectedValue(new Error("Rule name already exists."));

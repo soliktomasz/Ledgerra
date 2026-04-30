@@ -64,11 +64,14 @@ public sealed class MonthlyReportImportsController : ControllerBase
                 cancellationToken);
 
             var analyzedDrafts = new List<ImportDraftReviewItem>();
+            var sourceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var transaction in result.Transactions)
             {
                 if (!Guid.TryParse(transaction.AccountId, out var parsedAccountId) ||
                     (transaction.CategoryId is not null && !Guid.TryParse(transaction.CategoryId, out _)) ||
-                    !DateTime.TryParse(transaction.OccurredOnUtc, out var parsedOccurredOnUtc))
+                    !DateTime.TryParse(transaction.OccurredOnUtc, out var parsedOccurredOnUtc) ||
+                    string.IsNullOrWhiteSpace(transaction.SourceId) ||
+                    !sourceIds.Add(transaction.SourceId))
                 {
                     return this.ValidationError(new Dictionary<string, string[]>
                     {

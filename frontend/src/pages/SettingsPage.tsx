@@ -21,10 +21,11 @@ export function SettingsPage() {
   const [aiProviderError, setAiProviderError] = useState<string | null>(null);
   const [ruleName, setRuleName] = useState("");
   const [ruleMatchValue, setRuleMatchValue] = useState("");
+  const [transactionType, setTransactionType] = useState("Expense");
   const [ruleCategoryId, setRuleCategoryId] = useState("");
   const [ruleError, setRuleError] = useState<string | null>(null);
 
-  const expenseCategories = useMemo(() => categories.filter((category) => category.kind === "Expense"), [categories]);
+  const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
   useEffect(() => {
     setPreferredCurrencyCode(profile?.preferredCurrencyCode ?? "USD");
@@ -35,15 +36,15 @@ export function SettingsPage() {
   }, [aiSettings?.defaultProvider]);
 
   useEffect(() => {
-    if (expenseCategories.length === 0) {
+    if (filteredCategories.length === 0) {
       setRuleCategoryId("");
       return;
     }
 
-    if (!expenseCategories.some((category) => category.id === ruleCategoryId)) {
-      setRuleCategoryId(expenseCategories[0].id);
+    if (!filteredCategories.some((category) => category.id === ruleCategoryId)) {
+      setRuleCategoryId(filteredCategories[0].id);
     }
-  }, [expenseCategories, ruleCategoryId]);
+  }, [filteredCategories, ruleCategoryId]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -100,13 +101,20 @@ export function SettingsPage() {
 
     try {
       setRuleError(null);
+      const name = ruleName.trim();
+      const value = ruleMatchValue.trim();
+      if (!name || !value) {
+        setRuleError("Rule name and match text are required.");
+        return;
+      }
+
       await apiClient.createImportRule(auth.accessToken, {
-        name: ruleName.trim(),
+        name,
         matchField: "Note",
         matchOperator: "Contains",
-        matchValue: ruleMatchValue.trim(),
+        matchValue: value,
         assignCategoryId: ruleCategoryId,
-        assignTransactionType: "Expense",
+        assignTransactionType: transactionType,
         priority: 100,
         isActive: true
       });
@@ -266,16 +274,23 @@ export function SettingsPage() {
             <input value={ruleMatchValue} onChange={(event) => setRuleMatchValue(event.target.value)} placeholder="Cafe" required />
           </label>
           <label>
+            Transaction type
+            <select value={transactionType} onChange={(event) => setTransactionType(event.target.value)}>
+              <option>Expense</option>
+              <option>Income</option>
+            </select>
+          </label>
+          <label>
             Category
-            <select value={ruleCategoryId} onChange={(event) => setRuleCategoryId(event.target.value)} disabled={expenseCategories.length === 0}>
-              {expenseCategories.map((category) => (
+            <select value={ruleCategoryId} onChange={(event) => setRuleCategoryId(event.target.value)} disabled={filteredCategories.length === 0}>
+              {filteredCategories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                 </option>
               ))}
             </select>
           </label>
-          <button className="primary-button" type="submit" disabled={expenseCategories.length === 0}>
+          <button className="primary-button" type="submit" disabled={filteredCategories.length === 0}>
             Add rule
           </button>
         </form>

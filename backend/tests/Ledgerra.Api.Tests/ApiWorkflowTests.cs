@@ -328,6 +328,11 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal(10, created.GetProperty("priority").GetInt32());
         Assert.True(created.GetProperty("isActive").GetBoolean());
 
+        var getCreatedResponse = await client.GetAsync(createResponse.Headers.Location);
+        Assert.Equal(HttpStatusCode.OK, getCreatedResponse.StatusCode);
+        var fetched = await getCreatedResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(ruleId, fetched.GetProperty("id").GetGuid());
+
         var listResponse = await client.GetAsync("/api/import-rules");
         Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
         var listed = await listResponse.Content.ReadFromJsonAsync<JsonElement>();
@@ -370,6 +375,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         var otherAuth = await RegisterAndAuthenticateAsync(otherClient);
         otherClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", otherAuth.AccessToken);
 
+        var ownerCategoryId = await CreateCategoryAsync(ownerClient, "Owner groceries", "Expense");
         var otherCategoryId = await CreateCategoryAsync(otherClient, "Other groceries", "Expense");
 
         var unsupportedFieldResponse = await ownerClient.PostAsJsonAsync("/api/import-rules", new
@@ -378,7 +384,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
             matchField = "Amount",
             matchOperator = "Contains",
             matchValue = "Market",
-            assignCategoryId = otherCategoryId,
+            assignCategoryId = ownerCategoryId,
             assignTransactionType = "Expense",
             priority = 1,
             isActive = true
@@ -698,6 +704,54 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task MonthlyReportAnalyze_RejectsBlankSourceIds()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("OpenAi"), "provider");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\nsource:<blank>\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
+
+        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task MonthlyReportAnalyze_RejectsDuplicateSourceIds()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("OpenAi"), "provider");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\nduplicate-source\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
+
+        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task MonthlyReportAnalyze_AppliesActiveImportRuleMetadata()
     {
         using var client = _factory.CreateClient();
@@ -785,6 +839,45 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal(existingId, draft.GetProperty("duplicateTransactionId").GetGuid());
         Assert.Contains("same account, date, type, amount, and note", draft.GetProperty("duplicateReason").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.False(draft.GetProperty("isSelectedByDefault").GetBoolean());
+    }
+
+    [Fact]
+    public async Task MonthlyReportAnalyze_DoesNotMarkDuplicateWhenOnlyOneNoteIsBlank()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+
+        await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-10T08:00:00Z",
+            note = "Imported: Market"
+        });
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("OpenAi"), "provider");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\nnote:<blank>\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
+
+        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var draft = payload.GetProperty("transactions")[0];
+        Assert.False(draft.GetProperty("isLikelyDuplicate").GetBoolean());
+        Assert.True(draft.GetProperty("isSelectedByDefault").GetBoolean());
     }
 
     [Fact]

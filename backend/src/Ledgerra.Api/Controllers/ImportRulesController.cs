@@ -35,6 +35,17 @@ public sealed class ImportRulesController : ControllerBase
         return Ok(rules.Select(MapRule).ToList());
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ImportRuleResponse>> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = User.GetRequiredUserId();
+        var rule = await _dbContext.CategorizationRules.SingleOrDefaultAsync(
+            item => item.UserId == userId && item.Id == id,
+            cancellationToken);
+
+        return rule is null ? NotFound() : Ok(MapRule(rule));
+    }
+
     [HttpPost]
     public async Task<ActionResult<ImportRuleResponse>> Create(UpsertImportRuleRequest request, CancellationToken cancellationToken)
     {
@@ -69,7 +80,7 @@ public sealed class ImportRulesController : ControllerBase
         _dbContext.CategorizationRules.Add(rule);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return CreatedAtAction(nameof(GetAll), new { id = rule.Id }, MapRule(rule));
+        return CreatedAtAction(nameof(GetById), new { id = rule.Id }, MapRule(rule));
     }
 
     [HttpPut("{id:guid}")]

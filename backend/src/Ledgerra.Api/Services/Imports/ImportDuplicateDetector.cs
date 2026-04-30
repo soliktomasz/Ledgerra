@@ -98,12 +98,19 @@ public sealed class ImportDuplicateDetector : IImportDuplicateDetector
 
     private static bool NotesMatch(string? existingNote, string? draftNote)
     {
-        if (string.IsNullOrWhiteSpace(existingNote) || string.IsNullOrWhiteSpace(draftNote))
+        var existingNoteIsBlank = string.IsNullOrWhiteSpace(existingNote);
+        var draftNoteIsBlank = string.IsNullOrWhiteSpace(draftNote);
+        if (existingNoteIsBlank && draftNoteIsBlank)
         {
             return true;
         }
 
-        return NormalizeNote(existingNote) == NormalizeNote(draftNote);
+        if (existingNoteIsBlank || draftNoteIsBlank)
+        {
+            return false;
+        }
+
+        return NormalizeNote(existingNote!) == NormalizeNote(draftNote!);
     }
 
     private static string NormalizeNote(string note)

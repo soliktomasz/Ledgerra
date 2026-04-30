@@ -37,7 +37,8 @@ export function useLedgerraData() {
         accountsPayload,
         categoriesPayload,
         transactionsPayload,
-        budgetPayload
+        budgetPayload,
+        importRulesPayload
       ] = await Promise.all([
         apiClient.getProfile(auth.accessToken),
         apiClient.getAiSettings(auth.accessToken),
@@ -45,7 +46,8 @@ export function useLedgerraData() {
         apiClient.getAccounts(auth.accessToken),
         apiClient.getCategories(auth.accessToken),
         apiClient.getTransactions(auth.accessToken),
-        apiClient.getBudget(auth.accessToken, Number(month.slice(0, 4)), Number(month.slice(5, 7)))
+        apiClient.getBudget(auth.accessToken, Number(month.slice(0, 4)), Number(month.slice(5, 7))),
+        apiClient.getImportRules(auth.accessToken).catch(() => [])
       ]);
 
       setProfile(profilePayload);
@@ -55,12 +57,7 @@ export function useLedgerraData() {
       setCategories(categoriesPayload);
       setTransactions(transactionsPayload);
       setBudget(budgetPayload);
-
-      try {
-        setImportRules(await apiClient.getImportRules(auth.accessToken));
-      } catch {
-        setImportRules([]);
-      }
+      setImportRules(importRulesPayload);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Unknown error");
     } finally {

@@ -60,7 +60,13 @@ export function ImportsPage() {
             .map((transaction) => transaction.sourceId)
         )
       );
-      setAcceptedDuplicateSourceIds(new Set());
+      setAcceptedDuplicateSourceIds(
+        new Set(
+          analysis.transactions
+            .filter((transaction) => transaction.isLikelyDuplicate && transaction.isSelectedByDefault)
+            .map((transaction) => transaction.sourceId)
+        )
+      );
     } catch (exception) {
       setError(getErrorMessage(exception, "Unable to analyze report."));
     } finally {
@@ -93,6 +99,7 @@ export function ImportsPage() {
         priority: 100,
         isActive: true
       });
+      await refresh();
       setRuleMessage("Import rule saved.");
     } catch (exception) {
       setError(getErrorMessage(exception, "Unable to save import rule."));
