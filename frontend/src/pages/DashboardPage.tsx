@@ -104,7 +104,7 @@ function buildDashboardInsights(
       title: "Categorize recent spending",
       detail: `You have ${uncategorizedExpenseCount} uncategorized ${pluralize(uncategorizedExpenseCount, "expense transaction", "expense transactions")}.`,
       tone: "attention",
-      action: { label: "Review transactions", to: "/transactions" }
+      action: { label: "Review transactions", to: "/transactions?view=uncategorized" }
     });
   }
 

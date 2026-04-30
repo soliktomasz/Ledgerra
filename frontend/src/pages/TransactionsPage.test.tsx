@@ -15,7 +15,8 @@ const mocks = vi.hoisted(() => ({
   ],
   categories: [
     { id: "category-1", name: "Groceries", kind: "Expense", isSystem: false },
-    { id: "category-2", name: "Salary", kind: "Income", isSystem: false }
+    { id: "category-2", name: "Salary", kind: "Income", isSystem: false },
+    { id: "category-3", name: "Dining", kind: "Expense", isSystem: false }
   ],
   transactions: [
     {
@@ -166,5 +167,54 @@ describe("TransactionsPage", () => {
     await waitFor(() => {
       expect(mocks.deleteTransaction).toHaveBeenCalledWith("token", "transaction-1");
     });
+  });
+
+  test("filters uncategorized expenses and assigns a category from the workflow", async () => {
+    const user = userEvent.setup();
+    mocks.getTransactions.mockResolvedValue([
+      {
+        id: "transaction-3",
+        accountId: "account-1",
+        categoryId: null,
+        amount: 18.5,
+        type: "Expense",
+        occurredOnUtc: "2026-04-12T12:00:00Z",
+        note: "Cafe"
+      },
+      {
+        id: "transaction-4",
+        accountId: "account-1",
+        categoryId: "category-1",
+        amount: 42.17,
+        type: "Expense",
+        occurredOnUtc: "2026-04-10T12:00:00Z",
+        note: "Market"
+      }
+    ]);
+
+    render(<TransactionsPage />);
+
+    await user.click(await screen.findByLabelText("Needs category"));
+
+    expect(screen.getByText("Cafe")).toBeInTheDocument();
+    expect(screen.queryByText("Market")).not.toBeInTheDocument();
+    expect(screen.getByText("1 uncategorized expense needs review.")).toBeInTheDocument();
+
+    const row = screen.getByLabelText("Transaction Cafe");
+    await user.selectOptions(within(row).getByLabelText("Assign category to Cafe"), "category-3");
+
+    await waitFor(() => {
+      expect(mocks.updateTransaction).toHaveBeenCalledWith(
+        "token",
+        "transaction-3",
+        expect.objectContaining({
+          categoryId: "category-3",
+          amount: 18.5,
+          note: "Cafe",
+          type: "Expense"
+        })
+      );
+    });
+    expect(await screen.findByText("Cafe categorized as Dining.")).toBeInTheDocument();
   });
 });

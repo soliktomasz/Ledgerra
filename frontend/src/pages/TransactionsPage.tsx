@@ -46,6 +46,7 @@ export function TransactionsPage() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [noteSearch, setNoteSearch] = useState("");
+  const [showUncategorizedOnly, setShowUncategorizedOnly] = useState(() => new URLSearchParams(window.location.search).get("view") === "uncategorized");
   const [ledgerTransactions, setLedgerTransactions] = useState<Transaction[]>(transactions);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -113,13 +114,26 @@ export function TransactionsPage() {
         return false;
       }
 
+      if (showUncategorizedOnly && (transaction.type !== "Expense" || transaction.categoryId)) {
+        return false;
+      }
+
       if (!normalizedSearch) {
         return true;
       }
 
       return (transaction.note ?? "").toLowerCase().includes(normalizedSearch);
     });
-  }, [filterType, ledgerTransactions, noteSearch]);
+  }, [filterType, ledgerTransactions, noteSearch, showUncategorizedOnly]);
+
+  const expenseCategories = useMemo(
+    () => categories.filter((category) => category.kind === "Expense"),
+    [categories]
+  );
+  const uncategorizedExpenseCount = useMemo(
+    () => ledgerTransactions.filter((transaction) => transaction.type === "Expense" && !transaction.categoryId).length,
+    [ledgerTransactions]
+  );
 
   const resetForm = () => {
     setFormMode("create");
@@ -244,6 +258,30 @@ export function TransactionsPage() {
       await refreshAfterMutation();
     } catch (caughtError) {
       setErrorMessage(caughtError instanceof Error ? caughtError.message : "Unable to delete transaction.");
+    }
+  };
+
+  const assignTransactionCategory = async (transaction: Transaction, nextCategoryId: string) => {
+    if (!auth?.accessToken || !nextCategoryId) {
+      return;
+    }
+
+    const category = categories.find((item) => item.id === nextCategoryId);
+
+    try {
+      setErrorMessage("");
+      setStatusMessage("");
+      await apiClient.updateTransaction(auth.accessToken, transaction.id, {
+        categoryId: nextCategoryId,
+        amount: transaction.amount,
+        type: transaction.type,
+        occurredOnUtc: transaction.occurredOnUtc,
+        note: transaction.note?.trim() || undefined
+      });
+      setStatusMessage(`${transactionLabel(transaction, category?.name)} categorized as ${category?.name ?? "selected category"}.`);
+      await refreshAfterMutation();
+    } catch (caughtError) {
+      setErrorMessage(caughtError instanceof Error ? caughtError.message : "Unable to categorize transaction.");
     }
   };
 
@@ -389,7 +427,21 @@ export function TransactionsPage() {
               Search notes
               <input value={noteSearch} onChange={(event) => setNoteSearch(event.target.value)} placeholder="Coffee, payroll, invoice..." />
             </label>
+            <label className="inline-checkbox">
+              <input
+                checked={showUncategorizedOnly}
+                onChange={(event) => setShowUncategorizedOnly(event.target.checked)}
+                type="checkbox"
+              />
+              Needs category
+            </label>
           </div>
+
+          {showUncategorizedOnly ? (
+            <p className="workflow-banner">
+              {uncategorizedExpenseCount} uncategorized expense {uncategorizedExpenseCount === 1 ? "needs" : "need"} review.
+            </p>
+          ) : null}
 
           <div className="table-list transaction-list">
             {visibleTransactions.length === 0 ? (
@@ -412,6 +464,23 @@ export function TransactionsPage() {
                       <p>{transaction.type}</p>
                     </div>
                     <div className="transaction-actions">
+                      {!transaction.categoryId && transaction.type === "Expense" ? (
+                        <label className="quick-category-control">
+                          Assign category to {label}
+                          <select
+                            aria-label={`Assign category to ${label}`}
+                            value=""
+                            onChange={(event) => void assignTransactionCategory(transaction, event.target.value)}
+                          >
+                            <option value="">Choose category</option>
+                            {expenseCategories.map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      ) : null}
                       <button className="ghost-button compact-button" type="button" onClick={() => startEdit(transaction)} aria-label={`Edit ${label}`}>
                         Edit
                       </button>
