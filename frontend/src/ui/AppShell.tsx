@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
+import { useMonthSelection } from "../state/MonthContext";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -14,6 +15,7 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { auth, logout } = useAuth();
+  const { selectedMonth, setSelectedMonth, goToPreviousMonth, goToNextMonth, goToCurrentMonth } = useMonthSelection();
 
   return (
     <div className="shell">
@@ -37,6 +39,27 @@ export function AppShell({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </nav>
+
+        <div className="month-panel">
+          <label htmlFor="global-month">Month</label>
+          <div className="month-controls">
+            <button className="ghost-button compact-button" type="button" onClick={goToPreviousMonth} aria-label="Previous month">
+              &lt;
+            </button>
+            <input
+              id="global-month"
+              type="month"
+              value={selectedMonth}
+              onChange={(event) => setSelectedMonth(event.target.value)}
+            />
+            <button className="ghost-button compact-button" type="button" onClick={goToNextMonth} aria-label="Next month">
+              &gt;
+            </button>
+          </div>
+          <button className="ghost-button month-today-button" type="button" onClick={goToCurrentMonth}>
+            Current month
+          </button>
+        </div>
 
         <div className="sidebar-footer account-panel">
           <div>

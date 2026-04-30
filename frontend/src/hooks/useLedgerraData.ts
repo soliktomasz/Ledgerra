@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import { useAuth } from "../state/AuthContext";
+import { useMonthSelection } from "../state/MonthContext";
 import type { Account, AiSettings, BudgetSummary, Category, DashboardSummary, ImportRule, Profile, Transaction } from "../types";
-
-function currentMonthKey() {
-  return new Date().toISOString().slice(0, 7);
-}
 
 export function useLedgerraData() {
   const { auth } = useAuth();
+  const { selectedMonth, selectedYear, selectedMonthNumber } = useMonthSelection();
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [aiSettings, setAiSettings] = useState<AiSettings | null>(null);
@@ -20,7 +18,7 @@ export function useLedgerraData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!auth?.accessToken) {
       return;
     }
@@ -29,7 +27,6 @@ export function useLedgerraData() {
     setError(null);
 
     try {
-      const month = currentMonthKey();
       const [
         profilePayload,
         aiSettingsPayload,
@@ -42,11 +39,11 @@ export function useLedgerraData() {
       ] = await Promise.all([
         apiClient.getProfile(auth.accessToken),
         apiClient.getAiSettings(auth.accessToken),
-        apiClient.getDashboard(auth.accessToken, month),
+        apiClient.getDashboard(auth.accessToken, selectedMonth),
         apiClient.getAccounts(auth.accessToken),
         apiClient.getCategories(auth.accessToken),
         apiClient.getTransactions(auth.accessToken),
-        apiClient.getBudget(auth.accessToken, Number(month.slice(0, 4)), Number(month.slice(5, 7))),
+        apiClient.getBudget(auth.accessToken, selectedYear, selectedMonthNumber),
         apiClient.getImportRules(auth.accessToken).catch(() => [])
       ]);
 
@@ -63,13 +60,14 @@ export function useLedgerraData() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [auth?.accessToken, selectedMonth, selectedMonthNumber, selectedYear]);
 
   useEffect(() => {
     void refresh();
-  }, [auth?.accessToken]);
+  }, [refresh]);
 
   return {
+    selectedMonth,
     dashboard,
     profile,
     aiSettings,

@@ -2,12 +2,14 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import { useMonthSelection } from "../state/MonthContext";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { formatCurrency } from "../utils/format";
 
 export function BudgetsPage() {
   const { auth } = useAuth();
+  const { selectedYear, selectedMonthNumber } = useMonthSelection();
   const { categories, budget, profile, refresh } = useLedgerraData();
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const expenseCategories = useMemo(
@@ -33,7 +35,6 @@ export function BudgetsPage() {
       return;
     }
 
-    const now = new Date();
     const payload = expenseCategories
       .map((category) => ({
         categoryId: category.id,
@@ -41,7 +42,7 @@ export function BudgetsPage() {
       }))
       .filter((item) => item.plannedAmount > 0);
 
-    await apiClient.updateBudget(auth.accessToken, now.getUTCFullYear(), now.getUTCMonth() + 1, payload);
+    await apiClient.updateBudget(auth.accessToken, selectedYear, selectedMonthNumber, payload);
     await refresh();
   };
 
