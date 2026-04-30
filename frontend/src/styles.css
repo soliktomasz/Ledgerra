@@ -706,6 +706,43 @@ label {
   gap: 0.55rem;
 }
 
+.transaction-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.transaction-list {
+  align-content: start;
+}
+
+.transaction-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.transaction-main,
+.transaction-amount {
+  min-width: 0;
+}
+
+.transaction-note {
+  overflow-wrap: anywhere;
+}
+
+.transaction-actions,
+.transaction-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.transaction-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
 .danger-button {
   color: var(--danger);
 }
@@ -894,11 +931,13 @@ label {
   }
 
   .rule-form,
-  .rule-row {
+  .rule-row,
+  .transaction-filters {
     grid-template-columns: 1fr;
   }
 
-  .rule-actions {
+  .rule-actions,
+  .transaction-actions {
     justify-content: flex-start;
     flex-wrap: wrap;
   }
