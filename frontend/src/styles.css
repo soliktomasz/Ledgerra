@@ -225,6 +225,35 @@ label {
   background: var(--accent);
 }
 
+.month-panel {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.month-panel label {
+  gap: 0;
+}
+
+.month-controls {
+  display: grid;
+  grid-template-columns: 2.55rem minmax(0, 1fr) 2.55rem;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.month-controls input {
+  min-height: 2.55rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.month-today-button {
+  width: 100%;
+}
+
 .sidebar-footer {
   margin-top: auto;
   display: grid;
@@ -871,6 +900,10 @@ label {
 
   .nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .month-panel {
+    max-width: 24rem;
   }
 
   .nav-link {

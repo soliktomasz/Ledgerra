@@ -1,0 +1,79 @@
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { BudgetsPage } from "./BudgetsPage";
+
+const mocks = vi.hoisted(() => ({
+  updateBudget: vi.fn(),
+  refresh: vi.fn(),
+  categories: [
+    { id: "category-1", name: "Groceries", kind: "Expense", isSystem: false },
+    { id: "category-2", name: "Salary", kind: "Income", isSystem: false }
+  ],
+  budget: {
+    totalPlanned: 100,
+    totalSpent: 25,
+    totalRemaining: 75,
+    categories: [
+      {
+        categoryId: "category-1",
+        categoryName: "Groceries",
+        planned: 100,
+        spent: 25,
+        remaining: 75
+      }
+    ]
+  }
+}));
+
+vi.mock("../state/AuthContext", () => ({
+  useAuth: () => ({ auth: { accessToken: "token" } })
+}));
+
+vi.mock("../state/MonthContext", () => ({
+  useMonthSelection: () => ({
+    selectedMonth: "2025-02",
+    selectedYear: 2025,
+    selectedMonthNumber: 2
+  })
+}));
+
+vi.mock("../api/client", () => ({
+  apiClient: {
+    updateBudget: mocks.updateBudget
+  }
+}));
+
+vi.mock("../hooks/useLedgerraData", () => ({
+  useLedgerraData: () => ({
+    categories: mocks.categories,
+    budget: mocks.budget,
+    profile: { preferredCurrencyCode: "USD" },
+    refresh: mocks.refresh
+  })
+}));
+
+describe("BudgetsPage", () => {
+  beforeEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+    mocks.updateBudget.mockResolvedValue(mocks.budget);
+    mocks.refresh.mockResolvedValue(undefined);
+  });
+
+  test("saves budget changes for the globally selected month", async () => {
+    const user = userEvent.setup();
+
+    render(<BudgetsPage />);
+
+    await user.clear(screen.getByLabelText("Groceries"));
+    await user.type(screen.getByLabelText("Groceries"), "125");
+    await user.click(screen.getByRole("button", { name: "Save budget" }));
+
+    await waitFor(() => {
+      expect(mocks.updateBudget).toHaveBeenCalledWith("token", 2025, 2, [
+        { categoryId: "category-1", plannedAmount: 125 }
+      ]);
+    });
+  });
+});

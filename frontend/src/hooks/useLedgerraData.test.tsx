@@ -17,6 +17,14 @@ vi.mock("../state/AuthContext", () => ({
   useAuth: () => ({ auth: { accessToken: "token" } })
 }));
 
+vi.mock("../state/MonthContext", () => ({
+  useMonthSelection: () => ({
+    selectedMonth: "2025-02",
+    selectedYear: 2025,
+    selectedMonthNumber: 2
+  })
+}));
+
 vi.mock("../api/client", () => ({
   apiClient: {
     getProfile: mocks.getProfile,
@@ -69,5 +77,16 @@ describe("useLedgerraData", () => {
     expect(result.current.profile?.email).toBe("owner@ledgerra.local");
     expect(result.current.categories).toEqual([{ id: "category-1", name: "Groceries", kind: "Expense", isSystem: false }]);
     expect(result.current.importRules).toEqual([]);
+  });
+
+  test("loads dashboard and budget data for the globally selected month", async () => {
+    const { result } = renderHook(() => useLedgerraData());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(mocks.getDashboard).toHaveBeenCalledWith("token", "2025-02");
+    expect(mocks.getBudget).toHaveBeenCalledWith("token", 2025, 2);
   });
 });
