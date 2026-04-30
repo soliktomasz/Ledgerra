@@ -248,7 +248,7 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Dining is 82% of its budget.")).toBeInTheDocument();
     expect(screen.getByText("Subscriptions is over budget by $5.00.")).toBeInTheDocument();
     expect(screen.getByText("You have 2 uncategorized expense transactions.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review transactions" })).toHaveAttribute("href", "/transactions");
+    expect(screen.getByRole("link", { name: "Review transactions" })).toHaveAttribute("href", "/transactions?view=uncategorized");
   });
 
   test("prompts users to set a budget when transactions exist without planned limits", () => {

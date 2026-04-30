@@ -32,6 +32,9 @@ export function ImportsPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
   const [rememberingRuleSourceId, setRememberingRuleSourceId] = useState<string | null>(null);
+  const [isRememberingSelectedRules, setIsRememberingSelectedRules] = useState(false);
+  const [hideDuplicates, setHideDuplicates] = useState(false);
+  const [bulkCategoryId, setBulkCategoryId] = useState("");
 
   useEffect(() => {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
@@ -67,6 +70,8 @@ export function ImportsPage() {
             .map((transaction) => transaction.sourceId)
         )
       );
+      setHideDuplicates(false);
+      setBulkCategoryId("");
     } catch (exception) {
       setError(getErrorMessage(exception, "Unable to analyze report."));
     } finally {
@@ -78,33 +83,90 @@ export function ImportsPage() {
     setDrafts((current) => current.map((draft) => (draft.sourceId === sourceId ? { ...draft, ...updates } : draft)));
   };
 
+  const buildImportRulePayload = (draft: MonthlyReportDraftTransaction) => {
+    const note = truncateText(draft.note?.trim() ?? "", MAX_IMPORT_RULE_MATCH_VALUE_LENGTH);
+    const category = categories.find((item) => item.id === draft.categoryId);
+
+    return {
+      name: truncateText(`${note} -> ${category?.name ?? draft.type}`, MAX_IMPORT_RULE_NAME_LENGTH),
+      matchField: "Note",
+      matchOperator: "Contains",
+      matchValue: note,
+      assignCategoryId: draft.categoryId ?? "",
+      assignTransactionType: draft.type,
+      priority: 100,
+      isActive: true
+    };
+  };
+
   const rememberRule = async (draft: MonthlyReportDraftTransaction) => {
     if (!auth?.accessToken || !draft.note?.trim() || !draft.categoryId) {
       return;
     }
 
-    const note = truncateText(draft.note.trim(), MAX_IMPORT_RULE_MATCH_VALUE_LENGTH);
-    const category = categories.find((item) => item.id === draft.categoryId);
     setError(null);
     setRuleMessage(null);
     setRememberingRuleSourceId(draft.sourceId);
     try {
-      await apiClient.createImportRule(auth.accessToken, {
-        name: truncateText(`${note} -> ${category?.name ?? draft.type}`, MAX_IMPORT_RULE_NAME_LENGTH),
-        matchField: "Note",
-        matchOperator: "Contains",
-        matchValue: note,
-        assignCategoryId: draft.categoryId,
-        assignTransactionType: draft.type,
-        priority: 100,
-        isActive: true
-      });
+      await apiClient.createImportRule(auth.accessToken, buildImportRulePayload(draft));
       await refresh();
       setRuleMessage("Import rule saved.");
     } catch (exception) {
       setError(getErrorMessage(exception, "Unable to save import rule."));
     } finally {
       setRememberingRuleSourceId(null);
+    }
+  };
+
+  const visibleDrafts = hideDuplicates ? drafts.filter((draft) => !draft.isLikelyDuplicate) : drafts;
+  const selectedDraftCount = selected.size;
+  const selectedRuleReadyDrafts = drafts.filter((draft) => selected.has(draft.sourceId) && draft.note?.trim() && draft.categoryId);
+
+  const selectAllDrafts = () => {
+    setSelected(new Set(drafts.map((draft) => draft.sourceId)));
+    setAcceptedDuplicateSourceIds(new Set(drafts.filter((draft) => draft.isLikelyDuplicate).map((draft) => draft.sourceId)));
+  };
+
+  const selectSafeDrafts = () => {
+    const safeDrafts = drafts.filter((draft) => !draft.isLikelyDuplicate && draft.confidence >= 0.8 && draft.warnings.length === 0);
+    setSelected(new Set(safeDrafts.map((draft) => draft.sourceId)));
+    setAcceptedDuplicateSourceIds(new Set());
+  };
+
+  const clearSelectedDrafts = () => {
+    setSelected(new Set());
+    setAcceptedDuplicateSourceIds(new Set());
+  };
+
+  const applyBulkCategory = () => {
+    if (!bulkCategoryId || selected.size === 0) {
+      return;
+    }
+
+    const category = categories.find((item) => item.id === bulkCategoryId);
+    setDrafts((current) =>
+      current.map((draft) => (selected.has(draft.sourceId) ? { ...draft, categoryId: bulkCategoryId } : draft))
+    );
+    setRuleMessage(`Applied ${category?.name ?? "category"} to ${selected.size} selected ${selected.size === 1 ? "draft" : "drafts"}.`);
+    setError(null);
+  };
+
+  const rememberSelectedRules = async () => {
+    if (!auth?.accessToken || selectedRuleReadyDrafts.length === 0) {
+      return;
+    }
+
+    setError(null);
+    setRuleMessage(null);
+    setIsRememberingSelectedRules(true);
+    try {
+      await Promise.all(selectedRuleReadyDrafts.map((draft) => apiClient.createImportRule(auth.accessToken, buildImportRulePayload(draft))));
+      await refresh();
+      setRuleMessage(`${selectedRuleReadyDrafts.length} import ${selectedRuleReadyDrafts.length === 1 ? "rule" : "rules"} saved.`);
+    } catch (exception) {
+      setError(getErrorMessage(exception, "Unable to save selected import rules."));
+    } finally {
+      setIsRememberingSelectedRules(false);
     }
   };
 
@@ -185,8 +247,50 @@ export function ImportsPage() {
       {drafts.length > 0 && (
         <SectionCard title="Review drafts">
           {ruleMessage ? <p className="success-banner">{ruleMessage}</p> : null}
+          <div className="review-toolbar" aria-label="Import review tools">
+            <div className="review-toolbar-actions">
+              <strong>{selectedDraftCount} selected</strong>
+              <button className="ghost-button compact-button" type="button" onClick={selectSafeDrafts}>
+                Select safe drafts
+              </button>
+              <button className="ghost-button compact-button" type="button" onClick={selectAllDrafts}>
+                Select all
+              </button>
+              <button className="ghost-button compact-button" type="button" onClick={clearSelectedDrafts}>
+                Clear
+              </button>
+              <button
+                className="ghost-button compact-button"
+                type="button"
+                onClick={() => void rememberSelectedRules()}
+                disabled={selectedRuleReadyDrafts.length === 0 || isRememberingSelectedRules}
+              >
+                {isRememberingSelectedRules ? "Saving rules..." : "Remember selected rules"}
+              </button>
+              <label className="inline-checkbox">
+                <input checked={hideDuplicates} onChange={(event) => setHideDuplicates(event.target.checked)} type="checkbox" />
+                Hide duplicates
+              </label>
+            </div>
+            <div className="bulk-category-actions">
+              <label>
+                Bulk category
+                <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)}>
+                  <option value="">Choose category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button className="ghost-button compact-button" type="button" onClick={applyBulkCategory} disabled={!bulkCategoryId || selected.size === 0}>
+                Apply to selected
+              </button>
+            </div>
+          </div>
           <div className="import-table">
-            {drafts.map((draft) => (
+            {visibleDrafts.map((draft) => (
               <article className="import-row" key={draft.sourceId}>
                 <input
                   aria-label={`Select ${draft.sourceId}`}

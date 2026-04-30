@@ -25,7 +25,10 @@ vi.mock("../api/client", () => ({
 vi.mock("../hooks/useLedgerraData", () => ({
   useLedgerraData: () => ({
     accounts: [{ id: "account-1", name: "Checking", type: "Checking", currencyCode: "USD", openingBalance: 0, currentBalance: 0, isActive: true }],
-    categories: [{ id: "category-1", name: "Groceries", kind: "Expense", isSystem: false }],
+    categories: [
+      { id: "category-1", name: "Groceries", kind: "Expense", isSystem: false },
+      { id: "category-2", name: "Dining", kind: "Expense", isSystem: false }
+    ],
     aiSettings: {
       providers: {
         openAi: { isConfigured: true, maskedKey: "...3456" },
@@ -147,7 +150,7 @@ describe("ImportsPage", () => {
     fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
 
     expect(await screen.findByText("Market groceries")).toBeInTheDocument();
-    expect(screen.getByText(/duplicate/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/duplicate/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Select row-1")).not.toBeChecked();
   });
 
@@ -384,5 +387,117 @@ describe("ImportsPage", () => {
 
     expect(await screen.findByText("Rule name already exists.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Remember this" })).toBeEnabled();
+  });
+
+  test("bulk-selects safe drafts, hides duplicates, and applies a category to selected rows", async () => {
+    const user = userEvent.setup();
+    mocks.analyzeMonthlyReport.mockResolvedValue({
+      warnings: [],
+      transactions: [
+        {
+          sourceId: "row-1",
+          accountId: "account-1",
+          categoryId: null,
+          amount: 18.5,
+          type: "Expense",
+          occurredOnUtc: "2026-04-11T12:00:00Z",
+          note: "Cafe",
+          confidence: 0.91,
+          warnings: []
+        },
+        {
+          sourceId: "row-2",
+          accountId: "account-1",
+          categoryId: null,
+          amount: 42.17,
+          type: "Expense",
+          occurredOnUtc: "2026-04-10T12:00:00Z",
+          note: "Existing market",
+          confidence: 0.95,
+          warnings: [],
+          isLikelyDuplicate: true,
+          duplicateTransactionId: "transaction-1",
+          duplicateReason: "Matches an existing transaction.",
+          isSelectedByDefault: false
+        }
+      ]
+    });
+    mocks.commitMonthlyReportDrafts.mockResolvedValue({ created: [] });
+
+    render(<ImportsPage />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["a,b"], "report.csv", { type: "text/csv" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    await screen.findByDisplayValue("Cafe");
+    await user.click(screen.getByRole("button", { name: "Select safe drafts" }));
+    expect(screen.getByLabelText("Select row-1")).toBeChecked();
+    expect(screen.getByLabelText("Select row-2")).not.toBeChecked();
+
+    await user.selectOptions(screen.getByLabelText("Bulk category"), "category-2");
+    await user.click(screen.getByRole("button", { name: "Apply to selected" }));
+    expect(screen.getByText("Applied Dining to 1 selected draft.")).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText("Hide duplicates"));
+    expect(screen.queryByText("Existing market")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Save selected drafts" }));
+
+    await waitFor(() => {
+      expect(mocks.commitMonthlyReportDrafts).toHaveBeenCalled();
+    });
+    const [, submittedDrafts] = mocks.commitMonthlyReportDrafts.mock.calls[0];
+    expect(submittedDrafts).toHaveLength(1);
+    expect(submittedDrafts[0]).toEqual(expect.objectContaining({ sourceId: "row-1", categoryId: "category-2" }));
+  });
+
+  test("creates import rules for selected reviewed drafts", async () => {
+    const user = userEvent.setup();
+    mocks.analyzeMonthlyReport.mockResolvedValue({
+      warnings: [],
+      transactions: [
+        {
+          sourceId: "row-1",
+          accountId: "account-1",
+          categoryId: "category-2",
+          amount: 18.5,
+          type: "Expense",
+          occurredOnUtc: "2026-04-11T12:00:00Z",
+          note: "Cafe",
+          confidence: 0.91,
+          warnings: []
+        }
+      ]
+    });
+    mocks.createImportRule.mockResolvedValue({ id: "rule-1" });
+
+    render(<ImportsPage />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["a,b"], "report.csv", { type: "text/csv" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    await screen.findByDisplayValue("Cafe");
+    await user.click(screen.getByRole("button", { name: "Remember selected rules" }));
+
+    await waitFor(() => {
+      expect(mocks.createImportRule).toHaveBeenCalledWith("token", {
+        name: "Cafe -> Dining",
+        matchField: "Note",
+        matchOperator: "Contains",
+        matchValue: "Cafe",
+        assignCategoryId: "category-2",
+        assignTransactionType: "Expense",
+        priority: 100,
+        isActive: true
+      });
+    });
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText("1 import rule saved.")).toBeInTheDocument();
   });
 });
