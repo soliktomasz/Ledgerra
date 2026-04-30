@@ -1,10 +1,8 @@
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
-using Ledgerra.Domain.Accounts;
-using Ledgerra.Infrastructure.Persistence;
+using Ledgerra.Application.Accounts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Ledgerra.Api.Controllers;
 
@@ -13,34 +11,41 @@ namespace Ledgerra.Api.Controllers;
 [Route("api/accounts")]
 public sealed class AccountsController : ControllerBase
 {
-    private readonly LedgerraDbContext _dbContext;
+    private readonly CreateAccountCommandHandler _createAccountCommandHandler;
+    private readonly DeleteAccountCommandHandler _deleteAccountCommandHandler;
+    private readonly GetAccountByIdQueryHandler _getAccountByIdQueryHandler;
+    private readonly GetAccountsQueryHandler _getAccountsQueryHandler;
+    private readonly UpdateAccountCommandHandler _updateAccountCommandHandler;
 
-    public AccountsController(LedgerraDbContext dbContext)
+    public AccountsController(
+        CreateAccountCommandHandler createAccountCommandHandler,
+        DeleteAccountCommandHandler deleteAccountCommandHandler,
+        GetAccountByIdQueryHandler getAccountByIdQueryHandler,
+        GetAccountsQueryHandler getAccountsQueryHandler,
+        UpdateAccountCommandHandler updateAccountCommandHandler)
     {
-        _dbContext = dbContext;
+        _createAccountCommandHandler = createAccountCommandHandler;
+        _deleteAccountCommandHandler = deleteAccountCommandHandler;
+        _getAccountByIdQueryHandler = getAccountByIdQueryHandler;
+        _getAccountsQueryHandler = getAccountsQueryHandler;
+        _updateAccountCommandHandler = updateAccountCommandHandler;
     }
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<AccountResponse>>> GetAll(CancellationToken cancellationToken)
     {
-        var userId = User.GetRequiredUserId();
-        var accounts = await _dbContext.Accounts
-            .Where(account => account.UserId == userId)
-            .Include(account => account.Transactions)
-            .OrderBy(account => account.Name)
-            .ToListAsync(cancellationToken);
-
+        var accounts = await _getAccountsQueryHandler.HandleAsync(
+            new GetAccountsQuery(User.GetRequiredUserId()),
+            cancellationToken);
         return Ok(accounts.Select(MapAccount));
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AccountResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var userId = User.GetRequiredUserId();
-        var account = await _dbContext.Accounts
-            .Where(item => item.UserId == userId && item.Id == id)
-            .Include(item => item.Transactions)
-            .SingleOrDefaultAsync(cancellationToken);
+        var account = await _getAccountByIdQueryHandler.HandleAsync(
+            new GetAccountByIdQuery(User.GetRequiredUserId(), id),
+            cancellationToken);
 
         return account is null ? NotFound() : Ok(MapAccount(account));
     }
@@ -48,74 +53,69 @@ public sealed class AccountsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AccountResponse>> Create(CreateAccountRequest request, CancellationToken cancellationToken)
     {
-        if (!EnumParsingExtensions.TryParseAccountType(request.Type, out var accountType))
+        var result = await _createAccountCommandHandler.HandleAsync(
+            new CreateAccountCommand(
+                User.GetRequiredUserId(),
+                request.Name,
+                request.Type,
+                request.CurrencyCode,
+                request.OpeningBalance),
+            cancellationToken);
+
+        if (result.HasValidationError)
         {
             return this.ValidationError(new Dictionary<string, string[]>
             {
-                ["type"] = ["Unsupported account type."]
+                [result.ValidationKey!] = [result.ValidationMessage!]
             });
         }
 
-        var account = new Account
-        {
-            Id = Guid.NewGuid(),
-            UserId = User.GetRequiredUserId(),
-            Name = request.Name.Trim(),
-            Type = accountType,
-            CurrencyCode = request.CurrencyCode.ToUpperInvariant(),
-            OpeningBalance = request.OpeningBalance
-        };
-
-        _dbContext.Accounts.Add(account);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return CreatedAtAction(nameof(GetById), new { id = account.Id }, MapAccount(account));
+        return CreatedAtAction(nameof(GetById), new { id = result.Account!.Id }, MapAccount(result.Account));
     }
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<AccountResponse>> Update(Guid id, UpdateAccountRequest request, CancellationToken cancellationToken)
     {
-        if (!EnumParsingExtensions.TryParseAccountType(request.Type, out var accountType))
+        var result = await _updateAccountCommandHandler.HandleAsync(
+            new UpdateAccountCommand(
+                User.GetRequiredUserId(),
+                id,
+                request.Name,
+                request.Type,
+                request.CurrencyCode,
+                request.OpeningBalance,
+                request.IsActive),
+            cancellationToken);
+
+        if (result.HasValidationError)
         {
             return this.ValidationError(new Dictionary<string, string[]>
             {
-                ["type"] = ["Unsupported account type."]
+                [result.ValidationKey!] = [result.ValidationMessage!]
             });
         }
 
-        var userId = User.GetRequiredUserId();
-        var account = await _dbContext.Accounts.SingleOrDefaultAsync(item => item.UserId == userId && item.Id == id, cancellationToken);
-        if (account is null)
+        if (result.IsNotFound)
         {
             return NotFound();
         }
 
-        account.Name = request.Name.Trim();
-        account.Type = accountType;
-        account.CurrencyCode = request.CurrencyCode.ToUpperInvariant();
-        account.OpeningBalance = request.OpeningBalance;
-        account.IsActive = request.IsActive;
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        var refreshed = await _dbContext.Accounts.Include(item => item.Transactions).SingleAsync(item => item.Id == id, cancellationToken);
-        return Ok(MapAccount(refreshed));
+        return Ok(MapAccount(result.Account!));
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var userId = User.GetRequiredUserId();
-        var account = await _dbContext.Accounts
-            .Include(item => item.Transactions)
-            .SingleOrDefaultAsync(item => item.UserId == userId && item.Id == id, cancellationToken);
+        var result = await _deleteAccountCommandHandler.HandleAsync(
+            new DeleteAccountCommand(User.GetRequiredUserId(), id),
+            cancellationToken);
 
-        if (account is null)
+        if (result == AccountDeleteStatus.NotFound)
         {
             return NotFound();
         }
 
-        if (account.Transactions.Count > 0)
+        if (result == AccountDeleteStatus.HasTransactions)
         {
             return Conflict(new ProblemDetails
             {
@@ -124,20 +124,18 @@ public sealed class AccountsController : ControllerBase
             });
         }
 
-        _dbContext.Accounts.Remove(account);
-        await _dbContext.SaveChangesAsync(cancellationToken);
         return NoContent();
     }
 
-    private static AccountResponse MapAccount(Account account)
+    private static AccountResponse MapAccount(AccountDetails account)
     {
         return new AccountResponse(
             account.Id,
             account.Name,
-            account.Type.ToString(),
+            account.Type,
             account.CurrencyCode,
             account.OpeningBalance,
-            AccountBalanceCalculator.Calculate(account, account.Transactions),
+            account.CurrentBalance,
             account.IsActive);
     }
 }

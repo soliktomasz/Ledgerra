@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Ledgerra.Application\Ledgerra.Application.csproj" />
     <ProjectReference Include="..\Ledgerra.Domain\Ledgerra.Domain.csproj" />
     <ProjectReference Include="..\Ledgerra.Infrastructure\Ledgerra.Infrastructure.csproj" />
   </ItemGroup>
