@@ -6,6 +6,17 @@ import type { MonthlyReportDraftTransaction } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 
+const MAX_IMPORT_RULE_NAME_LENGTH = 120;
+const MAX_IMPORT_RULE_MATCH_VALUE_LENGTH = 200;
+
+function truncateText(value: string, maxLength: number) {
+  return value.length > maxLength ? value.slice(0, maxLength) : value;
+}
+
+function getErrorMessage(exception: unknown, fallback: string) {
+  return exception instanceof Error ? exception.message : fallback;
+}
+
 export function ImportsPage() {
   const { auth } = useAuth();
   const { accounts, categories, aiSettings, refresh } = useLedgerraData();
@@ -15,8 +26,12 @@ export function ImportsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [drafts, setDrafts] = useState<MonthlyReportDraftTransaction[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [acceptedDuplicateSourceIds, setAcceptedDuplicateSourceIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [ruleMessage, setRuleMessage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [rememberingRuleSourceId, setRememberingRuleSourceId] = useState<string | null>(null);
 
   useEffect(() => {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
@@ -33,13 +48,27 @@ export function ImportsPage() {
     }
 
     setError(null);
+    setRuleMessage(null);
     setIsAnalyzing(true);
     try {
       const analysis = await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file });
       setDrafts(analysis.transactions);
-      setSelected(new Set(analysis.transactions.map((transaction) => transaction.sourceId)));
+      setSelected(
+        new Set(
+          analysis.transactions
+            .filter((transaction) => transaction.isSelectedByDefault ?? !transaction.isLikelyDuplicate)
+            .map((transaction) => transaction.sourceId)
+        )
+      );
+      setAcceptedDuplicateSourceIds(
+        new Set(
+          analysis.transactions
+            .filter((transaction) => transaction.isLikelyDuplicate && transaction.isSelectedByDefault)
+            .map((transaction) => transaction.sourceId)
+        )
+      );
     } catch (exception) {
-      setError(exception instanceof Error ? exception.message : "Unable to analyze report.");
+      setError(getErrorMessage(exception, "Unable to analyze report."));
     } finally {
       setIsAnalyzing(false);
     }
@@ -49,15 +78,65 @@ export function ImportsPage() {
     setDrafts((current) => current.map((draft) => (draft.sourceId === sourceId ? { ...draft, ...updates } : draft)));
   };
 
+  const rememberRule = async (draft: MonthlyReportDraftTransaction) => {
+    if (!auth?.accessToken || !draft.note?.trim() || !draft.categoryId) {
+      return;
+    }
+
+    const note = truncateText(draft.note.trim(), MAX_IMPORT_RULE_MATCH_VALUE_LENGTH);
+    const category = categories.find((item) => item.id === draft.categoryId);
+    setError(null);
+    setRuleMessage(null);
+    setRememberingRuleSourceId(draft.sourceId);
+    try {
+      await apiClient.createImportRule(auth.accessToken, {
+        name: truncateText(`${note} -> ${category?.name ?? draft.type}`, MAX_IMPORT_RULE_NAME_LENGTH),
+        matchField: "Note",
+        matchOperator: "Contains",
+        matchValue: note,
+        assignCategoryId: draft.categoryId,
+        assignTransactionType: draft.type,
+        priority: 100,
+        isActive: true
+      });
+      await refresh();
+      setRuleMessage("Import rule saved.");
+    } catch (exception) {
+      setError(getErrorMessage(exception, "Unable to save import rule."));
+    } finally {
+      setRememberingRuleSourceId(null);
+    }
+  };
+
   const handleCommit = async () => {
     if (!auth?.accessToken) {
       return;
     }
 
-    await apiClient.commitMonthlyReportDrafts(auth.accessToken, drafts.filter((draft) => selected.has(draft.sourceId)));
-    setDrafts([]);
-    setSelected(new Set());
-    await refresh();
+    if (selected.size === 0) {
+      setError("Select at least one draft to save.");
+      setRuleMessage(null);
+      return;
+    }
+
+    setError(null);
+    setRuleMessage(null);
+    setIsCommitting(true);
+    try {
+      await apiClient.commitMonthlyReportDrafts(
+        auth.accessToken,
+        drafts.filter((draft) => selected.has(draft.sourceId)),
+        Array.from(acceptedDuplicateSourceIds)
+      );
+      setDrafts([]);
+      setSelected(new Set());
+      setAcceptedDuplicateSourceIds(new Set());
+      await refresh();
+    } catch (exception) {
+      setError(getErrorMessage(exception, "Unable to save selected drafts."));
+    } finally {
+      setIsCommitting(false);
+    }
   };
 
   return (
@@ -105,6 +184,7 @@ export function ImportsPage() {
 
       {drafts.length > 0 && (
         <SectionCard title="Review drafts">
+          {ruleMessage ? <p className="success-banner">{ruleMessage}</p> : null}
           <div className="import-table">
             {drafts.map((draft) => (
               <article className="import-row" key={draft.sourceId}>
@@ -115,6 +195,16 @@ export function ImportsPage() {
                     setSelected((current) => {
                       const next = new Set(current);
                       if (event.target.checked) {
+                        next.add(draft.sourceId);
+                      } else {
+                        next.delete(draft.sourceId);
+                      }
+
+                      return next;
+                    });
+                    setAcceptedDuplicateSourceIds((current) => {
+                      const next = new Set(current);
+                      if (draft.isLikelyDuplicate && event.target.checked) {
                         next.add(draft.sourceId);
                       } else {
                         next.delete(draft.sourceId);
@@ -164,11 +254,29 @@ export function ImportsPage() {
                 />
                 <input value={draft.note ?? ""} onChange={(event) => updateDraft(draft.sourceId, { note: event.target.value })} />
                 <strong>{Math.round(draft.confidence * 100)}%</strong>
+                <div className="import-review-flags">
+                  {draft.appliedRuleName ? <span className="status-badge success">{draft.appliedRuleName}</span> : null}
+                  {draft.isLikelyDuplicate ? <span className="status-badge danger">Duplicate</span> : null}
+                  {draft.duplicateReason ? <small>{draft.duplicateReason}</small> : null}
+                  {draft.warnings.map((warning) => (
+                    <small key={warning}>{warning}</small>
+                  ))}
+                  {draft.note?.trim() && draft.categoryId ? (
+                    <button
+                      className="ghost-button compact-button"
+                      type="button"
+                      onClick={() => rememberRule(draft)}
+                      disabled={rememberingRuleSourceId === draft.sourceId}
+                    >
+                      {rememberingRuleSourceId === draft.sourceId ? "Saving rule..." : "Remember this"}
+                    </button>
+                  ) : null}
+                </div>
               </article>
             ))}
           </div>
-          <button className="primary-button" onClick={handleCommit} type="button">
-            Save selected drafts
+          <button className="primary-button" onClick={handleCommit} type="button" disabled={isCommitting}>
+            {isCommitting ? "Saving..." : "Save selected drafts"}
           </button>
         </SectionCard>
       )}

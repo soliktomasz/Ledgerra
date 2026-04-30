@@ -5,6 +5,7 @@ import type {
   BudgetSummary,
   Category,
   DashboardSummary,
+  ImportRule,
   MonthlyReportAnalysis,
   MonthlyReportDraftTransaction,
   Profile,
@@ -139,6 +140,38 @@ export const apiClient = {
   getCategories(token: string) {
     return request<Category[]>("/api/categories", { token });
   },
+  getImportRules(token: string) {
+    return request<ImportRule[]>("/api/import-rules", { token });
+  },
+  createImportRule(token: string, payload: Omit<ImportRule, "id" | "createdAtUtc" | "updatedAtUtc">) {
+    return request<ImportRule>("/api/import-rules", {
+      method: "POST",
+      token,
+      body: payload
+    });
+  },
+  updateImportRule(token: string, rule: ImportRule) {
+    return request<ImportRule>(`/api/import-rules/${rule.id}`, {
+      method: "PUT",
+      token,
+      body: {
+        name: rule.name,
+        matchField: rule.matchField,
+        matchOperator: rule.matchOperator,
+        matchValue: rule.matchValue,
+        assignCategoryId: rule.assignCategoryId,
+        assignTransactionType: rule.assignTransactionType,
+        priority: rule.priority,
+        isActive: rule.isActive
+      }
+    });
+  },
+  deleteImportRule(token: string, ruleId: string) {
+    return request<void>(`/api/import-rules/${ruleId}`, {
+      method: "DELETE",
+      token
+    });
+  },
   createCategory(token: string, payload: Pick<Category, "name" | "kind" | "color">) {
     return request<Category>("/api/categories", {
       method: "POST",
@@ -186,11 +219,11 @@ export const apiClient = {
       return response.json() as Promise<MonthlyReportAnalysis>;
     });
   },
-  commitMonthlyReportDrafts(token: string, transactions: MonthlyReportDraftTransaction[]) {
+  commitMonthlyReportDrafts(token: string, transactions: MonthlyReportDraftTransaction[], acceptedDuplicateSourceIds: string[] = []) {
     return request<{ created: Transaction[] }>("/api/imports/monthly-report/commit", {
       method: "POST",
       token,
-      body: { transactions }
+      body: { transactions, acceptedDuplicateSourceIds }
     });
   },
   getBudget(token: string, year: number, month: number) {

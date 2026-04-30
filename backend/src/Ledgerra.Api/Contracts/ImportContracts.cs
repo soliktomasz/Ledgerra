@@ -15,16 +15,27 @@ public sealed record MonthlyReportDraftTransactionResponse(
     DateTime OccurredOnUtc,
     string? Note,
     decimal Confidence,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings,
+    Guid? AppliedRuleId,
+    string? AppliedRuleName,
+    bool IsLikelyDuplicate,
+    Guid? DuplicateTransactionId,
+    string? DuplicateReason,
+    bool IsSelectedByDefault);
 
 public sealed class CommitMonthlyReportDraftsRequest
 {
     [Required, MinLength(1)]
     public IReadOnlyList<CommitMonthlyReportDraftRequest> Transactions { get; init; } = [];
+
+    public IReadOnlyList<string> AcceptedDuplicateSourceIds { get; init; } = [];
 }
 
 public sealed class CommitMonthlyReportDraftRequest : IValidatableObject
 {
+    [Required, MaxLength(120)]
+    public string SourceId { get; init; } = string.Empty;
+
     [Required]
     public Guid AccountId { get; init; }
 

@@ -23,6 +23,8 @@ builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequ
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<AnthropicReportAnalysisClient>());
 builder.Services.AddScoped<AiReportAnalysisClientFactory>();
 builder.Services.AddScoped<AiReportAnalysisService>();
+builder.Services.AddScoped<IImportCategorizationRuleMatcher, ImportCategorizationRuleMatcher>();
+builder.Services.AddScoped<IImportDuplicateDetector, ImportDuplicateDetector>();
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
@@ -93,6 +95,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<LedgerraDbContext>();
     await dbContext.Database.EnsureCreatedAsync();
+    await CategorizationRuleSchemaInitializer.InitializeAsync(dbContext);
 }
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));

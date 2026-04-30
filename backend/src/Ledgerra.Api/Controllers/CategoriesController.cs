@@ -103,8 +103,9 @@ public sealed class CategoriesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
+        var userId = User.GetRequiredUserId();
         var category = await _dbContext.Categories.SingleOrDefaultAsync(
-            item => item.UserId == User.GetRequiredUserId() && item.Id == id,
+            item => item.UserId == userId && item.Id == id,
             cancellationToken);
 
         if (category is null)
@@ -112,9 +113,47 @@ public sealed class CategoriesController : ControllerBase
             return NotFound();
         }
 
+        var isUsedByImportRules = await _dbContext.CategorizationRules.AnyAsync(
+            rule => rule.UserId == userId && rule.AssignCategoryId == id,
+            cancellationToken);
+
+        if (isUsedByImportRules)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Category is used by import rules",
+                Detail = "Delete or move those import rules before deleting this category."
+            });
+        }
+
         _dbContext.Categories.Remove(category);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (IsImportRuleCategoryReferenceViolation(exception))
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Category is used by import rules",
+                Detail = "Delete or move those import rules before deleting this category."
+            });
+        }
+
         return NoContent();
+    }
+
+    private static bool IsImportRuleCategoryReferenceViolation(DbUpdateException exception)
+    {
+        var innerException = exception.InnerException;
+        if (innerException?.GetType().FullName != "Npgsql.PostgresException")
+        {
+            return false;
+        }
+
+        var sqlState = innerException.GetType().GetProperty("SqlState")?.GetValue(innerException) as string;
+        var constraintName = innerException.GetType().GetProperty("ConstraintName")?.GetValue(innerException) as string;
+        return sqlState == "23503" && constraintName == "FK_CategorizationRules_Categories_AssignCategoryId";
     }
 
     private static CategoryResponse MapCategory(Category category)

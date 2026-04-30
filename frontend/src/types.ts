@@ -63,11 +63,31 @@ export type MonthlyReportDraftTransaction = {
   note?: string | null;
   confidence: number;
   warnings: string[];
+  appliedRuleId?: string | null;
+  appliedRuleName?: string | null;
+  isLikelyDuplicate?: boolean;
+  duplicateTransactionId?: string | null;
+  duplicateReason?: string | null;
+  isSelectedByDefault?: boolean;
 };
 
 export type MonthlyReportAnalysis = {
   transactions: MonthlyReportDraftTransaction[];
   warnings: string[];
+};
+
+export type ImportRule = {
+  id: string;
+  name: string;
+  matchField: string;
+  matchOperator: string;
+  matchValue: string;
+  assignCategoryId: string;
+  assignTransactionType: string;
+  priority: number;
+  isActive: boolean;
+  createdAtUtc: string;
+  updatedAtUtc: string;
 };
 
 export type BudgetCategory = {

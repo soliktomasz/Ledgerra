@@ -1,19 +1,31 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import type { ImportRule } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 
+function getErrorMessage(exception: unknown, fallback: string) {
+  return exception instanceof Error ? exception.message : fallback;
+}
+
 export function SettingsPage() {
   const { auth } = useAuth();
-  const { profile, aiSettings, refresh } = useLedgerraData();
+  const { profile, aiSettings, categories, importRules, refresh } = useLedgerraData();
   const [preferredCurrencyCode, setPreferredCurrencyCode] = useState("USD");
   const [defaultProvider, setDefaultProvider] = useState("OpenAi");
   const [openAiKey, setOpenAiKey] = useState("");
   const [anthropicKey, setAnthropicKey] = useState("");
   const [aiProviderError, setAiProviderError] = useState<string | null>(null);
+  const [ruleName, setRuleName] = useState("");
+  const [ruleMatchValue, setRuleMatchValue] = useState("");
+  const [transactionType, setTransactionType] = useState("Expense");
+  const [ruleCategoryId, setRuleCategoryId] = useState("");
+  const [ruleError, setRuleError] = useState<string | null>(null);
+
+  const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
   useEffect(() => {
     setPreferredCurrencyCode(profile?.preferredCurrencyCode ?? "USD");
@@ -22,6 +34,17 @@ export function SettingsPage() {
   useEffect(() => {
     setDefaultProvider(aiSettings?.defaultProvider ?? "OpenAi");
   }, [aiSettings?.defaultProvider]);
+
+  useEffect(() => {
+    if (filteredCategories.length === 0) {
+      setRuleCategoryId("");
+      return;
+    }
+
+    if (!filteredCategories.some((category) => category.id === ruleCategoryId)) {
+      setRuleCategoryId(filteredCategories[0].id);
+    }
+  }, [filteredCategories, ruleCategoryId]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -70,8 +93,70 @@ export function SettingsPage() {
     await refresh();
   };
 
+  const handleRuleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!auth?.accessToken || !ruleCategoryId) {
+      return;
+    }
+
+    try {
+      setRuleError(null);
+      const name = ruleName.trim();
+      const value = ruleMatchValue.trim();
+      if (!name || !value) {
+        setRuleError("Rule name and match text are required.");
+        return;
+      }
+
+      await apiClient.createImportRule(auth.accessToken, {
+        name,
+        matchField: "Note",
+        matchOperator: "Contains",
+        matchValue: value,
+        assignCategoryId: ruleCategoryId,
+        assignTransactionType: transactionType,
+        priority: 100,
+        isActive: true
+      });
+      setRuleName("");
+      setRuleMatchValue("");
+      await refresh();
+    } catch (exception) {
+      setRuleError(getErrorMessage(exception, "Unable to save import rule."));
+    }
+  };
+
+  const handleToggleRule = async (rule: ImportRule) => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    try {
+      setRuleError(null);
+      await apiClient.updateImportRule(auth.accessToken, { ...rule, isActive: !rule.isActive });
+      await refresh();
+    } catch (exception) {
+      setRuleError(getErrorMessage(exception, "Unable to update import rule."));
+    }
+  };
+
+  const handleDeleteRule = async (ruleId: string) => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    try {
+      setRuleError(null);
+      await apiClient.deleteImportRule(auth.accessToken, ruleId);
+      await refresh();
+    } catch (exception) {
+      setRuleError(getErrorMessage(exception, "Unable to delete import rule."));
+    }
+  };
+
   const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
   const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
+  const categoryNamesById = new Map(categories.map((category) => [category.id, category.name]));
 
   return (
     <div className="page-stack">
@@ -174,6 +259,66 @@ export function SettingsPage() {
               </button>
             </div>
           </article>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Import rules">
+        <form className="stack-form rule-form" onSubmit={handleRuleSubmit}>
+          {ruleError ? <p className="error-banner">{ruleError}</p> : null}
+          <label>
+            Rule name
+            <input value={ruleName} onChange={(event) => setRuleName(event.target.value)} placeholder="Coffee shops" required />
+          </label>
+          <label>
+            Match text
+            <input value={ruleMatchValue} onChange={(event) => setRuleMatchValue(event.target.value)} placeholder="Cafe" required />
+          </label>
+          <label>
+            Transaction type
+            <select value={transactionType} onChange={(event) => setTransactionType(event.target.value)}>
+              <option>Expense</option>
+              <option>Income</option>
+            </select>
+          </label>
+          <label>
+            Category
+            <select value={ruleCategoryId} onChange={(event) => setRuleCategoryId(event.target.value)} disabled={filteredCategories.length === 0}>
+              {filteredCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button className="primary-button" type="submit" disabled={filteredCategories.length === 0}>
+            Add rule
+          </button>
+        </form>
+        <div className="table-list compact-list rule-list">
+          {importRules.length === 0 ? (
+            <p className="empty-state">No import rules yet.</p>
+          ) : (
+            importRules.map((rule) => (
+              <article className="table-row rule-row" key={rule.id}>
+                <div>
+                  <strong>{rule.name}</strong>
+                  <p>
+                    {rule.matchField} {rule.matchOperator.toLowerCase()} "{rule.matchValue}" -&gt;{" "}
+                    {categoryNamesById.get(rule.assignCategoryId) ?? "Unknown category"}
+                  </p>
+                </div>
+                <div className="rule-actions">
+                  <strong>{rule.isActive ? "Active" : "Disabled"}</strong>
+                  <button className="ghost-button" type="button" aria-label={`${rule.isActive ? "Disable" : "Enable"} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
+                    {rule.isActive ? "Disable" : "Enable"}
+                  </button>
+                  <button className="ghost-button danger-button" type="button" aria-label={`Delete ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
+                    Delete
+                  </button>
+                </div>
+              </article>
+            ))
+          )}
         </div>
       </SectionCard>
 

@@ -2,6 +2,7 @@ using Ledgerra.Domain.Accounts;
 using Ledgerra.Domain.Ai;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
+using Ledgerra.Domain.Imports;
 using Ledgerra.Domain.Transactions;
 
 namespace Ledgerra.Domain.Auth;
@@ -29,6 +30,8 @@ public sealed class AppUser
     public List<RefreshToken> RefreshTokens { get; set; } = [];
 
     public List<AiProviderCredential> AiProviderCredentials { get; set; } = [];
+
+    public List<CategorizationRule> CategorizationRules { get; set; } = [];
 
     public UserAiPreference? AiPreference { get; set; }
 }

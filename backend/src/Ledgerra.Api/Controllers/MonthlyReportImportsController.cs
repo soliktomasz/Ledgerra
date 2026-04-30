@@ -18,15 +18,21 @@ public sealed class MonthlyReportImportsController : ControllerBase
     private readonly LedgerraDbContext _dbContext;
     private readonly IReportContentExtractor _reportContentExtractor;
     private readonly AiReportAnalysisService _aiReportAnalysisService;
+    private readonly IImportCategorizationRuleMatcher _categorizationRuleMatcher;
+    private readonly IImportDuplicateDetector _duplicateDetector;
 
     public MonthlyReportImportsController(
         LedgerraDbContext dbContext,
         IReportContentExtractor reportContentExtractor,
-        AiReportAnalysisService aiReportAnalysisService)
+        AiReportAnalysisService aiReportAnalysisService,
+        IImportCategorizationRuleMatcher categorizationRuleMatcher,
+        IImportDuplicateDetector duplicateDetector)
     {
         _dbContext = dbContext;
         _reportContentExtractor = reportContentExtractor;
         _aiReportAnalysisService = aiReportAnalysisService;
+        _categorizationRuleMatcher = categorizationRuleMatcher;
+        _duplicateDetector = duplicateDetector;
     }
 
     [HttpPost("analyze")]
@@ -47,21 +53,25 @@ public sealed class MonthlyReportImportsController : ControllerBase
 
         try
         {
+            var userId = User.GetRequiredUserId();
             var report = await _reportContentExtractor.ExtractAsync(file, cancellationToken);
             var result = await _aiReportAnalysisService.AnalyzeAsync(
-                User.GetRequiredUserId(),
+                userId,
                 accountId,
                 parsedProvider,
                 month,
                 report,
                 cancellationToken);
 
-            var transactions = new List<MonthlyReportDraftTransactionResponse>();
+            var analyzedDrafts = new List<ImportDraftReviewItem>();
+            var sourceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var transaction in result.Transactions)
             {
                 if (!Guid.TryParse(transaction.AccountId, out var parsedAccountId) ||
                     (transaction.CategoryId is not null && !Guid.TryParse(transaction.CategoryId, out _)) ||
-                    !DateTime.TryParse(transaction.OccurredOnUtc, out var parsedOccurredOnUtc))
+                    !DateTime.TryParse(transaction.OccurredOnUtc, out var parsedOccurredOnUtc) ||
+                    string.IsNullOrWhiteSpace(transaction.SourceId) ||
+                    !sourceIds.Add(transaction.SourceId))
                 {
                     return this.ValidationError(new Dictionary<string, string[]>
                     {
@@ -70,7 +80,7 @@ public sealed class MonthlyReportImportsController : ControllerBase
                 }
 
                 var parsedCategoryId = transaction.CategoryId is null ? (Guid?)null : Guid.Parse(transaction.CategoryId);
-                transactions.Add(new MonthlyReportDraftTransactionResponse(
+                analyzedDrafts.Add(ImportDraftReviewItem.FromAnalyzedDraft(
                     transaction.SourceId,
                     parsedAccountId,
                     parsedCategoryId,
@@ -82,7 +92,9 @@ public sealed class MonthlyReportImportsController : ControllerBase
                     transaction.Warnings));
             }
 
-            return Ok(new MonthlyReportAnalysisResponse(transactions, result.Warnings));
+            var categorizedDrafts = await _categorizationRuleMatcher.ApplyAsync(userId, analyzedDrafts, cancellationToken);
+            var reviewedDrafts = await _duplicateDetector.MarkDuplicatesAsync(userId, categorizedDrafts, cancellationToken);
+            return Ok(new MonthlyReportAnalysisResponse(reviewedDrafts.Select(MapDraft).ToList(), result.Warnings));
         }
         catch (InvalidOperationException exception)
         {
@@ -96,7 +108,18 @@ public sealed class MonthlyReportImportsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
-        var transactions = new List<Transaction>();
+
+        var sourceIdValidation = ValidateSourceIds(request.Transactions);
+        if (sourceIdValidation is not null)
+        {
+            return sourceIdValidation;
+        }
+
+        var acceptedSourceIdValidation = ValidateAcceptedDuplicateSourceIds(request.AcceptedDuplicateSourceIds);
+        if (acceptedSourceIdValidation is not null)
+        {
+            return acceptedSourceIdValidation;
+        }
 
         foreach (var draft in request.Transactions)
         {
@@ -105,7 +128,28 @@ public sealed class MonthlyReportImportsController : ControllerBase
             {
                 return validation;
             }
+        }
 
+        var acceptedDuplicateSourceIds = request.AcceptedDuplicateSourceIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var reviewedDrafts = await _duplicateDetector.MarkDuplicatesAsync(
+            userId,
+            request.Transactions.Select(ImportDraftFromCommitRequest).ToList(),
+            cancellationToken);
+
+        var unacceptedDuplicate = reviewedDrafts.FirstOrDefault(draft =>
+            draft.IsLikelyDuplicate && !acceptedDuplicateSourceIds.Contains(draft.SourceId));
+
+        if (unacceptedDuplicate is not null)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["duplicates"] = [$"Draft {unacceptedDuplicate.SourceId} appears to duplicate an existing transaction."]
+            });
+        }
+
+        var transactions = new List<Transaction>();
+        foreach (var draft in request.Transactions)
+        {
             EnumParsingExtensions.TryParseTransactionType(draft.Type, out var parsedType);
             transactions.Add(new Transaction
             {
@@ -124,6 +168,56 @@ public sealed class MonthlyReportImportsController : ControllerBase
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Created("/api/transactions", new CommitMonthlyReportDraftsResponse(transactions.Select(MapTransaction).ToList()));
+    }
+
+    private BadRequestObjectResult? ValidateSourceIds(IReadOnlyList<CommitMonthlyReportDraftRequest> drafts)
+    {
+        if (drafts.Any(draft => string.IsNullOrWhiteSpace(draft.SourceId)))
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["sourceId"] = ["Imported report draft sourceId must be set."]
+            });
+        }
+
+        var duplicateSourceId = drafts
+            .GroupBy(draft => draft.SourceId, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() > 1);
+
+        if (duplicateSourceId is not null)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["sourceId"] = [$"Imported report draft sourceId '{duplicateSourceId.Key}' must be unique within the request."]
+            });
+        }
+
+        return null;
+    }
+
+    private BadRequestObjectResult? ValidateAcceptedDuplicateSourceIds(IReadOnlyList<string> sourceIds)
+    {
+        if (sourceIds.Any(string.IsNullOrWhiteSpace))
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["acceptedDuplicateSourceIds"] = ["Accepted duplicate source ids must not be blank."]
+            });
+        }
+
+        var duplicateSourceId = sourceIds
+            .GroupBy(sourceId => sourceId, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() > 1);
+
+        if (duplicateSourceId is not null)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                ["acceptedDuplicateSourceIds"] = [$"Accepted duplicate source id '{duplicateSourceId.Key}' must be unique within the request."]
+            });
+        }
+
+        return null;
     }
 
     private async Task<ObjectResult?> ValidateDraftAsync(Guid userId, CommitMonthlyReportDraftRequest draft, CancellationToken cancellationToken)
@@ -177,5 +271,39 @@ public sealed class MonthlyReportImportsController : ControllerBase
             transaction.OccurredOnUtc,
             transaction.Note,
             transaction.TransferGroupId);
+    }
+
+    private static MonthlyReportDraftTransactionResponse MapDraft(ImportDraftReviewItem draft)
+    {
+        return new MonthlyReportDraftTransactionResponse(
+            draft.SourceId,
+            draft.AccountId,
+            draft.CategoryId,
+            draft.Amount,
+            draft.Type,
+            draft.OccurredOnUtc,
+            draft.Note,
+            draft.Confidence,
+            draft.Warnings,
+            draft.AppliedRuleId,
+            draft.AppliedRuleName,
+            draft.IsLikelyDuplicate,
+            draft.DuplicateTransactionId,
+            draft.DuplicateReason,
+            draft.IsSelectedByDefault);
+    }
+
+    private static ImportDraftReviewItem ImportDraftFromCommitRequest(CommitMonthlyReportDraftRequest draft)
+    {
+        return ImportDraftReviewItem.FromAnalyzedDraft(
+            draft.SourceId,
+            draft.AccountId,
+            draft.CategoryId,
+            draft.Amount,
+            draft.Type,
+            draft.OccurredOnUtc.ToUniversalTime(),
+            draft.Note,
+            1m,
+            []);
     }
 }
