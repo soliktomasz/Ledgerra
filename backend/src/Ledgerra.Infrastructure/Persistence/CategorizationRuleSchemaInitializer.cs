@@ -16,6 +16,29 @@ public static class CategorizationRuleSchemaInitializer
 
         await dbContext.Database.ExecuteSqlRawAsync(
             """
+            CREATE TABLE IF NOT EXISTS "AiProviderCredentials" (
+                "Id" uuid NOT NULL,
+                "UserId" uuid NOT NULL,
+                "Provider" character varying(32) NOT NULL,
+                "EncryptedApiKey" character varying(4096) NOT NULL,
+                "MaskedKey" character varying(32) NOT NULL,
+                "CreatedAtUtc" timestamp with time zone NOT NULL,
+                "UpdatedAtUtc" timestamp with time zone NOT NULL,
+                CONSTRAINT "PK_AiProviderCredentials" PRIMARY KEY ("Id"),
+                CONSTRAINT "FK_AiProviderCredentials_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_AiProviderCredentials_UserId_Provider"
+                ON "AiProviderCredentials" ("UserId", "Provider");
+
+            CREATE TABLE IF NOT EXISTS "UserAiPreferences" (
+                "UserId" uuid NOT NULL,
+                "DefaultProvider" character varying(32) NULL,
+                "UpdatedAtUtc" timestamp with time zone NOT NULL,
+                CONSTRAINT "PK_UserAiPreferences" PRIMARY KEY ("UserId"),
+                CONSTRAINT "FK_UserAiPreferences_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+            );
+
             CREATE TABLE IF NOT EXISTS "CategorizationRules" (
                 "Id" uuid NOT NULL,
                 "UserId" uuid NOT NULL,
