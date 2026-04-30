@@ -200,6 +200,30 @@ export const apiClient = {
       body: payload
     });
   },
+  updateTransaction(
+    token: string,
+    transactionId: string,
+    payload: {
+      categoryId?: string;
+      destinationAccountId?: string;
+      amount: number;
+      type: string;
+      occurredOnUtc: string;
+      note?: string;
+    }
+  ) {
+    return request<Transaction>(`/api/transactions/${transactionId}`, {
+      method: "PUT",
+      token,
+      body: payload
+    });
+  },
+  deleteTransaction(token: string, transactionId: string) {
+    return request<void>(`/api/transactions/${transactionId}`, {
+      method: "DELETE",
+      token
+    });
+  },
   analyzeMonthlyReport(token: string, payload: { accountId: string; month: string; provider: string; file: File }) {
     const body = new FormData();
     body.append("accountId", payload.accountId);
