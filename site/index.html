@@ -20,6 +20,7 @@
         <a href="#features">Features</a>
         <a href="#stack">Stack</a>
         <a href="#deploy">Deploy</a>
+        <a href="#release">Release</a>
         <a href="https://github.com/soliktomasz/Ledgerra">GitHub</a>
       </nav>
     </header>
@@ -89,8 +90,8 @@
           <article class="feature-card">
             <h3>Homelab friendly</h3>
             <p>
-              Docker Compose support keeps local development and Unraid-style
-              deployment straightforward.
+              Tagged GitHub releases publish Docker images and deployment
+              templates for Unraid, TrueNAS SCALE, and Linux hosts.
             </p>
           </article>
         </div>
@@ -109,23 +110,72 @@
           <li><span>Frontend</span><strong>React, TypeScript, Vite</strong></li>
           <li><span>Backend</span><strong>ASP.NET Core, C#</strong></li>
           <li><span>Database</span><strong>PostgreSQL</strong></li>
-          <li><span>Deployment</span><strong>Docker Compose, Unraid-ready</strong></li>
+          <li><span>Deployment</span><strong>GHCR images, Docker Compose</strong></li>
+          <li><span>NAS targets</span><strong>Unraid, TrueNAS SCALE, Linux</strong></li>
         </ul>
       </section>
 
       <section class="section deploy" id="deploy">
         <div class="section-heading">
           <p class="eyebrow">Run it yourself</p>
-          <h2>Start Ledgerra with Docker Compose</h2>
+          <h2>Deploy from a tagged GitHub release</h2>
         </div>
         <div class="code-panel">
-          <code>docker compose up --build -d</code>
+          <code>docker compose pull && docker compose up -d</code>
         </div>
         <p class="deploy-copy">
-          The compose stack runs PostgreSQL, the ASP.NET Core API, and the React
-          frontend behind an internal API proxy. For production, change the
-          signing key, database password, and reverse proxy or TLS settings.
+          Release builds publish PostgreSQL-backed backend and frontend images
+          to GitHub Container Registry, plus ready-to-edit deployment files for
+          NAS and Linux hosts. Set the release tag, database password, signing
+          key, and storage path before first start.
         </p>
+        <div class="deploy-grid" aria-label="Deployment options">
+          <article class="deploy-card">
+            <span>Unraid OS</span>
+            <h3>Docker Compose Manager</h3>
+            <p>
+              Use the release stack and env template with appdata storage at
+              <code>/mnt/user/appdata/ledgerra</code>.
+            </p>
+          </article>
+          <article class="deploy-card">
+            <span>TrueNAS SCALE</span>
+            <h3>Install via YAML</h3>
+            <p>
+              Paste the custom app YAML into TrueNAS 24.10+ and point Postgres
+              at a dataset-backed host path.
+            </p>
+          </article>
+          <article class="deploy-card">
+            <span>Linux</span>
+            <h3>Plain Docker Compose</h3>
+            <p>
+              Download the generic release compose file, copy the env example,
+              then pull the tagged images.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="split-section release-section" id="release">
+        <div>
+          <p class="eyebrow">Release assets</p>
+          <h2>One tag creates the deployable package</h2>
+          <p>
+            Pushing a version tag runs checks, builds multi-architecture Linux
+            images, publishes them to GHCR, and attaches deployment assets to
+            the GitHub Release.
+          </p>
+        </div>
+        <div class="release-panel" aria-label="Release artifact list">
+          <h3>Attached to each release</h3>
+          <ul>
+            <li><code>docker-compose.yml</code> and <code>env.example</code></li>
+            <li>Unraid stack, env example, and setup notes</li>
+            <li>TrueNAS custom app YAML and metadata</li>
+            <li>Backend and frontend images tagged with the release version</li>
+          </ul>
+        </div>
       </section>
     </main>
 
