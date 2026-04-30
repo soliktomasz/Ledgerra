@@ -149,9 +149,22 @@ jobs:
           mkdir -p release-assets
           cp docker-compose.release.yml release-assets/docker-compose.yml
           cp .env.release.example release-assets/env.example
+          cp deploy/unraid/ledgerra-stack.yml release-assets/unraid-ledgerra-stack.yml
+          cp deploy/unraid/ledgerra-stack.env.example release-assets/unraid-ledgerra-stack.env.example
+          cp deploy/unraid/README.md release-assets/unraid-README.md
+          cp deploy/truenas/ledgerra-custom-app.yaml release-assets/truenas-ledgerra-custom-app.yaml
+          cp deploy/truenas/app-metadata.yaml release-assets/truenas-app-metadata.yaml
+          cp deploy/truenas/README.md release-assets/truenas-README.md
           owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
           sed -i "s/^LEDGERRA_VERSION=.*/LEDGERRA_VERSION=${GITHUB_REF_NAME}/" release-assets/env.example
           sed -i "s/^LEDGERRA_IMAGE_NAMESPACE=.*/LEDGERRA_IMAGE_NAMESPACE=${owner}/" release-assets/env.example
+          sed -i "s/^LEDGERRA_VERSION=.*/LEDGERRA_VERSION=${GITHUB_REF_NAME}/" release-assets/unraid-ledgerra-stack.env.example
+          sed -i "s/^LEDGERRA_IMAGE_NAMESPACE=.*/LEDGERRA_IMAGE_NAMESPACE=${owner}/" release-assets/unraid-ledgerra-stack.env.example
+          sed -i "s#ghcr.io/soliktomasz/ledgerra-backend:v0.1.0#ghcr.io/${owner}/ledgerra-backend:${GITHUB_REF_NAME}#" release-assets/truenas-ledgerra-custom-app.yaml
+          sed -i "s#ghcr.io/soliktomasz/ledgerra-frontend:v0.1.0#ghcr.io/${owner}/ledgerra-frontend:${GITHUB_REF_NAME}#" release-assets/truenas-ledgerra-custom-app.yaml
+          sed -i "s#app_version: v0.1.0#app_version: ${GITHUB_REF_NAME}#" release-assets/truenas-app-metadata.yaml
+          sed -i "s#ghcr.io/soliktomasz/ledgerra-backend#ghcr.io/${owner}/ledgerra-backend#" release-assets/truenas-app-metadata.yaml
+          sed -i "s#ghcr.io/soliktomasz/ledgerra-frontend#ghcr.io/${owner}/ledgerra-frontend#" release-assets/truenas-app-metadata.yaml
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
@@ -160,3 +173,9 @@ jobs:
           files: |
             release-assets/docker-compose.yml
             release-assets/env.example
+            release-assets/unraid-ledgerra-stack.yml
+            release-assets/unraid-ledgerra-stack.env.example
+            release-assets/unraid-README.md
+            release-assets/truenas-ledgerra-custom-app.yaml
+            release-assets/truenas-app-metadata.yaml
+            release-assets/truenas-README.md

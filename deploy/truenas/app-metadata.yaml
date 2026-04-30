@@ -1,0 +1,37 @@
+name: ledgerra
+title: Ledgerra
+categories:
+  - productivity
+  - finance
+description: Self-hosted budget planner and spending tracker.
+home: https://github.com/soliktomasz/Ledgerra
+repository: https://github.com/soliktomasz/Ledgerra
+documentation: https://github.com/soliktomasz/Ledgerra#self-hosted-deployment
+license: MIT
+app_version: v0.1.0
+minimum_truenas_scale_version: "24.10"
+install_method: custom-app-yaml
+custom_app_yaml: ledgerra-custom-app.yaml
+containers:
+  - name: ledgerra-frontend
+    image: ghcr.io/soliktomasz/ledgerra-frontend
+    ports:
+      - container: 80
+        default_host: 8080
+  - name: ledgerra-backend
+    image: ghcr.io/soliktomasz/ledgerra-backend
+    ports:
+      - container: 8080
+        internal: true
+  - name: ledgerra-postgres
+    image: postgres:17-alpine
+storage:
+  - name: postgres-data
+    mount_path: /var/lib/postgresql/data
+    default_host_path: /mnt/tank/apps/ledgerra/postgres
+required_configuration:
+  - POSTGRES_PASSWORD
+  - AUTH_SIGNING_KEY
+notes:
+  - Install with TrueNAS Custom App YAML, not the single-container wizard.
+  - Keep the PostgreSQL dataset in the host backup plan.

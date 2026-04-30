@@ -1,0 +1,45 @@
+name: ledgerra
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: ledgerra-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ledgerra
+      POSTGRES_USER: ledgerra
+      POSTGRES_PASSWORD: replace-with-a-long-random-password
+    volumes:
+      - /mnt/tank/apps/ledgerra/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledgerra -d ledgerra"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ghcr.io/soliktomasz/ledgerra-backend:v0.1.0
+    container_name: ledgerra-backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Ledgerra: Host=postgres;Port=5432;Database=ledgerra;Username=ledgerra;Password=replace-with-a-long-random-password
+      Auth__Issuer: Ledgerra
+      Auth__Audience: Ledgerra.Clients
+      Auth__SigningKey: replace-with-at-least-32-random-characters
+      Auth__AccessTokenMinutes: 60
+      Auth__RefreshTokenDays: 30
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8080"
+
+  frontend:
+    image: ghcr.io/soliktomasz/ledgerra-frontend:v0.1.0
+    container_name: ledgerra-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"

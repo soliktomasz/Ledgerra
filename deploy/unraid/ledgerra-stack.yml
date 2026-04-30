@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: ledgerra-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ledgerra}
+      POSTGRES_USER: ${POSTGRES_USER:-ledgerra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - ${LEDGERRA_POSTGRES_DATA:-/mnt/user/appdata/ledgerra/postgres}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ledgerra} -d ${POSTGRES_DB:-ledgerra}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ${LEDGERRA_IMAGE_REGISTRY:-ghcr.io}/${LEDGERRA_IMAGE_NAMESPACE:-soliktomasz}/ledgerra-backend:${LEDGERRA_VERSION:-latest}
+    container_name: ledgerra-backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Ledgerra: Host=postgres;Port=5432;Database=${POSTGRES_DB:-ledgerra};Username=${POSTGRES_USER:-ledgerra};Password=${POSTGRES_PASSWORD}
+      Auth__Issuer: ${AUTH_ISSUER:-Ledgerra}
+      Auth__Audience: ${AUTH_AUDIENCE:-Ledgerra.Clients}
+      Auth__SigningKey: ${AUTH_SIGNING_KEY:?Set AUTH_SIGNING_KEY in .env}
+      Auth__AccessTokenMinutes: ${AUTH_ACCESS_TOKEN_MINUTES:-60}
+      Auth__RefreshTokenDays: ${AUTH_REFRESH_TOKEN_DAYS:-30}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8080"
+
+  frontend:
+    image: ${LEDGERRA_IMAGE_REGISTRY:-ghcr.io}/${LEDGERRA_IMAGE_NAMESPACE:-soliktomasz}/ledgerra-frontend:${LEDGERRA_VERSION:-latest}
+    container_name: ledgerra-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${LEDGERRA_HTTP_PORT:-8080}:80"

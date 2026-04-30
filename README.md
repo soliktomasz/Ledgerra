@@ -158,6 +158,11 @@ For release deployment, download these assets from the matching GitHub Release:
 
 - `docker-compose.yml`
 - `env.example`
+- `unraid-ledgerra-stack.yml` and `unraid-ledgerra-stack.env.example` for
+  Unraid Docker Compose Manager
+- `truenas-ledgerra-custom-app.yaml` and `truenas-app-metadata.yaml` for
+  TrueNAS SCALE custom app installs
+- `unraid-README.md` and `truenas-README.md` for platform-specific steps
 
 Then prepare the host:
 
@@ -188,6 +193,11 @@ Upgrade to a newer release by changing `LEDGERRA_VERSION` in `.env`, then run:
 docker compose pull
 docker compose up -d
 ```
+
+Platform-specific deployment templates live in:
+
+- `deploy/unraid/`
+- `deploy/truenas/`
 
 ### Unraid OS Setup
 
@@ -237,6 +247,20 @@ docker compose down
 
 Keep `/mnt/user/appdata/ledgerra/postgres` in your Unraid backup plan. That
 directory contains the PostgreSQL data when using the recommended bind mount.
+
+### TrueNAS SCALE Setup
+
+TrueNAS SCALE 24.10 and newer can install Ledgerra through the custom app YAML
+flow:
+
+1. Create a PostgreSQL data dataset such as
+   `/mnt/tank/apps/ledgerra/postgres`.
+2. Open **Apps > Discover Apps > more_vert > Install via YAML**.
+3. Use `ledgerra` as the app name.
+4. Paste the release `truenas-ledgerra-custom-app.yaml` into the custom config
+   editor.
+5. Replace the example password, signing key, release tag, and dataset path.
+6. Save the app and open Ledgerra at `http://<truenas-ip>:8080`.
 
 ## Verification
 
