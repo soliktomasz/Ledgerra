@@ -178,4 +178,105 @@ describe("DashboardPage", () => {
 
     expect(screen.queryByLabelText("Onboarding checklist")).not.toBeInTheDocument();
   });
+
+  test("shows actionable insights for budget pressure and uncategorized transactions", () => {
+    mocks.data.dashboard = {
+      income: 4000,
+      expenses: 1240,
+      net: 2760,
+      budgetRemaining: 260,
+      topCategories: [],
+      accounts: []
+    } as DashboardSummary;
+    mocks.data.budget = {
+      totalPlanned: 1500,
+      totalSpent: 1240,
+      totalRemaining: 260,
+      categories: [
+        {
+          categoryId: "category-1",
+          categoryName: "Dining",
+          planned: 500,
+          spent: 410,
+          remaining: 90
+        },
+        {
+          categoryId: "category-3",
+          categoryName: "Subscriptions",
+          planned: 100,
+          spent: 105,
+          remaining: -5
+        }
+      ]
+    };
+    mocks.data.transactions = [
+      {
+        id: "transaction-1",
+        accountId: "account-1",
+        categoryId: null,
+        amount: 12,
+        type: "Expense",
+        occurredOnUtc: "2026-04-30T10:00:00Z",
+        note: "Coffee"
+      },
+      {
+        id: "transaction-2",
+        accountId: "account-1",
+        amount: 20,
+        type: "Expense",
+        occurredOnUtc: "2026-04-29T10:00:00Z",
+        note: "Lunch"
+      },
+      {
+        id: "transaction-3",
+        accountId: "account-1",
+        categoryId: "category-1",
+        amount: 30,
+        type: "Expense",
+        occurredOnUtc: "2026-04-28T10:00:00Z",
+        note: "Dinner"
+      }
+    ];
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Insights")).toBeInTheDocument();
+    expect(screen.getByText("Dining is 82% of its budget.")).toBeInTheDocument();
+    expect(screen.getByText("Subscriptions is over budget by $5.00.")).toBeInTheDocument();
+    expect(screen.getByText("You have 2 uncategorized expense transactions.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review transactions" })).toHaveAttribute("href", "/transactions");
+  });
+
+  test("prompts users to set a budget when transactions exist without planned limits", () => {
+    mocks.data.budget = {
+      totalPlanned: 0,
+      totalSpent: 0,
+      totalRemaining: 0,
+      categories: []
+    };
+    mocks.data.transactions = [
+      {
+        id: "transaction-1",
+        accountId: "account-1",
+        categoryId: "category-1",
+        amount: 45,
+        type: "Expense",
+        occurredOnUtc: "2026-04-30T10:00:00Z",
+        note: "Market"
+      }
+    ];
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Set a monthly budget to turn spending into progress alerts.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open budgets" })).toHaveAttribute("href", "/budgets");
+  });
 });
