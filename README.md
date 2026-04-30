@@ -129,6 +129,66 @@ Before production use, change:
 - `POSTGRES_PASSWORD`
 - any public-facing reverse proxy or TLS configuration
 
+### Release Builds
+
+Tagged releases publish ready-to-run Docker images to GitHub Container Registry
+and attach deployment assets to the GitHub Release. This is the recommended path
+for Unraid OS, TrueNAS SCALE, and Linux hosts because the target machine only
+needs Docker Compose and does not need to build Ledgerra from source.
+
+To publish a release, create and push a semantic version tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The release workflow runs backend and frontend checks, builds multi-architecture
+Linux images for `amd64` and `arm64`, pushes them to GHCR, and creates a GitHub
+Release. The published image names are:
+
+```text
+ghcr.io/<github-owner>/ledgerra-backend:<tag>
+ghcr.io/<github-owner>/ledgerra-frontend:<tag>
+```
+
+The same images are also tagged as `latest`.
+
+For release deployment, download these assets from the matching GitHub Release:
+
+- `docker-compose.yml`
+- `env.example`
+
+Then prepare the host:
+
+```bash
+mkdir -p ledgerra
+cd ledgerra
+cp env.example .env
+```
+
+Edit `.env` before first start:
+
+- set `POSTGRES_PASSWORD` to a long random password
+- set `AUTH_SIGNING_KEY` to at least 32 random characters
+- confirm `LEDGERRA_VERSION` matches the release tag
+- change `LEDGERRA_HTTP_PORT` if the host already uses port `8080`
+- change `LEDGERRA_POSTGRES_DATA` to a NAS-friendly appdata path if needed
+
+Start Ledgerra:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+Upgrade to a newer release by changing `LEDGERRA_VERSION` in `.env`, then run:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
 ### Unraid OS Setup
 
 Ledgerra can run on Unraid with the Docker Compose Manager plugin or from the
@@ -143,30 +203,23 @@ Unraid terminal with Docker Compose.
    mkdir -p /mnt/user/appdata/ledgerra/postgres
    ```
 
-3. Copy this repository's `docker-compose.yml` to
-   `/mnt/user/appdata/ledgerra/docker-compose.yml`.
-4. Edit `/mnt/user/appdata/ledgerra/docker-compose.yml` before first start:
+3. Download the release `docker-compose.yml` and `env.example` from the GitHub
+   Release, then place them in `/mnt/user/appdata/ledgerra`. Rename
+   `env.example` to `.env`.
+4. Edit `/mnt/user/appdata/ledgerra/.env` before first start:
 
-   - Change `POSTGRES_PASSWORD`.
-   - Use the same password in `ConnectionStrings__Ledgerra`.
-   - Replace `Auth__SigningKey` with a long random secret.
-   - Change the frontend port mapping if Unraid already uses `8080`, for
-     example `8088:80`.
-   - For Unraid-friendly backups, replace the `postgres` volume mapping with:
-
-     ```yaml
-     volumes:
-       - /mnt/user/appdata/ledgerra/postgres:/var/lib/postgresql/data
-     ```
-
-     If you use this bind mount, remove the top-level `volumes:` block for the
-     named `ledgerra-postgres` volume.
+   - Change `POSTGRES_PASSWORD` in `.env`.
+   - Replace `AUTH_SIGNING_KEY` in `.env` with a long random secret.
+   - Change `LEDGERRA_HTTP_PORT` if Unraid already uses `8080`.
+   - Set `LEDGERRA_POSTGRES_DATA=/mnt/user/appdata/ledgerra/postgres` for
+     Unraid-friendly backups.
 
 5. Start Ledgerra:
 
    ```bash
    cd /mnt/user/appdata/ledgerra
-   docker compose up --build -d
+   docker compose pull
+   docker compose up -d
    ```
 
 6. Open Ledgerra at `http://<unraid-server-ip>:8080`, or the alternate host
@@ -177,7 +230,7 @@ Useful maintenance commands:
 ```bash
 cd /mnt/user/appdata/ledgerra
 docker compose pull
-docker compose up --build -d
+docker compose up -d
 docker compose logs -f
 docker compose down
 ```

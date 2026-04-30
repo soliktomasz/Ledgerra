@@ -6,6 +6,7 @@
 # dotenv files
 .env
 .env.*
+!.env.release.example
 .worktrees/
 frontend/node_modules/
 frontend/dist/
