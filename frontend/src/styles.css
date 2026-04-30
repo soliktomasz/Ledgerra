@@ -489,6 +489,13 @@ label {
   gap: 0.35rem;
 }
 
+.onboarding-checklist-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .onboarding-checklist-item strong {
   font-size: 0.94rem;
   line-height: 1.25;

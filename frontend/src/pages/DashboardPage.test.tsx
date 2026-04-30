@@ -96,11 +96,79 @@ describe("DashboardPage", () => {
     expect(screen.getByText("First run checklist")).toBeInTheDocument();
     expect(screen.getByText("2 of 5 complete")).toBeInTheDocument();
     expect(screen.getByText("Main checking")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Import first statement" })).toHaveAttribute("href", "/imports");
+    expect(screen.getByRole("link", { name: "Add first transaction" })).toHaveAttribute("href", "/transactions");
   });
 
-  test("lets users acknowledge currency and default categories", async () => {
+  test("lets users acknowledge currency and default categories without resetting on currency changes", async () => {
     const user = userEvent.setup();
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Confirm USD" }));
+    expect(screen.getByRole("link", { name: "Open categories" })).toHaveAttribute("href", "/categories");
+    await user.click(screen.getByRole("button", { name: "Reviewed" }));
+
+    expect(screen.getByText("2 of 5 complete")).toBeInTheDocument();
+    expect(screen.getByText("Currency confirmed")).toBeInTheDocument();
+    expect(screen.getByText("Categories reviewed")).toBeInTheDocument();
+
+    mocks.data.profile = { email: "owner@ledgerra.local", preferredCurrencyCode: "EUR" };
+    rerender(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("2 of 5 complete")).toBeInTheDocument();
+    expect(screen.getByText("Currency confirmed")).toBeInTheDocument();
+    expect(screen.getByText("Categories reviewed")).toBeInTheDocument();
+  });
+
+  test("hides onboarding checklist after every step is complete", () => {
+    localStorage.setItem(
+      "ledgerra:onboarding:owner@ledgerra.local",
+      JSON.stringify({ currency: true, categories: true })
+    );
+    mocks.data.accounts = [
+      {
+        id: "account-1",
+        name: "Main checking",
+        type: "Checking",
+        currencyCode: "USD",
+        openingBalance: 500,
+        currentBalance: 500,
+        isActive: true
+      }
+    ];
+    mocks.data.budget = {
+      totalPlanned: 300,
+      totalSpent: 0,
+      totalRemaining: 300,
+      categories: [
+        {
+          categoryId: "category-1",
+          categoryName: "Groceries",
+          planned: 300,
+          spent: 0,
+          remaining: 300
+        }
+      ]
+    };
+    mocks.data.transactions = [
+      {
+        id: "transaction-1",
+        accountId: "account-1",
+        categoryId: "category-1",
+        amount: 12,
+        type: "Expense",
+        occurredOnUtc: "2026-04-30T10:00:00Z",
+        note: "Coffee"
+      }
+    ];
 
     render(
       <MemoryRouter>
@@ -108,11 +176,6 @@ describe("DashboardPage", () => {
       </MemoryRouter>
     );
 
-    await user.click(screen.getByRole("button", { name: "Confirm USD" }));
-    await user.click(screen.getByRole("button", { name: "Reviewed" }));
-
-    expect(screen.getByText("2 of 5 complete")).toBeInTheDocument();
-    expect(screen.getByText("Currency confirmed")).toBeInTheDocument();
-    expect(screen.getByText("Categories reviewed")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Onboarding checklist")).not.toBeInTheDocument();
   });
 });

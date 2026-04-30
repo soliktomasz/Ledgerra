@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { PageHeader } from "../ui/PageHeader";
@@ -16,7 +16,7 @@ type ChecklistItem = {
   title: string;
   detail: string;
   complete: boolean;
-  action: ChecklistAction;
+  actions: ChecklistAction[];
 };
 
 type OnboardingAcknowledgements = {
@@ -29,9 +29,9 @@ const acknowledgementDefaults: OnboardingAcknowledgements = {
   categories: false
 };
 
-function readAcknowledgements(storageKey: string): OnboardingAcknowledgements {
+function readAcknowledgements(storageKey: string, legacyStorageKey?: string): OnboardingAcknowledgements {
   try {
-    const stored = window.localStorage.getItem(storageKey);
+    const stored = window.localStorage.getItem(storageKey) ?? (legacyStorageKey ? window.localStorage.getItem(legacyStorageKey) : null);
     return stored ? { ...acknowledgementDefaults, ...JSON.parse(stored) } : acknowledgementDefaults;
   } catch {
     return acknowledgementDefaults;
@@ -41,62 +41,77 @@ function readAcknowledgements(storageKey: string): OnboardingAcknowledgements {
 export function DashboardPage() {
   const { accounts, dashboard, budget, loading, error, profile, transactions } = useLedgerraData();
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
-  const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}:${mainCurrencyCode}`;
-  const [acknowledgements, setAcknowledgements] = useState(() => readAcknowledgements(acknowledgementStorageKey));
+  const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
+  const legacyAcknowledgementStorageKey = `${acknowledgementStorageKey}:${mainCurrencyCode}`;
+  const [acknowledgements, setAcknowledgements] = useState(() =>
+    readAcknowledgements(acknowledgementStorageKey, legacyAcknowledgementStorageKey)
+  );
   const accountCurrencyCodes = useMemo(
     () => new Map(accounts.map((account) => [account.id, account.currencyCode])),
     [accounts]
   );
   const hasBudget = (budget?.totalPlanned ?? 0) > 0 || Boolean(budget?.categories.some((category) => category.planned > 0));
-  const checklistItems: ChecklistItem[] = [
-    {
-      title: "Create first account",
-      detail: accounts[0] ? accounts[0].name : "Add the account you check most often.",
-      complete: accounts.length > 0,
-      action: accounts.length > 0 ? { kind: "done", label: "Account ready" } : { kind: "link", label: "Add account", to: "/accounts" }
-    },
-    {
-      title: "Confirm currency",
-      detail: `Use ${mainCurrencyCode} for dashboard totals and budget planning.`,
-      complete: acknowledgements.currency,
-      action: acknowledgements.currency
-        ? { kind: "done", label: "Currency confirmed" }
-        : { kind: "button", label: `Confirm ${mainCurrencyCode}`, onClick: () => markAcknowledgement("currency") }
-    },
-    {
-      title: "Review default categories",
-      detail: "Scan the starting income and expense categories before importing data.",
-      complete: acknowledgements.categories,
-      action: acknowledgements.categories
-        ? { kind: "done", label: "Categories reviewed" }
-        : { kind: "button", label: "Reviewed", onClick: () => markAcknowledgement("categories") }
-    },
-    {
-      title: "Set first budget",
-      detail: "Give your main expense categories a monthly plan.",
-      complete: hasBudget,
-      action: hasBudget ? { kind: "done", label: "Budget set" } : { kind: "link", label: "Set budget", to: "/budgets" }
-    },
-    {
-      title: "Import first statement",
-      detail: "Bring in a PDF or CSV statement and review the draft transactions.",
-      complete: transactions.length > 0,
-      action: transactions.length > 0 ? { kind: "done", label: "Statement imported" } : { kind: "link", label: "Import first statement", to: "/imports" }
-    }
-  ];
-  const completedChecklistItems = checklistItems.filter((item) => item.complete).length;
 
-  useEffect(() => {
-    setAcknowledgements(readAcknowledgements(acknowledgementStorageKey));
-  }, [acknowledgementStorageKey]);
-
-  function markAcknowledgement(key: keyof typeof acknowledgementDefaults) {
+  const markAcknowledgement = useCallback((key: keyof typeof acknowledgementDefaults) => {
     setAcknowledgements((current) => {
       const next = { ...current, [key]: true };
       window.localStorage.setItem(acknowledgementStorageKey, JSON.stringify(next));
       return next;
     });
-  }
+  }, [acknowledgementStorageKey]);
+
+  const checklistItems: ChecklistItem[] = useMemo(
+    () => [
+      {
+        title: "Create first account",
+        detail: accounts[0] ? accounts[0].name : "Add the account you check most often.",
+        complete: accounts.length > 0,
+        actions: accounts.length > 0 ? [{ kind: "done", label: "Account ready" }] : [{ kind: "link", label: "Add account", to: "/accounts" }]
+      },
+      {
+        title: "Confirm currency",
+        detail: `Use ${mainCurrencyCode} for dashboard totals and budget planning.`,
+        complete: acknowledgements.currency,
+        actions: acknowledgements.currency
+          ? [{ kind: "done", label: "Currency confirmed" }]
+          : [{ kind: "button", label: `Confirm ${mainCurrencyCode}`, onClick: () => markAcknowledgement("currency") }]
+      },
+      {
+        title: "Review default categories",
+        detail: "Scan the starting income and expense categories before importing data.",
+        complete: acknowledgements.categories,
+        actions: acknowledgements.categories
+          ? [{ kind: "done", label: "Categories reviewed" }]
+          : [
+              { kind: "link", label: "Open categories", to: "/categories" },
+              { kind: "button", label: "Reviewed", onClick: () => markAcknowledgement("categories") }
+            ]
+      },
+      {
+        title: "Set first budget",
+        detail: "Give your main expense categories a monthly plan.",
+        complete: hasBudget,
+        actions: hasBudget ? [{ kind: "done", label: "Budget set" }] : [{ kind: "link", label: "Set budget", to: "/budgets" }]
+      },
+      {
+        title: "Add first transaction",
+        detail: "Import a statement or add a transaction so the dashboard has real activity.",
+        complete: transactions.length > 0,
+        actions: transactions.length > 0
+          ? [{ kind: "done", label: "Transaction added" }]
+          : [{ kind: "link", label: "Add first transaction", to: "/transactions" }]
+      }
+    ],
+    [accounts, acknowledgements, hasBudget, mainCurrencyCode, markAcknowledgement, transactions.length]
+  );
+  const completedChecklistItems = checklistItems.filter((item) => item.complete).length;
+  const isChecklistComplete = completedChecklistItems === checklistItems.length;
+
+  useEffect(() => {
+    const nextAcknowledgements = readAcknowledgements(acknowledgementStorageKey, legacyAcknowledgementStorageKey);
+    setAcknowledgements(nextAcknowledgements);
+    window.localStorage.setItem(acknowledgementStorageKey, JSON.stringify(nextAcknowledgements));
+  }, [acknowledgementStorageKey, legacyAcknowledgementStorageKey]);
 
   return (
     <div className="page-stack">
@@ -108,40 +123,48 @@ export function DashboardPage() {
 
       {error ? <p className="error-banner">{error}</p> : null}
 
-      <section className="onboarding-checklist" aria-label="Onboarding checklist">
-        <div className="onboarding-checklist-header">
-          <div>
-            <span className="eyebrow">Next steps</span>
-            <h2>First run checklist</h2>
-            <p>Move from an empty ledger to a useful monthly view.</p>
+      {!isChecklistComplete ? (
+        <section className="onboarding-checklist" aria-label="Onboarding checklist">
+          <div className="onboarding-checklist-header">
+            <div>
+              <span className="eyebrow">Next steps</span>
+              <h2>First run checklist</h2>
+              <p>Move from an empty ledger to a useful monthly view.</p>
+            </div>
+            <strong>{completedChecklistItems} of {checklistItems.length} complete</strong>
           </div>
-          <strong>{completedChecklistItems} of {checklistItems.length} complete</strong>
-        </div>
-        <div className="onboarding-checklist-items">
-          {checklistItems.map((item) => (
-            <article className={`onboarding-checklist-item${item.complete ? " is-complete" : ""}`} key={item.title}>
-              <span className="checkmark" aria-hidden="true">
-                {item.complete ? "✓" : ""}
-              </span>
-              <div>
-                <strong>{item.title}</strong>
-                <p>{item.detail}</p>
-              </div>
-              {item.action.kind === "link" ? (
-                <Link className="ghost-button compact-button" to={item.action.to}>
-                  {item.action.label}
-                </Link>
-              ) : item.action.kind === "button" ? (
-                <button className="ghost-button compact-button" onClick={item.action.onClick} type="button">
-                  {item.action.label}
-                </button>
-              ) : (
-                <span className="status-badge success">{item.action.label}</span>
-              )}
-            </article>
-          ))}
-        </div>
-      </section>
+          <div className="onboarding-checklist-items">
+            {checklistItems.map((item) => (
+              <article className={`onboarding-checklist-item${item.complete ? " is-complete" : ""}`} key={item.title}>
+                <span className="checkmark" aria-hidden="true">
+                  {item.complete ? "✓" : ""}
+                </span>
+                <div>
+                  <strong>{item.title}</strong>
+                  <p>{item.detail}</p>
+                </div>
+                <div className="onboarding-checklist-actions">
+                  {item.actions.map((action) =>
+                    action.kind === "link" ? (
+                      <Link className="ghost-button compact-button" key={action.label} to={action.to}>
+                        {action.label}
+                      </Link>
+                    ) : action.kind === "button" ? (
+                      <button className="ghost-button compact-button" key={action.label} onClick={action.onClick} type="button">
+                        {action.label}
+                      </button>
+                    ) : (
+                      <span className="status-badge success" key={action.label}>
+                        {action.label}
+                      </span>
+                    )
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div className="metric-grid">
         <MetricCard
