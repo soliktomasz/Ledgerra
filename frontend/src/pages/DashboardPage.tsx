@@ -6,6 +6,7 @@ import { MetricCard } from "../ui/MetricCard";
 import { SectionCard } from "../ui/SectionCard";
 import { EmptyState } from "../ui/EmptyState";
 import { formatCurrency } from "../utils/format";
+import type { BudgetSummary, Transaction } from "../types";
 
 type ChecklistAction =
   | { kind: "button"; label: string; onClick: () => void }
@@ -17,6 +18,17 @@ type ChecklistItem = {
   detail: string;
   complete: boolean;
   actions: ChecklistAction[];
+};
+
+type DashboardInsight = {
+  id: string;
+  title: string;
+  detail: string;
+  tone: "attention" | "warning" | "neutral";
+  action?: {
+    label: string;
+    to: string;
+  };
 };
 
 type OnboardingAcknowledgements = {
@@ -36,6 +48,77 @@ function readAcknowledgements(storageKey: string, legacyStorageKey?: string): On
   } catch {
     return acknowledgementDefaults;
   }
+}
+
+function pluralize(count: number, singular: string, plural: string) {
+  return count === 1 ? singular : plural;
+}
+
+function buildDashboardInsights(
+  budget: BudgetSummary | null,
+  transactions: Transaction[],
+  currencyCode: string
+): DashboardInsight[] {
+  const insights: DashboardInsight[] = [];
+  const budgetCategories = budget?.categories ?? [];
+  const hasBudget = (budget?.totalPlanned ?? 0) > 0 || budgetCategories.some((category) => category.planned > 0);
+  const expenseTransactions = transactions.filter((transaction) => transaction.type === "Expense");
+  const uncategorizedExpenseCount = expenseTransactions.filter((transaction) => !transaction.categoryId).length;
+
+  budgetCategories
+    .filter((category) => category.planned > 0 && category.remaining < 0)
+    .sort((left, right) => left.remaining - right.remaining)
+    .slice(0, 2)
+    .forEach((category) => {
+      insights.push({
+        id: `over-budget-${category.categoryId}`,
+        title: `${category.categoryName} needs attention`,
+        detail: `${category.categoryName} is over budget by ${formatCurrency(Math.abs(category.remaining), currencyCode)}.`,
+        tone: "warning",
+        action: { label: "Open budgets", to: "/budgets" }
+      });
+    });
+
+  budgetCategories
+    .filter((category) => category.planned > 0 && category.remaining >= 0)
+    .map((category) => ({
+      ...category,
+      percentUsed: Math.round((category.spent / category.planned) * 100)
+    }))
+    .filter((category) => category.percentUsed >= 80)
+    .sort((left, right) => right.percentUsed - left.percentUsed)
+    .slice(0, 2)
+    .forEach((category) => {
+      insights.push({
+        id: `budget-pressure-${category.categoryId}`,
+        title: `${category.categoryName} is close to its limit`,
+        detail: `${category.categoryName} is ${category.percentUsed}% of its budget.`,
+        tone: "attention",
+        action: { label: "Open budgets", to: "/budgets" }
+      });
+    });
+
+  if (uncategorizedExpenseCount > 0) {
+    insights.push({
+      id: "uncategorized-expenses",
+      title: "Categorize recent spending",
+      detail: `You have ${uncategorizedExpenseCount} uncategorized ${pluralize(uncategorizedExpenseCount, "expense transaction", "expense transactions")}.`,
+      tone: "attention",
+      action: { label: "Review transactions", to: "/transactions" }
+    });
+  }
+
+  if (!hasBudget && transactions.length > 0) {
+    insights.push({
+      id: "set-budget",
+      title: "Add budget guardrails",
+      detail: "Set a monthly budget to turn spending into progress alerts.",
+      tone: "neutral",
+      action: { label: "Open budgets", to: "/budgets" }
+    });
+  }
+
+  return insights.slice(0, 4);
 }
 
 export function DashboardPage() {
@@ -106,6 +189,10 @@ export function DashboardPage() {
   );
   const completedChecklistItems = checklistItems.filter((item) => item.complete).length;
   const isChecklistComplete = completedChecklistItems === checklistItems.length;
+  const insights = useMemo(
+    () => buildDashboardInsights(budget, transactions, mainCurrencyCode),
+    [budget, mainCurrencyCode, transactions]
+  );
 
   useEffect(() => {
     const nextAcknowledgements = readAcknowledgements(acknowledgementStorageKey, legacyAcknowledgementStorageKey);
@@ -191,6 +278,29 @@ export function DashboardPage() {
           detail="Across tracked budget categories."
         />
       </div>
+
+      {insights.length > 0 ? (
+        <section className="insights-panel" aria-label="Dashboard insights">
+          <div className="section-header">
+            <h2>Insights</h2>
+          </div>
+          <div className="insight-list">
+            {insights.map((insight) => (
+              <article className={`insight-row insight-row--${insight.tone}`} key={insight.id}>
+                <div>
+                  <strong>{insight.title}</strong>
+                  <p>{insight.detail}</p>
+                </div>
+                {insight.action ? (
+                  <Link className="ghost-button compact-button" to={insight.action.to}>
+                    {insight.action.label}
+                  </Link>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div className="dashboard-grid">
         <SectionCard title="Top categories">

@@ -418,6 +418,65 @@ label {
   padding: 1rem;
 }
 
+.insights-panel {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.insights-panel .section-header {
+  margin-bottom: 0;
+}
+
+.insight-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.insight-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 5.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.insight-row strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.94rem;
+}
+
+.insight-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.insight-row--attention {
+  border-left-color: var(--accent);
+}
+
+.insight-row--warning {
+  border-left-color: var(--negative);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--negative-soft) 160%);
+}
+
+.insight-row--neutral {
+  border-left-color: var(--border-strong);
+}
+
 .onboarding-checklist {
   display: grid;
   gap: 0.85rem;
@@ -971,6 +1030,7 @@ label {
   }
 
   .dashboard-grid,
+  .insight-list,
   .split-grid,
   .split-grid.wide {
     grid-template-columns: 1fr;
@@ -1068,7 +1128,8 @@ label {
 
   .account-settings-row,
   .inline-settings-form,
-  .budget-progress-row {
+  .budget-progress-row,
+  .insight-row {
     grid-template-columns: 1fr;
   }
 
