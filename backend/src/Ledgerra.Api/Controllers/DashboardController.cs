@@ -1,12 +1,8 @@
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
-using Ledgerra.Domain.Accounts;
-using Ledgerra.Domain.Budgets;
-using Ledgerra.Domain.Transactions;
-using Ledgerra.Infrastructure.Persistence;
+using Ledgerra.Application.Dashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Ledgerra.Api.Controllers;
 
@@ -15,11 +11,11 @@ namespace Ledgerra.Api.Controllers;
 [Route("api/dashboard")]
 public sealed class DashboardController : ControllerBase
 {
-    private readonly LedgerraDbContext _dbContext;
+    private readonly GetDashboardSummaryQueryHandler _getDashboardSummaryQueryHandler;
 
-    public DashboardController(LedgerraDbContext dbContext)
+    public DashboardController(GetDashboardSummaryQueryHandler getDashboardSummaryQueryHandler)
     {
-        _dbContext = dbContext;
+        _getDashboardSummaryQueryHandler = getDashboardSummaryQueryHandler;
     }
 
     [HttpGet("summary")]
@@ -37,48 +33,20 @@ public sealed class DashboardController : ControllerBase
         var year = parsedMonth.Year;
         var monthNumber = parsedMonth.Month;
 
-        var transactions = await _dbContext.Transactions
-            .Where(item => item.UserId == userId && item.OccurredOnUtc.Year == year && item.OccurredOnUtc.Month == monthNumber)
-            .ToListAsync(cancellationToken);
-
-        var accounts = await _dbContext.Accounts
-            .Where(item => item.UserId == userId)
-            .Include(item => item.Transactions)
-            .OrderBy(item => item.Name)
-            .ToListAsync(cancellationToken);
-
-        var period = await _dbContext.BudgetPeriods
-            .Include(item => item.CategoryLimits)
-            .ThenInclude(item => item.Category)
-            .SingleOrDefaultAsync(item => item.UserId == userId && item.Year == year && item.Month == monthNumber, cancellationToken);
-
-        var budgetRemaining = period is null
-            ? 0m
-            : BudgetSummaryCalculator.BuildMonthlySummary(period, transactions).TotalRemaining;
-
-        var topCategories = transactions
-            .Where(item => item.Type == TransactionType.Expense && item.CategoryId.HasValue)
-            .GroupBy(item => item.CategoryId!.Value)
-            .Select(group => new DashboardCategorySpendResponse(
-                group.Key,
-                _dbContext.Categories.Where(category => category.Id == group.Key).Select(category => category.Name).FirstOrDefault() ?? "Uncategorized",
-                group.Sum(item => item.Amount)))
-            .OrderByDescending(item => item.Amount)
-            .Take(5)
-            .ToList();
-
-        var income = transactions.Where(item => item.Type == TransactionType.Income).Sum(item => item.Amount);
-        var expenses = transactions.Where(item => item.Type == TransactionType.Expense).Sum(item => item.Amount);
+        var summary = await _getDashboardSummaryQueryHandler.HandleAsync(
+            new GetDashboardSummaryQuery(userId, year, monthNumber),
+            cancellationToken);
 
         return Ok(new DashboardSummaryResponse(
-            income,
-            expenses,
-            income - expenses,
-            budgetRemaining,
-            topCategories,
-            accounts.Select(account => new AccountBalanceSnapshot(
-                account.Id,
-                account.Name,
-                AccountBalanceCalculator.Calculate(account, account.Transactions))).ToList()));
+            summary.Income,
+            summary.Expenses,
+            summary.Net,
+            summary.BudgetRemaining,
+            summary.TopCategories
+                .Select(item => new DashboardCategorySpendResponse(item.CategoryId, item.CategoryName, item.Amount))
+                .ToList(),
+            summary.Accounts
+                .Select(item => new AccountBalanceSnapshot(item.AccountId, item.Name, item.Balance))
+                .ToList()));
     }
 }

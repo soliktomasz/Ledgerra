@@ -1,9 +1,8 @@
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
-using Ledgerra.Infrastructure.Persistence;
+using Ledgerra.Application.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Ledgerra.Api.Controllers;
 
@@ -12,37 +11,39 @@ namespace Ledgerra.Api.Controllers;
 [Route("api/settings")]
 public sealed class SettingsController : ControllerBase
 {
-    private readonly LedgerraDbContext _dbContext;
+    private readonly GetProfileQueryHandler _getProfileQueryHandler;
+    private readonly UpdateProfileCommandHandler _updateProfileCommandHandler;
 
-    public SettingsController(LedgerraDbContext dbContext)
+    public SettingsController(GetProfileQueryHandler getProfileQueryHandler, UpdateProfileCommandHandler updateProfileCommandHandler)
     {
-        _dbContext = dbContext;
+        _getProfileQueryHandler = getProfileQueryHandler;
+        _updateProfileCommandHandler = updateProfileCommandHandler;
     }
 
     [HttpGet("profile")]
     public async Task<ActionResult<ProfileResponse>> GetProfile(CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
-        var user = await _dbContext.Users.SingleOrDefaultAsync(item => item.Id == userId, cancellationToken);
+        var profile = await _getProfileQueryHandler.HandleAsync(new GetProfileQuery(userId), cancellationToken);
 
-        return user is null
+        return profile is null
             ? NotFound()
-            : Ok(new ProfileResponse(user.Email, user.PreferredCurrencyCode));
+            : Ok(new ProfileResponse(profile.Email, profile.PreferredCurrencyCode));
     }
 
     [HttpPut("profile")]
     public async Task<ActionResult<ProfileResponse>> UpdateProfile(UpdateProfileRequest request, CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
-        var user = await _dbContext.Users.SingleOrDefaultAsync(item => item.Id == userId, cancellationToken);
-        if (user is null)
+        var profile = await _updateProfileCommandHandler.HandleAsync(
+            new UpdateProfileCommand(userId, request.PreferredCurrencyCode),
+            cancellationToken);
+
+        if (profile is null)
         {
             return NotFound();
         }
 
-        user.PreferredCurrencyCode = request.PreferredCurrencyCode.Trim().ToUpperInvariant();
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return Ok(new ProfileResponse(user.Email, user.PreferredCurrencyCode));
+        return Ok(new ProfileResponse(profile.Email, profile.PreferredCurrencyCode));
     }
 }

@@ -190,6 +190,184 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task AuthenticatedUser_CanReplaceTransferWithExpenseTransaction()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var jointId = await CreateAccountAsync(client, "Shared Household", "Joint", 600m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var createTransferResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            destinationAccountId = jointId,
+            amount = 200m,
+            type = "Transfer",
+            occurredOnUtc = "2026-04-06T08:00:00Z",
+            note = "Move to shared account"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, createTransferResponse.StatusCode);
+        var createdTransfer = await createTransferResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var transferId = createdTransfer.GetProperty("id").GetGuid();
+
+        var updateResponse = await client.PutAsJsonAsync($"/api/transactions/{transferId}", new
+        {
+            categoryId = groceriesCategoryId,
+            amount = 75m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-07T08:00:00Z",
+            note = "Converted from transfer"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+        var updatedPayload = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Expense", updatedPayload.GetProperty("type").GetString());
+        Assert.Equal(checkingId, updatedPayload.GetProperty("accountId").GetGuid());
+        Assert.Equal(groceriesCategoryId, updatedPayload.GetProperty("categoryId").GetGuid());
+
+        var checkingTransactionsResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}");
+        var checkingTransactions = await checkingTransactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(checkingTransactions.EnumerateArray());
+        Assert.Equal("Expense", checkingTransactions[0].GetProperty("type").GetString());
+
+        var jointTransactionsResponse = await client.GetAsync($"/api/transactions?accountId={jointId}");
+        var jointTransactions = await jointTransactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, jointTransactions.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CanFilterTransactionsAndGetTransactionById()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+        var salaryCategoryId = await CreateCategoryAsync(client, "Salary", "Income");
+
+        await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = salaryCategoryId,
+            amount = 3200m,
+            type = "Income",
+            occurredOnUtc = "2026-04-01T08:00:00Z",
+            note = "Monthly salary"
+        });
+
+        var expenseResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 180m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-05T08:00:00Z",
+            note = "Weekly groceries"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, expenseResponse.StatusCode);
+        var expensePayload = await expenseResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var expenseId = expensePayload.GetProperty("id").GetGuid();
+
+        var filteredResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}&categoryId={groceriesCategoryId}&type=Expense&from=2026-04-01&to=2026-04-30");
+        Assert.Equal(HttpStatusCode.OK, filteredResponse.StatusCode);
+
+        var filteredPayload = await filteredResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(filteredPayload.EnumerateArray());
+        Assert.Equal(expenseId, filteredPayload[0].GetProperty("id").GetGuid());
+
+        var transactionResponse = await client.GetAsync($"/api/transactions/{expenseId}");
+        Assert.Equal(HttpStatusCode.OK, transactionResponse.StatusCode);
+
+        var transactionPayload = await transactionResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Expense", transactionPayload.GetProperty("type").GetString());
+        Assert.Equal(groceriesCategoryId, transactionPayload.GetProperty("categoryId").GetGuid());
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CanUpdateAccountButCannotDeleteAccountWithTransactions()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var updateResponse = await client.PutAsJsonAsync($"/api/accounts/{checkingId}", new
+        {
+            name = "Household Checking",
+            type = "Cash",
+            currencyCode = "eur",
+            openingBalance = 1200m,
+            isActive = false
+        });
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+        var updatePayload = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Household Checking", updatePayload.GetProperty("name").GetString());
+        Assert.Equal("Cash", updatePayload.GetProperty("type").GetString());
+        Assert.Equal("EUR", updatePayload.GetProperty("currencyCode").GetString());
+        Assert.False(updatePayload.GetProperty("isActive").GetBoolean());
+
+        await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 15.25m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-09T12:00:00Z",
+            note = "Locks delete"
+        });
+
+        var deleteResponse = await client.DeleteAsync($"/api/accounts/{checkingId}");
+        Assert.Equal(HttpStatusCode.Conflict, deleteResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CanUpdateAndDeleteUnusedCategory()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var categoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var updateResponse = await client.PutAsJsonAsync($"/api/categories/{categoryId}", new
+        {
+            name = "Food",
+            kind = "Income",
+            color = "#00AA88",
+            isSystem = true
+        });
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+        var updatePayload = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Food", updatePayload.GetProperty("name").GetString());
+        Assert.Equal("Income", updatePayload.GetProperty("kind").GetString());
+        Assert.Equal("#00AA88", updatePayload.GetProperty("color").GetString());
+        Assert.True(updatePayload.GetProperty("isSystem").GetBoolean());
+
+        var getResponse = await client.GetAsync($"/api/categories/{categoryId}");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var deleteResponse = await client.DeleteAsync($"/api/categories/{categoryId}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        var getAfterDeleteResponse = await client.GetAsync($"/api/categories/{categoryId}");
+        Assert.Equal(HttpStatusCode.NotFound, getAfterDeleteResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanSaveAndRemoveEncryptedAiProviderKeys()
     {
         using var client = _factory.CreateClient();
