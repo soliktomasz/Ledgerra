@@ -849,6 +849,165 @@ label {
   font-weight: 650;
 }
 
+.warning-banner {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-sm);
+  background: #fffbeb;
+  color: #92400e;
+  font-weight: 650;
+}
+
+.reports-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 12rem) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.reports-preview h2,
+.reports-preview p {
+  margin: 0;
+}
+
+.reports-preview h2 {
+  margin-top: 0.15rem;
+  font-size: 1rem;
+}
+
+.reports-preview p {
+  margin-top: 0.3rem;
+  color: var(--muted-strong);
+}
+
+.mini-sparkline {
+  width: 100%;
+  height: 3.5rem;
+}
+
+.mini-sparkline path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.report-controls .segmented-control {
+  grid-template-columns: repeat(4, minmax(2.7rem, 1fr));
+}
+
+.segmented-control button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+
+.filter-select {
+  min-width: 11rem;
+}
+
+.filter-select select {
+  min-height: 2.55rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.report-chart {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.report-chart svg {
+  width: 100%;
+  min-height: 12rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.report-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.report-line-area {
+  fill: rgba(15, 118, 110, 0.08);
+  stroke: none;
+}
+
+.chart-axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.cashflow-bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr));
+  gap: 0.65rem;
+  min-height: 14rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.cashflow-month {
+  display: grid;
+  grid-template-rows: minmax(8rem, 1fr) auto;
+  gap: 0.5rem;
+  justify-items: center;
+}
+
+.cashflow-pair {
+  display: flex;
+  align-items: end;
+  gap: 0.24rem;
+  width: 100%;
+  height: 100%;
+}
+
+.cashflow-bar {
+  display: block;
+  flex: 1;
+  min-height: 0.35rem;
+  border-radius: 0.35rem 0.35rem 0 0;
+}
+
+.cashflow-bar--income {
+  background: var(--positive);
+}
+
+.cashflow-bar--expense {
+  background: var(--negative);
+}
+
 .success-banner {
   margin: 0 0 1rem;
   padding: 0.75rem 0.85rem;
@@ -1094,6 +1253,7 @@ label {
   }
 
   .dashboard-grid,
+  .reports-grid,
   .insight-list,
   .split-grid,
   .split-grid.wide {
@@ -1168,6 +1328,11 @@ label {
     align-items: flex-start;
   }
 
+  .report-controls {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
   .login-hero,
   .auth-card {
     min-height: auto;
@@ -1193,6 +1358,7 @@ label {
   .account-settings-row,
   .inline-settings-form,
   .budget-progress-row,
+  .reports-preview,
   .insight-row {
     grid-template-columns: 1fr;
   }

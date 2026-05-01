@@ -65,6 +65,23 @@ public static class CategorizationRuleSchemaInitializer
 
             CREATE UNIQUE INDEX IF NOT EXISTS "IX_CategorizationRules_UserId_Name"
                 ON "CategorizationRules" ("UserId", "Name");
+
+            CREATE TABLE IF NOT EXISTS "MonthlyAccountBalanceSnapshots" (
+                "Id" uuid NOT NULL,
+                "UserId" uuid NOT NULL,
+                "AccountId" uuid NOT NULL,
+                "MonthEndDate" date NOT NULL,
+                "Balance" numeric(18,2) NOT NULL,
+                "CurrencyCode" character varying(3) NOT NULL,
+                CONSTRAINT "PK_MonthlyAccountBalanceSnapshots" PRIMARY KEY ("Id"),
+                CONSTRAINT "FK_MonthlyAccountBalanceSnapshots_Accounts_AccountId" FOREIGN KEY ("AccountId") REFERENCES "Accounts" ("Id") ON DELETE CASCADE
+            );
+
+            CREATE INDEX IF NOT EXISTS "IX_MonthlyAccountBalanceSnapshots_AccountId"
+                ON "MonthlyAccountBalanceSnapshots" ("AccountId");
+
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_MonthlyAccountBalanceSnapshots_UserId_AccountId_MonthEndDate"
+                ON "MonthlyAccountBalanceSnapshots" ("UserId", "AccountId", "MonthEndDate");
             """,
             cancellationToken);
     }

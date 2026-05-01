@@ -9,6 +9,8 @@ import type {
   MonthlyReportAnalysis,
   MonthlyReportDraftTransaction,
   Profile,
+  ReportingOverview,
+  ReportingRangePreset,
   Transaction
 } from "../types";
 
@@ -80,6 +82,14 @@ export const apiClient = {
   },
   getDashboard(token: string, month: string) {
     return request<DashboardSummary>(`/api/dashboard/summary?month=${month}`, { token });
+  },
+  getReportingOverview(token: string, filters: { rangePreset: ReportingRangePreset; accountId?: string }) {
+    const params = new URLSearchParams({ range: filters.rangePreset });
+    if (filters.accountId) {
+      params.set("accountId", filters.accountId);
+    }
+
+    return request<ReportingOverview>(`/api/reports/overview?${params.toString()}`, { token });
   },
   getAccounts(token: string) {
     return request<Account[]>("/api/accounts", { token });

@@ -47,6 +47,12 @@ public sealed class DashboardController : ControllerBase
                 .ToList(),
             summary.Accounts
                 .Select(item => new AccountBalanceSnapshot(item.AccountId, item.Name, item.Balance))
-                .ToList()));
+                .ToList(),
+            new DashboardTrendsResponse(
+                summary.Trends.SpendingDeltaAmount,
+                summary.Trends.SpendingDeltaPercent,
+                summary.Trends.SpendingSparkline
+                    .Select(item => new DashboardSpendingSparklinePointResponse(item.Month, item.Amount))
+                    .ToList())));
     }
 }

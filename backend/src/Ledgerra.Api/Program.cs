@@ -4,6 +4,7 @@ using Ledgerra.Application.Accounts;
 using Ledgerra.Application.Categories;
 using Ledgerra.Application.Dashboard;
 using Ledgerra.Application.Imports;
+using Ledgerra.Application.Reporting;
 using Ledgerra.Application.Settings;
 using Ledgerra.Application.Transactions;
 using Ledgerra.Api.Services.Ai;
@@ -34,6 +35,7 @@ builder.Services.AddScoped<IImportCategorizationRuleMatcher, ImportCategorizatio
 builder.Services.AddScoped<IImportDuplicateDetector, ImportDuplicateDetector>();
 builder.Services.AddScoped<AnalyzeMonthlyReportCommandHandler>();
 builder.Services.AddScoped<GetDashboardSummaryQueryHandler>();
+builder.Services.AddScoped<GetReportingOverviewQueryHandler>();
 builder.Services.AddScoped<IAccountStore, AccountStore>();
 builder.Services.AddScoped<ICategoryStore, CategoryStore>();
 builder.Services.AddScoped<CreateAccountCommandHandler>();
@@ -65,6 +67,8 @@ builder.Services.AddScoped<GetTransactionByIdQueryHandler>();
 builder.Services.AddScoped<GetTransactionsQueryHandler>();
 builder.Services.AddScoped<IBudgetSummaryStore, BudgetSummaryStore>();
 builder.Services.AddScoped<IDashboardSummaryDataProvider, DashboardSummaryDataProvider>();
+builder.Services.AddScoped<IReportingDataProvider, ReportingDataProvider>();
+builder.Services.AddScoped<IMonthlyAccountBalanceSnapshotService, MonthlyAccountBalanceSnapshotService>();
 builder.Services.AddScoped<IUserProfileStore, UserProfileStore>();
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));

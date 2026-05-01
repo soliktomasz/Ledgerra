@@ -1,4 +1,5 @@
 using Ledgerra.Domain.Accounts;
+using Ledgerra.Application.Reporting;
 
 namespace Ledgerra.Application.Accounts;
 
@@ -91,10 +92,12 @@ public sealed class GetAccountByIdQueryHandler
 public sealed class CreateAccountCommandHandler
 {
     private readonly IAccountStore _accountStore;
+    private readonly IMonthlyAccountBalanceSnapshotService? _snapshotService;
 
-    public CreateAccountCommandHandler(IAccountStore accountStore)
+    public CreateAccountCommandHandler(IAccountStore accountStore, IMonthlyAccountBalanceSnapshotService? snapshotService = null)
     {
         _accountStore = accountStore;
+        _snapshotService = snapshotService;
     }
 
     public async Task<AccountCommandResult> HandleAsync(CreateAccountCommand command, CancellationToken cancellationToken)
@@ -116,6 +119,12 @@ public sealed class CreateAccountCommandHandler
             },
             cancellationToken);
 
+        if (_snapshotService is not null)
+        {
+            var currentMonth = new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            await _snapshotService.RefreshFromAsync(command.UserId, currentMonth, cancellationToken);
+        }
+
         return AccountCommandResult.Success(AccountMappings.MapAccount(account));
     }
 }
@@ -123,10 +132,12 @@ public sealed class CreateAccountCommandHandler
 public sealed class UpdateAccountCommandHandler
 {
     private readonly IAccountStore _accountStore;
+    private readonly IMonthlyAccountBalanceSnapshotService? _snapshotService;
 
-    public UpdateAccountCommandHandler(IAccountStore accountStore)
+    public UpdateAccountCommandHandler(IAccountStore accountStore, IMonthlyAccountBalanceSnapshotService? snapshotService = null)
     {
         _accountStore = accountStore;
+        _snapshotService = snapshotService;
     }
 
     public async Task<AccountCommandResult> HandleAsync(UpdateAccountCommand command, CancellationToken cancellationToken)
@@ -146,9 +157,18 @@ public sealed class UpdateAccountCommandHandler
             command.IsActive,
             cancellationToken);
 
-        return account is null
-            ? AccountCommandResult.NotFound()
-            : AccountCommandResult.Success(AccountMappings.MapAccount(account));
+        if (account is null)
+        {
+            return AccountCommandResult.NotFound();
+        }
+
+        if (_snapshotService is not null)
+        {
+            var accountStartMonth = new DateOnly(account.CreatedAtUtc.Year, account.CreatedAtUtc.Month, 1);
+            await _snapshotService.RefreshFromAsync(command.UserId, accountStartMonth, cancellationToken);
+        }
+
+        return AccountCommandResult.Success(AccountMappings.MapAccount(account));
     }
 }
 
