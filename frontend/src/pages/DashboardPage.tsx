@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { TransactionForm } from "../components/TransactionForm";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import { useI18n } from "../state/I18nContext";
 import { PageHeader } from "../ui/PageHeader";
 import { MetricCard } from "../ui/MetricCard";
 import { SectionCard } from "../ui/SectionCard";
@@ -56,15 +57,18 @@ function pluralize(count: number, singular: string, plural: string) {
   return count === 1 ? singular : plural;
 }
 
-function describeSpendingDelta(amount: number, currencyCode: string) {
+function describeSpendingDelta(amount: number, currencyCode: string, t: ReturnType<typeof useI18n>["t"]) {
   if (amount === 0) {
-    return "Spending is flat vs prior month.";
+    return t("dashboard.spendingFlat");
   }
 
-  return `Spending is ${amount > 0 ? "up" : "down"} ${formatCurrency(Math.abs(amount), currencyCode)} vs prior month.`;
+  return t("dashboard.spendingDelta", {
+    direction: amount > 0 ? t("common.up") : t("common.down"),
+    amount: formatCurrency(Math.abs(amount), currencyCode)
+  });
 }
 
-function MiniSparkline({ points }: { points: Array<{ month: string; amount: number }> }) {
+function MiniSparkline({ points, ariaLabel }: { points: Array<{ month: string; amount: number }>; ariaLabel: string }) {
   if (points.length === 0) {
     return null;
   }
@@ -82,7 +86,7 @@ function MiniSparkline({ points }: { points: Array<{ month: string; amount: numb
     .join(" ");
 
   return (
-    <svg className="mini-sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Recent spending sparkline">
+    <svg className="mini-sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={ariaLabel}>
       <path d={path} />
     </svg>
   );
@@ -91,7 +95,8 @@ function MiniSparkline({ points }: { points: Array<{ month: string; amount: numb
 function buildDashboardInsights(
   budget: BudgetSummary | null,
   transactions: Transaction[],
-  currencyCode: string
+  currencyCode: string,
+  t: ReturnType<typeof useI18n>["t"]
 ): DashboardInsight[] {
   const insights: DashboardInsight[] = [];
   const budgetCategories = budget?.categories ?? [];
@@ -106,10 +111,10 @@ function buildDashboardInsights(
     .forEach((category) => {
       insights.push({
         id: `over-budget-${category.categoryId}`,
-        title: `${category.categoryName} needs attention`,
-        detail: `${category.categoryName} is over budget by ${formatCurrency(Math.abs(category.remaining), currencyCode)}.`,
+        title: t("dashboard.overBudgetTitle", { category: category.categoryName }),
+        detail: t("dashboard.overBudgetDetail", { category: category.categoryName, amount: formatCurrency(Math.abs(category.remaining), currencyCode) }),
         tone: "warning",
-        action: { label: "Open budgets", to: "/budgets" }
+        action: { label: t("dashboard.openBudgets"), to: "/budgets" }
       });
     });
 
@@ -125,30 +130,33 @@ function buildDashboardInsights(
     .forEach((category) => {
       insights.push({
         id: `budget-pressure-${category.categoryId}`,
-        title: `${category.categoryName} is close to its limit`,
-        detail: `${category.categoryName} is ${category.percentUsed}% of its budget.`,
+        title: t("dashboard.closeToLimitTitle", { category: category.categoryName }),
+        detail: t("dashboard.closeToLimitDetail", { category: category.categoryName, percent: category.percentUsed }),
         tone: "attention",
-        action: { label: "Open budgets", to: "/budgets" }
+        action: { label: t("dashboard.openBudgets"), to: "/budgets" }
       });
     });
 
   if (uncategorizedExpenseCount > 0) {
     insights.push({
       id: "uncategorized-expenses",
-      title: "Categorize recent spending",
-      detail: `You have ${uncategorizedExpenseCount} uncategorized ${pluralize(uncategorizedExpenseCount, "expense transaction", "expense transactions")}.`,
+      title: t("dashboard.categorizeRecentSpendingTitle"),
+      detail: t("dashboard.categorizeRecentSpendingDetail", {
+        count: uncategorizedExpenseCount,
+        noun: pluralize(uncategorizedExpenseCount, "expense transaction", "expense transactions")
+      }),
       tone: "attention",
-      action: { label: "Review transactions", to: "/transactions?view=uncategorized" }
+      action: { label: t("dashboard.reviewTransactions"), to: "/transactions?view=uncategorized" }
     });
   }
 
   if (!hasBudget && transactions.length > 0) {
     insights.push({
       id: "set-budget",
-      title: "Add budget guardrails",
-      detail: "Set a monthly budget to turn spending into progress alerts.",
+      title: t("dashboard.addBudgetGuardrailsTitle"),
+      detail: t("dashboard.addBudgetGuardrailsDetail"),
       tone: "neutral",
-      action: { label: "Open budgets", to: "/budgets" }
+      action: { label: t("dashboard.openBudgets"), to: "/budgets" }
     });
   }
 
@@ -157,6 +165,7 @@ function buildDashboardInsights(
 
 export function DashboardPage() {
   const { auth } = useAuth();
+  const { t } = useI18n();
   const { accounts, categories, dashboard, budget, loading, error, profile, transactions, refresh } = useLedgerraData();
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
@@ -184,52 +193,52 @@ export function DashboardPage() {
   const checklistItems: ChecklistItem[] = useMemo(
     () => [
       {
-        title: "Create first account",
-        detail: accounts[0] ? accounts[0].name : "Add the account you check most often.",
+        title: t("dashboard.checklistCreateFirstAccount"),
+        detail: accounts[0] ? accounts[0].name : t("dashboard.checklistCreateFirstAccountDetail"),
         complete: accounts.length > 0,
-        actions: accounts.length > 0 ? [{ kind: "done", label: "Account ready" }] : [{ kind: "link", label: "Add account", to: "/accounts" }]
+        actions: accounts.length > 0 ? [{ kind: "done", label: t("dashboard.accountReady") }] : [{ kind: "link", label: t("dashboard.addAccount"), to: "/accounts" }]
       },
       {
-        title: "Confirm currency",
-        detail: `Use ${mainCurrencyCode} for dashboard totals and budget planning.`,
+        title: t("dashboard.checklistConfirmCurrency"),
+        detail: t("dashboard.checklistConfirmCurrencyDetail", { currencyCode: mainCurrencyCode }),
         complete: acknowledgements.currency,
         actions: acknowledgements.currency
-          ? [{ kind: "done", label: "Currency confirmed" }]
-          : [{ kind: "button", label: `Confirm ${mainCurrencyCode}`, onClick: () => markAcknowledgement("currency") }]
+          ? [{ kind: "done", label: t("dashboard.currencyConfirmed") }]
+          : [{ kind: "button", label: t("dashboard.confirmCurrency", { currencyCode: mainCurrencyCode }), onClick: () => markAcknowledgement("currency") }]
       },
       {
-        title: "Review default categories",
-        detail: "Scan the starting income and expense categories before importing data.",
+        title: t("dashboard.checklistReviewCategories"),
+        detail: t("dashboard.checklistReviewCategoriesDetail"),
         complete: acknowledgements.categories,
         actions: acknowledgements.categories
-          ? [{ kind: "done", label: "Categories reviewed" }]
+          ? [{ kind: "done", label: t("dashboard.categoriesReviewed") }]
           : [
-              { kind: "link", label: "Open categories", to: "/categories" },
-              { kind: "button", label: "Reviewed", onClick: () => markAcknowledgement("categories") }
+              { kind: "link", label: t("dashboard.openCategories"), to: "/categories" },
+              { kind: "button", label: t("dashboard.reviewed"), onClick: () => markAcknowledgement("categories") }
             ]
       },
       {
-        title: "Set first budget",
-        detail: "Give your main expense categories a monthly plan.",
+        title: t("dashboard.checklistSetBudget"),
+        detail: t("dashboard.checklistSetBudgetDetail"),
         complete: hasBudget,
-        actions: hasBudget ? [{ kind: "done", label: "Budget set" }] : [{ kind: "link", label: "Set budget", to: "/budgets" }]
+        actions: hasBudget ? [{ kind: "done", label: t("dashboard.budgetSet") }] : [{ kind: "link", label: t("dashboard.setBudget"), to: "/budgets" }]
       },
       {
-        title: "Add first transaction",
-        detail: "Import a statement or add a transaction so the dashboard has real activity.",
+        title: t("dashboard.checklistAddTransaction"),
+        detail: t("dashboard.checklistAddTransactionDetail"),
         complete: transactions.length > 0,
         actions: transactions.length > 0
-          ? [{ kind: "done", label: "Transaction added" }]
-          : [{ kind: "link", label: "Add first transaction", to: "/transactions" }]
+          ? [{ kind: "done", label: t("dashboard.transactionAdded") }]
+          : [{ kind: "link", label: t("dashboard.addFirstTransaction"), to: "/transactions" }]
       }
     ],
-    [accounts, acknowledgements, hasBudget, mainCurrencyCode, markAcknowledgement, transactions.length]
+    [accounts, acknowledgements, hasBudget, mainCurrencyCode, markAcknowledgement, t, transactions.length]
   );
   const completedChecklistItems = checklistItems.filter((item) => item.complete).length;
   const isChecklistComplete = completedChecklistItems === checklistItems.length;
   const insights = useMemo(
-    () => buildDashboardInsights(budget, transactions, mainCurrencyCode),
-    [budget, mainCurrencyCode, transactions]
+    () => buildDashboardInsights(budget, transactions, mainCurrencyCode, t),
+    [budget, mainCurrencyCode, t, transactions]
   );
 
   useEffect(() => {
@@ -241,9 +250,9 @@ export function DashboardPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Overview"
-        title="Money at a glance"
-        description="See the month’s inflow, spending rhythm, and remaining budget without noise."
+        eyebrow={t("dashboard.eyebrow")}
+        title={t("dashboard.title")}
+        description={t("dashboard.description")}
         actions={
           <div className="dashboard-header-actions">
             <button
@@ -255,7 +264,7 @@ export function DashboardPage() {
                 setIsQuickAddOpen(true);
               }}
             >
-              Add transaction
+              {t("dashboard.addTransaction")}
             </button>
           </div>
         }
@@ -265,14 +274,14 @@ export function DashboardPage() {
 
       {isQuickAddOpen && auth?.accessToken ? (
         <div className="modal-backdrop" role="presentation">
-          <section className="modal-panel" role="dialog" aria-modal="true" aria-label="Add transaction">
+          <section className="modal-panel" role="dialog" aria-modal="true" aria-label={t("dashboard.addTransactionDialog")}>
             <div className="modal-header">
               <div>
-                <span className="eyebrow">Quick add</span>
-                <h2>Add transaction</h2>
+                <span className="eyebrow">{t("dashboard.quickAdd")}</span>
+                <h2>{t("dashboard.addTransactionDialog")}</h2>
               </div>
               <button className="ghost-button compact-button" type="button" onClick={() => setIsQuickAddOpen(false)}>
-                Close
+                {t("common.close")}
               </button>
             </div>
             {quickAddError ? <p className="error-banner">{quickAddError}</p> : null}
@@ -296,14 +305,14 @@ export function DashboardPage() {
       ) : null}
 
       {!isChecklistComplete ? (
-        <section className="onboarding-checklist" aria-label="Onboarding checklist">
+        <section className="onboarding-checklist" aria-label={t("dashboard.firstRunChecklist")}>
           <div className="onboarding-checklist-header">
             <div>
-              <span className="eyebrow">Next steps</span>
-              <h2>First run checklist</h2>
-              <p>Move from an empty ledger to a useful monthly view.</p>
+              <span className="eyebrow">{t("dashboard.nextSteps")}</span>
+              <h2>{t("dashboard.firstRunChecklist")}</h2>
+              <p>{t("dashboard.firstRunChecklistDescription")}</p>
             </div>
-            <strong>{completedChecklistItems} of {checklistItems.length} complete</strong>
+            <strong>{t("dashboard.checklistComplete", { completed: completedChecklistItems, total: checklistItems.length })}</strong>
           </div>
           <div className="onboarding-checklist-items">
             {checklistItems.map((item) => (
@@ -340,48 +349,48 @@ export function DashboardPage() {
 
       <div className="metric-grid">
         <MetricCard
-          label="Income"
+          label={t("dashboard.income")}
           value={formatCurrency(dashboard?.income ?? 0, mainCurrencyCode)}
           tone="positive"
-          detail="All monthly inflows."
+          detail={t("dashboard.allMonthlyInflows")}
         />
         <MetricCard
-          label="Expenses"
+          label={t("dashboard.expenses")}
           value={formatCurrency(dashboard?.expenses ?? 0, mainCurrencyCode)}
           tone="negative"
-          detail="Transfers excluded."
+          detail={t("dashboard.transfersExcluded")}
         />
         <MetricCard
-          label="Net"
+          label={t("dashboard.net")}
           value={formatCurrency(dashboard?.net ?? 0, mainCurrencyCode)}
           tone={(dashboard?.net ?? 0) >= 0 ? "positive" : "negative"}
-          detail="Income minus expenses."
+          detail={t("dashboard.incomeMinusExpenses")}
         />
         <MetricCard
-          label="Budget Remaining"
+          label={t("dashboard.budgetRemaining")}
           value={formatCurrency(budget?.totalRemaining ?? dashboard?.budgetRemaining ?? 0, mainCurrencyCode)}
-          detail="Across tracked budget categories."
+          detail={t("dashboard.acrossTrackedBudgetCategories")}
         />
       </div>
 
       {dashboard?.trends.spendingSparkline.length ? (
-        <section className="reports-preview" aria-label="Reports preview">
+        <section className="reports-preview" aria-label={t("dashboard.reportsPreview")}>
           <div>
-            <span className="eyebrow">Trends</span>
-            <h2>Reports preview</h2>
-            <p>{describeSpendingDelta(dashboard.trends.spendingDeltaAmount, mainCurrencyCode)}</p>
+            <span className="eyebrow">{t("dashboard.trends")}</span>
+            <h2>{t("dashboard.reportsPreview")}</h2>
+            <p>{describeSpendingDelta(dashboard.trends.spendingDeltaAmount, mainCurrencyCode, t)}</p>
           </div>
-          <MiniSparkline points={dashboard.trends.spendingSparkline} />
+          <MiniSparkline points={dashboard.trends.spendingSparkline} ariaLabel={t("dashboard.sparklineAria")} />
           <Link className="ghost-button compact-button" to="/reports">
-            Open reports
+            {t("dashboard.openReports")}
           </Link>
         </section>
       ) : null}
 
       {insights.length > 0 ? (
-        <section className="insights-panel" aria-label="Dashboard insights">
+        <section className="insights-panel" aria-label={t("dashboard.insightsAria")}>
           <div className="section-header">
-            <h2>Insights</h2>
+            <h2>{t("dashboard.insights")}</h2>
           </div>
           <div className="insight-list">
             {insights.map((insight) => (
@@ -402,11 +411,11 @@ export function DashboardPage() {
       ) : null}
 
       <div className="dashboard-grid">
-        <SectionCard title="Top categories">
+        <SectionCard title={t("dashboard.topCategories")}>
           {!dashboard?.topCategories.length ? (
             <EmptyState
-              title={loading ? "Loading spending…" : "No spending yet"}
-              body="Add transactions to see which categories are shaping the month."
+              title={loading ? t("dashboard.loadingSpending") : t("dashboard.noSpendingYet")}
+              body={t("dashboard.noSpendingBody")}
             />
           ) : (
             <div className="bar-list">
@@ -430,11 +439,11 @@ export function DashboardPage() {
           )}
         </SectionCard>
 
-        <SectionCard title="Account balances">
+        <SectionCard title={t("dashboard.accountBalances")}>
           {!dashboard?.accounts.length ? (
             <EmptyState
-              title={loading ? "Loading accounts…" : "No accounts yet"}
-              body="Create a personal, joint, or savings account to begin tracking."
+              title={loading ? t("dashboard.loadingAccounts") : t("dashboard.noAccountsYet")}
+              body={t("dashboard.noAccountsBody")}
             />
           ) : (
             <div className="account-balance-list">
@@ -442,7 +451,7 @@ export function DashboardPage() {
                 <article key={account.accountId} className="balance-row">
                   <div>
                     <strong>{account.name}</strong>
-                    <p>Live balance</p>
+                    <p>{t("dashboard.liveBalance")}</p>
                   </div>
                   <strong>{formatCurrency(account.balance, accountCurrencyCodes.get(account.accountId) ?? mainCurrencyCode)}</strong>
                 </article>

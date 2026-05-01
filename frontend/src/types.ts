@@ -19,6 +19,7 @@ export type Account = {
 export type Profile = {
   email: string;
   preferredCurrencyCode: string;
+  preferredLanguageCode: string;
 };
 
 export type AiProviderStatus = {

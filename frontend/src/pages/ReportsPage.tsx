@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useReportingOverview } from "../hooks/useReportingOverview";
+import { useI18n } from "../state/I18nContext";
 import { EmptyState } from "../ui/EmptyState";
 import { MetricCard } from "../ui/MetricCard";
 import { PageHeader } from "../ui/PageHeader";
@@ -31,16 +32,16 @@ function buildPath(points: ChartPoint[], width: number, height: number) {
     .join(" ");
 }
 
-function LineChart({ points }: { points: ChartPoint[] }) {
+function LineChart({ points, t }: { points: ChartPoint[]; t: ReturnType<typeof useI18n>["t"] }) {
   if (points.length === 0) {
-    return <EmptyState title="No report data yet" body="Add transactions across months to populate this view." />;
+    return <EmptyState title={t("reports.noReportDataYet")} body={t("reports.noTrendData")} />;
   }
 
   const path = buildPath(points, 320, 140);
 
   return (
     <div className="report-chart">
-      <svg viewBox="0 0 320 160" role="img" aria-label="Monthly trend chart">
+      <svg viewBox="0 0 320 160" role="img" aria-label={t("reports.monthlyTrendChart")}>
         <path className="report-line-area" d={`${path} L 320 150 L 0 150 Z`} />
         <path className="report-line" d={path} />
       </svg>
@@ -52,9 +53,9 @@ function LineChart({ points }: { points: ChartPoint[] }) {
   );
 }
 
-function GroupedBars({ rows, currencyCode }: { rows: Array<{ month: string; income: number; expenses: number }>; currencyCode: string }) {
+function GroupedBars({ rows, currencyCode, t }: { rows: Array<{ month: string; income: number; expenses: number }>; currencyCode: string; t: ReturnType<typeof useI18n>["t"] }) {
   if (rows.length === 0) {
-    return <EmptyState title="No report data yet" body="Income and expense bars appear after activity is added." />;
+    return <EmptyState title={t("reports.noReportDataYet")} body={t("reports.noCashflowData")} />;
   }
 
   const max = Math.max(...rows.flatMap((row) => [row.income, row.expenses]), 1);
@@ -74,9 +75,9 @@ function GroupedBars({ rows, currencyCode }: { rows: Array<{ month: string; inco
   );
 }
 
-function CategoryBars({ rows, currencyCode }: { rows: Array<{ categoryId: string; categoryName: string; amount: number; percentage: number }>; currencyCode: string }) {
+function CategoryBars({ rows, currencyCode, t }: { rows: Array<{ categoryId: string; categoryName: string; amount: number; percentage: number }>; currencyCode: string; t: ReturnType<typeof useI18n>["t"] }) {
   if (rows.length === 0) {
-    return <EmptyState title="No report data yet" body="Categorized expenses will appear here." />;
+    return <EmptyState title={t("reports.noReportDataYet")} body={t("reports.noCategoryData")} />;
   }
 
   const max = Math.max(...rows.map((row) => row.amount), 1);
@@ -99,6 +100,7 @@ function CategoryBars({ rows, currencyCode }: { rows: Array<{ categoryId: string
 }
 
 export function ReportsPage() {
+  const { t } = useI18n();
   const {
     overview,
     accounts,
@@ -124,12 +126,12 @@ export function ReportsPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Analytics"
-        title="Reports"
-        description="Track month-by-month spending, cash flow, category weight, and net worth history."
+        eyebrow={t("reports.eyebrow")}
+        title={t("reports.title")}
+        description={t("reports.description")}
         actions={(
           <div className="report-controls">
-            <div className="segmented-control" aria-label="Report range">
+            <div className="segmented-control" aria-label={t("reports.range")}>
               {rangePresets.map((preset) => (
                 <button
                   aria-pressed={rangePreset === preset}
@@ -143,9 +145,9 @@ export function ReportsPage() {
               ))}
             </div>
             <label className="filter-select">
-              <span>Account</span>
+              <span>{t("reports.account")}</span>
               <select value={accountId} onChange={(event) => setAccountId(event.target.value)}>
-                <option value="">All accounts</option>
+                <option value="">{t("common.allAccounts")}</option>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>{account.name}</option>
                 ))}
@@ -162,27 +164,27 @@ export function ReportsPage() {
       ))}
 
       <div className="metric-grid">
-        <MetricCard label="Income" value={formatCurrency(overview?.summary.incomeTotal ?? 0, currencyCode)} tone="positive" detail={overview ? `${overview.startMonth} to ${overview.endMonth}` : "Selected range"} />
-        <MetricCard label="Expenses" value={formatCurrency(overview?.summary.expenseTotal ?? 0, currencyCode)} tone="negative" detail={loading ? "Loading reports." : "Transfers excluded."} />
-        <MetricCard label="Net cash flow" value={formatCurrency(overview?.summary.netCashFlow ?? 0, currencyCode)} tone={(overview?.summary.netCashFlow ?? 0) >= 0 ? "positive" : "negative"} detail="Income minus expenses." />
-        <MetricCard label="Net worth" value={formatCurrency(netWorthValue, currencyCode)} detail="Latest available month." />
+        <MetricCard label={t("reports.income")} value={formatCurrency(overview?.summary.incomeTotal ?? 0, currencyCode)} tone="positive" detail={overview ? `${overview.startMonth} to ${overview.endMonth}` : t("reports.selectedRange")} />
+        <MetricCard label={t("reports.expenses")} value={formatCurrency(overview?.summary.expenseTotal ?? 0, currencyCode)} tone="negative" detail={loading ? t("reports.loadingReports") : t("dashboard.transfersExcluded")} />
+        <MetricCard label={t("reports.netCashFlow")} value={formatCurrency(overview?.summary.netCashFlow ?? 0, currencyCode)} tone={(overview?.summary.netCashFlow ?? 0) >= 0 ? "positive" : "negative"} detail={t("dashboard.incomeMinusExpenses")} />
+        <MetricCard label={t("reports.netWorth")} value={formatCurrency(netWorthValue, currencyCode)} detail={t("reports.latestAvailableMonth")} />
       </div>
 
       <div className="reports-grid">
-        <SectionCard title="Spending trend">
-          <LineChart points={spendingPoints} />
+        <SectionCard title={t("reports.spendingTrend")}>
+          <LineChart points={spendingPoints} t={t} />
         </SectionCard>
 
-        <SectionCard title="Income vs expense">
-          <GroupedBars rows={overview?.incomeVsExpense ?? []} currencyCode={currencyCode} />
+        <SectionCard title={t("reports.incomeVsExpense")}>
+          <GroupedBars rows={overview?.incomeVsExpense ?? []} currencyCode={currencyCode} t={t} />
         </SectionCard>
 
-        <SectionCard title="Category breakdown">
-          <CategoryBars rows={overview?.categoryBreakdown ?? []} currencyCode={currencyCode} />
+        <SectionCard title={t("reports.categoryBreakdown")}>
+          <CategoryBars rows={overview?.categoryBreakdown ?? []} currencyCode={currencyCode} t={t} />
         </SectionCard>
 
-        <SectionCard title="Net worth history">
-          <LineChart points={netWorthPoints} />
+        <SectionCard title={t("reports.netWorthHistory")}>
+          <LineChart points={netWorthPoints} t={t} />
         </SectionCard>
       </div>
     </div>

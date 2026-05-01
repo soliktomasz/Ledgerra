@@ -2,10 +2,12 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import { useI18n } from "../state/I18nContext";
 import type { ImportRule } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
+import { normalizeLanguageCode, supportedLanguages } from "../utils/language";
 
 function getErrorMessage(exception: unknown, fallback: string) {
   return exception instanceof Error ? exception.message : fallback;
@@ -13,8 +15,10 @@ function getErrorMessage(exception: unknown, fallback: string) {
 
 export function SettingsPage() {
   const { auth } = useAuth();
+  const { setLanguageCode, t } = useI18n();
   const { profile, aiSettings, categories, importRules, refresh } = useLedgerraData();
   const [preferredCurrencyCode, setPreferredCurrencyCode] = useState("USD");
+  const [preferredLanguageCode, setPreferredLanguageCode] = useState("en");
   const [defaultProvider, setDefaultProvider] = useState("OpenAi");
   const [openAiKey, setOpenAiKey] = useState("");
   const [anthropicKey, setAnthropicKey] = useState("");
@@ -30,6 +34,10 @@ export function SettingsPage() {
   useEffect(() => {
     setPreferredCurrencyCode(profile?.preferredCurrencyCode ?? "USD");
   }, [profile?.preferredCurrencyCode]);
+
+  useEffect(() => {
+    setPreferredLanguageCode(profile?.preferredLanguageCode ?? "en");
+  }, [profile?.preferredLanguageCode]);
 
   useEffect(() => {
     setDefaultProvider(aiSettings?.defaultProvider ?? "OpenAi");
@@ -52,7 +60,12 @@ export function SettingsPage() {
       return;
     }
 
-    await apiClient.updateProfile(auth.accessToken, normalizeCurrencyCode(preferredCurrencyCode));
+    await apiClient.updateProfile(
+      auth.accessToken,
+      normalizeCurrencyCode(preferredCurrencyCode),
+      normalizeLanguageCode(preferredLanguageCode)
+    );
+    setLanguageCode(preferredLanguageCode);
     await refresh();
   };
 
@@ -76,7 +89,7 @@ export function SettingsPage() {
       await refresh();
     } catch (exception) {
       console.error(exception);
-      setAiProviderError(exception instanceof Error ? exception.message : "Unable to save AI settings.");
+      setAiProviderError(exception instanceof Error ? exception.message : t("settings.unableToSaveAiSettings"));
       return;
     } finally {
       setOpenAiKey("");
@@ -104,7 +117,7 @@ export function SettingsPage() {
       const name = ruleName.trim();
       const value = ruleMatchValue.trim();
       if (!name || !value) {
-        setRuleError("Rule name and match text are required.");
+        setRuleError(t("settings.ruleFieldsRequired"));
         return;
       }
 
@@ -122,7 +135,7 @@ export function SettingsPage() {
       setRuleMatchValue("");
       await refresh();
     } catch (exception) {
-      setRuleError(getErrorMessage(exception, "Unable to save import rule."));
+      setRuleError(getErrorMessage(exception, t("settings.unableToSaveRule")));
     }
   };
 
@@ -136,7 +149,7 @@ export function SettingsPage() {
       await apiClient.updateImportRule(auth.accessToken, { ...rule, isActive: !rule.isActive });
       await refresh();
     } catch (exception) {
-      setRuleError(getErrorMessage(exception, "Unable to update import rule."));
+      setRuleError(getErrorMessage(exception, t("settings.unableToUpdateRule")));
     }
   };
 
@@ -150,7 +163,7 @@ export function SettingsPage() {
       await apiClient.deleteImportRule(auth.accessToken, ruleId);
       await refresh();
     } catch (exception) {
-      setRuleError(getErrorMessage(exception, "Unable to delete import rule."));
+      setRuleError(getErrorMessage(exception, t("settings.unableToDeleteRule")));
     }
   };
 
@@ -161,15 +174,15 @@ export function SettingsPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Settings"
-        title="Workspace preferences"
-        description="Set the main currency used for dashboard, budget, and reporting totals."
+        eyebrow={t("settings.eyebrow")}
+        title={t("settings.title")}
+        description={t("settings.description")}
       />
 
-      <SectionCard title="Main currency">
+      <SectionCard title={t("settings.regionalPreferences")}>
         <form className="stack-form" onSubmit={handleSubmit}>
           <label>
-            Preferred currency
+            {t("settings.preferredCurrency")}
             <select value={preferredCurrencyCode} onChange={(event) => setPreferredCurrencyCode(event.target.value)}>
               {supportedCurrencies.map((currency) => (
                 <option key={currency.code} value={currency.code}>
@@ -178,52 +191,62 @@ export function SettingsPage() {
               ))}
             </select>
           </label>
+          <label>
+            {t("settings.preferredLanguage")}
+            <select value={preferredLanguageCode} onChange={(event) => setPreferredLanguageCode(event.target.value)}>
+              {supportedLanguages.map((language) => (
+                <option key={language.code} value={language.code}>
+                  {language.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <button className="primary-button" type="submit">
-            Save currency
+            {t("settings.savePreferences")}
           </button>
         </form>
       </SectionCard>
 
-      <SectionCard title="AI providers">
+      <SectionCard title={t("settings.aiProviders")}>
         <form className="stack-form" onSubmit={handleAiProviderSubmit}>
           {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
           <label>
-            Default provider
+            {t("settings.defaultProvider")}
             <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
               <option value="OpenAi">OpenAI</option>
               <option value="Anthropic">Anthropic</option>
             </select>
           </label>
           <label>
-            OpenAI API key
+            {t("settings.openAiApiKey")}
             <input
               value={openAiKey}
               onChange={(event) => setOpenAiKey(event.target.value)}
               type="password"
-              placeholder={aiSettings?.providers.openAi.maskedKey ?? "Not configured"}
+              placeholder={aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}
             />
           </label>
           <label>
-            Anthropic API key
+            {t("settings.anthropicApiKey")}
             <input
               value={anthropicKey}
               onChange={(event) => setAnthropicKey(event.target.value)}
               type="password"
-              placeholder={aiSettings?.providers.anthropic.maskedKey ?? "Not configured"}
+              placeholder={aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}
             />
           </label>
           <button className="primary-button" type="submit">
-            Save AI settings
+            {t("settings.saveAiSettings")}
           </button>
         </form>
         <div className="table-list compact-list">
           <article className="table-row">
             <div>
               <strong>OpenAI</strong>
-              <p>{aiSettings?.providers.openAi.isConfigured ? "Configured" : "Not configured"}</p>
+              <p>{aiSettings?.providers.openAi.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
             </div>
             <div className="settings-provider-actions">
-              <strong>{aiSettings?.providers.openAi.maskedKey ?? "Not configured"}</strong>
+              <strong>{aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}</strong>
               <button
                 className="ghost-button"
                 type="button"
@@ -234,17 +257,17 @@ export function SettingsPage() {
                   }
                 }}
               >
-                Remove
+                {t("common.remove")}
               </button>
             </div>
           </article>
           <article className="table-row">
             <div>
               <strong>Anthropic</strong>
-              <p>{aiSettings?.providers.anthropic.isConfigured ? "Configured" : "Not configured"}</p>
+              <p>{aiSettings?.providers.anthropic.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
             </div>
             <div className="settings-provider-actions">
-              <strong>{aiSettings?.providers.anthropic.maskedKey ?? "Not configured"}</strong>
+              <strong>{aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}</strong>
               <button
                 className="ghost-button"
                 type="button"
@@ -255,33 +278,33 @@ export function SettingsPage() {
                   }
                 }}
               >
-                Remove
+                {t("common.remove")}
               </button>
             </div>
           </article>
         </div>
       </SectionCard>
 
-      <SectionCard title="Import rules">
+      <SectionCard title={t("settings.importRules")}>
         <form className="stack-form rule-form" onSubmit={handleRuleSubmit}>
           {ruleError ? <p className="error-banner">{ruleError}</p> : null}
           <label>
-            Rule name
-            <input value={ruleName} onChange={(event) => setRuleName(event.target.value)} placeholder="Coffee shops" required />
+            {t("settings.ruleName")}
+            <input value={ruleName} onChange={(event) => setRuleName(event.target.value)} placeholder={t("settings.ruleNamePlaceholder")} required />
           </label>
           <label>
-            Match text
-            <input value={ruleMatchValue} onChange={(event) => setRuleMatchValue(event.target.value)} placeholder="Cafe" required />
+            {t("settings.matchText")}
+            <input value={ruleMatchValue} onChange={(event) => setRuleMatchValue(event.target.value)} placeholder={t("settings.matchTextPlaceholder")} required />
           </label>
           <label>
-            Transaction type
+            {t("settings.transactionType")}
             <select value={transactionType} onChange={(event) => setTransactionType(event.target.value)}>
-              <option>Expense</option>
-              <option>Income</option>
+              <option value="Expense">{t("transactionType.Expense")}</option>
+              <option value="Income">{t("transactionType.Income")}</option>
             </select>
           </label>
           <label>
-            Category
+            {t("settings.category")}
             <select value={ruleCategoryId} onChange={(event) => setRuleCategoryId(event.target.value)} disabled={filteredCategories.length === 0}>
               {filteredCategories.map((category) => (
                 <option key={category.id} value={category.id}>
@@ -291,12 +314,12 @@ export function SettingsPage() {
             </select>
           </label>
           <button className="primary-button" type="submit" disabled={filteredCategories.length === 0}>
-            Add rule
+            {t("settings.addRule")}
           </button>
         </form>
         <div className="table-list compact-list rule-list">
           {importRules.length === 0 ? (
-            <p className="empty-state">No import rules yet.</p>
+            <p className="empty-state">{t("settings.noRules")}</p>
           ) : (
             importRules.map((rule) => (
               <article className="table-row rule-row" key={rule.id}>
@@ -304,16 +327,16 @@ export function SettingsPage() {
                   <strong>{rule.name}</strong>
                   <p>
                     {rule.matchField} {rule.matchOperator.toLowerCase()} "{rule.matchValue}" -&gt;{" "}
-                    {categoryNamesById.get(rule.assignCategoryId) ?? "Unknown category"}
+                    {categoryNamesById.get(rule.assignCategoryId) ?? t("settings.unknownCategory")}
                   </p>
                 </div>
                 <div className="rule-actions">
-                  <strong>{rule.isActive ? "Active" : "Disabled"}</strong>
-                  <button className="ghost-button" type="button" aria-label={`${rule.isActive ? "Disable" : "Enable"} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
-                    {rule.isActive ? "Disable" : "Enable"}
+                  <strong>{rule.isActive ? t("common.active") : t("common.disabled")}</strong>
+                  <button className="ghost-button" type="button" aria-label={`${rule.isActive ? t("common.disable") : t("common.enable")} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
+                    {rule.isActive ? t("common.disable") : t("common.enable")}
                   </button>
-                  <button className="ghost-button danger-button" type="button" aria-label={`Delete ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
-                    Delete
+                  <button className="ghost-button danger-button" type="button" aria-label={`${t("common.delete")} ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
+                    {t("common.delete")}
                   </button>
                 </div>
               </article>
@@ -322,35 +345,42 @@ export function SettingsPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Current session">
+      <SectionCard title={t("settings.currentSession")}>
         <div className="table-list">
           <article className="table-row">
             <div>
-              <strong>User email</strong>
-              <p>Active local account</p>
+              <strong>{t("settings.userEmail")}</strong>
+              <p>{t("settings.activeLocalAccount")}</p>
             </div>
-            <strong>{profile?.email ?? auth?.email ?? "Unknown"}</strong>
+            <strong>{profile?.email ?? auth?.email ?? t("common.unknown")}</strong>
           </article>
           <article className="table-row">
             <div>
-              <strong>Main currency</strong>
-              <p>Used for app-wide totals.</p>
+              <strong>{t("settings.mainCurrency")}</strong>
+              <p>{t("settings.appWideTotals")}</p>
             </div>
             <strong>{profile?.preferredCurrencyCode ?? "USD"}</strong>
           </article>
           <article className="table-row">
             <div>
-              <strong>API model</strong>
-              <p>Single-user JWT auth</p>
+              <strong>{t("settings.preferredLanguage")}</strong>
+              <p>{t("settings.languageAndFormatting")}</p>
             </div>
-            <strong>v1 ready</strong>
+            <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
           </article>
           <article className="table-row">
             <div>
-              <strong>Mobile readiness</strong>
-              <p>Same JSON API can back future iOS/Android clients.</p>
+              <strong>{t("settings.apiModel")}</strong>
+              <p>{t("settings.singleUserJwt")}</p>
             </div>
-            <strong>Prepared</strong>
+            <strong>{t("settings.v1Ready")}</strong>
+          </article>
+          <article className="table-row">
+            <div>
+              <strong>{t("settings.mobileReadiness")}</strong>
+              <p>{t("settings.mobileReadinessDescription")}</p>
+            </div>
+            <strong>{t("settings.prepared")}</strong>
           </article>
         </div>
       </SectionCard>

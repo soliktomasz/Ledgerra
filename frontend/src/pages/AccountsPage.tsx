@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import { useI18n } from "../state/I18nContext";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
@@ -9,8 +10,26 @@ import { formatCurrency } from "../utils/format";
 
 const accountTypes = ["Checking", "Savings", "Cash", "Credit", "Joint"];
 
+function getAccountTypeLabel(type: string, t: ReturnType<typeof useI18n>["t"]) {
+  switch (type) {
+    case "Checking":
+      return t("accountType.Checking");
+    case "Savings":
+      return t("accountType.Savings");
+    case "Cash":
+      return t("accountType.Cash");
+    case "Credit":
+      return t("accountType.Credit");
+    case "Joint":
+      return t("accountType.Joint");
+    default:
+      return type;
+  }
+}
+
 export function AccountsPage() {
   const { auth } = useAuth();
+  const { t } = useI18n();
   const { accounts, profile, refresh } = useLedgerraData();
   const [name, setName] = useState("");
   const [type, setType] = useState("Checking");
@@ -66,34 +85,34 @@ export function AccountsPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Accounts"
-        title="Separate every pool of money"
-        description="Track personal, shared, cash, and savings balances with clean visibility."
+        eyebrow={t("accounts.eyebrow")}
+        title={t("accounts.title")}
+        description={t("accounts.description")}
       />
 
       <div className="split-grid">
-        <SectionCard title="Create account">
+        <SectionCard title={t("accounts.createAccount")}>
           <form className="stack-form" onSubmit={handleSubmit}>
             <label>
-              Name
+              {t("accounts.name")}
               <input value={name} onChange={(event) => setName(event.target.value)} required />
             </label>
             <label>
-              Type
+              {t("accounts.type")}
               <select value={type} onChange={(event) => setType(event.target.value)}>
                 {accountTypes.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {getAccountTypeLabel(option, t)}
                   </option>
                 ))}
               </select>
             </label>
             <label>
-              Opening balance
+              {t("accounts.openingBalance")}
               <input value={openingBalance} onChange={(event) => setOpeningBalance(event.target.value)} type="number" step="0.01" />
             </label>
             <label>
-              Currency
+              {t("accounts.currency")}
               <select value={currencyCode} onChange={(event) => setCurrencyCode(event.target.value)}>
                 {supportedCurrencies.map((currency) => (
                   <option key={currency.code} value={currency.code}>
@@ -103,22 +122,22 @@ export function AccountsPage() {
               </select>
             </label>
             <button className="primary-button" type="submit">
-              Add account
+              {t("accounts.addAccount")}
             </button>
           </form>
         </SectionCard>
 
-        <SectionCard title="Current accounts">
+        <SectionCard title={t("accounts.currentAccounts")}>
           <div className="table-list">
             {accounts.map((account) => (
               <article key={account.id} className="table-row account-settings-row">
                 <div>
                   <strong>{account.name}</strong>
-                  <p>{account.type}</p>
+                  <p>{getAccountTypeLabel(account.type, t)}</p>
                 </div>
                 <div className="align-right">
                   <strong>{formatCurrency(account.currentBalance, account.currencyCode)}</strong>
-                  <p>Opening {formatCurrency(account.openingBalance, account.currencyCode)}</p>
+                  <p>{t("accounts.opening", { amount: formatCurrency(account.openingBalance, account.currencyCode) })}</p>
                 </div>
                 <form
                   className="inline-settings-form"
@@ -128,7 +147,7 @@ export function AccountsPage() {
                   }}
                 >
                   <label>
-                    Currency
+                    {t("accounts.currency")}
                     <select
                       value={accountCurrencyDraft[account.id] ?? account.currencyCode}
                       onChange={(event) =>
@@ -146,7 +165,7 @@ export function AccountsPage() {
                     </select>
                   </label>
                   <button className="ghost-button" type="submit">
-                    Save
+                    {t("common.save")}
                   </button>
                 </form>
               </article>

@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import { useI18n } from "../state/I18nContext";
 import type { MonthlyReportDraftTransaction } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
@@ -19,6 +20,7 @@ function getErrorMessage(exception: unknown, fallback: string) {
 
 export function ImportsPage() {
   const { auth } = useAuth();
+  const { t } = useI18n();
   const { accounts, categories, aiSettings, refresh } = useLedgerraData();
   const [accountId, setAccountId] = useState("");
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
@@ -73,7 +75,7 @@ export function ImportsPage() {
       setHideDuplicates(false);
       setBulkCategoryId("");
     } catch (exception) {
-      setError(getErrorMessage(exception, "Unable to analyze report."));
+      setError(getErrorMessage(exception, t("imports.unableToAnalyze")));
     } finally {
       setIsAnalyzing(false);
     }
@@ -110,9 +112,9 @@ export function ImportsPage() {
     try {
       await apiClient.createImportRule(auth.accessToken, buildImportRulePayload(draft));
       await refresh();
-      setRuleMessage("Import rule saved.");
+      setRuleMessage(t("imports.ruleSaved"));
     } catch (exception) {
-      setError(getErrorMessage(exception, "Unable to save import rule."));
+      setError(getErrorMessage(exception, t("imports.unableToSaveRule")));
     } finally {
       setRememberingRuleSourceId(null);
     }
@@ -147,7 +149,7 @@ export function ImportsPage() {
     setDrafts((current) =>
       current.map((draft) => (selected.has(draft.sourceId) ? { ...draft, categoryId: bulkCategoryId } : draft))
     );
-    setRuleMessage(`Applied ${category?.name ?? "category"} to ${selected.size} selected ${selected.size === 1 ? "draft" : "drafts"}.`);
+    setRuleMessage(t("imports.appliedBulkCategory", { category: category?.name ?? t("settings.category"), count: selected.size }));
     setError(null);
   };
 
@@ -162,9 +164,9 @@ export function ImportsPage() {
     try {
       await Promise.all(selectedRuleReadyDrafts.map((draft) => apiClient.createImportRule(auth.accessToken, buildImportRulePayload(draft))));
       await refresh();
-      setRuleMessage(`${selectedRuleReadyDrafts.length} import ${selectedRuleReadyDrafts.length === 1 ? "rule" : "rules"} saved.`);
+      setRuleMessage(t("imports.rulesSaved", { count: selectedRuleReadyDrafts.length }));
     } catch (exception) {
-      setError(getErrorMessage(exception, "Unable to save selected import rules."));
+      setError(getErrorMessage(exception, t("imports.unableToSaveSelectedRules")));
     } finally {
       setIsRememberingSelectedRules(false);
     }
@@ -176,7 +178,7 @@ export function ImportsPage() {
     }
 
     if (selected.size === 0) {
-      setError("Select at least one draft to save.");
+      setError(t("imports.selectAtLeastOne"));
       setRuleMessage(null);
       return;
     }
@@ -195,7 +197,7 @@ export function ImportsPage() {
       setAcceptedDuplicateSourceIds(new Set());
       await refresh();
     } catch (exception) {
-      setError(getErrorMessage(exception, "Unable to save selected drafts."));
+      setError(getErrorMessage(exception, t("imports.unableToSaveSelectedDrafts")));
     } finally {
       setIsCommitting(false);
     }
@@ -204,18 +206,18 @@ export function ImportsPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Imports"
-        title="Monthly report import"
-        description="Parse PDF and CSV account reports into reviewed transaction drafts."
+        eyebrow={t("imports.eyebrow")}
+        title={t("imports.title")}
+        description={t("imports.description")}
       />
 
-      <SectionCard title="Analyze report">
+      <SectionCard title={t("imports.analyzeReport")}>
         <form className="stack-form" onSubmit={handleAnalyze}>
           {error ? <p className="error-banner">{error}</p> : null}
           <label>
-            Account
+            {t("reports.account")}
             <select value={accountId} onChange={(event) => setAccountId(event.target.value)} required disabled={isAnalyzing}>
-              <option value="">Select account</option>
+              <option value="">{t("common.selectAccount")}</option>
               {accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.name}
@@ -224,40 +226,40 @@ export function ImportsPage() {
             </select>
           </label>
           <label>
-            Month
+            {t("imports.month")}
             <input value={month} onChange={(event) => setMonth(event.target.value)} type="month" required disabled={isAnalyzing} />
           </label>
           <label>
-            Provider
+            {t("imports.provider")}
             <select value={provider} onChange={(event) => setProvider(event.target.value)} disabled={isAnalyzing}>
               <option value="OpenAi">OpenAI</option>
               <option value="Anthropic">Anthropic</option>
             </select>
           </label>
           <label>
-            Report file
+            {t("imports.reportFile")}
             <input accept=".pdf,.csv,application/pdf,text/csv" onChange={handleFileChange} type="file" required disabled={isAnalyzing} />
           </label>
           <button className="primary-button" type="submit" disabled={isAnalyzing}>
-            {isAnalyzing ? "Analyzing..." : "Analyze report"}
+            {isAnalyzing ? t("imports.analyzing") : t("imports.analyzeReport")}
           </button>
         </form>
       </SectionCard>
 
       {drafts.length > 0 && (
-        <SectionCard title="Review drafts">
+        <SectionCard title={t("imports.reviewDrafts")}>
           {ruleMessage ? <p className="success-banner">{ruleMessage}</p> : null}
-          <div className="review-toolbar" aria-label="Import review tools">
+          <div className="review-toolbar" aria-label={t("imports.reviewTools")}>
             <div className="review-toolbar-actions">
-              <strong>{selectedDraftCount} selected</strong>
+              <strong>{t("imports.selectedCount", { count: selectedDraftCount })}</strong>
               <button className="ghost-button compact-button" type="button" onClick={selectSafeDrafts}>
-                Select safe drafts
+                {t("imports.selectSafeDrafts")}
               </button>
               <button className="ghost-button compact-button" type="button" onClick={selectAllDrafts}>
-                Select all
+                {t("imports.selectAll")}
               </button>
               <button className="ghost-button compact-button" type="button" onClick={clearSelectedDrafts}>
-                Clear
+                {t("imports.clear")}
               </button>
               <button
                 className="ghost-button compact-button"
@@ -265,18 +267,18 @@ export function ImportsPage() {
                 onClick={() => void rememberSelectedRules()}
                 disabled={selectedRuleReadyDrafts.length === 0 || isRememberingSelectedRules}
               >
-                {isRememberingSelectedRules ? "Saving rules..." : "Remember selected rules"}
+                {isRememberingSelectedRules ? t("imports.savingRules") : t("imports.rememberSelectedRules")}
               </button>
               <label className="inline-checkbox">
                 <input checked={hideDuplicates} onChange={(event) => setHideDuplicates(event.target.checked)} type="checkbox" />
-                Hide duplicates
+                {t("imports.hideDuplicates")}
               </label>
             </div>
             <div className="bulk-category-actions">
               <label>
-                Bulk category
+                {t("imports.bulkCategory")}
                 <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)}>
-                  <option value="">Choose category</option>
+                  <option value="">{t("common.chooseCategory")}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -285,7 +287,7 @@ export function ImportsPage() {
                 </select>
               </label>
               <button className="ghost-button compact-button" type="button" onClick={applyBulkCategory} disabled={!bulkCategoryId || selected.size === 0}>
-                Apply to selected
+                {t("imports.applyToSelected")}
               </button>
             </div>
           </div>
@@ -336,11 +338,11 @@ export function ImportsPage() {
                   type="date"
                 />
                 <select value={draft.type} onChange={(event) => updateDraft(draft.sourceId, { type: event.target.value })}>
-                  <option>Expense</option>
-                  <option>Income</option>
+                  <option value="Expense">{t("transactionType.Expense")}</option>
+                  <option value="Income">{t("transactionType.Income")}</option>
                 </select>
                 <select value={draft.categoryId ?? ""} onChange={(event) => updateDraft(draft.sourceId, { categoryId: event.target.value || null })}>
-                  <option value="">No category</option>
+                  <option value="">{t("imports.noCategory")}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -360,7 +362,7 @@ export function ImportsPage() {
                 <strong>{Math.round(draft.confidence * 100)}%</strong>
                 <div className="import-review-flags">
                   {draft.appliedRuleName ? <span className="status-badge success">{draft.appliedRuleName}</span> : null}
-                  {draft.isLikelyDuplicate ? <span className="status-badge danger">Duplicate</span> : null}
+                  {draft.isLikelyDuplicate ? <span className="status-badge danger">{t("imports.duplicateFlag")}</span> : null}
                   {draft.duplicateReason ? <small>{draft.duplicateReason}</small> : null}
                   {draft.warnings.map((warning) => (
                     <small key={warning}>{warning}</small>
@@ -372,7 +374,7 @@ export function ImportsPage() {
                       onClick={() => rememberRule(draft)}
                       disabled={rememberingRuleSourceId === draft.sourceId}
                     >
-                      {rememberingRuleSourceId === draft.sourceId ? "Saving rule..." : "Remember this"}
+                      {rememberingRuleSourceId === draft.sourceId ? t("imports.savingRule") : t("imports.rememberThis")}
                     </button>
                   ) : null}
                 </div>
@@ -380,7 +382,7 @@ export function ImportsPage() {
             ))}
           </div>
           <button className="primary-button" onClick={handleCommit} type="button" disabled={isCommitting}>
-            {isCommitting ? "Saving..." : "Save selected drafts"}
+            {isCommitting ? t("imports.savingDrafts") : t("imports.saveSelectedDrafts")}
           </button>
         </SectionCard>
       )}

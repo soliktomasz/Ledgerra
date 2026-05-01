@@ -39,7 +39,7 @@ vi.mock("../api/client", () => ({
 
 vi.mock("../hooks/useLedgerraData", () => ({
   useLedgerraData: () => ({
-    profile: { email: "owner@ledgerra.local", preferredCurrencyCode: "USD" },
+    profile: { email: "owner@ledgerra.local", preferredCurrencyCode: "USD", preferredLanguageCode: "en" },
     aiSettings: mocks.aiSettings,
     categories: [
       { id: "category-1", name: "Groceries", kind: "Expense", isSystem: false },
@@ -77,8 +77,29 @@ describe("SettingsPage", () => {
     render(<SettingsPage />);
 
     expect(screen.getByText("AI providers")).toBeInTheDocument();
+    expect(screen.getByLabelText("Preferred language")).toHaveValue("en");
     expect(screen.getByText("...3456")).toBeInTheDocument();
     expect(screen.getAllByText("Not configured").length).toBeGreaterThan(0);
+  });
+
+  test("saves currency and language preferences", async () => {
+    const user = userEvent.setup();
+    mocks.updateProfile.mockResolvedValue({
+      email: "owner@ledgerra.local",
+      preferredCurrencyCode: "PLN",
+      preferredLanguageCode: "pl"
+    });
+
+    render(<SettingsPage />);
+
+    await user.selectOptions(screen.getByLabelText("Preferred currency"), "PLN");
+    await user.selectOptions(screen.getByLabelText("Preferred language"), "pl");
+    await user.click(screen.getByRole("button", { name: "Save preferences" }));
+
+    await waitFor(() => {
+      expect(mocks.updateProfile).toHaveBeenCalledWith("token", "PLN", "pl");
+    });
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
   });
 
   test("saves provider keys and selected default provider", async () => {

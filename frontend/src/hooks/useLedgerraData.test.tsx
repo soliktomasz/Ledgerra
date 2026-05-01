@@ -41,7 +41,7 @@ vi.mock("../api/client", () => ({
 describe("useLedgerraData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getProfile.mockResolvedValue({ email: "owner@ledgerra.local", preferredCurrencyCode: "USD" });
+    mocks.getProfile.mockResolvedValue({ email: "owner@ledgerra.local", preferredCurrencyCode: "USD", preferredLanguageCode: "en" });
     mocks.getAiSettings.mockResolvedValue({
       providers: {
         openAi: { isConfigured: true, maskedKey: "...3456" },

@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import { useAuth } from "../state/AuthContext";
+import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
 import type { Account, AiSettings, BudgetSummary, Category, DashboardSummary, ImportRule, Profile, Transaction } from "../types";
 
 export function useLedgerraData() {
   const { auth } = useAuth();
+  const { setLanguageCode, t } = useI18n();
   const { selectedMonth, selectedYear, selectedMonthNumber } = useMonthSelection();
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -56,15 +58,21 @@ export function useLedgerraData() {
       setBudget(budgetPayload);
       setImportRules(importRulesPayload);
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Unknown error");
+      setError(caughtError instanceof Error ? caughtError.message : t("common.unknown"));
     } finally {
       setLoading(false);
     }
-  }, [auth?.accessToken, selectedMonth, selectedMonthNumber, selectedYear]);
+  }, [auth?.accessToken, selectedMonth, selectedMonthNumber, selectedYear, t]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (profile?.preferredLanguageCode) {
+      setLanguageCode(profile.preferredLanguageCode);
+    }
+  }, [profile?.preferredLanguageCode, setLanguageCode]);
 
   return {
     selectedMonth,

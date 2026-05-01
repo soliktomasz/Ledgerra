@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
@@ -9,6 +10,7 @@ import { formatCurrency } from "../utils/format";
 
 export function BudgetsPage() {
   const { auth } = useAuth();
+  const { t } = useI18n();
   const { selectedYear, selectedMonthNumber } = useMonthSelection();
   const { categories, budget, profile, refresh } = useLedgerraData();
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
@@ -49,13 +51,13 @@ export function BudgetsPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Budgets"
-        title="Plan the month with intention"
-        description="Set limits per expense category and compare them against what has already happened."
+        eyebrow={t("budgets.eyebrow")}
+        title={t("budgets.title")}
+        description={t("budgets.description")}
       />
 
       <div className="split-grid wide">
-        <SectionCard title="Monthly category limits">
+        <SectionCard title={t("budgets.monthlyCategoryLimits")}>
           <form className="stack-form" onSubmit={handleSubmit}>
             {expenseCategories.map((category) => (
               <label key={category.id}>
@@ -73,12 +75,12 @@ export function BudgetsPage() {
               </label>
             ))}
             <button className="primary-button" type="submit">
-              Save budget
+              {t("budgets.saveBudget")}
             </button>
           </form>
         </SectionCard>
 
-        <SectionCard title="Budget progress">
+        <SectionCard title={t("budgets.progress")}>
           <div className="budget-progress-list">
             {budget?.categories.map((item) => {
               const ratio = item.planned > 0 ? Math.min((item.spent / item.planned) * 100, 100) : 0;
@@ -87,9 +89,7 @@ export function BudgetsPage() {
                 <article key={item.categoryId} className="budget-progress-row">
                   <div className="budget-progress-copy">
                     <strong>{item.categoryName}</strong>
-                    <span>
-                      {formatCurrency(item.spent, mainCurrencyCode)} of {formatCurrency(item.planned, mainCurrencyCode)}
-                    </span>
+                    <span>{t("budgets.of", { spent: formatCurrency(item.spent, mainCurrencyCode), planned: formatCurrency(item.planned, mainCurrencyCode) })}</span>
                   </div>
                   <div className="budget-progress-bar">
                     <div style={{ width: `${ratio}%` }} />

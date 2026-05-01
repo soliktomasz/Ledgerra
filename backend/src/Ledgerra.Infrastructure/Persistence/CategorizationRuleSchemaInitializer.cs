@@ -16,6 +16,9 @@ public static class CategorizationRuleSchemaInitializer
 
         await dbContext.Database.ExecuteSqlRawAsync(
             """
+            ALTER TABLE "Users"
+                ADD COLUMN IF NOT EXISTS "PreferredLanguageCode" character varying(10) NOT NULL DEFAULT 'en';
+
             CREATE TABLE IF NOT EXISTS "AiProviderCredentials" (
                 "Id" uuid NOT NULL,
                 "UserId" uuid NOT NULL,
