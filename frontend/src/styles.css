@@ -366,6 +366,13 @@ label {
   color: var(--muted);
 }
 
+.metric-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 .metric-card span {
   font-size: 0.78rem;
   font-weight: 850;
@@ -383,6 +390,25 @@ label {
   margin: 0;
   font-size: 0.86rem;
   line-height: 1.4;
+}
+
+.metric-card-icon,
+.section-title-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--accent-strong);
+}
+
+.metric-card-icon svg,
+.section-title-icon svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .metric-card--positive::before {
@@ -586,6 +612,13 @@ label {
   margin-bottom: 0.85rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
 }
 
 .section-header h2 {
