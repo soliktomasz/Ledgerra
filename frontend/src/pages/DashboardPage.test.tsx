@@ -36,7 +36,7 @@ const mocks = vi.hoisted(() => ({
     } as BudgetSummary,
     loading: false,
     error: null as string | null,
-    profile: { email: "owner@ledgerra.local", preferredCurrencyCode: "USD" },
+    profile: { email: "owner@ledgerra.local", preferredCurrencyCode: "USD", preferredLanguageCode: "en" },
     transactions: [] as Transaction[]
   }
 }));
@@ -91,7 +91,7 @@ describe("DashboardPage", () => {
       categories: []
     } as BudgetSummary;
     mocks.data.transactions = [];
-    mocks.data.profile = { email: "owner@ledgerra.local", preferredCurrencyCode: "USD" };
+    mocks.data.profile = { email: "owner@ledgerra.local", preferredCurrencyCode: "USD", preferredLanguageCode: "en" };
   });
 
   test("shows first-run checklist progress from current ledger data", () => {
@@ -150,7 +150,7 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Currency confirmed")).toBeInTheDocument();
     expect(screen.getByText("Categories reviewed")).toBeInTheDocument();
 
-    mocks.data.profile = { email: "owner@ledgerra.local", preferredCurrencyCode: "EUR" };
+    mocks.data.profile = { email: "owner@ledgerra.local", preferredCurrencyCode: "EUR", preferredLanguageCode: "en" };
     rerender(
       <MemoryRouter>
         <DashboardPage />

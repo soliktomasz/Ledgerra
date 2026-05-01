@@ -117,11 +117,11 @@ export const apiClient = {
   getProfile(token: string) {
     return request<Profile>("/api/settings/profile", { token });
   },
-  updateProfile(token: string, preferredCurrencyCode: string) {
+  updateProfile(token: string, preferredCurrencyCode: string, preferredLanguageCode: string) {
     return request<Profile>("/api/settings/profile", {
       method: "PUT",
       token,
-      body: { preferredCurrencyCode }
+      body: { preferredCurrencyCode, preferredLanguageCode }
     });
   },
   getAiSettings(token: string) {

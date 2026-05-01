@@ -17,6 +17,8 @@ public sealed class AppUser
 
     public string PreferredCurrencyCode { get; set; } = "USD";
 
+    public string PreferredLanguageCode { get; set; } = "en";
+
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
     public List<Account> Accounts { get; set; } = [];

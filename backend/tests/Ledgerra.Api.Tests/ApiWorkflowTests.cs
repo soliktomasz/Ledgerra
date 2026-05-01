@@ -162,7 +162,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
-    public async Task AuthenticatedUser_CanUpdatePreferredCurrency()
+    public async Task AuthenticatedUser_CanUpdateProfilePreferences()
     {
         using var client = _factory.CreateClient();
 
@@ -174,10 +174,12 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
 
         var initialPayload = await initialResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("USD", initialPayload.GetProperty("preferredCurrencyCode").GetString());
+        Assert.Equal("en", initialPayload.GetProperty("preferredLanguageCode").GetString());
 
         var updateResponse = await client.PutAsJsonAsync("/api/settings/profile", new
         {
-            preferredCurrencyCode = "eur"
+            preferredCurrencyCode = "eur",
+            preferredLanguageCode = "pl"
         });
         if (updateResponse.StatusCode != HttpStatusCode.OK)
         {
@@ -187,6 +189,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
 
         var updatePayload = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("EUR", updatePayload.GetProperty("preferredCurrencyCode").GetString());
+        Assert.Equal("pl", updatePayload.GetProperty("preferredLanguageCode").GetString());
     }
 
     [Fact]

@@ -16,11 +16,11 @@ public sealed class UserProfileStore : IUserProfileStore
     {
         return await _dbContext.Users
             .Where(item => item.Id == userId)
-            .Select(item => new ProfileResult(item.Email, item.PreferredCurrencyCode))
+            .Select(item => new ProfileResult(item.Email, item.PreferredCurrencyCode, item.PreferredLanguageCode))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<ProfileResult?> UpdatePreferredCurrencyAsync(Guid userId, string preferredCurrencyCode, CancellationToken cancellationToken)
+    public async Task<ProfileResult?> UpdatePreferencesAsync(Guid userId, string preferredCurrencyCode, string preferredLanguageCode, CancellationToken cancellationToken)
     {
         var user = await _dbContext.Users.SingleOrDefaultAsync(item => item.Id == userId, cancellationToken);
         if (user is null)
@@ -29,8 +29,9 @@ public sealed class UserProfileStore : IUserProfileStore
         }
 
         user.PreferredCurrencyCode = preferredCurrencyCode;
+        user.PreferredLanguageCode = preferredLanguageCode;
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new ProfileResult(user.Email, user.PreferredCurrencyCode);
+        return new ProfileResult(user.Email, user.PreferredCurrencyCode, user.PreferredLanguageCode);
     }
 }

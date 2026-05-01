@@ -207,7 +207,7 @@ describe("TransactionsPage", () => {
 
     expect(screen.getByText("Cafe")).toBeInTheDocument();
     expect(screen.queryByText("Market")).not.toBeInTheDocument();
-    expect(screen.getByText("1 uncategorized expense needs review.")).toBeInTheDocument();
+    expect(screen.getByText(/1 uncategorized expense transaction needs review\./)).toBeInTheDocument();
 
     const row = screen.getByLabelText("Transaction Cafe");
     await user.selectOptions(within(row).getByLabelText("Assign category to Cafe"), "category-3");

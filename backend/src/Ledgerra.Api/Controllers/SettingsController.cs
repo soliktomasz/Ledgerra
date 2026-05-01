@@ -28,7 +28,7 @@ public sealed class SettingsController : ControllerBase
 
         return profile is null
             ? NotFound()
-            : Ok(new ProfileResponse(profile.Email, profile.PreferredCurrencyCode));
+            : Ok(new ProfileResponse(profile.Email, profile.PreferredCurrencyCode, profile.PreferredLanguageCode));
     }
 
     [HttpPut("profile")]
@@ -36,7 +36,7 @@ public sealed class SettingsController : ControllerBase
     {
         var userId = User.GetRequiredUserId();
         var profile = await _updateProfileCommandHandler.HandleAsync(
-            new UpdateProfileCommand(userId, request.PreferredCurrencyCode),
+            new UpdateProfileCommand(userId, request.PreferredCurrencyCode, request.PreferredLanguageCode),
             cancellationToken);
 
         if (profile is null)
@@ -44,6 +44,6 @@ public sealed class SettingsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(new ProfileResponse(profile.Email, profile.PreferredCurrencyCode));
+        return Ok(new ProfileResponse(profile.Email, profile.PreferredCurrencyCode, profile.PreferredLanguageCode));
     }
 }

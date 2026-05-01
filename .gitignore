@@ -11,6 +11,7 @@
 .worktrees/
 frontend/node_modules/
 frontend/dist/
+*.tsbuildinfo
 
 # User-specific files
 *.rsuser

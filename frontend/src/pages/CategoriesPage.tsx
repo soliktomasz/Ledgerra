@@ -2,11 +2,24 @@ import { FormEvent, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
+import { useI18n } from "../state/I18nContext";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 
+function getCategoryKindLabel(kind: string, t: ReturnType<typeof useI18n>["t"]) {
+  switch (kind) {
+    case "Expense":
+      return t("transactionType.Expense");
+    case "Income":
+      return t("transactionType.Income");
+    default:
+      return kind;
+  }
+}
+
 export function CategoriesPage() {
   const { auth } = useAuth();
+  const { t } = useI18n();
   const { categories, refresh } = useLedgerraData();
   const [name, setName] = useState("");
   const [kind, setKind] = useState("Expense");
@@ -28,42 +41,42 @@ export function CategoriesPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Categories"
-        title="Shape the language of your money"
-        description="Keep categories intentional so budgets and reports stay readable over time."
+        eyebrow={t("categories.eyebrow")}
+        title={t("categories.title")}
+        description={t("categories.description")}
       />
 
       <div className="split-grid">
-        <SectionCard title="Add category">
+        <SectionCard title={t("categories.addCategory")}>
           <form className="stack-form" onSubmit={handleSubmit}>
             <label>
-              Name
+              {t("accounts.name")}
               <input value={name} onChange={(event) => setName(event.target.value)} required />
             </label>
             <label>
-              Kind
+              {t("categories.kind")}
               <select value={kind} onChange={(event) => setKind(event.target.value)}>
-                <option>Expense</option>
-                <option>Income</option>
+                <option value="Expense">{t("transactionType.Expense")}</option>
+                <option value="Income">{t("transactionType.Income")}</option>
               </select>
             </label>
             <label>
-              Accent color
+              {t("categories.accentColor")}
               <input value={color} onChange={(event) => setColor(event.target.value)} type="color" />
             </label>
             <button className="primary-button" type="submit">
-              Add category
+              {t("categories.addCategory")}
             </button>
           </form>
         </SectionCard>
 
-        <SectionCard title="Available categories">
+        <SectionCard title={t("categories.availableCategories")}>
           <div className="chip-list">
             {categories.map((category) => (
               <div className="category-chip" key={category.id}>
                 <span style={{ backgroundColor: category.color ?? "#5f8f7b" }} />
                 <strong>{category.name}</strong>
-                <small>{category.kind}</small>
+                <small>{getCategoryKindLabel(category.kind, t)}</small>
               </div>
             ))}
           </div>

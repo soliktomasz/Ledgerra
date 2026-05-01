@@ -47,6 +47,7 @@ public sealed class LedgerraDbContext : DbContext
             builder.Property(user => user.Email).HasMaxLength(320);
             builder.Property(user => user.PasswordHash).HasMaxLength(2048);
             builder.Property(user => user.PreferredCurrencyCode).HasMaxLength(3);
+            builder.Property(user => user.PreferredLanguageCode).HasMaxLength(10);
         });
 
         modelBuilder.Entity<Account>(builder =>

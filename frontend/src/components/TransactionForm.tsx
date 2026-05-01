@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
+import { useI18n } from "../state/I18nContext";
 import type { Account, Category, Transaction } from "../types";
 
-const transactionTypes = ["Expense", "Income", "Transfer"];
+const transactionTypes = ["Expense", "Income", "Transfer"] as const;
 const createNewCategoryValue = "__create_new__";
 const defaultCategoryColor = "#5f8f7b";
 
@@ -31,6 +32,17 @@ type TransactionFormProps = {
   onError?: (message: string) => void;
   onStatus?: (message: string) => void;
 };
+
+function getTransactionTypeLabel(type: (typeof transactionTypes)[number], t: ReturnType<typeof useI18n>["t"]) {
+  switch (type) {
+    case "Expense":
+      return t("transactionType.Expense");
+    case "Income":
+      return t("transactionType.Income");
+    case "Transfer":
+      return t("transactionType.Transfer");
+  }
+}
 
 function toLocalDateTimeInputValue(date: Date) {
   const year = date.getFullYear();
@@ -84,6 +96,7 @@ export function TransactionForm({
   onError,
   onStatus
 }: TransactionFormProps) {
+  const { t } = useI18n();
   const [values, setValues] = useState<TransactionFormValues>(() => ({ ...buildDefaultValues(), ...initialValues }));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -159,17 +172,17 @@ export function TransactionForm({
               ...payload
             });
 
-      onStatus?.(mode === "edit" ? "Transaction updated." : "Transaction saved.");
+      onStatus?.(mode === "edit" ? t("transactionForm.transactionUpdated") : t("transactionForm.transactionSaved"));
       if (mode === "create") {
         resetForm();
       }
       try {
         await onSaved(savedTransaction);
       } catch (caughtError) {
-        onError?.(getErrorMessage(caughtError, "Transaction saved, but the page failed to refresh."));
+        onError?.(getErrorMessage(caughtError, t("transactionForm.refreshFailed")));
       }
     } catch (caughtError) {
-      onError?.(getErrorMessage(caughtError, "Unable to save transaction."));
+      onError?.(getErrorMessage(caughtError, t("transactionForm.unableToSave")));
     } finally {
       setIsSubmitting(false);
     }
@@ -178,7 +191,7 @@ export function TransactionForm({
   return (
     <form className="stack-form" onSubmit={handleSubmit}>
       <label>
-        Type
+        {t("transactionForm.type")}
         <select
           value={values.type}
           onChange={(event) => {
@@ -191,15 +204,15 @@ export function TransactionForm({
         >
           {transactionTypes.map((option) => (
             <option key={option} value={option}>
-              {option}
+              {getTransactionTypeLabel(option, t)}
             </option>
           ))}
         </select>
       </label>
       <label>
-        Account
+        {t("transactionForm.account")}
         <select value={values.accountId} onChange={(event) => updateValue("accountId", event.target.value)} required disabled={mode === "edit"}>
-          <option value="">Select account</option>
+          <option value="">{t("common.selectAccount")}</option>
           {accounts.map((account) => (
             <option key={account.id} value={account.id}>
               {account.name}
@@ -210,9 +223,9 @@ export function TransactionForm({
 
       {values.type === "Transfer" ? (
         <label>
-          Destination account
+          {t("transactionForm.destinationAccount")}
           <select value={values.destinationAccountId} onChange={(event) => updateValue("destinationAccountId", event.target.value)} required>
-            <option value="">Select destination</option>
+            <option value="">{t("transactionForm.selectDestination")}</option>
             {accounts
               .filter((account) => account.id !== values.accountId)
               .map((account) => (
@@ -225,25 +238,25 @@ export function TransactionForm({
       ) : (
         <>
           <label>
-            Category
+            {t("transactionForm.category")}
             <select value={values.categoryId} onChange={(event) => updateValue("categoryId", event.target.value)}>
-              <option value="">Select category</option>
+              <option value="">{t("common.chooseCategory")}</option>
               {filteredCategories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                 </option>
               ))}
-              <option value={createNewCategoryValue}>Create new category</option>
+              <option value={createNewCategoryValue}>{t("transactionForm.createNewCategory")}</option>
             </select>
           </label>
           {isCreatingCategory ? (
             <div className="inline-category-form">
               <label>
-                New category name
+                {t("transactionForm.newCategoryName")}
                 <input value={newCategoryName} onChange={(event) => setNewCategoryName(event.target.value)} required />
               </label>
               <label>
-                New category color
+                {t("transactionForm.newCategoryColor")}
                 <input value={newCategoryColor} onChange={(event) => setNewCategoryColor(event.target.value)} type="color" />
               </label>
             </div>
@@ -252,24 +265,24 @@ export function TransactionForm({
       )}
 
       <label>
-        Amount
+        {t("transactionForm.amount")}
         <input value={values.amount} onChange={(event) => updateValue("amount", event.target.value)} type="number" step="0.01" required />
       </label>
       <label>
-        Date and time
+        {t("transactionForm.dateAndTime")}
         <input value={values.occurredOnUtc} onChange={(event) => updateValue("occurredOnUtc", event.target.value)} type="datetime-local" required />
       </label>
       <label>
-        Note
+        {t("transactionForm.note")}
         <textarea value={values.note} onChange={(event) => updateValue("note", event.target.value)} rows={3} />
       </label>
       <div className="transaction-form-actions">
         <button className="primary-button" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : submitLabel ?? (mode === "edit" ? "Save changes" : "Save transaction")}
+          {isSubmitting ? t("transactionForm.saving") : submitLabel ?? (mode === "edit" ? t("transactionForm.saveChanges") : t("transactionForm.saveTransaction"))}
         </button>
         {onCancel ? (
           <button className="ghost-button" type="button" onClick={onCancel} disabled={isSubmitting}>
-            Cancel
+            {t("common.cancel")}
           </button>
         ) : null}
       </div>

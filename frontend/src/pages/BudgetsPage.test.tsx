@@ -48,7 +48,7 @@ vi.mock("../hooks/useLedgerraData", () => ({
   useLedgerraData: () => ({
     categories: mocks.categories,
     budget: mocks.budget,
-    profile: { preferredCurrencyCode: "USD" },
+    profile: { email: "owner@ledgerra.local", preferredCurrencyCode: "USD", preferredLanguageCode: "en" },
     refresh: mocks.refresh
   })
 }));

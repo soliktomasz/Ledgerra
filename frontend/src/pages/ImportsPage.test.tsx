@@ -439,7 +439,7 @@ describe("ImportsPage", () => {
 
     await user.selectOptions(screen.getByLabelText("Bulk category"), "category-2");
     await user.click(screen.getByRole("button", { name: "Apply to selected" }));
-    expect(screen.getByText("Applied Dining to 1 selected draft.")).toBeInTheDocument();
+    expect(await screen.findByText("Applied Dining to 1 selected draft.")).toBeInTheDocument();
 
     await user.click(screen.getByLabelText("Hide duplicates"));
     expect(screen.queryByText("Existing market")).not.toBeInTheDocument();
@@ -498,6 +498,6 @@ describe("ImportsPage", () => {
       });
     });
     expect(mocks.refresh).toHaveBeenCalledTimes(1);
-    expect(await screen.findByText("1 import rule saved.")).toBeInTheDocument();
+    expect(await screen.findByText("Saved 1 import rule.")).toBeInTheDocument();
   });
 });
