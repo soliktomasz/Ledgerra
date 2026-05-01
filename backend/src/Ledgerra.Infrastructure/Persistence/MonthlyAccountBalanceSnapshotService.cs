@@ -21,14 +21,53 @@ public sealed class MonthlyAccountBalanceSnapshotService : IMonthlyAccountBalanc
         Guid? accountId,
         CancellationToken cancellationToken)
     {
-        await RecomputeAsync(userId, startMonth, endMonth, accountId, cancellationToken);
+        var buckets = ReportingCalendar.BuildMonthBuckets(startMonth, endMonth);
+        if (buckets.Count == 0)
+        {
+            return;
+        }
+
+        var startMonthEnd = ReportingCalendar.MonthEnd(startMonth);
+        var endMonthEnd = ReportingCalendar.MonthEnd(endMonth);
+        var snapshotsQuery = _dbContext.MonthlyAccountBalanceSnapshots
+            .Where(item => item.UserId == userId && item.MonthEndDate >= startMonthEnd && item.MonthEndDate <= endMonthEnd);
+
+        if (accountId.HasValue)
+        {
+            snapshotsQuery = snapshotsQuery.Where(item => item.AccountId == accountId.Value);
+        }
+
+        var existingMonthEnds = await snapshotsQuery
+            .Select(item => item.MonthEndDate)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        var missingBuckets = buckets
+            .Where(bucket => !existingMonthEnds.Contains(ReportingCalendar.MonthEnd(bucket.MonthStart)))
+            .ToList();
+
+        if (missingBuckets.Count == 0)
+        {
+            return;
+        }
+
+        var missingStart = missingBuckets.Min(bucket => bucket.MonthStart);
+        var missingEnd = missingBuckets.Max(bucket => bucket.MonthStart);
+        await RecomputeAsync(userId, missingStart, missingEnd, accountId, cancellationToken);
     }
 
-    public async Task RefreshFromAsync(Guid userId, DateOnly fromMonth, CancellationToken cancellationToken)
+    public async Task RefreshFromAsync(Guid userId, DateOnly fromMonth, Guid? accountId, CancellationToken cancellationToken)
     {
         var currentMonth = new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-        var latestTransactionMonth = await _dbContext.Transactions
-            .Where(item => item.UserId == userId)
+        var latestTransactionQuery = _dbContext.Transactions
+            .Where(item => item.UserId == userId);
+
+        if (accountId.HasValue)
+        {
+            latestTransactionQuery = latestTransactionQuery.Where(item => item.AccountId == accountId.Value);
+        }
+
+        var latestTransactionMonth = await latestTransactionQuery
             .Select(item => (DateTime?)item.OccurredOnUtc)
             .MaxAsync(cancellationToken);
 
@@ -36,7 +75,7 @@ public sealed class MonthlyAccountBalanceSnapshotService : IMonthlyAccountBalanc
             ? MaxMonth(currentMonth, new DateOnly(latestTransactionMonth.Value.Year, latestTransactionMonth.Value.Month, 1))
             : currentMonth;
 
-        await RecomputeAsync(userId, fromMonth, endMonth, null, cancellationToken);
+        await RecomputeAsync(userId, fromMonth, endMonth, accountId, cancellationToken);
     }
 
     private async Task RecomputeAsync(

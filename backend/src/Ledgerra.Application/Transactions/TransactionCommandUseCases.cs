@@ -102,7 +102,7 @@ public sealed class CreateTransactionCommandHandler
                 command.Note,
                 cancellationToken);
 
-            await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, cancellationToken);
+            await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, null, cancellationToken);
             return TransactionCommandResult.Success(MapTransaction(transfer));
         }
 
@@ -121,11 +121,11 @@ public sealed class CreateTransactionCommandHandler
             },
             cancellationToken);
 
-        await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, cancellationToken);
+        await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, command.AccountId, cancellationToken);
         return TransactionCommandResult.Success(MapTransaction(transaction));
     }
 
-    private async Task RefreshSnapshotsAsync(Guid userId, DateTime occurredOnUtc, CancellationToken cancellationToken)
+    private async Task RefreshSnapshotsAsync(Guid userId, DateTime occurredOnUtc, Guid? accountId, CancellationToken cancellationToken)
     {
         if (_snapshotService is null)
         {
@@ -135,6 +135,7 @@ public sealed class CreateTransactionCommandHandler
         await _snapshotService.RefreshFromAsync(
             userId,
             new DateOnly(occurredOnUtc.Year, occurredOnUtc.Month, 1),
+            accountId,
             cancellationToken);
     }
 
@@ -277,7 +278,7 @@ public sealed class UpdateTransactionCommandHandler
                 replacementCommand.Note,
                 cancellationToken);
 
-            await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, cancellationToken);
+            await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, null, cancellationToken);
             return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transfer));
         }
 
@@ -296,7 +297,7 @@ public sealed class UpdateTransactionCommandHandler
             },
             cancellationToken);
 
-        await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, cancellationToken);
+        await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, existing.AccountId, cancellationToken);
         return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transaction));
     }
 
@@ -304,6 +305,7 @@ public sealed class UpdateTransactionCommandHandler
         Guid userId,
         DateTime previousOccurredOnUtc,
         DateTime nextOccurredOnUtc,
+        Guid? accountId,
         CancellationToken cancellationToken)
     {
         if (_snapshotService is null)
@@ -315,6 +317,7 @@ public sealed class UpdateTransactionCommandHandler
         await _snapshotService.RefreshFromAsync(
             userId,
             new DateOnly(refreshFrom.Year, refreshFrom.Month, 1),
+            accountId,
             cancellationToken);
     }
 }
@@ -351,9 +354,11 @@ public sealed class DeleteTransactionCommandHandler
 
         if (_snapshotService is not null)
         {
+            var affectedAccountId = transaction.TransferGroupId.HasValue ? null : (Guid?)transaction.AccountId;
             await _snapshotService.RefreshFromAsync(
                 command.UserId,
                 new DateOnly(transaction.OccurredOnUtc.Year, transaction.OccurredOnUtc.Month, 1),
+                affectedAccountId,
                 cancellationToken);
         }
 

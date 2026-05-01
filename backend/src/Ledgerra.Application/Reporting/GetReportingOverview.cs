@@ -61,7 +61,7 @@ public interface IMonthlyAccountBalanceSnapshotService
         Guid? accountId,
         CancellationToken cancellationToken);
 
-    Task RefreshFromAsync(Guid userId, DateOnly fromMonth, CancellationToken cancellationToken);
+    Task RefreshFromAsync(Guid userId, DateOnly fromMonth, Guid? accountId, CancellationToken cancellationToken);
 }
 
 public sealed class GetReportingOverviewQueryHandler

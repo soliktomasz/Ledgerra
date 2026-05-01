@@ -122,7 +122,7 @@ public sealed class CreateAccountCommandHandler
         if (_snapshotService is not null)
         {
             var currentMonth = new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-            await _snapshotService.RefreshFromAsync(command.UserId, currentMonth, cancellationToken);
+            await _snapshotService.RefreshFromAsync(command.UserId, currentMonth, account.Id, cancellationToken);
         }
 
         return AccountCommandResult.Success(AccountMappings.MapAccount(account));
@@ -165,7 +165,7 @@ public sealed class UpdateAccountCommandHandler
         if (_snapshotService is not null)
         {
             var accountStartMonth = new DateOnly(account.CreatedAtUtc.Year, account.CreatedAtUtc.Month, 1);
-            await _snapshotService.RefreshFromAsync(command.UserId, accountStartMonth, cancellationToken);
+            await _snapshotService.RefreshFromAsync(command.UserId, accountStartMonth, account.Id, cancellationToken);
         }
 
         return AccountCommandResult.Success(AccountMappings.MapAccount(account));
