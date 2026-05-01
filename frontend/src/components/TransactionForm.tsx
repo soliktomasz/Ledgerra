@@ -129,6 +129,7 @@ export function TransactionForm({
           color: newCategoryColor
         });
         nextCategoryId = createdCategory.id;
+        setValues((current) => ({ ...current, categoryId: createdCategory.id }));
       }
 
       const payload = {
@@ -152,7 +153,16 @@ export function TransactionForm({
       if (mode === "create") {
         resetForm();
       }
-      await onSaved(savedTransaction);
+      try {
+        await onSaved(savedTransaction);
+      } catch (caughtError) {
+        onError?.(getErrorMessage(caughtError, "Transaction saved, but the page failed to refresh."));
+      }
+    } catch (caughtError) {
+      onError?.(getErrorMessage(caughtError, "Unable to save transaction."));
+    } finally {
+      setIsSubmitting(false);
+    }
     } catch (caughtError) {
       onError?.(getErrorMessage(caughtError, "Unable to save transaction."));
     } finally {
