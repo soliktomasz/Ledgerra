@@ -43,6 +43,16 @@ public sealed class UpdateBudgetCommandHandler
 
     public async Task<UpdateBudgetResult> HandleAsync(UpdateBudgetCommand command, CancellationToken cancellationToken)
     {
+        if (command.Year < 1)
+        {
+            return UpdateBudgetResult.WithValidationError("Budget year must be greater than or equal to 1.");
+        }
+
+        if (command.Month is < 1 or > 12)
+        {
+            return UpdateBudgetResult.WithValidationError("Budget month must be between 1 and 12.");
+        }
+
         var categoryIds = command.CategoryLimits.Select(item => item.CategoryId).ToArray();
         var categoriesExist = await _budgetSummaryStore.CategoriesExistAsync(command.UserId, categoryIds, cancellationToken);
         if (!categoriesExist)

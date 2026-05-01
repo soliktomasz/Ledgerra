@@ -46,6 +46,8 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
 
     public async Task<Transaction> CreateAsync(Transaction transaction, CancellationToken cancellationToken)
     {
+        EnsureUtc(transaction.OccurredOnUtc);
+
         _dbContext.Transactions.Add(transaction);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return transaction;
@@ -60,8 +62,9 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
         string? note,
         CancellationToken cancellationToken)
     {
+        EnsureUtc(occurredOnUtc);
+
         var transferGroupId = Guid.NewGuid();
-        var normalizedDate = occurredOnUtc.ToUniversalTime();
 
         var transferOut = new Transaction
         {
@@ -71,7 +74,7 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
             Amount = amount,
             Type = TransactionType.TransferOut,
             Note = note,
-            OccurredOnUtc = normalizedDate,
+            OccurredOnUtc = occurredOnUtc,
             TransferGroupId = transferGroupId
         };
 
@@ -83,12 +86,87 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
             Amount = amount,
             Type = TransactionType.TransferIn,
             Note = note,
-            OccurredOnUtc = normalizedDate,
+            OccurredOnUtc = occurredOnUtc,
             TransferGroupId = transferGroupId
         };
 
         _dbContext.Transactions.AddRange(transferOut, transferIn);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return transferOut;
+    }
+
+    public async Task<Transaction> ReplaceAsync(Transaction existing, Transaction replacement, CancellationToken cancellationToken)
+    {
+        EnsureUtc(replacement.OccurredOnUtc);
+
+        await RemoveExistingAsync(existing, cancellationToken);
+        _dbContext.Transactions.Add(replacement);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return replacement;
+    }
+
+    public async Task<Transaction> ReplaceWithTransferAsync(
+        Transaction existing,
+        Guid destinationAccountId,
+        decimal amount,
+        DateTime occurredOnUtc,
+        string? note,
+        CancellationToken cancellationToken)
+    {
+        EnsureUtc(occurredOnUtc);
+
+        await RemoveExistingAsync(existing, cancellationToken);
+
+        var transferGroupId = Guid.NewGuid();
+        var transferOut = new Transaction
+        {
+            Id = Guid.NewGuid(),
+            UserId = existing.UserId,
+            AccountId = existing.AccountId,
+            Amount = amount,
+            Type = TransactionType.TransferOut,
+            Note = note,
+            OccurredOnUtc = occurredOnUtc,
+            TransferGroupId = transferGroupId
+        };
+
+        var transferIn = new Transaction
+        {
+            Id = Guid.NewGuid(),
+            UserId = existing.UserId,
+            AccountId = destinationAccountId,
+            Amount = amount,
+            Type = TransactionType.TransferIn,
+            Note = note,
+            OccurredOnUtc = occurredOnUtc,
+            TransferGroupId = transferGroupId
+        };
+
+        _dbContext.Transactions.AddRange(transferOut, transferIn);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return transferOut;
+    }
+
+    private async Task RemoveExistingAsync(Transaction existing, CancellationToken cancellationToken)
+    {
+        if (existing.TransferGroupId.HasValue)
+        {
+            var linkedTransactions = await _dbContext.Transactions
+                .Where(item => item.UserId == existing.UserId && item.TransferGroupId == existing.TransferGroupId.Value)
+                .ToListAsync(cancellationToken);
+
+            _dbContext.Transactions.RemoveRange(linkedTransactions);
+            return;
+        }
+
+        _dbContext.Transactions.Remove(existing);
+    }
+
+    private static void EnsureUtc(DateTime occurredOnUtc)
+    {
+        if (occurredOnUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new InvalidOperationException("OccurredOnUtc must be a UTC date/time.");
+        }
     }
 }

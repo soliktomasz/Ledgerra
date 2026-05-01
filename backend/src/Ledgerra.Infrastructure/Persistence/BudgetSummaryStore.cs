@@ -1,5 +1,6 @@
 using Ledgerra.Application.Budgets;
 using Ledgerra.Domain.Budgets;
+using Ledgerra.Domain.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ledgerra.Infrastructure.Persistence;
@@ -50,7 +51,6 @@ public sealed class BudgetSummaryStore : IBudgetSummaryStore
         if (existingLimits.Count > 0)
         {
             _dbContext.BudgetCategoryLimits.RemoveRange(existingLimits);
-            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         var newLimits = categoryLimits.Select(item => new BudgetCategoryLimit
@@ -98,10 +98,13 @@ public sealed class BudgetSummaryStore : IBudgetSummaryStore
         return period;
     }
 
-    private async Task<List<Domain.Transactions.Transaction>> GetTransactionsForMonthAsync(Guid userId, int year, int month, CancellationToken cancellationToken)
+    private async Task<List<Transaction>> GetTransactionsForMonthAsync(Guid userId, int year, int month, CancellationToken cancellationToken)
     {
+        var monthStart = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var monthEnd = monthStart.AddMonths(1);
+
         return await _dbContext.Transactions
-            .Where(item => item.UserId == userId && item.OccurredOnUtc.Year == year && item.OccurredOnUtc.Month == month)
+            .Where(item => item.UserId == userId && item.OccurredOnUtc >= monthStart && item.OccurredOnUtc < monthEnd)
             .ToListAsync(cancellationToken);
     }
 }

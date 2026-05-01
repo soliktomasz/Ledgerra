@@ -56,6 +56,16 @@ public interface ITransactionCommandStore
         DateTime occurredOnUtc,
         string? note,
         CancellationToken cancellationToken);
+
+    Task<Transaction> ReplaceAsync(Transaction existing, Transaction replacement, CancellationToken cancellationToken);
+
+    Task<Transaction> ReplaceWithTransferAsync(
+        Transaction existing,
+        Guid destinationAccountId,
+        decimal amount,
+        DateTime occurredOnUtc,
+        string? note,
+        CancellationToken cancellationToken);
 }
 
 public sealed class CreateTransactionCommandHandler
@@ -69,13 +79,7 @@ public sealed class CreateTransactionCommandHandler
 
     public async Task<TransactionCommandResult> HandleAsync(CreateTransactionCommand command, CancellationToken cancellationToken)
     {
-        var validation = await ValidateAsync(
-            command.UserId,
-            command.AccountId,
-            command.CategoryId,
-            command.Type,
-            command.DestinationAccountId,
-            cancellationToken);
+        var validation = await ValidateAsync(command, cancellationToken);
 
         if (validation is not null)
         {
@@ -107,44 +111,50 @@ public sealed class CreateTransactionCommandHandler
                 Amount = command.Amount,
                 Type = transactionType,
                 Note = command.Note,
-                OccurredOnUtc = command.OccurredOnUtc.ToUniversalTime()
+                OccurredOnUtc = command.OccurredOnUtc
             },
             cancellationToken);
 
         return TransactionCommandResult.Success(MapTransaction(transaction));
     }
 
-    private async Task<TransactionCommandResult?> ValidateAsync(
-        Guid userId,
-        Guid accountId,
-        Guid? categoryId,
-        string type,
-        Guid? destinationAccountId,
+    public async Task<TransactionCommandResult?> ValidateAsync(
+        CreateTransactionCommand command,
         CancellationToken cancellationToken)
     {
-        var accountExists = await _transactionCommandStore.AccountExistsAsync(userId, accountId, cancellationToken);
+        var accountExists = await _transactionCommandStore.AccountExistsAsync(command.UserId, command.AccountId, cancellationToken);
         if (!accountExists)
         {
             return TransactionCommandResult.NotFound("Account not found");
         }
 
-        if (categoryId.HasValue)
+        if (command.CategoryId.HasValue)
         {
-            var categoryExists = await _transactionCommandStore.CategoryExistsAsync(userId, categoryId.Value, cancellationToken);
+            var categoryExists = await _transactionCommandStore.CategoryExistsAsync(command.UserId, command.CategoryId.Value, cancellationToken);
             if (!categoryExists)
             {
                 return TransactionCommandResult.NotFound("Category not found");
             }
         }
 
-        if (IsTransfer(type))
+        if (command.Amount <= 0)
         {
-            if (!destinationAccountId.HasValue || destinationAccountId.Value == accountId)
+            return TransactionCommandResult.ValidationError("amount", "Amount must be greater than zero.");
+        }
+
+        if (command.OccurredOnUtc.Kind != DateTimeKind.Utc)
+        {
+            return TransactionCommandResult.ValidationError("occurredOnUtc", "OccurredOnUtc must be a UTC date/time.");
+        }
+
+        if (IsTransfer(command.Type))
+        {
+            if (!command.DestinationAccountId.HasValue || command.DestinationAccountId.Value == command.AccountId)
             {
                 return TransactionCommandResult.ValidationError("destinationAccountId", "Transfers require a different destination account.");
             }
 
-            var destinationExists = await _transactionCommandStore.AccountExistsAsync(userId, destinationAccountId.Value, cancellationToken);
+            var destinationExists = await _transactionCommandStore.AccountExistsAsync(command.UserId, command.DestinationAccountId.Value, cancellationToken);
             if (!destinationExists)
             {
                 return TransactionCommandResult.NotFound("Destination account not found");
@@ -153,7 +163,7 @@ public sealed class CreateTransactionCommandHandler
             return null;
         }
 
-        if (!TryParseNonTransferType(type, out _))
+        if (!TryParseNonTransferType(command.Type, out _))
         {
             return TransactionCommandResult.ValidationError("type", "Supported transaction types are Income, Expense, and Transfer.");
         }
@@ -162,6 +172,8 @@ public sealed class CreateTransactionCommandHandler
     }
 
     private static bool IsTransfer(string type) => type.Equals("Transfer", StringComparison.OrdinalIgnoreCase);
+
+    internal static bool IsTransferCommand(string type) => IsTransfer(type);
 
     private static bool TryParseNonTransferType(string type, out TransactionType parsedType)
     {
@@ -175,13 +187,13 @@ public sealed class CreateTransactionCommandHandler
         return false;
     }
 
-    private static TransactionType ParseNonTransferType(string type)
+    internal static TransactionType ParseNonTransferType(string type)
     {
         TryParseNonTransferType(type, out var parsedType);
         return parsedType;
     }
 
-    private static TransactionDetails MapTransaction(Transaction transaction)
+    internal static TransactionDetails MapTransaction(Transaction transaction)
     {
         return new TransactionDetails(
             transaction.Id,
@@ -216,28 +228,51 @@ public sealed class UpdateTransactionCommandHandler
             return TransactionCommandResult.NotFound();
         }
 
-        if (existing.TransferGroupId.HasValue)
+        var replacementCommand = new CreateTransactionCommand(
+            command.UserId,
+            existing.AccountId,
+            command.CategoryId,
+            command.DestinationAccountId,
+            command.Amount,
+            command.Type,
+            command.OccurredOnUtc,
+            command.Note);
+
+        var validation = await _createTransactionCommandHandler.ValidateAsync(replacementCommand, cancellationToken);
+        if (validation is not null)
         {
-            await _transactionCommandStore.DeleteTransferGroupAsync(command.UserId, existing.TransferGroupId.Value, cancellationToken);
-        }
-        else
-        {
-            await _transactionCommandStore.DeleteAsync(existing, cancellationToken);
+            return validation;
         }
 
-        var createResult = await _createTransactionCommandHandler.HandleAsync(
-            new CreateTransactionCommand(
-                command.UserId,
-                existing.AccountId,
-                command.CategoryId,
-                command.DestinationAccountId,
-                command.Amount,
-                command.Type,
-                command.OccurredOnUtc,
-                command.Note),
+        if (CreateTransactionCommandHandler.IsTransferCommand(replacementCommand.Type))
+        {
+            var transfer = await _transactionCommandStore.ReplaceWithTransferAsync(
+                existing,
+                replacementCommand.DestinationAccountId!.Value,
+                replacementCommand.Amount,
+                replacementCommand.OccurredOnUtc,
+                replacementCommand.Note,
+                cancellationToken);
+
+            return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transfer));
+        }
+
+        var transaction = await _transactionCommandStore.ReplaceAsync(
+            existing,
+            new Transaction
+            {
+                Id = Guid.NewGuid(),
+                UserId = replacementCommand.UserId,
+                AccountId = replacementCommand.AccountId,
+                CategoryId = replacementCommand.CategoryId,
+                Amount = replacementCommand.Amount,
+                Type = CreateTransactionCommandHandler.ParseNonTransferType(replacementCommand.Type),
+                Note = replacementCommand.Note,
+                OccurredOnUtc = replacementCommand.OccurredOnUtc
+            },
             cancellationToken);
 
-        return createResult;
+        return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transaction));
     }
 }
 

@@ -115,11 +115,11 @@ public sealed class AnalyzeMonthlyReportCommandHandler
 
         var analyzedDrafts = new List<MonthlyReportReviewDraft>();
         var sourceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var parsedCommandAccountId = command.AccountId;
 
         foreach (var transaction in result.Transactions)
         {
-            if (!Guid.TryParse(transaction.AccountId, out var parsedAccountId) ||
-                (transaction.CategoryId is not null && !Guid.TryParse(transaction.CategoryId, out _)) ||
+            if ((transaction.CategoryId is not null && !Guid.TryParse(transaction.CategoryId, out _)) ||
                 !DateTime.TryParse(transaction.OccurredOnUtc, out var parsedOccurredOnUtc) ||
                 string.IsNullOrWhiteSpace(transaction.SourceId) ||
                 !sourceIds.Add(transaction.SourceId))
@@ -127,10 +127,16 @@ public sealed class AnalyzeMonthlyReportCommandHandler
                 throw new InvalidOperationException("AI report analysis returned a malformed transaction draft.");
             }
 
+            if (!string.IsNullOrWhiteSpace(transaction.AccountId) &&
+                (!Guid.TryParse(transaction.AccountId, out var parsedAiAccountId) || parsedAiAccountId != parsedCommandAccountId))
+            {
+                throw new InvalidOperationException("AI report analysis returned a transaction draft for a different account.");
+            }
+
             var parsedCategoryId = transaction.CategoryId is null ? (Guid?)null : Guid.Parse(transaction.CategoryId);
             analyzedDrafts.Add(new MonthlyReportReviewDraft(
                 transaction.SourceId,
-                parsedAccountId,
+                parsedCommandAccountId,
                 parsedCategoryId,
                 transaction.Amount,
                 transaction.Type,

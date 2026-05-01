@@ -63,7 +63,7 @@ public sealed class AccountStore : IAccountStore
 
         return await _dbContext.Accounts
             .Include(item => item.Transactions)
-            .SingleAsync(item => item.Id == accountId, cancellationToken);
+            .SingleAsync(item => item.UserId == userId && item.Id == accountId, cancellationToken);
     }
 
     public async Task<AccountDeleteStatus> DeleteAsync(Guid userId, Guid accountId, CancellationToken cancellationToken)
