@@ -5,6 +5,7 @@ import { EmptyState } from "../ui/EmptyState";
 import { MetricCard } from "../ui/MetricCard";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
+import { CashFlowIcon, CategoryIcon, ExpenseIcon, IncomeIcon, NetWorthIcon, TrendIcon } from "../ui/icons";
 import { formatCurrency } from "../utils/format";
 import type { ReportingRangePreset } from "../types";
 
@@ -171,26 +172,26 @@ export function ReportsPage() {
       ))}
 
       <div className="metric-grid">
-        <MetricCard label={t("reports.income")} value={formatCurrency(overview?.summary.incomeTotal ?? 0, currencyCode)} tone="positive" detail={overview ? `${overview.startMonth} to ${overview.endMonth}` : t("reports.selectedRange")} />
-        <MetricCard label={t("reports.expenses")} value={formatCurrency(overview?.summary.expenseTotal ?? 0, currencyCode)} tone="negative" detail={loading ? t("reports.loadingReports") : t("dashboard.transfersExcluded")} />
-        <MetricCard label={t("reports.netCashFlow")} value={formatCurrency(overview?.summary.netCashFlow ?? 0, currencyCode)} tone={(overview?.summary.netCashFlow ?? 0) >= 0 ? "positive" : "negative"} detail={t("dashboard.incomeMinusExpenses")} />
-        <MetricCard label={t("reports.netWorth")} value={formatCurrency(netWorthValue, currencyCode)} detail={t("reports.latestAvailableMonth")} />
+        <MetricCard label={t("reports.income")} value={formatCurrency(overview?.summary.incomeTotal ?? 0, currencyCode)} tone="positive" detail={overview ? `${overview.startMonth} to ${overview.endMonth}` : t("reports.selectedRange")} icon={<IncomeIcon />} />
+        <MetricCard label={t("reports.expenses")} value={formatCurrency(overview?.summary.expenseTotal ?? 0, currencyCode)} tone="negative" detail={loading ? t("reports.loadingReports") : t("dashboard.transfersExcluded")} icon={<ExpenseIcon />} />
+        <MetricCard label={t("reports.netCashFlow")} value={formatCurrency(overview?.summary.netCashFlow ?? 0, currencyCode)} tone={(overview?.summary.netCashFlow ?? 0) >= 0 ? "positive" : "negative"} detail={t("dashboard.incomeMinusExpenses")} icon={<CashFlowIcon />} />
+        <MetricCard label={t("reports.netWorth")} value={formatCurrency(netWorthValue, currencyCode)} detail={t("reports.latestAvailableMonth")} icon={<NetWorthIcon />} />
       </div>
 
       <div className="reports-grid">
-        <SectionCard title={t("reports.spendingTrend")}>
+        <SectionCard title={t("reports.spendingTrend")} icon={<TrendIcon />}>
           <LineChart points={spendingPoints} t={t} />
         </SectionCard>
 
-        <SectionCard title={t("reports.incomeVsExpense")}>
+        <SectionCard title={t("reports.incomeVsExpense")} icon={<CashFlowIcon />}>
           <GroupedBars rows={overview?.incomeVsExpense ?? []} currencyCode={currencyCode} t={t} />
         </SectionCard>
 
-        <SectionCard title={t("reports.categoryBreakdown")}>
+        <SectionCard title={t("reports.categoryBreakdown")} icon={<CategoryIcon />}>
           <CategoryBars rows={overview?.categoryBreakdown ?? []} currencyCode={currencyCode} t={t} />
         </SectionCard>
 
-        <SectionCard title={t("reports.netWorthHistory")}>
+        <SectionCard title={t("reports.netWorthHistory")} icon={<NetWorthIcon />}>
           <LineChart points={netWorthPoints} t={t} />
         </SectionCard>
       </div>
