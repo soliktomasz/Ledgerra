@@ -32,13 +32,23 @@ type TransactionFormProps = {
   onStatus?: (message: string) => void;
 };
 
+function toLocalDateTimeInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 export function toDateTimeLocal(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return new Date().toISOString().slice(0, 16);
+    return toLocalDateTimeInputValue(new Date());
   }
 
-  return date.toISOString().slice(0, 16);
+  return toLocalDateTimeInputValue(date);
 }
 
 export function toFormType(type: string) {
@@ -52,7 +62,7 @@ function buildDefaultValues(): TransactionFormValues {
     destinationAccountId: "",
     categoryId: "",
     amount: "0",
-    occurredOnUtc: new Date().toISOString().slice(0, 16),
+    occurredOnUtc: toLocalDateTimeInputValue(new Date()),
     note: ""
   };
 }
@@ -158,11 +168,6 @@ export function TransactionForm({
       } catch (caughtError) {
         onError?.(getErrorMessage(caughtError, "Transaction saved, but the page failed to refresh."));
       }
-    } catch (caughtError) {
-      onError?.(getErrorMessage(caughtError, "Unable to save transaction."));
-    } finally {
-      setIsSubmitting(false);
-    }
     } catch (caughtError) {
       onError?.(getErrorMessage(caughtError, "Unable to save transaction."));
     } finally {
