@@ -1233,6 +1233,52 @@ label {
   transform: none;
 }
 
+.dashboard-header-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.44);
+}
+
+.modal-panel {
+  width: min(100%, 36rem);
+  max-height: min(90vh, 48rem);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 1.25rem;
+  box-shadow: 0 24px 80px rgb(15 23 42 / 0.22);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+  margin: 0.2rem 0 0;
+}
+
+.inline-category-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+}
+
 @media (max-width: 1320px) {
   .onboarding-checklist-items {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1400,5 +1446,17 @@ label {
 
   .login-hero h1 {
     font-size: 2.35rem;
+  }
+
+  .modal-backdrop {
+    align-items: stretch;
+  }
+
+  .modal-panel {
+    max-height: none;
+  }
+
+  .inline-category-form {
+    grid-template-columns: 1fr;
   }
 }
