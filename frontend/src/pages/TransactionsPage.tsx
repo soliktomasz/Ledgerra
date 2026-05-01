@@ -1,5 +1,6 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
+import { TransactionForm, toDateTimeLocal, toFormType, type TransactionFormMode, type TransactionFormValues } from "../components/TransactionForm";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import type { Transaction } from "../types";
@@ -8,21 +9,6 @@ import { SectionCard } from "../ui/SectionCard";
 import { formatCurrency, formatDate } from "../utils/format";
 
 const transactionTypes = ["Expense", "Income", "Transfer"];
-
-type TransactionFormMode = "create" | "edit";
-
-function toDateTimeLocal(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return new Date().toISOString().slice(0, 16);
-  }
-
-  return date.toISOString().slice(0, 16);
-}
-
-function toFormType(type: string) {
-  return type.startsWith("Transfer") ? "Transfer" : type;
-}
 
 function transactionLabel(transaction: Transaction, categoryName?: string) {
   return transaction.note?.trim() || categoryName || transaction.type;
@@ -33,13 +19,7 @@ export function TransactionsPage() {
   const { accounts, categories, transactions, refresh } = useLedgerraData();
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
-  const [type, setType] = useState("Expense");
-  const [accountId, setAccountId] = useState("");
-  const [destinationAccountId, setDestinationAccountId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [amount, setAmount] = useState("0");
-  const [occurredOnUtc, setOccurredOnUtc] = useState(new Date().toISOString().slice(0, 16));
-  const [note, setNote] = useState("");
+  const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>({});
   const [filterAccountId, setFilterAccountId] = useState("");
   const [filterCategoryId, setFilterCategoryId] = useState("");
   const [filterType, setFilterType] = useState("");
@@ -54,18 +34,6 @@ export function TransactionsPage() {
   useEffect(() => {
     setLedgerTransactions(transactions);
   }, [transactions]);
-
-  const filteredCategories = useMemo(() => {
-    if (type === "Income") {
-      return categories.filter((category) => category.kind === "Income");
-    }
-
-    if (type === "Transfer") {
-      return [];
-    }
-
-    return categories.filter((category) => category.kind === "Expense");
-  }, [categories, type]);
 
   const filterQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -138,13 +106,7 @@ export function TransactionsPage() {
   const resetForm = () => {
     setFormMode("create");
     setEditingTransactionId(null);
-    setType("Expense");
-    setAccountId("");
-    setDestinationAccountId("");
-    setCategoryId("");
-    setAmount("0");
-    setOccurredOnUtc(new Date().toISOString().slice(0, 16));
-    setNote("");
+    setFormValues({});
   };
 
   const refreshAfterMutation = async () => {
@@ -152,59 +114,18 @@ export function TransactionsPage() {
     await loadTransactions();
   };
 
-  const buildCreatePayload = () => ({
-    accountId,
-    categoryId: categoryId || undefined,
-    destinationAccountId: type === "Transfer" ? destinationAccountId : undefined,
-    amount: Number(amount),
-    type,
-    occurredOnUtc: new Date(occurredOnUtc).toISOString(),
-    note: note.trim() || undefined
-  });
-
-  const buildUpdatePayload = () => ({
-    categoryId: categoryId || undefined,
-    destinationAccountId: type === "Transfer" ? destinationAccountId : undefined,
-    amount: Number(amount),
-    type,
-    occurredOnUtc: new Date(occurredOnUtc).toISOString(),
-    note: note.trim() || undefined
-  });
-
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!auth?.accessToken || !accountId) {
-      return;
-    }
-
-    try {
-      setErrorMessage("");
-      setStatusMessage("");
-      if (formMode === "edit" && editingTransactionId) {
-        await apiClient.updateTransaction(auth.accessToken, editingTransactionId, buildUpdatePayload());
-        setStatusMessage("Transaction updated.");
-      } else {
-        await apiClient.createTransaction(auth.accessToken, buildCreatePayload());
-        setStatusMessage("Transaction saved.");
-      }
-
-      resetForm();
-      await refreshAfterMutation();
-    } catch (caughtError) {
-      setErrorMessage(caughtError instanceof Error ? caughtError.message : "Unable to save transaction.");
-    }
-  };
-
   const startEdit = (transaction: Transaction) => {
     setFormMode("edit");
     setEditingTransactionId(transaction.id);
-    setType(toFormType(transaction.type));
-    setAccountId(transaction.accountId);
-    setDestinationAccountId("");
-    setCategoryId(transaction.categoryId ?? "");
-    setAmount(String(transaction.amount));
-    setOccurredOnUtc(toDateTimeLocal(transaction.occurredOnUtc));
-    setNote(transaction.note ?? "");
+    setFormValues({
+      type: toFormType(transaction.type),
+      accountId: transaction.accountId,
+      destinationAccountId: "",
+      categoryId: transaction.categoryId ?? "",
+      amount: String(transaction.amount),
+      occurredOnUtc: toDateTimeLocal(transaction.occurredOnUtc),
+      note: transaction.note ?? ""
+    });
     setStatusMessage("");
     setErrorMessage("");
   };
@@ -216,12 +137,14 @@ export function TransactionsPage() {
 
     if (transaction.type.startsWith("Transfer")) {
       setFormMode("create");
-      setType("Transfer");
-      setAccountId(transaction.accountId);
-      setDestinationAccountId("");
-      setAmount(String(transaction.amount));
-      setOccurredOnUtc(toDateTimeLocal(transaction.occurredOnUtc));
-      setNote(transaction.note ?? "");
+      setFormValues({
+        type: "Transfer",
+        accountId: transaction.accountId,
+        destinationAccountId: "",
+        amount: String(transaction.amount),
+        occurredOnUtc: toDateTimeLocal(transaction.occurredOnUtc),
+        note: transaction.note ?? ""
+      });
       setStatusMessage("Choose a destination account to duplicate this transfer.");
       return;
     }
@@ -297,87 +220,24 @@ export function TransactionsPage() {
         <SectionCard title={formMode === "edit" ? "Edit transaction" : "Add transaction"}>
           {errorMessage ? <p className="error-banner">{errorMessage}</p> : null}
           {statusMessage ? <p className="success-banner">{statusMessage}</p> : null}
-          <form className="stack-form" onSubmit={handleSubmit}>
-            <label>
-              Type
-              <select
-                value={type}
-                onChange={(event) => {
-                  setType(event.target.value);
-                  setCategoryId("");
-                  setDestinationAccountId("");
-                }}
-              >
-                {transactionTypes.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Account
-              <select value={accountId} onChange={(event) => setAccountId(event.target.value)} required disabled={formMode === "edit"}>
-                <option value="">Select account</option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {type === "Transfer" ? (
-              <label>
-                Destination account
-                <select value={destinationAccountId} onChange={(event) => setDestinationAccountId(event.target.value)} required>
-                  <option value="">Select destination</option>
-                  {accounts
-                    .filter((account) => account.id !== accountId)
-                    .map((account) => (
-                      <option key={account.id} value={account.id}>
-                        {account.name}
-                      </option>
-                    ))}
-                </select>
-              </label>
-            ) : (
-              <label>
-                Category
-                <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
-                  <option value="">Select category</option>
-                  {filteredCategories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-
-            <label>
-              Amount
-              <input value={amount} onChange={(event) => setAmount(event.target.value)} type="number" step="0.01" required />
-            </label>
-            <label>
-              Date and time
-              <input value={occurredOnUtc} onChange={(event) => setOccurredOnUtc(event.target.value)} type="datetime-local" required />
-            </label>
-            <label>
-              Note
-              <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={3} />
-            </label>
-            <div className="transaction-form-actions">
-              <button className="primary-button" type="submit">
-                {formMode === "edit" ? "Save changes" : "Save transaction"}
-              </button>
-              {formMode === "edit" ? (
-                <button className="ghost-button" type="button" onClick={resetForm}>
-                  Cancel
-                </button>
-              ) : null}
-            </div>
-          </form>
+          {auth?.accessToken ? (
+            <TransactionForm
+              key={`${formMode}-${editingTransactionId ?? "new"}`}
+              token={auth.accessToken}
+              accounts={accounts}
+              categories={categories}
+              mode={formMode}
+              transactionId={editingTransactionId}
+              initialValues={formValues}
+              onCancel={formMode === "edit" ? resetForm : undefined}
+              onError={setErrorMessage}
+              onStatus={setStatusMessage}
+              onSaved={async () => {
+                resetForm();
+                await refreshAfterMutation();
+              }}
+            />
+          ) : null}
         </SectionCard>
 
         <SectionCard title="Transaction ledger">

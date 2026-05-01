@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { TransactionForm } from "../components/TransactionForm";
 import { useLedgerraData } from "../hooks/useLedgerraData";
+import { useAuth } from "../state/AuthContext";
 import { PageHeader } from "../ui/PageHeader";
 import { MetricCard } from "../ui/MetricCard";
 import { SectionCard } from "../ui/SectionCard";
@@ -154,13 +156,17 @@ function buildDashboardInsights(
 }
 
 export function DashboardPage() {
-  const { accounts, dashboard, budget, loading, error, profile, transactions } = useLedgerraData();
+  const { auth } = useAuth();
+  const { accounts, categories, dashboard, budget, loading, error, profile, transactions, refresh } = useLedgerraData();
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
   const legacyAcknowledgementStorageKey = `${acknowledgementStorageKey}:${mainCurrencyCode}`;
   const [acknowledgements, setAcknowledgements] = useState(() =>
     readAcknowledgements(acknowledgementStorageKey, legacyAcknowledgementStorageKey)
   );
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [quickAddError, setQuickAddError] = useState("");
+  const [quickAddStatus, setQuickAddStatus] = useState("");
   const accountCurrencyCodes = useMemo(
     () => new Map(accounts.map((account) => [account.id, account.currencyCode])),
     [accounts]
@@ -238,9 +244,56 @@ export function DashboardPage() {
         eyebrow="Overview"
         title="Money at a glance"
         description="See the month’s inflow, spending rhythm, and remaining budget without noise."
+        actions={
+          <div className="dashboard-header-actions">
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => {
+                setQuickAddError("");
+                setQuickAddStatus("");
+                setIsQuickAddOpen(true);
+              }}
+            >
+              Add transaction
+            </button>
+          </div>
+        }
       />
 
       {error ? <p className="error-banner">{error}</p> : null}
+
+      {isQuickAddOpen && auth?.accessToken ? (
+        <div className="modal-backdrop" role="presentation">
+          <section className="modal-panel" role="dialog" aria-modal="true" aria-label="Add transaction">
+            <div className="modal-header">
+              <div>
+                <span className="eyebrow">Quick add</span>
+                <h2>Add transaction</h2>
+              </div>
+              <button className="ghost-button compact-button" type="button" onClick={() => setIsQuickAddOpen(false)}>
+                Close
+              </button>
+            </div>
+            {quickAddError ? <p className="error-banner">{quickAddError}</p> : null}
+            {quickAddStatus ? <p className="success-banner">{quickAddStatus}</p> : null}
+            <TransactionForm
+              key={isQuickAddOpen ? "dashboard-quick-add-open" : "dashboard-quick-add-closed"}
+              token={auth.accessToken}
+              accounts={accounts}
+              categories={categories}
+              mode="create"
+              onError={setQuickAddError}
+              onStatus={setQuickAddStatus}
+              onCancel={() => setIsQuickAddOpen(false)}
+              onSaved={async () => {
+                await refresh();
+                setIsQuickAddOpen(false);
+              }}
+            />
+          </section>
+        </div>
+      ) : null}
 
       {!isChecklistComplete ? (
         <section className="onboarding-checklist" aria-label="Onboarding checklist">

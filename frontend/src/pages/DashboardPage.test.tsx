@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -6,7 +6,10 @@ import { DashboardPage } from "./DashboardPage";
 import type { Account, BudgetSummary, DashboardSummary, Transaction } from "../types";
 
 const mocks = vi.hoisted(() => ({
+  createCategory: vi.fn(),
+  createTransaction: vi.fn(),
   data: {
+    refresh: vi.fn(),
     accounts: [] as Account[],
     categories: [
       { id: "category-1", name: "Groceries", kind: "Expense", isSystem: true },
@@ -38,6 +41,17 @@ const mocks = vi.hoisted(() => ({
   }
 }));
 
+vi.mock("../state/AuthContext", () => ({
+  useAuth: () => ({ auth: { accessToken: "token" } })
+}));
+
+vi.mock("../api/client", () => ({
+  apiClient: {
+    createCategory: mocks.createCategory,
+    createTransaction: mocks.createTransaction
+  }
+}));
+
 vi.mock("../hooks/useLedgerraData", () => ({
   useLedgerraData: () => mocks.data
 }));
@@ -45,7 +59,17 @@ vi.mock("../hooks/useLedgerraData", () => ({
 describe("DashboardPage", () => {
   beforeEach(() => {
     cleanup();
+    vi.clearAllMocks();
     localStorage.clear();
+    mocks.createTransaction.mockResolvedValue({ id: "transaction-new" });
+    mocks.createCategory.mockResolvedValue({
+      id: "category-new",
+      name: "Pets",
+      kind: "Expense",
+      color: "#ff8800",
+      isSystem: false
+    });
+    mocks.data.refresh.mockResolvedValue(undefined);
     mocks.data.accounts = [];
     mocks.data.dashboard = {
       income: 0,
@@ -327,5 +351,94 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Reports preview")).toBeInTheDocument();
     expect(screen.getByText("Spending is up $60.00 vs prior month.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reports" })).toHaveAttribute("href", "/reports");
+  });
+
+  test("opens quick transaction dialog and saves a transaction from the dashboard", async () => {
+    const user = userEvent.setup();
+    mocks.data.accounts = [
+      {
+        id: "account-1",
+        name: "Main checking",
+        type: "Checking",
+        currencyCode: "USD",
+        openingBalance: 500,
+        currentBalance: 500,
+        isActive: true
+      }
+    ];
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add transaction" }));
+    expect(screen.getByRole("dialog", { name: "Add transaction" })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("Account"), "account-1");
+    await user.selectOptions(screen.getByLabelText("Category"), "category-1");
+    fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "18.75" } });
+    fireEvent.change(screen.getByLabelText("Note"), { target: { value: "Lunch" } });
+    await user.click(screen.getByRole("button", { name: "Save transaction" }));
+
+    await waitFor(() => {
+      expect(mocks.createTransaction).toHaveBeenCalledWith(
+        "token",
+        expect.objectContaining({
+          accountId: "account-1",
+          categoryId: "category-1",
+          amount: 18.75,
+          type: "Expense",
+          note: "Lunch"
+        })
+      );
+    });
+    expect(mocks.data.refresh).toHaveBeenCalled();
+    expect(screen.queryByRole("dialog", { name: "Add transaction" })).not.toBeInTheDocument();
+  });
+
+  test("creates a missing category from the dashboard quick transaction dialog", async () => {
+    const user = userEvent.setup();
+    mocks.data.accounts = [
+      {
+        id: "account-1",
+        name: "Main checking",
+        type: "Checking",
+        currencyCode: "USD",
+        openingBalance: 500,
+        currentBalance: 500,
+        isActive: true
+      }
+    ];
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add transaction" }));
+    await user.selectOptions(screen.getByLabelText("Account"), "account-1");
+    await user.selectOptions(screen.getByLabelText("Category"), "__create_new__");
+    await user.type(screen.getByLabelText("New category name"), "Pets");
+    fireEvent.change(screen.getByLabelText("New category color"), { target: { value: "#ff8800" } });
+    fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "31" } });
+    await user.click(screen.getByRole("button", { name: "Save transaction" }));
+
+    await waitFor(() => {
+      expect(mocks.createCategory).toHaveBeenCalledWith("token", {
+        name: "Pets",
+        kind: "Expense",
+        color: "#ff8800"
+      });
+    });
+    expect(mocks.createTransaction).toHaveBeenCalledWith(
+      "token",
+      expect.objectContaining({
+        categoryId: "category-new",
+        amount: 31
+      })
+    );
   });
 });

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { TransactionsPage } from "./TransactionsPage";
 
 const mocks = vi.hoisted(() => ({
+  createCategory: vi.fn(),
   createTransaction: vi.fn(),
   updateTransaction: vi.fn(),
   deleteTransaction: vi.fn(),
@@ -46,6 +47,7 @@ vi.mock("../state/AuthContext", () => ({
 
 vi.mock("../api/client", () => ({
   apiClient: {
+    createCategory: mocks.createCategory,
     createTransaction: mocks.createTransaction,
     updateTransaction: mocks.updateTransaction,
     deleteTransaction: mocks.deleteTransaction,
@@ -86,6 +88,13 @@ describe("TransactionsPage", () => {
         note: "Payroll"
       }
     ]);
+    mocks.createCategory.mockResolvedValue({
+      id: "category-new",
+      name: "Pets",
+      kind: "Expense",
+      color: "#ff8800",
+      isSystem: false
+    });
     mocks.createTransaction.mockResolvedValue({ id: "transaction-3" });
     mocks.updateTransaction.mockResolvedValue({ id: "transaction-4" });
     mocks.deleteTransaction.mockResolvedValue(undefined);
@@ -216,5 +225,50 @@ describe("TransactionsPage", () => {
       );
     });
     expect(await screen.findByText("Cafe categorized as Dining.")).toBeInTheDocument();
+  });
+
+  test("creates a missing category while saving a transaction", async () => {
+    const user = userEvent.setup();
+
+    render(<TransactionsPage />);
+
+    await user.selectOptions(screen.getByLabelText("Type"), "Expense");
+    await user.selectOptions(screen.getByLabelText("Account"), "account-1");
+    await user.selectOptions(screen.getByLabelText("Category"), "__create_new__");
+    await user.type(screen.getByLabelText("New category name"), "Pets");
+    fireEvent.change(screen.getByLabelText("New category color"), { target: { value: "#ff8800" } });
+    fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "24.5" } });
+    fireEvent.change(screen.getByLabelText("Note"), { target: { value: "Cat food" } });
+    await user.click(screen.getByRole("button", { name: "Save transaction" }));
+
+    await waitFor(() => {
+      expect(mocks.createCategory).toHaveBeenCalledWith("token", {
+        name: "Pets",
+        kind: "Expense",
+        color: "#ff8800"
+      });
+    });
+    expect(mocks.createTransaction).toHaveBeenCalledWith(
+      "token",
+      expect.objectContaining({
+        accountId: "account-1",
+        categoryId: "category-new",
+        amount: 24.5,
+        type: "Expense",
+        note: "Cat food"
+      })
+    );
+  });
+
+  test("hides category creation for transfers", async () => {
+    const user = userEvent.setup();
+
+    render(<TransactionsPage />);
+
+    await user.selectOptions(screen.getByLabelText("Type"), "Transfer");
+
+    expect(screen.queryByLabelText("Category")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("New category name")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Destination account")).toBeInTheDocument();
   });
 });
