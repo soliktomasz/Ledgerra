@@ -7,6 +7,31 @@ type MessageValue = string | ((params: TranslationParams) => string);
 
 const storageKey = "ledgerra:language";
 
+function readCount(params: TranslationParams) {
+  const value = params.count;
+  return typeof value === "number" ? value : Number(value ?? 0);
+}
+
+function pluralize(count: number, singular: string, plural: string) {
+  return count === 1 ? singular : plural;
+}
+
+function pluralizePolish(count: number, singular: string, paucal: string, plural: string) {
+  const absolute = Math.abs(count);
+  const mod10 = absolute % 10;
+  const mod100 = absolute % 100;
+
+  if (absolute === 1) {
+    return singular;
+  }
+
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return paucal;
+  }
+
+  return plural;
+}
+
 const en = {
   "nav.dashboard": "Dashboard",
   "nav.reports": "Reports",
@@ -105,7 +130,7 @@ const en = {
   "dashboard.closeToLimitTitle": "{category} is close to its limit",
   "dashboard.closeToLimitDetail": "{category} is {percent}% of its budget.",
   "dashboard.categorizeRecentSpendingTitle": "Categorize recent spending",
-  "dashboard.categorizeRecentSpendingDetail": "You have {count} uncategorized expense transactions.",
+  "dashboard.categorizeRecentSpendingDetail": ({ count }) => `You have ${count} uncategorized expense ${pluralize(readCount({ count }), "transaction", "transactions")}.`,
   "dashboard.reviewTransactions": "Review transactions",
   "dashboard.addBudgetGuardrailsTitle": "Add budget guardrails",
   "dashboard.addBudgetGuardrailsDetail": "Set a monthly budget to turn spending into progress alerts.",
@@ -183,6 +208,7 @@ const en = {
   "reports.incomeVsExpense": "Income vs expense",
   "reports.categoryBreakdown": "Category breakdown",
   "reports.netWorthHistory": "Net worth history",
+  "reports.cashflowAria": "{month}: income {income}, expenses {expenses}",
   "transactions.unableToLoad": "Unable to load transactions.",
   "transactions.chooseDestination": "Choose a destination account to duplicate this transfer.",
   "transactions.duplicated": "Transaction duplicated.",
@@ -206,9 +232,10 @@ const en = {
   "transactions.searchNotes": "Search notes",
   "transactions.searchPlaceholder": "Coffee, payroll, invoice...",
   "transactions.needsCategory": "Needs category",
-  "transactions.workflowBanner": "{count} uncategorized expense transactions need review.",
+  "transactions.workflowBanner": ({ count }) => `${count} uncategorized expense ${pluralize(readCount({ count }), "transaction needs", "transactions need")} review.`,
   "transactions.noMatches": "No transactions match these filters.",
   "transactions.unknownAccount": "Unknown account",
+  "transactions.rowLabel": "Transaction {label}",
   "transactions.assignCategoryTo": "Assign category to {label}",
   "transactions.edit": "Edit",
   "transactions.duplicate": "Duplicate",
@@ -216,9 +243,9 @@ const en = {
   "imports.unableToAnalyze": "Unable to analyze report.",
   "imports.unableToSaveRule": "Unable to save import rule.",
   "imports.ruleSaved": "Import rule saved.",
-  "imports.appliedBulkCategory": "Applied {category} to {count} selected drafts.",
+  "imports.appliedBulkCategory": ({ category, count }) => `Applied ${category} to ${count} selected ${pluralize(readCount({ count }), "draft", "drafts")}.`,
   "imports.unableToSaveSelectedRules": "Unable to save selected import rules.",
-  "imports.rulesSaved": "Saved {count} import rules.",
+  "imports.rulesSaved": ({ count }) => `Saved ${count} import ${pluralize(readCount({ count }), "rule", "rules")}.`,
   "imports.selectAtLeastOne": "Select at least one draft to save.",
   "imports.unableToSaveSelectedDrafts": "Unable to save selected drafts.",
   "imports.eyebrow": "Imports",
@@ -403,7 +430,7 @@ const pl: typeof en = {
   "dashboard.closeToLimitTitle": "{category} jest blisko limitu",
   "dashboard.closeToLimitDetail": "{category} wykorzystała {percent}% budżetu.",
   "dashboard.categorizeRecentSpendingTitle": "Przypisz ostatnie wydatki",
-  "dashboard.categorizeRecentSpendingDetail": "Masz {count} wydatków bez kategorii.",
+  "dashboard.categorizeRecentSpendingDetail": ({ count }) => `Masz ${count} ${pluralizePolish(readCount({ count }), "wydatek bez kategorii", "wydatki bez kategorii", "wydatków bez kategorii")}.`,
   "dashboard.reviewTransactions": "Przejrzyj transakcje",
   "dashboard.addBudgetGuardrailsTitle": "Dodaj ramy budżetu",
   "dashboard.addBudgetGuardrailsDetail": "Ustaw budżet miesięczny, aby zamienić wydatki w konkretne alerty.",
@@ -481,6 +508,7 @@ const pl: typeof en = {
   "reports.incomeVsExpense": "Przychody kontra wydatki",
   "reports.categoryBreakdown": "Struktura kategorii",
   "reports.netWorthHistory": "Historia majątku netto",
+  "reports.cashflowAria": "{month}: przychody {income}, wydatki {expenses}",
   "transactions.unableToLoad": "Nie udało się wczytać transakcji.",
   "transactions.chooseDestination": "Wybierz konto docelowe, aby skopiować ten przelew.",
   "transactions.duplicated": "Transakcja skopiowana.",
@@ -504,9 +532,10 @@ const pl: typeof en = {
   "transactions.searchNotes": "Szukaj w notatkach",
   "transactions.searchPlaceholder": "Kawa, pensja, faktura...",
   "transactions.needsCategory": "Wymaga kategorii",
-  "transactions.workflowBanner": "Do przeglądu: {count} wydatków bez kategorii.",
+  "transactions.workflowBanner": ({ count }) => `Do przeglądu: ${count} ${pluralizePolish(readCount({ count }), "transakcja wydatkowa bez kategorii wymaga", "transakcje wydatkowe bez kategorii wymagają", "transakcji wydatkowych bez kategorii wymaga")} przeglądu.`,
   "transactions.noMatches": "Żadna transakcja nie pasuje do tych filtrów.",
   "transactions.unknownAccount": "Nieznane konto",
+  "transactions.rowLabel": "Transakcja {label}",
   "transactions.assignCategoryTo": "Przypisz kategorię do {label}",
   "transactions.edit": "Edytuj",
   "transactions.duplicate": "Duplikuj",
@@ -514,9 +543,9 @@ const pl: typeof en = {
   "imports.unableToAnalyze": "Nie udało się przeanalizować raportu.",
   "imports.unableToSaveRule": "Nie udało się zapisać reguły importu.",
   "imports.ruleSaved": "Reguła importu została zapisana.",
-  "imports.appliedBulkCategory": "Przypisano {category} do {count} wybranych szkiców.",
+  "imports.appliedBulkCategory": ({ category, count }) => `Przypisano ${category} do ${count} ${pluralizePolish(readCount({ count }), "wybranego szkicu", "wybranych szkiców", "wybranych szkiców")}.`,
   "imports.unableToSaveSelectedRules": "Nie udało się zapisać wybranych reguł importu.",
-  "imports.rulesSaved": "Zapisano reguły importu: {count}.",
+  "imports.rulesSaved": ({ count }) => `Zapisano ${count} ${pluralizePolish(readCount({ count }), "regułę importu", "reguły importu", "reguł importu")}.`,
   "imports.selectAtLeastOne": "Wybierz co najmniej jeden szkic do zapisania.",
   "imports.unableToSaveSelectedDrafts": "Nie udało się zapisać wybranych szkiców.",
   "imports.eyebrow": "Import",
@@ -701,7 +730,7 @@ const de: typeof en = {
   "dashboard.closeToLimitTitle": "{category} ist nahe am Limit",
   "dashboard.closeToLimitDetail": "{category} hat {percent}% des Budgets verbraucht.",
   "dashboard.categorizeRecentSpendingTitle": "Aktuelle Ausgaben kategorisieren",
-  "dashboard.categorizeRecentSpendingDetail": "Du hast {count} nicht kategorisierte Ausgaben.",
+  "dashboard.categorizeRecentSpendingDetail": ({ count }) => `Du hast ${count} nicht kategorisierte ${pluralize(readCount({ count }), "Ausgabe", "Ausgaben")}.`,
   "dashboard.reviewTransactions": "Transaktionen prüfen",
   "dashboard.addBudgetGuardrailsTitle": "Budgetleitplanken setzen",
   "dashboard.addBudgetGuardrailsDetail": "Lege ein Monatsbudget fest, damit Ausgaben zu klaren Fortschrittssignalen werden.",
@@ -779,6 +808,7 @@ const de: typeof en = {
   "reports.incomeVsExpense": "Einnahmen vs. Ausgaben",
   "reports.categoryBreakdown": "Kategorieaufteilung",
   "reports.netWorthHistory": "Vermögensverlauf",
+  "reports.cashflowAria": "{month}: Einnahmen {income}, Ausgaben {expenses}",
   "transactions.unableToLoad": "Transaktionen konnten nicht geladen werden.",
   "transactions.chooseDestination": "Wähle ein Zielkonto, um diese Umbuchung zu duplizieren.",
   "transactions.duplicated": "Transaktion dupliziert.",
@@ -802,9 +832,10 @@ const de: typeof en = {
   "transactions.searchNotes": "Notizen durchsuchen",
   "transactions.searchPlaceholder": "Kaffee, Gehalt, Rechnung...",
   "transactions.needsCategory": "Benötigt Kategorie",
-  "transactions.workflowBanner": "{count} nicht kategorisierte Ausgabentransaktionen müssen geprüft werden.",
+  "transactions.workflowBanner": ({ count }) => `${count} nicht kategorisierte ${pluralize(readCount({ count }), "Ausgabentransaktion muss", "Ausgabentransaktionen müssen")} geprüft werden.`,
   "transactions.noMatches": "Keine Transaktionen passen zu diesen Filtern.",
   "transactions.unknownAccount": "Unbekanntes Konto",
+  "transactions.rowLabel": "Transaktion {label}",
   "transactions.assignCategoryTo": "Kategorie zuweisen für {label}",
   "transactions.edit": "Bearbeiten",
   "transactions.duplicate": "Duplizieren",
@@ -812,9 +843,9 @@ const de: typeof en = {
   "imports.unableToAnalyze": "Bericht konnte nicht analysiert werden.",
   "imports.unableToSaveRule": "Importregel konnte nicht gespeichert werden.",
   "imports.ruleSaved": "Importregel gespeichert.",
-  "imports.appliedBulkCategory": "{category} wurde auf {count} ausgewählte Entwürfe angewendet.",
+  "imports.appliedBulkCategory": ({ category, count }) => `${category} wurde auf ${count} ausgewählte ${pluralize(readCount({ count }), "Entwurf", "Entwürfe")} angewendet.`,
   "imports.unableToSaveSelectedRules": "Ausgewählte Importregeln konnten nicht gespeichert werden.",
-  "imports.rulesSaved": "{count} Importregeln gespeichert.",
+  "imports.rulesSaved": ({ count }) => `${count} ${pluralize(readCount({ count }), "Importregel", "Importregeln")} gespeichert.`,
   "imports.selectAtLeastOne": "Wähle mindestens einen Entwurf zum Speichern aus.",
   "imports.unableToSaveSelectedDrafts": "Ausgewählte Entwürfe konnten nicht gespeichert werden.",
   "imports.eyebrow": "Importe",
@@ -999,7 +1030,7 @@ const es: typeof en = {
   "dashboard.closeToLimitTitle": "{category} esta cerca de su limite",
   "dashboard.closeToLimitDetail": "{category} ha usado el {percent}% del presupuesto.",
   "dashboard.categorizeRecentSpendingTitle": "Categoriza el gasto reciente",
-  "dashboard.categorizeRecentSpendingDetail": "Tienes {count} gastos sin categoria.",
+  "dashboard.categorizeRecentSpendingDetail": ({ count }) => `Tienes ${count} ${pluralize(readCount({ count }), "gasto sin categoria", "gastos sin categoria")}.`,
   "dashboard.reviewTransactions": "Revisar transacciones",
   "dashboard.addBudgetGuardrailsTitle": "Agrega limites de presupuesto",
   "dashboard.addBudgetGuardrailsDetail": "Define un presupuesto mensual para convertir el gasto en alertas de progreso.",
@@ -1077,6 +1108,7 @@ const es: typeof en = {
   "reports.incomeVsExpense": "Ingresos frente a gastos",
   "reports.categoryBreakdown": "Desglose por categoria",
   "reports.netWorthHistory": "Historial del patrimonio neto",
+  "reports.cashflowAria": "{month}: ingresos {income}, gastos {expenses}",
   "transactions.unableToLoad": "No se pudieron cargar las transacciones.",
   "transactions.chooseDestination": "Elige una cuenta de destino para duplicar esta transferencia.",
   "transactions.duplicated": "Transaccion duplicada.",
@@ -1100,9 +1132,10 @@ const es: typeof en = {
   "transactions.searchNotes": "Buscar en notas",
   "transactions.searchPlaceholder": "Cafe, nomina, factura...",
   "transactions.needsCategory": "Necesita categoria",
-  "transactions.workflowBanner": "{count} transacciones de gasto sin categoria necesitan revision.",
+  "transactions.workflowBanner": ({ count }) => `${count} ${pluralize(readCount({ count }), "transaccion de gasto sin categoria necesita", "transacciones de gasto sin categoria necesitan")} revision.`,
   "transactions.noMatches": "Ninguna transaccion coincide con estos filtros.",
   "transactions.unknownAccount": "Cuenta desconocida",
+  "transactions.rowLabel": "Transaccion {label}",
   "transactions.assignCategoryTo": "Asignar categoria a {label}",
   "transactions.edit": "Editar",
   "transactions.duplicate": "Duplicar",
@@ -1110,9 +1143,9 @@ const es: typeof en = {
   "imports.unableToAnalyze": "No se pudo analizar el informe.",
   "imports.unableToSaveRule": "No se pudo guardar la regla de importacion.",
   "imports.ruleSaved": "Regla de importacion guardada.",
-  "imports.appliedBulkCategory": "Se aplico {category} a {count} borradores seleccionados.",
+  "imports.appliedBulkCategory": ({ category, count }) => `Se aplico ${category} a ${count} ${pluralize(readCount({ count }), "borrador seleccionado", "borradores seleccionados")}.`,
   "imports.unableToSaveSelectedRules": "No se pudieron guardar las reglas de importacion seleccionadas.",
-  "imports.rulesSaved": "Se guardaron {count} reglas de importacion.",
+  "imports.rulesSaved": ({ count }) => `Se ${pluralize(readCount({ count }), "guardo", "guardaron")} ${count} ${pluralize(readCount({ count }), "regla de importacion", "reglas de importacion")}.`,
   "imports.selectAtLeastOne": "Selecciona al menos un borrador para guardar.",
   "imports.unableToSaveSelectedDrafts": "No se pudieron guardar los borradores seleccionados.",
   "imports.eyebrow": "Importaciones",
@@ -1216,7 +1249,7 @@ function translate(languageCode: string, key: TranslationKey, params: Translatio
       : en;
   const value = activeMessages[key] ?? en[key];
 
-  return interpolate(value, params);
+  return typeof value === "function" ? value(params) : interpolate(value, params);
 }
 
 type I18nContextValue = {

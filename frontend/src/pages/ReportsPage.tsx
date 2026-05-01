@@ -64,7 +64,14 @@ function GroupedBars({ rows, currencyCode, t }: { rows: Array<{ month: string; i
     <div className="cashflow-bars">
       {rows.map((row) => (
         <div className="cashflow-month" key={row.month}>
-          <div className="cashflow-pair" aria-label={`${row.month} income ${formatCurrency(row.income, currencyCode)} expenses ${formatCurrency(row.expenses, currencyCode)}`}>
+          <div
+            className="cashflow-pair"
+            aria-label={t("reports.cashflowAria", {
+              month: row.month,
+              income: formatCurrency(row.income, currencyCode),
+              expenses: formatCurrency(row.expenses, currencyCode)
+            })}
+          >
             <span className="cashflow-bar cashflow-bar--income" style={{ height: `${Math.max((row.income / max) * 100, 4)}%` }} />
             <span className="cashflow-bar cashflow-bar--expense" style={{ height: `${Math.max((row.expenses / max) * 100, 4)}%` }} />
           </div>

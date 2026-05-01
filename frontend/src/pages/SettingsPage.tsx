@@ -36,7 +36,7 @@ export function SettingsPage() {
   }, [profile?.preferredCurrencyCode]);
 
   useEffect(() => {
-    setPreferredLanguageCode(profile?.preferredLanguageCode ?? "en");
+    setPreferredLanguageCode(normalizeLanguageCode(profile?.preferredLanguageCode ?? "en").split("-")[0] ?? "en");
   }, [profile?.preferredLanguageCode]);
 
   useEffect(() => {

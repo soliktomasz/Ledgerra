@@ -328,7 +328,7 @@ export function TransactionsPage() {
                 const label = transactionLabel(transaction, t, category?.name);
 
                 return (
-                  <article className="table-row transaction-row" key={transaction.id} aria-label={`Transaction ${label}`}>
+                  <article className="table-row transaction-row" key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
                     <div className="transaction-main">
                       <strong>{category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)}</strong>
                       <p>{account?.name ?? t("transactions.unknownAccount")} • {formatDate(transaction.occurredOnUtc)}</p>

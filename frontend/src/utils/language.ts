@@ -8,17 +8,33 @@ export const supportedLanguages = [
 export type SupportedLanguageCode = (typeof supportedLanguages)[number]["code"];
 
 export function normalizeLanguageCode(value: string) {
-  const normalized = value.trim().replace("_", "-");
+  const normalized = value.trim().replace(/_/g, "-");
   if (!normalized) {
     return "en";
   }
 
-  const [primary, region] = normalized.split("-");
-  if (!primary) {
+  const segments = normalized.split("-").filter(Boolean);
+  if (segments.length === 0) {
     return "en";
   }
 
-  return region ? `${primary.toLowerCase()}-${region.toUpperCase()}` : primary.toLowerCase();
+  return segments
+    .map((segment, index) => {
+      if (index === 0) {
+        return segment.toLowerCase();
+      }
+
+      if (segment.length === 4) {
+        return `${segment[0].toUpperCase()}${segment.slice(1).toLowerCase()}`;
+      }
+
+      if (segment.length <= 3) {
+        return segment.toUpperCase();
+      }
+
+      return segment.toLowerCase();
+    })
+    .join("-");
 }
 
 export function getAppLanguageCode(languageCode: string): SupportedLanguageCode {

@@ -53,10 +53,6 @@ function readAcknowledgements(storageKey: string, legacyStorageKey?: string): On
   }
 }
 
-function pluralize(count: number, singular: string, plural: string) {
-  return count === 1 ? singular : plural;
-}
-
 function describeSpendingDelta(amount: number, currencyCode: string, t: ReturnType<typeof useI18n>["t"]) {
   if (amount === 0) {
     return t("dashboard.spendingFlat");
@@ -141,10 +137,7 @@ function buildDashboardInsights(
     insights.push({
       id: "uncategorized-expenses",
       title: t("dashboard.categorizeRecentSpendingTitle"),
-      detail: t("dashboard.categorizeRecentSpendingDetail", {
-        count: uncategorizedExpenseCount,
-        noun: pluralize(uncategorizedExpenseCount, "expense transaction", "expense transactions")
-      }),
+      detail: t("dashboard.categorizeRecentSpendingDetail", { count: uncategorizedExpenseCount }),
       tone: "attention",
       action: { label: t("dashboard.reviewTransactions"), to: "/transactions?view=uncategorized" }
     });
