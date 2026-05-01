@@ -20,6 +20,8 @@ public sealed class LedgerraDbContext : DbContext
 
     public DbSet<Account> Accounts => Set<Account>();
 
+    public DbSet<MonthlyAccountBalanceSnapshot> MonthlyAccountBalanceSnapshots => Set<MonthlyAccountBalanceSnapshot>();
+
     public DbSet<Category> Categories => Set<Category>();
 
     public DbSet<Transaction> Transactions => Set<Transaction>();
@@ -55,6 +57,18 @@ public sealed class LedgerraDbContext : DbContext
             builder.HasOne<AppUser>()
                 .WithMany(user => user.Accounts)
                 .HasForeignKey(account => account.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<MonthlyAccountBalanceSnapshot>(builder =>
+        {
+            builder.HasKey(snapshot => snapshot.Id);
+            builder.Property(snapshot => snapshot.Balance).HasPrecision(18, 2);
+            builder.Property(snapshot => snapshot.CurrencyCode).HasMaxLength(3);
+            builder.HasIndex(snapshot => new { snapshot.UserId, snapshot.AccountId, snapshot.MonthEndDate }).IsUnique();
+            builder.HasOne(snapshot => snapshot.Account)
+                .WithMany()
+                .HasForeignKey(snapshot => snapshot.AccountId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

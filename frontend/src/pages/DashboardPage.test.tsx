@@ -18,7 +18,12 @@ const mocks = vi.hoisted(() => ({
       net: 0,
       budgetRemaining: 0,
       topCategories: [],
-      accounts: []
+      accounts: [],
+      trends: {
+        spendingDeltaAmount: 0,
+        spendingDeltaPercent: null,
+        spendingSparkline: []
+      }
     } as DashboardSummary,
     budget: {
       totalPlanned: 0,
@@ -48,7 +53,12 @@ describe("DashboardPage", () => {
       net: 0,
       budgetRemaining: 0,
       topCategories: [],
-      accounts: []
+      accounts: [],
+      trends: {
+        spendingDeltaAmount: 0,
+        spendingDeltaPercent: null,
+        spendingSparkline: []
+      }
     } as DashboardSummary;
     mocks.data.budget = {
       totalPlanned: 0,
@@ -186,7 +196,15 @@ describe("DashboardPage", () => {
       net: 2760,
       budgetRemaining: 260,
       topCategories: [],
-      accounts: []
+      accounts: [],
+      trends: {
+        spendingDeltaAmount: 60,
+        spendingDeltaPercent: 12.5,
+        spendingSparkline: [
+          { month: "2026-03", amount: 480 },
+          { month: "2026-04", amount: 540 }
+        ]
+      }
     } as DashboardSummary;
     mocks.data.budget = {
       totalPlanned: 1500,
@@ -278,5 +296,36 @@ describe("DashboardPage", () => {
 
     expect(screen.getByText("Set a monthly budget to turn spending into progress alerts.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open budgets" })).toHaveAttribute("href", "/budgets");
+  });
+
+  test("shows a compact trends teaser linking to reports", () => {
+    mocks.data.dashboard = {
+      income: 4000,
+      expenses: 540,
+      net: 3460,
+      budgetRemaining: 260,
+      topCategories: [],
+      accounts: [],
+      trends: {
+        spendingDeltaAmount: 60,
+        spendingDeltaPercent: 12.5,
+        spendingSparkline: [
+          { month: "2026-01", amount: 300 },
+          { month: "2026-02", amount: 420 },
+          { month: "2026-03", amount: 480 },
+          { month: "2026-04", amount: 540 }
+        ]
+      }
+    } as DashboardSummary;
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Reports preview")).toBeInTheDocument();
+    expect(screen.getByText("Spending is up $60.00 vs prior month.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open reports" })).toHaveAttribute("href", "/reports");
   });
 });

@@ -1,3 +1,4 @@
+using Ledgerra.Application.Reporting;
 using Ledgerra.Domain.Transactions;
 
 namespace Ledgerra.Application.Transactions;
@@ -71,10 +72,14 @@ public interface ITransactionCommandStore
 public sealed class CreateTransactionCommandHandler
 {
     private readonly ITransactionCommandStore _transactionCommandStore;
+    private readonly IMonthlyAccountBalanceSnapshotService? _snapshotService;
 
-    public CreateTransactionCommandHandler(ITransactionCommandStore transactionCommandStore)
+    public CreateTransactionCommandHandler(
+        ITransactionCommandStore transactionCommandStore,
+        IMonthlyAccountBalanceSnapshotService? snapshotService = null)
     {
         _transactionCommandStore = transactionCommandStore;
+        _snapshotService = snapshotService;
     }
 
     public async Task<TransactionCommandResult> HandleAsync(CreateTransactionCommand command, CancellationToken cancellationToken)
@@ -97,6 +102,7 @@ public sealed class CreateTransactionCommandHandler
                 command.Note,
                 cancellationToken);
 
+            await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, null, cancellationToken);
             return TransactionCommandResult.Success(MapTransaction(transfer));
         }
 
@@ -115,7 +121,22 @@ public sealed class CreateTransactionCommandHandler
             },
             cancellationToken);
 
+        await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, command.AccountId, cancellationToken);
         return TransactionCommandResult.Success(MapTransaction(transaction));
+    }
+
+    private async Task RefreshSnapshotsAsync(Guid userId, DateTime occurredOnUtc, Guid? accountId, CancellationToken cancellationToken)
+    {
+        if (_snapshotService is null)
+        {
+            return;
+        }
+
+        await _snapshotService.RefreshFromAsync(
+            userId,
+            new DateOnly(occurredOnUtc.Year, occurredOnUtc.Month, 1),
+            accountId,
+            cancellationToken);
     }
 
     public async Task<TransactionCommandResult?> ValidateAsync(
@@ -211,13 +232,16 @@ public sealed class UpdateTransactionCommandHandler
 {
     private readonly ITransactionCommandStore _transactionCommandStore;
     private readonly CreateTransactionCommandHandler _createTransactionCommandHandler;
+    private readonly IMonthlyAccountBalanceSnapshotService? _snapshotService;
 
     public UpdateTransactionCommandHandler(
         ITransactionCommandStore transactionCommandStore,
-        CreateTransactionCommandHandler createTransactionCommandHandler)
+        CreateTransactionCommandHandler createTransactionCommandHandler,
+        IMonthlyAccountBalanceSnapshotService? snapshotService = null)
     {
         _transactionCommandStore = transactionCommandStore;
         _createTransactionCommandHandler = createTransactionCommandHandler;
+        _snapshotService = snapshotService;
     }
 
     public async Task<TransactionCommandResult> HandleAsync(UpdateTransactionCommand command, CancellationToken cancellationToken)
@@ -254,6 +278,7 @@ public sealed class UpdateTransactionCommandHandler
                 replacementCommand.Note,
                 cancellationToken);
 
+            await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, null, cancellationToken);
             return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transfer));
         }
 
@@ -272,17 +297,42 @@ public sealed class UpdateTransactionCommandHandler
             },
             cancellationToken);
 
+        await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, existing.AccountId, cancellationToken);
         return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transaction));
+    }
+
+    private async Task RefreshSnapshotsAsync(
+        Guid userId,
+        DateTime previousOccurredOnUtc,
+        DateTime nextOccurredOnUtc,
+        Guid? accountId,
+        CancellationToken cancellationToken)
+    {
+        if (_snapshotService is null)
+        {
+            return;
+        }
+
+        var refreshFrom = previousOccurredOnUtc <= nextOccurredOnUtc ? previousOccurredOnUtc : nextOccurredOnUtc;
+        await _snapshotService.RefreshFromAsync(
+            userId,
+            new DateOnly(refreshFrom.Year, refreshFrom.Month, 1),
+            accountId,
+            cancellationToken);
     }
 }
 
 public sealed class DeleteTransactionCommandHandler
 {
     private readonly ITransactionCommandStore _transactionCommandStore;
+    private readonly IMonthlyAccountBalanceSnapshotService? _snapshotService;
 
-    public DeleteTransactionCommandHandler(ITransactionCommandStore transactionCommandStore)
+    public DeleteTransactionCommandHandler(
+        ITransactionCommandStore transactionCommandStore,
+        IMonthlyAccountBalanceSnapshotService? snapshotService = null)
     {
         _transactionCommandStore = transactionCommandStore;
+        _snapshotService = snapshotService;
     }
 
     public async Task<TransactionDeleteResult> HandleAsync(DeleteTransactionCommand command, CancellationToken cancellationToken)
@@ -300,6 +350,16 @@ public sealed class DeleteTransactionCommandHandler
         else
         {
             await _transactionCommandStore.DeleteAsync(transaction, cancellationToken);
+        }
+
+        if (_snapshotService is not null)
+        {
+            var affectedAccountId = transaction.TransferGroupId.HasValue ? null : (Guid?)transaction.AccountId;
+            await _snapshotService.RefreshFromAsync(
+                command.UserId,
+                new DateOnly(transaction.OccurredOnUtc.Year, transaction.OccurredOnUtc.Month, 1),
+                affectedAccountId,
+                cancellationToken);
         }
 
         return TransactionDeleteResult.Success();

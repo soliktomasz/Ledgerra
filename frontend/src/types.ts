@@ -120,4 +120,54 @@ export type DashboardSummary = {
     name: string;
     balance: number;
   }>;
+  trends: {
+    spendingDeltaAmount: number;
+    spendingDeltaPercent?: number | null;
+    spendingSparkline: Array<{
+      month: string;
+      amount: number;
+    }>;
+  };
+};
+
+export type ReportingRangePreset = "3M" | "6M" | "12M" | "YTD";
+
+export type ReportingOverview = {
+  rangePreset: ReportingRangePreset;
+  startMonth: string;
+  endMonth: string;
+  currencyCode: string;
+  summary: {
+    incomeTotal: number;
+    expenseTotal: number;
+    netCashFlow: number;
+    spendingDeltaAmount: number;
+    spendingDeltaPercent?: number | null;
+    netWorthDelta: number;
+  };
+  monthlySpendingTrend: Array<{
+    month: string;
+    amount: number;
+  }>;
+  incomeVsExpense: Array<{
+    month: string;
+    income: number;
+    expenses: number;
+    net: number;
+  }>;
+  categoryBreakdown: Array<{
+    categoryId: string;
+    categoryName: string;
+    amount: number;
+    percentage: number;
+  }>;
+  netWorthHistory: Array<{
+    month: string;
+    netWorth: number;
+    currencyCode: string;
+  }>;
+  warnings: Array<{
+    code: string;
+    message: string;
+  }>;
 };

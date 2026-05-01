@@ -54,6 +54,38 @@ function pluralize(count: number, singular: string, plural: string) {
   return count === 1 ? singular : plural;
 }
 
+function describeSpendingDelta(amount: number, currencyCode: string) {
+  if (amount === 0) {
+    return "Spending is flat vs prior month.";
+  }
+
+  return `Spending is ${amount > 0 ? "up" : "down"} ${formatCurrency(Math.abs(amount), currencyCode)} vs prior month.`;
+}
+
+function MiniSparkline({ points }: { points: Array<{ month: string; amount: number }> }) {
+  if (points.length === 0) {
+    return null;
+  }
+
+  const width = 180;
+  const height = 56;
+  const max = Math.max(...points.map((point) => point.amount), 1);
+  const step = points.length === 1 ? width : width / (points.length - 1);
+  const path = points
+    .map((point, index) => {
+      const x = index * step;
+      const y = height - (point.amount / max) * height;
+      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(" ");
+
+  return (
+    <svg className="mini-sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Recent spending sparkline">
+      <path d={path} />
+    </svg>
+  );
+}
+
 function buildDashboardInsights(
   budget: BudgetSummary | null,
   transactions: Transaction[],
@@ -278,6 +310,20 @@ export function DashboardPage() {
           detail="Across tracked budget categories."
         />
       </div>
+
+      {dashboard?.trends.spendingSparkline.length ? (
+        <section className="reports-preview" aria-label="Reports preview">
+          <div>
+            <span className="eyebrow">Trends</span>
+            <h2>Reports preview</h2>
+            <p>{describeSpendingDelta(dashboard.trends.spendingDeltaAmount, mainCurrencyCode)}</p>
+          </div>
+          <MiniSparkline points={dashboard.trends.spendingSparkline} />
+          <Link className="ghost-button compact-button" to="/reports">
+            Open reports
+          </Link>
+        </section>
+      ) : null}
 
       {insights.length > 0 ? (
         <section className="insights-panel" aria-label="Dashboard insights">

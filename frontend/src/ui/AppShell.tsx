@@ -5,6 +5,7 @@ import { useMonthSelection } from "../state/MonthContext";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/reports", label: "Reports" },
   { to: "/transactions", label: "Transactions" },
   { to: "/imports", label: "Imports" },
   { to: "/accounts", label: "Accounts" },

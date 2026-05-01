@@ -20,8 +20,17 @@ public sealed class DashboardSummaryDataProvider : IDashboardSummaryDataProvider
         var monthStart = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
         var monthEnd = monthStart.AddMonths(1);
 
+        return await GetTransactionsForRangeAsync(userId, monthStart, monthEnd, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Transaction>> GetTransactionsForRangeAsync(
+        Guid userId,
+        DateTime startUtc,
+        DateTime endExclusiveUtc,
+        CancellationToken cancellationToken)
+    {
         return await _dbContext.Transactions
-            .Where(item => item.UserId == userId && item.OccurredOnUtc >= monthStart && item.OccurredOnUtc < monthEnd)
+            .Where(item => item.UserId == userId && item.OccurredOnUtc >= startUtc && item.OccurredOnUtc < endExclusiveUtc)
             .ToListAsync(cancellationToken);
     }
 
