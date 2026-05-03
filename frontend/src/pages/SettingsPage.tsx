@@ -181,56 +181,59 @@ export function SettingsPage() {
         description={t("settings.description")}
       />
 
-      <SectionCard title={t("settings.appearance")}>
-        <form className="stack-form" onSubmit={(event) => event.preventDefault()}>
-          <label>
-            {t("settings.theme")}
-            <select
-              value={themePreference}
-              onChange={(event) => setThemePreference(event.target.value as ThemePreference)}
-            >
-              <option value="system">{t("settings.themeSystem")}</option>
-              <option value="light">{t("settings.themeLight")}</option>
-              <option value="dark">{t("settings.themeDark")}</option>
-            </select>
-          </label>
-          <p className="helper-text">
-            {t("settings.themeDescription", {
-              theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
-            })}
-          </p>
-        </form>
-      </SectionCard>
+      <div className="split-grid">
+        <SectionCard title={t("settings.appearance")}>
+          <form className="stack-form" onSubmit={(event) => event.preventDefault()}>
+            <label>
+              {t("settings.theme")}
+              <select
+                value={themePreference}
+                onChange={(event) => setThemePreference(event.target.value as ThemePreference)}
+              >
+                <option value="system">{t("settings.themeSystem")}</option>
+                <option value="light">{t("settings.themeLight")}</option>
+                <option value="dark">{t("settings.themeDark")}</option>
+              </select>
+            </label>
+            <p className="helper-text">
+              {t("settings.themeDescription", {
+                theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
+              })}
+            </p>
+          </form>
+        </SectionCard>
 
-      <SectionCard title={t("settings.regionalPreferences")}>
-        <form className="stack-form" onSubmit={handleSubmit}>
-          <label>
-            {t("settings.preferredCurrency")}
-            <select value={preferredCurrencyCode} onChange={(event) => setPreferredCurrencyCode(event.target.value)}>
-              {supportedCurrencies.map((currency) => (
-                <option key={currency.code} value={currency.code}>
-                  {currency.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            {t("settings.preferredLanguage")}
-            <select value={preferredLanguageCode} onChange={(event) => setPreferredLanguageCode(event.target.value)}>
-              {supportedLanguages.map((language) => (
-                <option key={language.code} value={language.code}>
-                  {language.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button className="primary-button" type="submit">
-            {t("settings.savePreferences")}
-          </button>
-        </form>
-      </SectionCard>
+        <SectionCard title={t("settings.regionalPreferences")}>
+          <form className="stack-form" onSubmit={handleSubmit}>
+            <label>
+              {t("settings.preferredCurrency")}
+              <select value={preferredCurrencyCode} onChange={(event) => setPreferredCurrencyCode(event.target.value)}>
+                {supportedCurrencies.map((currency) => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {t("settings.preferredLanguage")}
+              <select value={preferredLanguageCode} onChange={(event) => setPreferredLanguageCode(event.target.value)}>
+                {supportedLanguages.map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button className="primary-button" type="submit">
+              {t("settings.savePreferences")}
+            </button>
+          </form>
+        </SectionCard>
+      </div>
 
-      <SectionCard title={t("settings.aiProviders")}>
+      <div className="split-grid">
+        <SectionCard title={t("settings.aiProviders")}>
         <form className="stack-form" onSubmit={handleAiProviderSubmit}>
           {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
           <label>
@@ -306,7 +309,48 @@ export function SettingsPage() {
             </div>
           </article>
         </div>
-      </SectionCard>
+        </SectionCard>
+
+        <SectionCard title={t("settings.currentSession")}>
+          <div className="table-list">
+            <article className="table-row">
+              <div>
+                <strong>{t("settings.userEmail")}</strong>
+                <p>{t("settings.activeLocalAccount")}</p>
+              </div>
+              <strong>{profile?.email ?? auth?.email ?? t("common.unknown")}</strong>
+            </article>
+            <article className="table-row">
+              <div>
+                <strong>{t("settings.mainCurrency")}</strong>
+                <p>{t("settings.appWideTotals")}</p>
+              </div>
+              <strong>{profile?.preferredCurrencyCode ?? "USD"}</strong>
+            </article>
+            <article className="table-row">
+              <div>
+                <strong>{t("settings.preferredLanguage")}</strong>
+                <p>{t("settings.languageAndFormatting")}</p>
+              </div>
+              <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
+            </article>
+            <article className="table-row">
+              <div>
+                <strong>{t("settings.apiModel")}</strong>
+                <p>{t("settings.singleUserJwt")}</p>
+              </div>
+              <strong>{t("settings.v1Ready")}</strong>
+            </article>
+            <article className="table-row">
+              <div>
+                <strong>{t("settings.mobileReadiness")}</strong>
+                <p>{t("settings.mobileReadinessDescription")}</p>
+              </div>
+              <strong>{t("settings.prepared")}</strong>
+            </article>
+          </div>
+        </SectionCard>
+      </div>
 
       <SectionCard title={t("settings.importRules")}>
         <form className="stack-form rule-form" onSubmit={handleRuleSubmit}>
@@ -365,46 +409,6 @@ export function SettingsPage() {
               </article>
             ))
           )}
-        </div>
-      </SectionCard>
-
-      <SectionCard title={t("settings.currentSession")}>
-        <div className="table-list">
-          <article className="table-row">
-            <div>
-              <strong>{t("settings.userEmail")}</strong>
-              <p>{t("settings.activeLocalAccount")}</p>
-            </div>
-            <strong>{profile?.email ?? auth?.email ?? t("common.unknown")}</strong>
-          </article>
-          <article className="table-row">
-            <div>
-              <strong>{t("settings.mainCurrency")}</strong>
-              <p>{t("settings.appWideTotals")}</p>
-            </div>
-            <strong>{profile?.preferredCurrencyCode ?? "USD"}</strong>
-          </article>
-          <article className="table-row">
-            <div>
-              <strong>{t("settings.preferredLanguage")}</strong>
-              <p>{t("settings.languageAndFormatting")}</p>
-            </div>
-            <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
-          </article>
-          <article className="table-row">
-            <div>
-              <strong>{t("settings.apiModel")}</strong>
-              <p>{t("settings.singleUserJwt")}</p>
-            </div>
-            <strong>{t("settings.v1Ready")}</strong>
-          </article>
-          <article className="table-row">
-            <div>
-              <strong>{t("settings.mobileReadiness")}</strong>
-              <p>{t("settings.mobileReadinessDescription")}</p>
-            </div>
-            <strong>{t("settings.prepared")}</strong>
-          </article>
         </div>
       </SectionCard>
     </div>
