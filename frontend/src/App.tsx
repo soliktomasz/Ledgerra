@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./ui/AppShell";
 import { useAuth } from "./state/AuthContext";
@@ -8,26 +9,32 @@ import { CategoriesPage } from "./pages/CategoriesPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ImportsPage } from "./pages/ImportsPage";
 import { LoginPage } from "./pages/LoginPage";
-import { ReportsPage } from "./pages/ReportsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { TransactionsPage } from "./pages/TransactionsPage";
 import { I18nProvider } from "./state/I18nContext";
+
+const ReportsPage = lazy(async () => {
+  const module = await import("./pages/ReportsPage");
+  return { default: module.ReportsPage };
+});
 
 function ProtectedRoutes() {
   return (
     <MonthProvider>
       <AppShell>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/transactions" element={<TransactionsPage />} />
-          <Route path="/imports" element={<ImportsPage />} />
-          <Route path="/accounts" element={<AccountsPage />} />
-          <Route path="/budgets" element={<BudgetsPage />} />
-          <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
+        <Suspense fallback={<div className="page-stack"><p>Loading...</p></div>}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/transactions" element={<TransactionsPage />} />
+            <Route path="/imports" element={<ImportsPage />} />
+            <Route path="/accounts" element={<AccountsPage />} />
+            <Route path="/budgets" element={<BudgetsPage />} />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
+        </Suspense>
       </AppShell>
     </MonthProvider>
   );

@@ -1,111 +1,15 @@
 import { useMemo } from "react";
 import { useReportingOverview } from "../hooks/useReportingOverview";
 import { useI18n } from "../state/I18nContext";
-import { EmptyState } from "../ui/EmptyState";
 import { MetricCard } from "../ui/MetricCard";
 import { PageHeader } from "../ui/PageHeader";
+import { CashflowChart, CategoryBreakdownChart, NetWorthHistoryChart, SpendingTrendChart } from "../ui/ReportCharts";
 import { SectionCard } from "../ui/SectionCard";
 import { CashFlowIcon, CategoryIcon, ExpenseIcon, IncomeIcon, NetWorthIcon, TrendIcon } from "../ui/icons";
 import { formatCurrency } from "../utils/format";
 import type { ReportingRangePreset } from "../types";
 
 const rangePresets: ReportingRangePreset[] = ["3M", "6M", "12M", "YTD"];
-
-type ChartPoint = {
-  label: string;
-  value: number;
-};
-
-function buildPath(points: ChartPoint[], width: number, height: number) {
-  if (points.length === 0) {
-    return "";
-  }
-
-  const max = Math.max(...points.map((point) => point.value), 1);
-  const step = points.length === 1 ? width : width / (points.length - 1);
-
-  return points
-    .map((point, index) => {
-      const x = index * step;
-      const y = height - (point.value / max) * height;
-      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
-    })
-    .join(" ");
-}
-
-function LineChart({ points, t }: { points: ChartPoint[]; t: ReturnType<typeof useI18n>["t"] }) {
-  if (points.length === 0) {
-    return <EmptyState title={t("reports.noReportDataYet")} body={t("reports.noTrendData")} />;
-  }
-
-  const path = buildPath(points, 320, 140);
-
-  return (
-    <div className="report-chart">
-      <svg viewBox="0 0 320 160" role="img" aria-label={t("reports.monthlyTrendChart")}>
-        <path className="report-line-area" d={`${path} L 320 150 L 0 150 Z`} />
-        <path className="report-line" d={path} />
-      </svg>
-      <div className="chart-axis">
-        <span>{points[0].label}</span>
-        <span>{points[points.length - 1].label}</span>
-      </div>
-    </div>
-  );
-}
-
-function GroupedBars({ rows, currencyCode, t }: { rows: Array<{ month: string; income: number; expenses: number }>; currencyCode: string; t: ReturnType<typeof useI18n>["t"] }) {
-  if (rows.length === 0) {
-    return <EmptyState title={t("reports.noReportDataYet")} body={t("reports.noCashflowData")} />;
-  }
-
-  const max = Math.max(...rows.flatMap((row) => [row.income, row.expenses]), 1);
-
-  return (
-    <div className="cashflow-bars">
-      {rows.map((row) => (
-        <div className="cashflow-month" key={row.month}>
-          <div
-            className="cashflow-pair"
-            aria-label={t("reports.cashflowAria", {
-              month: row.month,
-              income: formatCurrency(row.income, currencyCode),
-              expenses: formatCurrency(row.expenses, currencyCode)
-            })}
-          >
-            <span className="cashflow-bar cashflow-bar--income" style={{ height: `${Math.max((row.income / max) * 100, 4)}%` }} />
-            <span className="cashflow-bar cashflow-bar--expense" style={{ height: `${Math.max((row.expenses / max) * 100, 4)}%` }} />
-          </div>
-          <small>{row.month.slice(5)}</small>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function CategoryBars({ rows, currencyCode, t }: { rows: Array<{ categoryId: string; categoryName: string; amount: number; percentage: number }>; currencyCode: string; t: ReturnType<typeof useI18n>["t"] }) {
-  if (rows.length === 0) {
-    return <EmptyState title={t("reports.noReportDataYet")} body={t("reports.noCategoryData")} />;
-  }
-
-  const max = Math.max(...rows.map((row) => row.amount), 1);
-
-  return (
-    <div className="bar-list">
-      {rows.map((row) => (
-        <div className="bar-item" key={row.categoryId}>
-          <div>
-            <strong>{row.categoryName}</strong>
-            <span>{formatCurrency(row.amount, currencyCode)} · {row.percentage}%</span>
-          </div>
-          <div className="bar-track">
-            <div className="bar-fill" style={{ width: `${Math.max((row.amount / max) * 100, 12)}%` }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export function ReportsPage() {
   const { t } = useI18n();
@@ -122,12 +26,9 @@ export function ReportsPage() {
   const currencyCode = overview?.currencyCode ?? "USD";
   const netWorthHistory = overview?.netWorthHistory ?? [];
   const netWorthValue = netWorthHistory.length > 0 ? netWorthHistory[netWorthHistory.length - 1].netWorth : 0;
-  const spendingPoints = useMemo(
-    () => overview?.monthlySpendingTrend.map((point) => ({ label: point.month, value: point.amount })) ?? [],
-    [overview?.monthlySpendingTrend]
-  );
+  const spendingPoints = useMemo(() => overview?.monthlySpendingTrend ?? [], [overview?.monthlySpendingTrend]);
   const netWorthPoints = useMemo(
-    () => overview?.netWorthHistory.map((point) => ({ label: point.month, value: point.netWorth })) ?? [],
+    () => overview?.netWorthHistory.map((point) => ({ month: point.month, netWorth: point.netWorth })) ?? [],
     [overview?.netWorthHistory]
   );
 
@@ -180,19 +81,19 @@ export function ReportsPage() {
 
       <div className="reports-grid">
         <SectionCard title={t("reports.spendingTrend")} icon={<TrendIcon />}>
-          <LineChart points={spendingPoints} t={t} />
+          <SpendingTrendChart rows={spendingPoints} currencyCode={currencyCode} t={t} />
         </SectionCard>
 
         <SectionCard title={t("reports.incomeVsExpense")} icon={<CashFlowIcon />}>
-          <GroupedBars rows={overview?.incomeVsExpense ?? []} currencyCode={currencyCode} t={t} />
+          <CashflowChart rows={overview?.incomeVsExpense ?? []} currencyCode={currencyCode} t={t} />
         </SectionCard>
 
         <SectionCard title={t("reports.categoryBreakdown")} icon={<CategoryIcon />}>
-          <CategoryBars rows={overview?.categoryBreakdown ?? []} currencyCode={currencyCode} t={t} />
+          <CategoryBreakdownChart rows={overview?.categoryBreakdown ?? []} currencyCode={currencyCode} t={t} />
         </SectionCard>
 
         <SectionCard title={t("reports.netWorthHistory")} icon={<NetWorthIcon />}>
-          <LineChart points={netWorthPoints} t={t} />
+          <NetWorthHistoryChart rows={netWorthPoints} currencyCode={currencyCode} t={t} />
         </SectionCard>
       </div>
     </div>
