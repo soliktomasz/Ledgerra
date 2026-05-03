@@ -3,6 +3,7 @@ import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
+import { useTheme, type ThemePreference } from "../state/ThemeContext";
 import type { ImportRule } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
@@ -16,6 +17,7 @@ function getErrorMessage(exception: unknown, fallback: string) {
 export function SettingsPage() {
   const { auth } = useAuth();
   const { setLanguageCode, t } = useI18n();
+  const { themePreference, resolvedTheme, setThemePreference } = useTheme();
   const { profile, aiSettings, categories, importRules, refresh } = useLedgerraData();
   const [preferredCurrencyCode, setPreferredCurrencyCode] = useState("USD");
   const [preferredLanguageCode, setPreferredLanguageCode] = useState("en");
@@ -178,6 +180,27 @@ export function SettingsPage() {
         title={t("settings.title")}
         description={t("settings.description")}
       />
+
+      <SectionCard title={t("settings.appearance")}>
+        <form className="stack-form" onSubmit={(event) => event.preventDefault()}>
+          <label>
+            {t("settings.theme")}
+            <select
+              value={themePreference}
+              onChange={(event) => setThemePreference(event.target.value as ThemePreference)}
+            >
+              <option value="system">{t("settings.themeSystem")}</option>
+              <option value="light">{t("settings.themeLight")}</option>
+              <option value="dark">{t("settings.themeDark")}</option>
+            </select>
+          </label>
+          <p className="helper-text">
+            {t("settings.themeDescription", {
+              theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
+            })}
+          </p>
+        </form>
+      </SectionCard>
 
       <SectionCard title={t("settings.regionalPreferences")}>
         <form className="stack-form" onSubmit={handleSubmit}>
