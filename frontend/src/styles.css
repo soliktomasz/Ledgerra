@@ -1038,77 +1038,94 @@ label {
 
 .report-chart {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.report-chart svg {
+.report-chart-surface {
   width: 100%;
-  min-height: 12rem;
+  min-height: 15rem;
+  padding: 0.85rem 0.6rem 0.45rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface-muted);
 }
 
-.report-line {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.report-grid {
+  stroke: var(--border);
+  opacity: 0.8;
 }
 
-.report-line-area {
-  fill: var(--accent-area-fill);
-  stroke: none;
-}
-
-.chart-axis {
-  display: flex;
-  justify-content: space-between;
-  color: var(--muted);
+.report-chart .recharts-cartesian-axis-tick-value {
+  fill: var(--muted);
   font-size: 0.78rem;
   font-weight: 700;
 }
 
-.cashflow-bars {
+.report-chart .recharts-tooltip-cursor {
+  fill: var(--accent-tint);
+}
+
+.chart-tooltip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr));
-  gap: 0.65rem;
-  min-height: 14rem;
-  padding: 0.75rem;
+  gap: 0.45rem;
+  min-width: 10rem;
+  padding: 0.7rem 0.8rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--surface-muted);
+  background: var(--surface-overlay);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
 }
 
-.cashflow-month {
-  display: grid;
-  grid-template-rows: minmax(8rem, 1fr) auto;
-  gap: 0.5rem;
-  justify-items: center;
+.chart-tooltip strong {
+  font-size: 0.82rem;
 }
 
-.cashflow-pair {
+.chart-tooltip-row,
+.chart-tooltip-series,
+.chart-summary-item {
   display: flex;
-  align-items: end;
-  gap: 0.24rem;
-  width: 100%;
-  height: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.cashflow-bar {
-  display: block;
-  flex: 1;
-  min-height: 0.35rem;
-  border-radius: 0.35rem 0.35rem 0 0;
+.chart-tooltip-row {
+  font-size: 0.82rem;
+  font-weight: 650;
 }
 
-.cashflow-bar--income {
-  background: var(--positive);
+.chart-tooltip-series {
+  justify-content: flex-start;
 }
 
-.cashflow-bar--expense {
-  background: var(--negative);
+.chart-tooltip-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+}
+
+.chart-summary-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.chart-summary-item {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--accent-soft) 180%);
+}
+
+.chart-summary-item strong {
+  font-size: 0.9rem;
+}
+
+.chart-summary-item span {
+  color: var(--muted-strong);
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .success-banner {
