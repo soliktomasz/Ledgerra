@@ -1,57 +1,92 @@
-# Settings View Compact Layout Design
+# Settings Compact Layout Implementation Plan
 
-**Date:** 2026-05-03
-**Issue:** LOW-5 — Improve settings view design
-**Branch:** low-5-improve-settings-view-design
+> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-## Problem
+**Goal:** Make the settings page more compact by pairing sections side-by-side in a two-column grid layout.
 
-The settings page renders 5 SectionCards in a single vertical stack at full content width (up to 1440px). This causes excessive scrolling and visually spread-out elements.
+**Architecture:** Wrap pairs of existing `SectionCard` components in `<div className="split-grid">` wrappers inside `SettingsPage.tsx`. The `split-grid` CSS class already exists and handles responsive collapse. Import Rules stays full-width.
 
-## Solution
+**Tech Stack:** React, CSS (custom properties), Vitest + React Testing Library
 
-Use the existing `split-grid` CSS class to pair smaller sections side-by-side in a two-column layout. The Import Rules section stays full-width since it contains an inline multi-field form and a data table that benefit from horizontal space.
+---
 
-## Layout
+### Task 1: Update SettingsPage layout to two-column grid
 
+**Files:**
+- Modify: `frontend/src/pages/SettingsPage.tsx:176-410` (JSX return block)
+
+**Step 1: Wrap Appearance + Regional Preferences in split-grid**
+
+In `SettingsPage.tsx`, find the return statement (line 176). After the `<PageHeader>` component, wrap the first two `<SectionCard>` components (Appearance and Regional Preferences) in a `<div className="split-grid">`:
+
+```tsx
+<div className="split-grid">
+  <SectionCard title={t("settings.appearance")}>
+    {/* existing Appearance content unchanged */}
+  </SectionCard>
+
+  <SectionCard title={t("settings.regionalPreferences")}>
+    {/* existing Regional Preferences content unchanged */}
+  </SectionCard>
+</div>
 ```
-page-stack
-├── PageHeader (full width)
-├── split-grid (row 1)
-│   ├── SectionCard: Appearance
-│   └── SectionCard: Regional Preferences
-├── split-grid (row 2)
-│   ├── SectionCard: AI Providers
-│   └── SectionCard: Current Session
-└── SectionCard: Import Rules (full width)
+
+**Step 2: Wrap AI Providers + Current Session in split-grid**
+
+Wrap the AI Providers `<SectionCard>` and Current Session `<SectionCard>` in a second `<div className="split-grid">`:
+
+```tsx
+<div className="split-grid">
+  <SectionCard title={t("settings.aiProviders")}>
+    {/* existing AI Providers content unchanged */}
+  </SectionCard>
+
+  <SectionCard title={t("settings.currentSession")}>
+    {/* existing Current Session content unchanged */}
+  </SectionCard>
+</div>
 ```
 
-## Changes required
+**Step 3: Leave Import Rules unwrapped**
 
-### SettingsPage.tsx
+The Import Rules `<SectionCard>` stays as-is (no wrapper div), keeping it full-width.
 
-Wrap pairs of SectionCards in `<div className="split-grid">` divs:
+Final structure of the return block:
+```tsx
+<div className="page-stack">
+  <PageHeader ... />
+  <div className="split-grid">
+    <SectionCard title="Appearance">...</SectionCard>
+    <SectionCard title="Regional Preferences">...</SectionCard>
+  </div>
+  <div className="split-grid">
+    <SectionCard title="AI Providers">...</SectionCard>
+    <SectionCard title="Current Session">...</SectionCard>
+  </div>
+  <SectionCard title="Import Rules">...</SectionCard>
+</div>
+```
 
-- Row 1: Appearance + Regional Preferences
-- Row 2: AI Providers + Current Session
-- Import Rules stays unwrapped (full width)
+**Step 4: Run existing tests**
 
-### CSS (styles.css)
+Run: `cd frontend && npx vitest run src/pages/SettingsPage.test.tsx`
+Expected: All 9 tests PASS (tests query by text/role, not DOM structure)
 
-No new CSS needed. The `split-grid` class already provides:
+**Step 5: Run type check**
 
-- `display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; align-items: start;`
-- Collapses to single column at 1180px breakpoint
+Run: `cd frontend && npx tsc --noEmit`
+Expected: No errors
 
-## Responsive behavior
+**Step 6: Visual verification**
 
-- **>1180px:** Two-column grid rows
-- **<=1180px:** Falls back to single column (existing breakpoint)
-- **<=620px:** Form internals collapse (existing behavior)
+Start dev server and verify in browser:
+- Desktop (>1180px): sections appear in two-column pairs
+- Narrow window (<=1180px): falls back to single column
+- Mobile (<=620px): form internals collapse
 
-## What doesn't change
+**Step 7: Commit**
 
-- All form logic, handlers, state management
-- SectionCard component
-- Import Rules section layout
-- All existing responsive breakpoints
+```bash
+git add frontend/src/pages/SettingsPage.tsx
+git commit -m "Use two-column grid layout for settings page (LOW-5)"
+```
