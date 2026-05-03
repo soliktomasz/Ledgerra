@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ledgerra</title>
     <meta name="description" content="Calm, self-hosted budget planning and spending tracking." />
+    <script>
+      try {
+        const storageKey = "ledgerra:theme";
+        const mediaQuery = "(prefers-color-scheme: dark)";
+        const storedThemePreference = window.localStorage.getItem(storageKey);
+        const themePreference = storedThemePreference === "light" || storedThemePreference === "dark" || storedThemePreference === "system"
+          ? storedThemePreference
+          : "system";
+        const resolvedTheme = themePreference === "system"
+          ? (window.matchMedia && window.matchMedia(mediaQuery).matches ? "dark" : "light")
+          : themePreference;
+
+        document.documentElement.dataset.theme = resolvedTheme;
+      } catch (error) {
+        console.warn("Unable to resolve theme before startup.", error);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

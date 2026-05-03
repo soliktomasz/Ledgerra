@@ -1,6 +1,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { ThemeProvider } from "../state/ThemeContext";
 import { SettingsPage } from "./SettingsPage";
 
 const mocks = vi.hoisted(() => ({
@@ -68,6 +69,8 @@ describe("SettingsPage", () => {
   beforeEach(() => {
     cleanup();
     vi.clearAllMocks();
+    window.localStorage.clear();
+    document.documentElement.removeAttribute("data-theme");
     mocks.aiSettings.providers.openAi = { isConfigured: true, maskedKey: "...3456" };
     mocks.aiSettings.providers.anthropic = { isConfigured: false, maskedKey: null };
     mocks.aiSettings.defaultProvider = "OpenAi";
@@ -77,9 +80,30 @@ describe("SettingsPage", () => {
     render(<SettingsPage />);
 
     expect(screen.getByText("AI providers")).toBeInTheDocument();
+    expect(screen.getByText("Appearance")).toBeInTheDocument();
     expect(screen.getByLabelText("Preferred language")).toHaveValue("en");
     expect(screen.getByText("...3456")).toBeInTheDocument();
     expect(screen.getAllByText("Not configured").length).toBeGreaterThan(0);
+  });
+
+  test("updates and persists the selected theme preference", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ThemeProvider initialThemePreference="system">
+        <SettingsPage />
+      </ThemeProvider>
+    );
+
+    expect(screen.getByLabelText("Theme")).toHaveValue("system");
+    expect(document.documentElement.dataset.theme).toBe("light");
+
+    await user.selectOptions(screen.getByLabelText("Theme"), "dark");
+
+    expect(screen.getByLabelText("Theme")).toHaveValue("dark");
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(window.localStorage.getItem("ledgerra:theme")).toBe("dark");
+    expect(screen.getByText("Ledgerra is currently using the dark theme.")).toBeInTheDocument();
   });
 
   test("saves currency and language preferences", async () => {

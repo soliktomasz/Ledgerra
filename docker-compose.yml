@@ -6,6 +6,8 @@ services:
       POSTGRES_DB: ledgerra
       POSTGRES_USER: ledgerra
       POSTGRES_PASSWORD: ledgerra
+    ports:
+      - "5432:5432"
     volumes:
       - ledgerra-postgres:/var/lib/postgresql/data
     healthcheck:
