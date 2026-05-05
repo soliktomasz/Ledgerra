@@ -2,8 +2,21 @@ using Ledgerra.Domain.Transactions;
 
 namespace Ledgerra.Application.Transactions;
 
+public interface IRecurringTransactionRepository
+{
+    Task<IReadOnlyList<RecurringTransactionTemplate>> GetAllAsync(Guid userId, CancellationToken ct);
+    Task<RecurringTransactionTemplate> CreateAsync(RecurringTransactionTemplate template, CancellationToken ct);
+    Task<bool> AccountExistsAsync(Guid userId, Guid accountId, CancellationToken ct);
+    Task<bool> CategoryExistsAsync(Guid userId, Guid categoryId, CancellationToken ct);
+    Task<IReadOnlyList<RecurringTransactionTemplate>> GetActiveTemplatesAsync(Guid userId, CancellationToken ct);
+    Task AddTransactionAsync(Transaction transaction, CancellationToken ct);
+    Task SaveChangesAsync(CancellationToken ct);
+    Task<T> ExecuteInSerializableTransactionAsync<T>(Func<Task<T>> action, CancellationToken ct);
+}
+
 public sealed class RecurringTransactionUseCases
 {
+    private const int MaxCatchUpPerTemplate = 100;
     private readonly IRecurringTransactionRepository _repository;
 
     public RecurringTransactionUseCases(IRecurringTransactionRepository repository) => _repository = repository;
@@ -40,21 +53,45 @@ public sealed class RecurringTransactionUseCases
             var generated = 0;
             foreach (var template in templates)
             {
+                var catchUpCount = 0;
                 var next = template.LastGeneratedOnUtc ?? template.StartOnUtc;
                 if (template.LastGeneratedOnUtc.HasValue)
                 {
-                    next = template.Interval == RecurringInterval.Weekly ? next.AddDays(7) : next.AddMonths(1);
+                    next = template.Interval == RecurringInterval.Weekly
+                        ? next.AddDays(7)
+                        : GetNextAnchoredMonthlyOccurrence(template.StartOnUtc, next);
                 }
-                while (next <= nowUtc)
+                while (next <= nowUtc && catchUpCount < MaxCatchUpPerTemplate)
                 {
                     await _repository.AddTransactionAsync(new Transaction { Id = Guid.NewGuid(), UserId = userId, AccountId = template.AccountId, CategoryId = template.CategoryId, Amount = template.Amount, Type = template.Type, OccurredOnUtc = next, Note = template.Note }, ct);
                     template.LastGeneratedOnUtc = next;
                     generated++;
-                    next = template.Interval == RecurringInterval.Weekly ? next.AddDays(7) : next.AddMonths(1);
+                    catchUpCount++;
+                    next = template.Interval == RecurringInterval.Weekly
+                        ? next.AddDays(7)
+                        : GetNextAnchoredMonthlyOccurrence(template.StartOnUtc, next);
                 }
             }
             await _repository.SaveChangesAsync(ct);
             return generated;
         }, ct);
+    }
+
+    private static DateTime GetNextAnchoredMonthlyOccurrence(DateTime startOnUtc, DateTime previousOccurrenceUtc)
+    {
+        // Compute next month/year from previous occurrence
+        var year = previousOccurrenceUtc.Year;
+        var month = previousOccurrenceUtc.Month + 1;
+        if (month > 12)
+        {
+            month = 1;
+            year++;
+        }
+
+        // Anchor to the original day from startOnUtc, clamped to valid days in target month
+        var day = Math.Min(startOnUtc.Day, DateTime.DaysInMonth(year, month));
+
+        // Preserve the time components from startOnUtc
+        return new DateTime(year, month, day, startOnUtc.Hour, startOnUtc.Minute, startOnUtc.Second, DateTimeKind.Utc);
     }
 }
