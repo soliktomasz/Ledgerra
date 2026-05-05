@@ -26,6 +26,8 @@ public sealed class LedgerraDbContext : DbContext
 
     public DbSet<Transaction> Transactions => Set<Transaction>();
 
+    public DbSet<RecurringTransactionTemplate> RecurringTransactionTemplates => Set<RecurringTransactionTemplate>();
+
     public DbSet<BudgetPeriod> BudgetPeriods => Set<BudgetPeriod>();
 
     public DbSet<BudgetCategoryLimit> BudgetCategoryLimits => Set<BudgetCategoryLimit>();
@@ -102,6 +104,29 @@ public sealed class LedgerraDbContext : DbContext
                 .WithMany(category => category.Transactions)
                 .HasForeignKey(transaction => transaction.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+
+        modelBuilder.Entity<RecurringTransactionTemplate>(builder =>
+        {
+            builder.HasKey(template => template.Id);
+            builder.Property(template => template.Amount).HasPrecision(18, 2);
+            builder.Property(template => template.Note).HasMaxLength(400);
+            builder.Property(template => template.Type).HasConversion<string>().HasMaxLength(32);
+            builder.Property(template => template.Interval).HasConversion<string>().HasMaxLength(32);
+            builder.HasIndex(template => new { template.UserId, template.AccountId, template.CategoryId, template.IsActive });
+            builder.HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(template => template.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne<Account>()
+                .WithMany()
+                .HasForeignKey(template => template.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne<Category>()
+                .WithMany()
+                .HasForeignKey(template => template.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<BudgetPeriod>(builder =>
