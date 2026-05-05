@@ -114,11 +114,19 @@ public sealed class LedgerraDbContext : DbContext
             builder.Property(template => template.Note).HasMaxLength(400);
             builder.Property(template => template.Type).HasConversion<string>().HasMaxLength(32);
             builder.Property(template => template.Interval).HasConversion<string>().HasMaxLength(32);
-            builder.HasIndex(template => new { template.UserId, template.IsActive });
+            builder.HasIndex(template => new { template.UserId, template.AccountId, template.CategoryId, template.IsActive });
             builder.HasOne<AppUser>()
                 .WithMany()
                 .HasForeignKey(template => template.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne<Account>()
+                .WithMany()
+                .HasForeignKey(template => template.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne<Category>()
+                .WithMany()
+                .HasForeignKey(template => template.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<BudgetPeriod>(builder =>

@@ -24,8 +24,15 @@ public sealed class RecurringTransactionsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<RecurringTransactionTemplateResponse>> Create(CreateRecurringTransactionTemplateRequest request, CancellationToken cancellationToken)
     {
-        var item = await _useCases.CreateAsync(User.GetRequiredUserId(), request.AccountId, request.CategoryId, request.Amount, request.Type, request.Interval, request.StartOnUtc, request.Note, cancellationToken);
-        return Ok(Map(item));
+        try
+        {
+            var item = await _useCases.CreateAsync(User.GetRequiredUserId(), request.AccountId, request.CategoryId, request.Amount, request.Type, request.Interval, request.StartOnUtc, request.Note, cancellationToken);
+            return Ok(Map(item));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpPost("generate")]

@@ -65,6 +65,7 @@ builder.Services.AddScoped<UpdateProfileCommandHandler>();
 builder.Services.AddScoped<UpdateTransactionCommandHandler>();
 builder.Services.AddScoped<GetTransactionByIdQueryHandler>();
 builder.Services.AddScoped<GetTransactionsQueryHandler>();
+builder.Services.AddScoped<IRecurringTransactionRepository, RecurringTransactionRepository>();
 builder.Services.AddScoped<RecurringTransactionUseCases>();
 builder.Services.AddScoped<IBudgetSummaryStore, BudgetSummaryStore>();
 builder.Services.AddScoped<IDashboardSummaryDataProvider, DashboardSummaryDataProvider>();
