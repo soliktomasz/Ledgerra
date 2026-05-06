@@ -11,6 +11,10 @@ public sealed class CreateTransactionRequest
 
     public Guid? DestinationAccountId { get; init; }
 
+    public Guid? SavingsGoalId { get; init; }
+
+    public Guid? SavingsGoalId { get; init; }
+
     [Range(0.01, 999999999)]
     public decimal Amount { get; init; }
 
@@ -29,6 +33,8 @@ public sealed class UpdateTransactionRequest
     public Guid? CategoryId { get; init; }
 
     public Guid? DestinationAccountId { get; init; }
+
+    public Guid? SavingsGoalId { get; init; }
 
     [Range(0.01, 999999999)]
     public decimal Amount { get; init; }
@@ -51,4 +57,5 @@ public sealed record TransactionResponse(
     string Type,
     DateTime OccurredOnUtc,
     string? Note,
-    Guid? TransferGroupId);
+    Guid? TransferGroupId,
+    Guid? SavingsGoalId);

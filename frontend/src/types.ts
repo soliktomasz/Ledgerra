@@ -52,6 +52,7 @@ export type Transaction = {
   occurredOnUtc: string;
   note?: string | null;
   transferGroupId?: string | null;
+  savingsGoalId?: string | null;
 };
 
 export type MonthlyReportDraftTransaction = {
@@ -131,6 +132,16 @@ export type DashboardSummary = {
   };
 };
 
+
+export type SavingsGoal = {
+  id: string;
+  name: string;
+  targetAmount: number;
+  savedAmount: number;
+  progressPercent: number;
+  deadlineUtc?: string | null;
+};
+
 export type ReportingRangePreset = "3M" | "6M" | "12M" | "YTD";
 
 export type ReportingOverview = {
@@ -198,6 +209,7 @@ export type BackupTransaction = {
   occurredOnUtc: string;
   note?: string | null;
   transferGroupId?: string | null;
+  savingsGoalId?: string | null;
 };
 
 export type BackupArchive = {

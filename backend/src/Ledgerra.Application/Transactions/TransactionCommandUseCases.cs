@@ -11,7 +11,8 @@ public sealed record CreateTransactionCommand(
     decimal Amount,
     string Type,
     DateTime OccurredOnUtc,
-    string? Note);
+    string? Note,
+    Guid? SavingsGoalId);
 
 public sealed record UpdateTransactionCommand(
     Guid UserId,
@@ -21,7 +22,8 @@ public sealed record UpdateTransactionCommand(
     decimal Amount,
     string Type,
     DateTime OccurredOnUtc,
-    string? Note);
+    string? Note,
+    Guid? SavingsGoalId);
 
 public sealed record DeleteTransactionCommand(Guid UserId, Guid TransactionId);
 
@@ -33,7 +35,8 @@ public sealed record TransactionDetails(
     string Type,
     DateTime OccurredOnUtc,
     string? Note,
-    Guid? TransferGroupId);
+    Guid? TransferGroupId,
+    Guid? SavingsGoalId);
 
 public interface ITransactionCommandStore
 {
@@ -117,7 +120,8 @@ public sealed class CreateTransactionCommandHandler
                 Amount = command.Amount,
                 Type = transactionType,
                 Note = command.Note,
-                OccurredOnUtc = command.OccurredOnUtc
+                OccurredOnUtc = command.OccurredOnUtc,
+                SavingsGoalId = command.SavingsGoalId
             },
             cancellationToken);
 
@@ -224,7 +228,8 @@ public sealed class CreateTransactionCommandHandler
             transaction.Type.ToString(),
             transaction.OccurredOnUtc,
             transaction.Note,
-            transaction.TransferGroupId);
+            transaction.TransferGroupId,
+            transaction.SavingsGoalId);
     }
 }
 

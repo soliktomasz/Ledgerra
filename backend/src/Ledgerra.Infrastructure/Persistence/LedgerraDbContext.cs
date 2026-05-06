@@ -4,6 +4,7 @@ using Ledgerra.Domain.Auth;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
 using Ledgerra.Domain.Imports;
+using Ledgerra.Domain.Goals;
 using Ledgerra.Domain.Transactions;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +40,8 @@ public sealed class LedgerraDbContext : DbContext
     public DbSet<UserAiPreference> UserAiPreferences => Set<UserAiPreference>();
 
     public DbSet<CategorizationRule> CategorizationRules => Set<CategorizationRule>();
+
+    public DbSet<SavingsGoal> SavingsGoals => Set<SavingsGoal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -100,6 +103,10 @@ public sealed class LedgerraDbContext : DbContext
                 .WithMany(account => account.Transactions)
                 .HasForeignKey(transaction => transaction.AccountId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne<SavingsGoal>()
+                .WithMany()
+                .HasForeignKey(transaction => transaction.SavingsGoalId)
+                .OnDelete(DeleteBehavior.SetNull);
             builder.HasOne(transaction => transaction.Category)
                 .WithMany(category => category.Transactions)
                 .HasForeignKey(transaction => transaction.CategoryId)
@@ -185,6 +192,19 @@ public sealed class LedgerraDbContext : DbContext
             builder.HasOne<AppUser>()
                 .WithOne(user => user.AiPreference)
                 .HasForeignKey<UserAiPreference>(preference => preference.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+
+        modelBuilder.Entity<SavingsGoal>(builder =>
+        {
+            builder.HasKey(goal => goal.Id);
+            builder.Property(goal => goal.Name).HasMaxLength(120);
+            builder.Property(goal => goal.TargetAmount).HasPrecision(18, 2);
+            builder.HasIndex(goal => new { goal.UserId, goal.Name }).IsUnique();
+            builder.HasOne<AppUser>()
+                .WithMany(user => user.SavingsGoals)
+                .HasForeignKey(goal => goal.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
