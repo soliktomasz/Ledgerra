@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/imports", label: t("nav.imports") },
     { to: "/accounts", label: t("nav.accounts") },
     { to: "/budgets", label: t("nav.budgets") },
-    { to: "/goals", label: "Goals" },
+    { to: "/goals", label: t("nav.goals") },
     { to: "/categories", label: t("nav.categories") },
     { to: "/settings", label: t("nav.settings") }
   ];

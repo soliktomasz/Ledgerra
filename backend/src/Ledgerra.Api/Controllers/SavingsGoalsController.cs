@@ -30,9 +30,22 @@ public sealed class SavingsGoalsController : ControllerBase
     public async Task<ActionResult<SavingsGoalResponse>> Create(CreateSavingsGoalRequest request, CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
-        var goal = new SavingsGoal { Id = Guid.NewGuid(), UserId = userId, Name = request.Name.Trim(), TargetAmount = request.TargetAmount, DeadlineUtc = request.DeadlineUtc };
+        var trimmedName = request.Name.Trim();
+        var existing = await _dbContext.SavingsGoals.FirstOrDefaultAsync(g => g.UserId == userId && g.Name == trimmedName, cancellationToken);
+        if (existing is not null)
+        {
+            return Conflict(new { error = "A savings goal with this name already exists." });
+        }
+        var goal = new SavingsGoal { Id = Guid.NewGuid(), UserId = userId, Name = trimmedName, TargetAmount = request.TargetAmount, DeadlineUtc = request.DeadlineUtc };
         _dbContext.SavingsGoals.Add(goal);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict(new { error = "Unable to create savings goal due to a conflict." });
+        }
         return CreatedAtAction(nameof(GetAll), new { id = goal.Id }, Map(goal, 0));
     }
 
@@ -42,11 +55,24 @@ public sealed class SavingsGoalsController : ControllerBase
         var userId = User.GetRequiredUserId();
         var goal = await _dbContext.SavingsGoals.FirstOrDefaultAsync(g => g.UserId == userId && g.Id == id, cancellationToken);
         if (goal is null) return NotFound();
-        goal.Name = request.Name.Trim();
+        var trimmedName = request.Name.Trim();
+        var existing = await _dbContext.SavingsGoals.FirstOrDefaultAsync(g => g.UserId == userId && g.Name == trimmedName && g.Id != id, cancellationToken);
+        if (existing is not null)
+        {
+            return Conflict(new { error = "A savings goal with this name already exists." });
+        }
+        goal.Name = trimmedName;
         goal.TargetAmount = request.TargetAmount;
         goal.DeadlineUtc = request.DeadlineUtc;
         goal.UpdatedAtUtc = DateTime.UtcNow;
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict(new { error = "Unable to update savings goal due to a conflict." });
+        }
         var progressByGoal = await GetProgressByGoalAsync(userId, cancellationToken);
         return Ok(Map(goal, progressByGoal.GetValueOrDefault(goal.Id)));
     }

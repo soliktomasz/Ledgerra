@@ -13,8 +13,6 @@ public sealed class CreateTransactionRequest
 
     public Guid? SavingsGoalId { get; init; }
 
-    public Guid? SavingsGoalId { get; init; }
-
     [Range(0.01, 999999999)]
     public decimal Amount { get; init; }
 
