@@ -11,6 +11,7 @@ import type {
   Profile,
   ReportingOverview,
   ReportingRangePreset,
+  BackupArchive,
   Transaction
 } from "../types";
 
@@ -273,6 +274,16 @@ export const apiClient = {
       method: "PUT",
       token,
       body: { categoryLimits }
+    });
+  },
+  exportBackup(token: string) {
+    return request<BackupArchive>("/api/backup/export", { token });
+  },
+  restoreBackup(token: string, archive: BackupArchive) {
+    return request<void>("/api/backup/restore", {
+      method: "POST",
+      token,
+      body: archive
     });
   }
 };

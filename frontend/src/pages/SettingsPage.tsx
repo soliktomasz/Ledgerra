@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
@@ -30,6 +30,8 @@ export function SettingsPage() {
   const [transactionType, setTransactionType] = useState("Expense");
   const [ruleCategoryId, setRuleCategoryId] = useState("");
   const [ruleError, setRuleError] = useState<string | null>(null);
+  const [backupError, setBackupError] = useState<string | null>(null);
+  const [backupNotice, setBackupNotice] = useState<string | null>(null);
 
   const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
@@ -172,6 +174,60 @@ export function SettingsPage() {
   const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
   const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
   const categoryNamesById = new Map(categories.map((category) => [category.id, category.name]));
+
+  const handleExportBackup = async () => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    try {
+      setBackupError(null);
+      const archive = await apiClient.exportBackup(auth.accessToken);
+      const blob = new Blob([JSON.stringify(archive, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `ledgerra-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      setBackupNotice(t("settings.backupExported"));
+    } catch (exception) {
+      setBackupError(getErrorMessage(exception, t("settings.unableToExportBackup")));
+    }
+  };
+
+  const handleRestoreBackup = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    const file = event.currentTarget.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      setBackupError(null);
+      const content = await file.text();
+      const archive = JSON.parse(content);
+
+      const confirmed = window.confirm(
+        "This will delete all your current data and replace it with the backup. This action cannot be undone. Are you sure you want to continue?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      await apiClient.restoreBackup(auth.accessToken, archive);
+      await refresh();
+      setBackupNotice(t("settings.backupRestored"));
+    } catch (exception) {
+      setBackupError(getErrorMessage(exception, t("settings.unableToRestoreBackup")));
+    } finally {
+      event.currentTarget.value = "";
+    }
+  };
 
   return (
     <div className="page-stack">
@@ -409,6 +465,20 @@ export function SettingsPage() {
               </article>
             ))
           )}
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Backup and restore">
+        <div className="stack-form">
+          {backupError ? <p className="error-banner">{backupError}</p> : null}
+          {backupNotice ? <p className="helper-text">{backupNotice}</p> : null}
+          <button className="primary-button" type="button" onClick={() => void handleExportBackup()}>
+            Export full JSON backup
+          </button>
+          <label>
+            Restore from JSON backup
+            <input type="file" accept="application/json" onChange={(event) => void handleRestoreBackup(event)} />
+          </label>
         </div>
       </SectionCard>
     </div>

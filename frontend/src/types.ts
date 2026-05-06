@@ -172,3 +172,44 @@ export type ReportingOverview = {
     message: string;
   }>;
 };
+
+export type BackupAccount = {
+  id: string;
+  name: string;
+  type: string;
+  currencyCode: string;
+  openingBalance: number;
+  isActive: boolean;
+};
+
+export type BackupCategory = {
+  id: string;
+  name: string;
+  kind: string;
+  color?: string | null;
+};
+
+export type BackupTransaction = {
+  id: string;
+  accountId: string;
+  categoryId?: string | null;
+  amount: number;
+  type: string;
+  occurredOnUtc: string;
+  note?: string | null;
+  transferGroupId?: string | null;
+};
+
+export type BackupArchive = {
+  version: number;
+  exportedAtUtc: string;
+  accounts: BackupAccount[];
+  categories: BackupCategory[];
+  transactions: BackupTransaction[];
+  budgetPeriods: Array<{
+    id: string;
+    year: number;
+    month: number;
+    categoryLimits: Array<{ id: string; categoryId: string; plannedAmount: number }>;
+  }>;
+};
