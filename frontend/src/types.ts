@@ -172,3 +172,17 @@ export type ReportingOverview = {
     message: string;
   }>;
 };
+
+export type BackupArchive = {
+  version: number;
+  exportedAtUtc: string;
+  accounts: Account[];
+  categories: Category[];
+  transactions: Transaction[];
+  budgetPeriods: Array<{
+    id: string;
+    year: number;
+    month: number;
+    categoryLimits: Array<{ id: string; categoryId: string; plannedAmount: number }>;
+  }>;
+};
