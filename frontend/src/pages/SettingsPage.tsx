@@ -190,9 +190,9 @@ export function SettingsPage() {
       link.download = `ledgerra-backup-${new Date().toISOString().slice(0, 10)}.json`;
       link.click();
       URL.revokeObjectURL(url);
-      setBackupNotice("Backup exported.");
+      setBackupNotice(t("settings.backupExported"));
     } catch (exception) {
-      setBackupError(getErrorMessage(exception, "Unable to export backup."));
+      setBackupError(getErrorMessage(exception, t("settings.unableToExportBackup")));
     }
   };
 
@@ -210,11 +210,20 @@ export function SettingsPage() {
       setBackupError(null);
       const content = await file.text();
       const archive = JSON.parse(content);
+
+      const confirmed = window.confirm(
+        "This will delete all your current data and replace it with the backup. This action cannot be undone. Are you sure you want to continue?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
       await apiClient.restoreBackup(auth.accessToken, archive);
       await refresh();
-      setBackupNotice("Backup restored.");
+      setBackupNotice(t("settings.backupRestored"));
     } catch (exception) {
-      setBackupError(getErrorMessage(exception, "Unable to restore backup."));
+      setBackupError(getErrorMessage(exception, t("settings.unableToRestoreBackup")));
     } finally {
       event.currentTarget.value = "";
     }

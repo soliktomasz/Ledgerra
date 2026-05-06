@@ -36,7 +36,7 @@ public sealed class BackupController : ControllerBase
             DateTimeOffset.UtcNow.ToString("O"),
             accounts.Select(x => new BackupAccountResponse(x.Id, x.Name, x.Type.ToString(), x.CurrencyCode, x.OpeningBalance, x.IsActive)).ToList(),
             categories.Select(x => new BackupCategoryResponse(x.Id, x.Name, x.Kind.ToString(), x.Color)).ToList(),
-            transactions.Select(x => new BackupTransactionResponse(x.Id, x.AccountId, x.CategoryId, x.DestinationAccountId, x.Amount, x.Type.ToString(), x.OccurredOnUtc.ToString("O"), x.Note, x.SourceProvider, x.SourceId)).ToList(),
+            transactions.Select(x => new BackupTransactionResponse(x.Id, x.AccountId, x.CategoryId, x.Amount, x.Type.ToString(), x.OccurredOnUtc.ToString("O"), x.Note, x.TransferGroupId)).ToList(),
             budgetPeriods.Select(x => new BackupBudgetPeriodResponse(
                 x.Id,
                 x.Year,
@@ -57,11 +57,50 @@ public sealed class BackupController : ControllerBase
         _dbContext.Accounts.RemoveRange(_dbContext.Accounts.Where(x => x.UserId == userId));
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        var accounts = archive.Accounts.Select(x => new Ledgerra.Domain.Accounts.Account(x.Id, userId, x.Name, Enum.Parse<Ledgerra.Domain.Accounts.AccountType>(x.Type), x.CurrencyCode, x.OpeningBalance, x.IsActive)).ToList();
-        var categories = archive.Categories.Select(x => new Ledgerra.Domain.Categories.Category(x.Id, userId, x.Name, Enum.Parse<Ledgerra.Domain.Categories.CategoryKind>(x.Kind), x.Color)).ToList();
-        var transactions = archive.Transactions.Select(x => new Ledgerra.Domain.Transactions.Transaction(x.Id, userId, x.AccountId, x.CategoryId, x.DestinationAccountId, x.Amount, Enum.Parse<Ledgerra.Domain.Transactions.TransactionType>(x.Type), DateTimeOffset.Parse(x.OccurredOnUtc), x.Note, x.SourceProvider, x.SourceId)).ToList();
-        var periods = archive.BudgetPeriods.Select(x => new Ledgerra.Domain.Budgets.BudgetPeriod(x.Id, userId, x.Year, x.Month)).ToList();
-        var limits = archive.BudgetPeriods.SelectMany(x => x.CategoryLimits.Select(limit => new Ledgerra.Domain.Budgets.BudgetCategoryLimit(limit.Id, x.Id, limit.CategoryId, limit.PlannedAmount))).ToList();
+        var accounts = archive.Accounts.Select(x => new Ledgerra.Domain.Accounts.Account
+        {
+            Id = x.Id,
+            UserId = userId,
+            Name = x.Name,
+            Type = Enum.Parse<Ledgerra.Domain.Accounts.AccountType>(x.Type),
+            CurrencyCode = x.CurrencyCode,
+            OpeningBalance = x.OpeningBalance,
+            IsActive = x.IsActive
+        }).ToList();
+        var categories = archive.Categories.Select(x => new Ledgerra.Domain.Categories.Category
+        {
+            Id = x.Id,
+            UserId = userId,
+            Name = x.Name,
+            Kind = Enum.Parse<Ledgerra.Domain.Categories.CategoryKind>(x.Kind),
+            Color = x.Color
+        }).ToList();
+        var transactions = archive.Transactions.Select(x => new Ledgerra.Domain.Transactions.Transaction
+        {
+            Id = x.Id,
+            UserId = userId,
+            AccountId = x.AccountId,
+            CategoryId = x.CategoryId,
+            Amount = x.Amount,
+            Type = Enum.Parse<Ledgerra.Domain.Transactions.TransactionType>(x.Type),
+            OccurredOnUtc = DateTime.Parse(x.OccurredOnUtc),
+            Note = x.Note,
+            TransferGroupId = x.TransferGroupId
+        }).ToList();
+        var periods = archive.BudgetPeriods.Select(x => new Ledgerra.Domain.Budgets.BudgetPeriod
+        {
+            Id = x.Id,
+            UserId = userId,
+            Year = x.Year,
+            Month = x.Month
+        }).ToList();
+        var limits = archive.BudgetPeriods.SelectMany(x => x.CategoryLimits.Select(limit => new Ledgerra.Domain.Budgets.BudgetCategoryLimit
+        {
+            Id = limit.Id,
+            BudgetPeriodId = x.Id,
+            CategoryId = limit.CategoryId,
+            PlannedAmount = limit.PlannedAmount
+        })).ToList();
 
         await _dbContext.Accounts.AddRangeAsync(accounts, cancellationToken);
         await _dbContext.Categories.AddRangeAsync(categories, cancellationToken);

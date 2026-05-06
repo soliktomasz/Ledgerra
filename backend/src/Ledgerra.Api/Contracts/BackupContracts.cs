@@ -16,13 +16,11 @@ public sealed record BackupTransactionResponse(
     Guid Id,
     Guid AccountId,
     Guid? CategoryId,
-    Guid? DestinationAccountId,
     decimal Amount,
     string Type,
     string OccurredOnUtc,
     string? Note,
-    string? SourceProvider,
-    string? SourceId);
+    Guid? TransferGroupId);
 
 public sealed record BackupBudgetPeriodResponse(Guid Id, int Year, int Month, IReadOnlyList<BackupBudgetCategoryLimitResponse> CategoryLimits);
 
