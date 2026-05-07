@@ -61,9 +61,10 @@ vi.mock("../hooks/useLedgerraData", () => ({
     categories: mocks.categories,
     transactions: mocks.transactions,
     budget: {
-      month: 4,
-      year: 2026,
-      limits: [{ categoryId: "category-1", limitAmount: 300, actualAmount: 42.17, remainingAmount: 257.83 }]
+      totalPlanned: 300,
+      totalSpent: 42.17,
+      totalRemaining: 257.83,
+      categories: [{ categoryId: "category-1", categoryName: "Groceries", planned: 300, spent: 42.17, remaining: 257.83 }]
     },
     refresh: mocks.refresh
   })
@@ -104,6 +105,8 @@ describe("TransactionsPage", () => {
     mocks.createTransaction.mockResolvedValue({ id: "transaction-3" });
     mocks.updateTransaction.mockResolvedValue({ id: "transaction-4" });
     mocks.deleteTransaction.mockResolvedValue(undefined);
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn() });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
   });

@@ -13,7 +13,7 @@ const transactionTypes = ["Expense", "Income", "Transfer"];
 
 function escapeCsvValue(value: string | number | boolean | null | undefined) {
   const normalized = value == null ? "" : String(value);
-  const escaped = normalized.replaceAll("\"", "\"\"");
+  const escaped = normalized.replace(/"/g, "\"\"");
   return /[",\n\r]/.test(escaped) ? `"${escaped}"` : escaped;
 }
 
@@ -232,11 +232,11 @@ export function TransactionsPage() {
     downloadCsv(`categories-${new Date().toISOString().slice(0, 10)}.csv`, categoriesCsv);
 
     if (budget) {
-      const budgetRows = budget.limits.map((limit) => {
-        const category = categories.find((item) => item.id === limit.categoryId);
-        return [limit.categoryId, category?.name ?? "", limit.limitAmount, limit.actualAmount, limit.remainingAmount];
+      const budgetRows = budget.categories.map((category) => {
+        const categoryName = category.categoryName || categories.find((item) => item.id === category.categoryId)?.name || "";
+        return [category.categoryId, categoryName, category.planned, category.spent, category.remaining];
       });
-      const budgetCsv = toCsv(["categoryId", "category", "limitAmount", "actualAmount", "remainingAmount"], budgetRows);
+      const budgetCsv = toCsv(["categoryId", "category", "planned", "spent", "remaining"], budgetRows);
       downloadCsv(`budget-${new Date().toISOString().slice(0, 10)}.csv`, budgetCsv);
     }
 
