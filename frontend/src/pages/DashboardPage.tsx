@@ -38,11 +38,58 @@ type OnboardingAcknowledgements = {
   currency: boolean;
   categories: boolean;
 };
+type DashboardWidgetId = "metrics" | "trends" | "insights" | "topCategories" | "accountBalances";
+type DashboardWidgetPreference = { id: DashboardWidgetId; visible: boolean };
 
 const acknowledgementDefaults: OnboardingAcknowledgements = {
   currency: false,
   categories: false
 };
+const dashboardWidgetDefaults: DashboardWidgetPreference[] = [
+  { id: "metrics", visible: true },
+  { id: "trends", visible: true },
+  { id: "insights", visible: true },
+  { id: "topCategories", visible: true },
+  { id: "accountBalances", visible: true }
+];
+
+function normalizeDashboardWidgetPreferences(stored: string | null): DashboardWidgetPreference[] {
+  const defaultsById = new Map(dashboardWidgetDefaults.map((widget) => [widget.id, widget]));
+  const copyDefaults = () => dashboardWidgetDefaults.map((widget) => ({ ...widget }));
+
+  if (!stored) {
+    return copyDefaults();
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as Array<Partial<DashboardWidgetPreference>>;
+    if (!Array.isArray(parsed)) {
+      return copyDefaults();
+    }
+
+    const seen = new Set<DashboardWidgetId>();
+    const storedPreferences = parsed.flatMap((item) => {
+      if (!item || typeof item !== "object") {
+        return [];
+      }
+
+      const defaultWidget = defaultsById.get(item.id as DashboardWidgetId);
+      if (!defaultWidget || seen.has(defaultWidget.id)) {
+        return [];
+      }
+
+      seen.add(defaultWidget.id);
+      return [{ ...defaultWidget, visible: typeof item.visible === "boolean" ? item.visible : defaultWidget.visible }];
+    });
+    const missingDefaults = dashboardWidgetDefaults
+      .filter((widget) => !seen.has(widget.id))
+      .map((widget) => ({ ...widget }));
+
+    return [...storedPreferences, ...missingDefaults];
+  } catch {
+    return copyDefaults();
+  }
+}
 
 function readAcknowledgements(storageKey: string, legacyStorageKey?: string): OnboardingAcknowledgements {
   try {
@@ -162,11 +209,15 @@ export function DashboardPage() {
   const { accounts, categories, dashboard, budget, loading, error, profile, transactions, refresh } = useLedgerraData();
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
+  const widgetPreferenceStorageKey = `ledgerra:dashboard-widgets:${profile?.email ?? "anonymous"}`;
   const legacyAcknowledgementStorageKey = `${acknowledgementStorageKey}:${mainCurrencyCode}`;
   const [acknowledgements, setAcknowledgements] = useState(() =>
     readAcknowledgements(acknowledgementStorageKey, legacyAcknowledgementStorageKey)
   );
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [widgetPreferences, setWidgetPreferences] = useState<DashboardWidgetPreference[]>(() =>
+    normalizeDashboardWidgetPreferences(window.localStorage.getItem(widgetPreferenceStorageKey))
+  );
   const [quickAddError, setQuickAddError] = useState("");
   const [quickAddStatus, setQuickAddStatus] = useState("");
   const accountCurrencyCodes = useMemo(
@@ -182,6 +233,29 @@ export function DashboardPage() {
       return next;
     });
   }, [acknowledgementStorageKey]);
+  const updateWidgetPreferences = useCallback((updater: (current: DashboardWidgetPreference[]) => DashboardWidgetPreference[]) => {
+    setWidgetPreferences((current) => {
+      const next = updater(current);
+      window.localStorage.setItem(widgetPreferenceStorageKey, JSON.stringify(next));
+      return next;
+    });
+  }, [widgetPreferenceStorageKey]);
+  const toggleWidgetVisibility = useCallback((id: DashboardWidgetId) => {
+    updateWidgetPreferences((current) => current.map((widget) => (widget.id === id ? { ...widget, visible: !widget.visible } : widget)));
+  }, [updateWidgetPreferences]);
+  const moveWidget = useCallback((id: DashboardWidgetId, direction: "up" | "down") => {
+    updateWidgetPreferences((current) => {
+      const index = current.findIndex((widget) => widget.id === id);
+      const nextIndex = direction === "up" ? index - 1 : index + 1;
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      const [item] = next.splice(index, 1);
+      next.splice(nextIndex, 0, item);
+      return next;
+    });
+  }, [updateWidgetPreferences]);
 
   const checklistItems: ChecklistItem[] = useMemo(
     () => [
@@ -239,6 +313,18 @@ export function DashboardPage() {
     setAcknowledgements(nextAcknowledgements);
     window.localStorage.setItem(acknowledgementStorageKey, JSON.stringify(nextAcknowledgements));
   }, [acknowledgementStorageKey, legacyAcknowledgementStorageKey]);
+  useEffect(() => {
+    setWidgetPreferences(normalizeDashboardWidgetPreferences(window.localStorage.getItem(widgetPreferenceStorageKey)));
+  }, [widgetPreferenceStorageKey]);
+
+  const visibleWidgets = useMemo(() => widgetPreferences.filter((widget) => widget.visible), [widgetPreferences]);
+  const widgetLabels: Record<DashboardWidgetId, string> = {
+    metrics: t("dashboard.widgetMetrics"),
+    trends: t("dashboard.widgetTrends"),
+    insights: t("dashboard.widgetInsights"),
+    topCategories: t("dashboard.widgetTopCategories"),
+    accountBalances: t("dashboard.widgetAccountBalances")
+  };
 
   return (
     <div className="page-stack">
@@ -339,120 +425,161 @@ export function DashboardPage() {
           </div>
         </section>
       ) : null}
+      <section className="widget-customization" aria-label={t("dashboard.widgetCustomize")}>
+        <div className="section-header">
+          <h2>{t("dashboard.widgetCustomize")}</h2>
+        </div>
+        <div className="widget-customization-list">
+          {widgetPreferences.map((widget, index) => (
+            <article className="widget-customization-row" key={widget.id}>
+              <label>
+                <input
+                  checked={widget.visible}
+                  onChange={() => toggleWidgetVisibility(widget.id)}
+                  type="checkbox"
+                />
+                <span>{widgetLabels[widget.id]}</span>
+              </label>
+              <div className="widget-customization-actions">
+                <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "up")} disabled={index === 0}>
+                  {t("dashboard.moveUp")}
+                </button>
+                <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "down")} disabled={index === widgetPreferences.length - 1}>
+                  {t("dashboard.moveDown")}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
-      <div className="metric-grid">
-        <MetricCard
-          label={t("dashboard.income")}
-          value={formatCurrency(dashboard?.income ?? 0, mainCurrencyCode)}
-          tone="positive"
-          detail={t("dashboard.allMonthlyInflows")}
-        />
-        <MetricCard
-          label={t("dashboard.expenses")}
-          value={formatCurrency(dashboard?.expenses ?? 0, mainCurrencyCode)}
-          tone="negative"
-          detail={t("dashboard.transfersExcluded")}
-        />
-        <MetricCard
-          label={t("dashboard.net")}
-          value={formatCurrency(dashboard?.net ?? 0, mainCurrencyCode)}
-          tone={(dashboard?.net ?? 0) >= 0 ? "positive" : "negative"}
-          detail={t("dashboard.incomeMinusExpenses")}
-        />
-        <MetricCard
-          label={t("dashboard.budgetRemaining")}
-          value={formatCurrency(budget?.totalRemaining ?? dashboard?.budgetRemaining ?? 0, mainCurrencyCode)}
-          detail={t("dashboard.acrossTrackedBudgetCategories")}
-        />
-      </div>
+      {visibleWidgets.map((widget) => {
+        if (widget.id === "metrics") {
+          return (
+            <div className="metric-grid" key={widget.id}>
+              <MetricCard
+                label={t("dashboard.income")}
+                value={formatCurrency(dashboard?.income ?? 0, mainCurrencyCode)}
+                tone="positive"
+                detail={t("dashboard.allMonthlyInflows")}
+              />
+              <MetricCard
+                label={t("dashboard.expenses")}
+                value={formatCurrency(dashboard?.expenses ?? 0, mainCurrencyCode)}
+                tone="negative"
+                detail={t("dashboard.transfersExcluded")}
+              />
+              <MetricCard
+                label={t("dashboard.net")}
+                value={formatCurrency(dashboard?.net ?? 0, mainCurrencyCode)}
+                tone={(dashboard?.net ?? 0) >= 0 ? "positive" : "negative"}
+                detail={t("dashboard.incomeMinusExpenses")}
+              />
+              <MetricCard
+                label={t("dashboard.budgetRemaining")}
+                value={formatCurrency(budget?.totalRemaining ?? dashboard?.budgetRemaining ?? 0, mainCurrencyCode)}
+                detail={t("dashboard.acrossTrackedBudgetCategories")}
+              />
+            </div>
+          );
+        }
 
-      {dashboard?.trends.spendingSparkline.length ? (
-        <section className="reports-preview" aria-label={t("dashboard.reportsPreview")}>
-          <div>
-            <span className="eyebrow">{t("dashboard.trends")}</span>
-            <h2>{t("dashboard.reportsPreview")}</h2>
-            <p>{describeSpendingDelta(dashboard.trends.spendingDeltaAmount, mainCurrencyCode, t)}</p>
-          </div>
-          <MiniSparkline points={dashboard.trends.spendingSparkline} ariaLabel={t("dashboard.sparklineAria")} />
-          <Link className="ghost-button compact-button" to="/reports">
-            {t("dashboard.openReports")}
-          </Link>
-        </section>
-      ) : null}
+        if (widget.id === "trends") {
+          return dashboard?.trends.spendingSparkline.length ? (
+            <section className="reports-preview" aria-label={t("dashboard.reportsPreview")} key={widget.id}>
+              <div>
+                <span className="eyebrow">{t("dashboard.trends")}</span>
+                <h2>{t("dashboard.reportsPreview")}</h2>
+                <p>{describeSpendingDelta(dashboard.trends.spendingDeltaAmount, mainCurrencyCode, t)}</p>
+              </div>
+              <MiniSparkline points={dashboard.trends.spendingSparkline} ariaLabel={t("dashboard.sparklineAria")} />
+              <Link className="ghost-button compact-button" to="/reports">
+                {t("dashboard.openReports")}
+              </Link>
+            </section>
+          ) : null;
+        }
 
-      {insights.length > 0 ? (
-        <section className="insights-panel" aria-label={t("dashboard.insightsAria")}>
-          <div className="section-header">
-            <h2>{t("dashboard.insights")}</h2>
-          </div>
-          <div className="insight-list">
-            {insights.map((insight) => (
-              <article className={`insight-row insight-row--${insight.tone}`} key={insight.id}>
-                <div>
-                  <strong>{insight.title}</strong>
-                  <p>{insight.detail}</p>
-                </div>
-                {insight.action ? (
-                  <Link className="ghost-button compact-button" to={insight.action.to}>
-                    {insight.action.label}
-                  </Link>
-                ) : null}
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <div className="dashboard-grid">
-        <SectionCard title={t("dashboard.topCategories")}>
-          {!dashboard?.topCategories.length ? (
-            <EmptyState
-              title={loading ? t("dashboard.loadingSpending") : t("dashboard.noSpendingYet")}
-              body={t("dashboard.noSpendingBody")}
-            />
-          ) : (
-            <div className="bar-list">
-              {dashboard.topCategories.map((category) => {
-                const largest = dashboard.topCategories[0]?.amount ?? 1;
-                const width = `${Math.max((category.amount / largest) * 100, 12)}%`;
-
-                return (
-                  <div className="bar-item" key={category.categoryId}>
+        if (widget.id === "insights") {
+          return insights.length > 0 ? (
+            <section className="insights-panel" aria-label={t("dashboard.insightsAria")} key={widget.id}>
+              <div className="section-header">
+                <h2>{t("dashboard.insights")}</h2>
+              </div>
+              <div className="insight-list">
+                {insights.map((insight) => (
+                  <article className={`insight-row insight-row--${insight.tone}`} key={insight.id}>
                     <div>
-                      <strong>{category.categoryName}</strong>
-                      <span>{formatCurrency(category.amount, mainCurrencyCode)}</span>
+                      <strong>{insight.title}</strong>
+                      <p>{insight.detail}</p>
                     </div>
-                    <div className="bar-track">
-                      <div className="bar-fill" style={{ width }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </SectionCard>
+                    {insight.action ? (
+                      <Link className="ghost-button compact-button" to={insight.action.to}>
+                        {insight.action.label}
+                      </Link>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null;
+        }
 
-        <SectionCard title={t("dashboard.accountBalances")}>
-          {!dashboard?.accounts.length ? (
-            <EmptyState
-              title={loading ? t("dashboard.loadingAccounts") : t("dashboard.noAccountsYet")}
-              body={t("dashboard.noAccountsBody")}
-            />
-          ) : (
-            <div className="account-balance-list">
-              {dashboard.accounts.map((account) => (
-                <article key={account.accountId} className="balance-row">
-                  <div>
-                    <strong>{account.name}</strong>
-                    <p>{t("dashboard.liveBalance")}</p>
-                  </div>
-                  <strong>{formatCurrency(account.balance, accountCurrencyCodes.get(account.accountId) ?? mainCurrencyCode)}</strong>
-                </article>
-              ))}
-            </div>
-          )}
-        </SectionCard>
-      </div>
+        if (widget.id === "topCategories") {
+          return (
+            <SectionCard title={t("dashboard.topCategories")} key={widget.id}>
+              {!dashboard?.topCategories.length ? (
+                <EmptyState
+                  title={loading ? t("dashboard.loadingSpending") : t("dashboard.noSpendingYet")}
+                  body={t("dashboard.noSpendingBody")}
+                />
+              ) : (
+                <div className="bar-list">
+                  {dashboard.topCategories.map((category) => {
+                    const largest = dashboard.topCategories[0]?.amount ?? 1;
+                    const width = `${Math.max((category.amount / largest) * 100, 12)}%`;
+
+                    return (
+                      <div className="bar-item" key={category.categoryId}>
+                        <div>
+                          <strong>{category.categoryName}</strong>
+                          <span>{formatCurrency(category.amount, mainCurrencyCode)}</span>
+                        </div>
+                        <div className="bar-track">
+                          <div className="bar-fill" style={{ width }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </SectionCard>
+          );
+        }
+
+        return (
+          <SectionCard title={t("dashboard.accountBalances")} key={widget.id}>
+            {!dashboard?.accounts.length ? (
+              <EmptyState
+                title={loading ? t("dashboard.loadingAccounts") : t("dashboard.noAccountsYet")}
+                body={t("dashboard.noAccountsBody")}
+              />
+            ) : (
+              <div className="account-balance-list">
+                {dashboard.accounts.map((account) => (
+                  <article key={account.accountId} className="balance-row">
+                    <div>
+                      <strong>{account.name}</strong>
+                      <p>{t("dashboard.liveBalance")}</p>
+                    </div>
+                    <strong>{formatCurrency(account.balance, accountCurrencyCodes.get(account.accountId) ?? mainCurrencyCode)}</strong>
+                  </article>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        );
+      })}
     </div>
   );
 }
