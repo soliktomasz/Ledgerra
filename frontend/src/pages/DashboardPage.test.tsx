@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -286,7 +286,7 @@ describe("DashboardPage", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("Insights")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Insights" })).toBeInTheDocument();
     expect(screen.getByText("Dining is 82% of its budget.")).toBeInTheDocument();
     expect(screen.getByText("Subscriptions is over budget by $5.00.")).toBeInTheDocument();
     expect(screen.getByText("You have 2 uncategorized expense transactions.")).toBeInTheDocument();
@@ -369,17 +369,26 @@ describe("DashboardPage", () => {
       }
     } as DashboardSummary;
 
-    render(
+    const { rerender } = render(
       <MemoryRouter>
         <DashboardPage />
       </MemoryRouter>
     );
 
-    expect(screen.getByText("Top categories")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Top categories" })).toBeInTheDocument();
     await user.click(screen.getByRole("checkbox", { name: "Top categories" }));
-    expect(screen.queryByText("Top categories")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Top categories" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Move down" }));
+    await user.click(within(screen.getByText("Summary metrics").closest("article") as HTMLElement).getByRole("button", { name: "Move down" }));
+    expect(screen.getByText("Reports preview").compareDocumentPosition(screen.getByText("Income")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    rerender(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Reports preview").compareDocumentPosition(screen.getByText("Income")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const stored = localStorage.getItem("ledgerra:dashboard-widgets:owner@ledgerra.local");
     expect(stored).toContain("\"id\":\"metrics\"");
     expect(stored?.indexOf("\"id\":\"metrics\"")).toBeGreaterThan(stored?.indexOf("\"id\":\"trends\"") ?? -1);
