@@ -279,4 +279,23 @@ describe("TransactionsPage", () => {
     expect(screen.queryByLabelText("New category name")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Destination account")).toBeInTheDocument();
   });
+
+  test("supports select-all bulk delete, category assignment, and account move", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsPage />);
+
+    await user.click(await screen.findByLabelText("Select all in current filtered view"));
+    await user.click(screen.getByRole("button", { name: "Bulk delete" }));
+    await waitFor(() => expect(mocks.deleteTransaction).toHaveBeenCalledTimes(2));
+
+    await user.click(screen.getByLabelText("Select Market"));
+    await user.selectOptions(screen.getByLabelText("Bulk category"), "category-3");
+    await user.click(screen.getByRole("button", { name: "Apply category" }));
+    await waitFor(() => expect(mocks.updateTransaction).toHaveBeenCalledWith("token", "transaction-1", expect.objectContaining({ categoryId: "category-3" })));
+
+    await user.click(screen.getByLabelText("Select Market"));
+    await user.selectOptions(screen.getByLabelText("Move to account"), "account-2");
+    await user.click(screen.getByRole("button", { name: "Move transactions" }));
+    await waitFor(() => expect(mocks.createTransaction).toHaveBeenCalledWith("token", expect.objectContaining({ accountId: "account-2" })));
+  });
 });

@@ -48,6 +48,10 @@ export function TransactionsPage() {
   const [ledgerTransactions, setLedgerTransactions] = useState<Transaction[]>(transactions);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [selectedTransactionIds, setSelectedTransactionIds] = useState<string[]>([]);
+  const [bulkCategoryId, setBulkCategoryId] = useState("");
+  const [bulkAccountId, setBulkAccountId] = useState("");
+  const [isApplyingBulkAction, setIsApplyingBulkAction] = useState(false);
 
   useEffect(() => {
     setLedgerTransactions(transactions);
@@ -142,6 +146,15 @@ export function TransactionsPage() {
       return (transaction.note ?? "").toLowerCase().includes(normalizedSearch);
     });
   }, [filterType, filterAccountIds, filterCategoryIds, ledgerTransactions, minAmount, maxAmount, noteSearch, showUncategorizedOnly]);
+  useEffect(() => {
+    setSelectedTransactionIds((current) => current.filter((id) => visibleTransactions.some((transaction) => transaction.id === id)));
+  }, [visibleTransactions]);
+
+  const selectedTransactions = useMemo(
+    () => visibleTransactions.filter((transaction) => selectedTransactionIds.includes(transaction.id)),
+    [visibleTransactions, selectedTransactionIds]
+  );
+  const allVisibleSelected = visibleTransactions.length > 0 && selectedTransactionIds.length === visibleTransactions.length;
 
   const expenseCategories = useMemo(
     () => categories.filter((category) => category.kind === "Expense"),
@@ -161,6 +174,19 @@ export function TransactionsPage() {
   const refreshAfterMutation = async () => {
     await refresh();
     await loadTransactions();
+  };
+  const clearSelection = () => {
+    setSelectedTransactionIds([]);
+    setBulkCategoryId("");
+    setBulkAccountId("");
+  };
+  const toggleTransactionSelection = (transactionId: string, selected: boolean) => {
+    setSelectedTransactionIds((current) =>
+      selected ? (current.includes(transactionId) ? current : [...current, transactionId]) : current.filter((id) => id !== transactionId)
+    );
+  };
+  const toggleSelectAllVisible = (selected: boolean) => {
+    setSelectedTransactionIds(selected ? visibleTransactions.map((transaction) => transaction.id) : []);
   };
 
   const startEdit = (transaction: Transaction) => {
@@ -254,6 +280,73 @@ export function TransactionsPage() {
       await refreshAfterMutation();
     } catch (caughtError) {
       setErrorMessage(caughtError instanceof Error ? caughtError.message : t("transactions.unableToCategorize"));
+    }
+  };
+
+  const bulkDeleteTransactions = async () => {
+    if (!auth?.accessToken || selectedTransactions.length === 0) return;
+    try {
+      setIsApplyingBulkAction(true);
+      await Promise.all(selectedTransactions.map((transaction) => apiClient.deleteTransaction(auth.accessToken, transaction.id)));
+      setStatusMessage(`Deleted ${selectedTransactions.length} transactions.`);
+      clearSelection();
+      await refreshAfterMutation();
+    } catch (caughtError) {
+      setErrorMessage(caughtError instanceof Error ? caughtError.message : t("transactions.unableToDelete"));
+    } finally {
+      setIsApplyingBulkAction(false);
+    }
+  };
+  const bulkAssignCategory = async () => {
+    if (!auth?.accessToken || !bulkCategoryId || selectedTransactions.length === 0) return;
+    const targets = selectedTransactions.filter((transaction) => transaction.type !== "Transfer");
+    try {
+      setIsApplyingBulkAction(true);
+      await Promise.all(
+        targets.map((transaction) =>
+          apiClient.updateTransaction(auth.accessToken, transaction.id, {
+            categoryId: bulkCategoryId,
+            amount: transaction.amount,
+            type: transaction.type,
+            occurredOnUtc: transaction.occurredOnUtc,
+            note: transaction.note?.trim() || undefined
+          })
+        )
+      );
+      setStatusMessage(`Updated category for ${targets.length} transactions.`);
+      clearSelection();
+      await refreshAfterMutation();
+    } catch (caughtError) {
+      setErrorMessage(caughtError instanceof Error ? caughtError.message : t("transactions.unableToCategorize"));
+    } finally {
+      setIsApplyingBulkAction(false);
+    }
+  };
+  const bulkMoveAccount = async () => {
+    if (!auth?.accessToken || !bulkAccountId || selectedTransactions.length === 0) return;
+    const targets = selectedTransactions.filter((transaction) => !transaction.type.startsWith("Transfer"));
+    try {
+      setIsApplyingBulkAction(true);
+      await Promise.all(
+        targets.map(async (transaction) => {
+          await apiClient.createTransaction(auth.accessToken, {
+            accountId: bulkAccountId,
+            categoryId: transaction.categoryId ?? undefined,
+            amount: transaction.amount,
+            type: transaction.type,
+            occurredOnUtc: transaction.occurredOnUtc,
+            note: transaction.note ?? undefined
+          });
+          await apiClient.deleteTransaction(auth.accessToken!, transaction.id);
+        })
+      );
+      setStatusMessage(`Moved ${targets.length} transactions to the selected account.`);
+      clearSelection();
+      await refreshAfterMutation();
+    } catch (caughtError) {
+      setErrorMessage(caughtError instanceof Error ? caughtError.message : "Unable to move selected transactions.");
+    } finally {
+      setIsApplyingBulkAction(false);
     }
   };
 
@@ -362,6 +455,36 @@ export function TransactionsPage() {
               {t("transactions.workflowBanner", { count: uncategorizedExpenseCount })}
             </p>
           ) : null}
+          {visibleTransactions.length > 0 ? (
+            <div className="review-toolbar" aria-label="Bulk transaction actions">
+              <div className="review-toolbar-actions">
+                <label className="inline-checkbox">
+                  <input type="checkbox" checked={allVisibleSelected} onChange={(event) => toggleSelectAllVisible(event.target.checked)} />
+                  Select all in current filtered view
+                </label>
+                <strong>{selectedTransactionIds.length} selected</strong>
+              </div>
+              <div className="bulk-category-actions">
+                <button className="ghost-button compact-button danger-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>Bulk delete</button>
+                <label>
+                  Bulk category
+                  <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)}>
+                    <option value="">{t("common.chooseCategory")}</option>
+                    {expenseCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                  </select>
+                </label>
+                <button className="ghost-button compact-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedTransactionIds.length === 0 || !bulkCategoryId || isApplyingBulkAction}>Apply category</button>
+                <label>
+                  Move to account
+                  <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
+                    <option value="">{t("common.selectAccount")}</option>
+                    {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
+                  </select>
+                </label>
+                <button className="ghost-button compact-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>Move transactions</button>
+              </div>
+            </div>
+          ) : null}
 
           <div className="table-list transaction-list">
             {visibleTransactions.length === 0 ? (
@@ -374,6 +497,9 @@ export function TransactionsPage() {
 
                 return (
                   <article className="table-row transaction-row" key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
+                    <label className="inline-checkbox">
+                      <input type="checkbox" checked={selectedTransactionIds.includes(transaction.id)} onChange={(event) => toggleTransactionSelection(transaction.id, event.target.checked)} aria-label={`Select ${label}`} />
+                    </label>
                     <div className="transaction-main">
                       <strong>{category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)}</strong>
                       <p>{account?.name ?? t("transactions.unknownAccount")} • {formatDate(transaction.occurredOnUtc)}</p>
