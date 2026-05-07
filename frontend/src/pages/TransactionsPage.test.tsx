@@ -60,6 +60,11 @@ vi.mock("../hooks/useLedgerraData", () => ({
     accounts: mocks.accounts,
     categories: mocks.categories,
     transactions: mocks.transactions,
+    budget: {
+      month: 4,
+      year: 2026,
+      limits: [{ categoryId: "category-1", limitAmount: 300, actualAmount: 42.17, remainingAmount: 257.83 }]
+    },
     refresh: mocks.refresh
   })
 }));
@@ -99,6 +104,8 @@ describe("TransactionsPage", () => {
     mocks.createTransaction.mockResolvedValue({ id: "transaction-3" });
     mocks.updateTransaction.mockResolvedValue({ id: "transaction-4" });
     mocks.deleteTransaction.mockResolvedValue(undefined);
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
   });
 
   test("loads transactions with filters and searches visible notes", async () => {
@@ -350,5 +357,21 @@ describe("TransactionsPage", () => {
       expect(mocks.updateTransaction).toHaveBeenCalledWith("token", "transaction-2", expect.objectContaining({ categoryId: "category-2" }));
     });
     expect(mocks.updateTransaction).not.toHaveBeenCalledWith("token", "transaction-1", expect.anything());
+  });
+
+  test("exports filtered transactions and categories/budget csv files", async () => {
+    const user = userEvent.setup();
+    const appendSpy = vi.spyOn(document.body, "append");
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+    render(<TransactionsPage />);
+
+    await user.click(await screen.findByRole("button", { name: "Export filtered CSV" }));
+    await user.click(screen.getByRole("button", { name: "Export categories & budget" }));
+
+    expect(URL.createObjectURL).toHaveBeenCalledTimes(3);
+    expect(clickSpy).toHaveBeenCalledTimes(3);
+    expect(appendSpy).toHaveBeenCalledTimes(3);
+    expect(await screen.findByText("Exported categories and budget data.")).toBeInTheDocument();
   });
 });
