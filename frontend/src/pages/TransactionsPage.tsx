@@ -11,6 +11,17 @@ import { formatCurrency, formatDate } from "../utils/format";
 
 const transactionTypes = ["Expense", "Income", "Transfer"];
 
+function escapeCsvValue(value: string | number | boolean | null | undefined) {
+  const normalized = value == null ? "" : String(value);
+  const escaped = normalized.replace(/"/g, "\"\"");
+  return /[",\n\r]/.test(escaped) ? `"${escaped}"` : escaped;
+}
+
+function toCsv(headers: string[], rows: Array<Array<string | number | boolean | null | undefined>>) {
+  const csvRows = [headers, ...rows].map((row) => row.map((cell) => escapeCsvValue(cell)).join(","));
+  return csvRows.join("\r\n");
+}
+
 function getTransactionTypeLabel(type: string, t: ReturnType<typeof useI18n>["t"]) {
   switch (type) {
     case "Expense":
@@ -39,7 +50,7 @@ function getCategorisableTransactionKind(transaction: Transaction) {
 export function TransactionsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
-  const { accounts, categories, transactions, refresh } = useLedgerraData();
+  const { accounts, categories, transactions, budget, refresh } = useLedgerraData();
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>({});
@@ -189,6 +200,48 @@ export function TransactionsPage() {
     () => ledgerTransactions.filter((transaction) => transaction.type === "Expense" && !transaction.categoryId).length,
     [ledgerTransactions]
   );
+
+  const downloadCsv = (filename: string, csvContent: string) => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const href = URL.createObjectURL(blob);
+    link.href = href;
+    link.setAttribute("download", filename);
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(href);
+  };
+
+  const exportFilteredTransactions = () => {
+    const rows = visibleTransactions.map((transaction) => {
+      const account = accounts.find((item) => item.id === transaction.accountId);
+      const category = categories.find((item) => item.id === transaction.categoryId);
+      return [transaction.id, transaction.occurredOnUtc, transaction.type, transaction.amount, account?.name ?? "", account?.currencyCode ?? "", category?.name ?? "", transaction.note ?? ""];
+    });
+    const csv = toCsv(["id", "occurredOnUtc", "type", "amount", "account", "currency", "category", "note"], rows);
+    downloadCsv(`transactions-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    setStatusMessage(`Exported ${visibleTransactions.length} filtered transactions.`);
+  };
+
+  const exportCategoriesAndBudgets = () => {
+    const categoriesCsv = toCsv(
+      ["id", "name", "kind", "isSystem"],
+      categories.map((category) => [category.id, category.name, category.kind, category.isSystem])
+    );
+    downloadCsv(`categories-${new Date().toISOString().slice(0, 10)}.csv`, categoriesCsv);
+
+    if (budget) {
+      const budgetRows = budget.categories.map((category) => {
+        const categoryName = category.categoryName || categories.find((item) => item.id === category.categoryId)?.name || "";
+        return [category.categoryId, categoryName, category.planned, category.spent, category.remaining];
+      });
+      const budgetCsv = toCsv(["categoryId", "category", "planned", "spent", "remaining"], budgetRows);
+      downloadCsv(`budget-${new Date().toISOString().slice(0, 10)}.csv`, budgetCsv);
+    }
+
+    setStatusMessage("Exported categories and budget data.");
+  };
 
   const resetForm = () => {
     setFormMode("create");
@@ -484,6 +537,16 @@ export function TransactionsPage() {
               />
               {t("transactions.needsCategory")}
             </label>
+          </div>
+          <div className="review-toolbar" aria-label="Export actions">
+            <div className="review-toolbar-actions">
+              <button className="ghost-button compact-button" type="button" onClick={exportFilteredTransactions} disabled={visibleTransactions.length === 0}>
+                Export filtered CSV
+              </button>
+              <button className="ghost-button compact-button" type="button" onClick={exportCategoriesAndBudgets} disabled={categories.length === 0}>
+                Export categories &amp; budget
+              </button>
+            </div>
           </div>
 
           {showUncategorizedOnly ? (
