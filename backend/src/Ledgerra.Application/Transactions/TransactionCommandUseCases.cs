@@ -12,7 +12,8 @@ public sealed record CreateTransactionCommand(
     string Type,
     DateTime OccurredOnUtc,
     string? Note,
-    Guid? SavingsGoalId);
+    Guid? SavingsGoalId,
+    IReadOnlyList<TransactionSplitLine>? SplitLines = null);
 
 public sealed record UpdateTransactionCommand(
     Guid UserId,
@@ -23,7 +24,10 @@ public sealed record UpdateTransactionCommand(
     string Type,
     DateTime OccurredOnUtc,
     string? Note,
-    Guid? SavingsGoalId);
+    Guid? SavingsGoalId,
+    IReadOnlyList<TransactionSplitLine>? SplitLines = null);
+
+public sealed record TransactionSplitLine(Guid CategoryId, decimal Amount);
 
 public sealed record DeleteTransactionCommand(Guid UserId, Guid TransactionId);
 
@@ -36,7 +40,9 @@ public sealed record TransactionDetails(
     DateTime OccurredOnUtc,
     string? Note,
     Guid? TransferGroupId,
-    Guid? SavingsGoalId);
+    Guid? SavingsGoalId,
+    Guid? SplitGroupId,
+    Guid? ParentTransactionId);
 
 public interface ITransactionCommandStore
 {
@@ -50,7 +56,10 @@ public interface ITransactionCommandStore
 
     Task DeleteTransferGroupAsync(Guid userId, Guid transferGroupId, CancellationToken cancellationToken);
 
-    Task<Transaction> CreateAsync(Transaction transaction, CancellationToken cancellationToken);
+    Task<Transaction> CreateAsync(
+        Transaction transaction,
+        CancellationToken cancellationToken,
+        IReadOnlyList<TransactionSplitLine>? splitLines = null);
 
     Task<Transaction> CreateTransferAsync(
         Guid userId,
@@ -62,7 +71,11 @@ public interface ITransactionCommandStore
         Guid? savingsGoalId,
         CancellationToken cancellationToken);
 
-    Task<Transaction> ReplaceAsync(Transaction existing, Transaction replacement, CancellationToken cancellationToken);
+    Task<Transaction> ReplaceAsync(
+        Transaction existing,
+        Transaction replacement,
+        CancellationToken cancellationToken,
+        IReadOnlyList<TransactionSplitLine>? splitLines = null);
 
     Task<Transaction> ReplaceWithTransferAsync(
         Transaction existing,
@@ -126,7 +139,8 @@ public sealed class CreateTransactionCommandHandler
                 OccurredOnUtc = command.OccurredOnUtc,
                 SavingsGoalId = command.SavingsGoalId
             },
-            cancellationToken);
+            cancellationToken,
+            command.SplitLines);
 
         await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, command.AccountId, cancellationToken);
         return TransactionCommandResult.Success(MapTransaction(transaction));
@@ -196,6 +210,28 @@ public sealed class CreateTransactionCommandHandler
             return TransactionCommandResult.ValidationError("type", "Supported transaction types are Income, Expense, and Transfer.");
         }
 
+        if (command.SplitLines is { Count: > 0 })
+        {
+            if (!command.Type.Equals("Expense", StringComparison.OrdinalIgnoreCase))
+            {
+                return TransactionCommandResult.ValidationError("splitLines", "Split lines are supported only for expense transactions.");
+            }
+
+            if (command.SplitLines.Sum(item => item.Amount) != command.Amount)
+            {
+                return TransactionCommandResult.ValidationError("splitLines", "Split lines total must equal the transaction amount.");
+            }
+
+            foreach (var splitLine in command.SplitLines)
+            {
+                var splitCategoryExists = await _transactionCommandStore.CategoryExistsAsync(command.UserId, splitLine.CategoryId, cancellationToken);
+                if (!splitCategoryExists)
+                {
+                    return TransactionCommandResult.NotFound("Split line category not found");
+                }
+            }
+        }
+
         return null;
     }
 
@@ -232,7 +268,9 @@ public sealed class CreateTransactionCommandHandler
             transaction.OccurredOnUtc,
             transaction.Note,
             transaction.TransferGroupId,
-            transaction.SavingsGoalId);
+            transaction.SavingsGoalId,
+            transaction.SplitGroupId,
+            transaction.ParentTransactionId);
     }
 }
 
@@ -269,7 +307,8 @@ public sealed class UpdateTransactionCommandHandler
             command.Type,
             command.OccurredOnUtc,
             command.Note,
-            command.SavingsGoalId);
+            command.SavingsGoalId,
+            command.SplitLines);
 
         var validation = await _createTransactionCommandHandler.ValidateAsync(replacementCommand, cancellationToken);
         if (validation is not null)
@@ -306,7 +345,8 @@ public sealed class UpdateTransactionCommandHandler
                 OccurredOnUtc = replacementCommand.OccurredOnUtc,
                 SavingsGoalId = replacementCommand.SavingsGoalId
             },
-            cancellationToken);
+            cancellationToken,
+            replacementCommand.SplitLines);
 
         await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, existing.AccountId, cancellationToken);
         return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transaction));

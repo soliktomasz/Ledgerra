@@ -11,6 +11,11 @@ public static class AccountBalanceCalculator
 
     private static decimal GetSignedAmount(Transaction transaction)
     {
+        if (transaction.ParentTransactionId.HasValue)
+        {
+            return 0m;
+        }
+
         return transaction.Type switch
         {
             TransactionType.Income => transaction.Amount,

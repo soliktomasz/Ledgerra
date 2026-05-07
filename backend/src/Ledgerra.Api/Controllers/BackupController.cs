@@ -32,11 +32,11 @@ public sealed class BackupController : ControllerBase
             .ToListAsync(cancellationToken);
 
         return Ok(new BackupArchiveResponse(
-            1,
+            2,
             DateTimeOffset.UtcNow.ToString("O"),
             accounts.Select(x => new BackupAccountResponse(x.Id, x.Name, x.Type.ToString(), x.CurrencyCode, x.OpeningBalance, x.IsActive)).ToList(),
             categories.Select(x => new BackupCategoryResponse(x.Id, x.Name, x.Kind.ToString(), x.Color)).ToList(),
-            transactions.Select(x => new BackupTransactionResponse(x.Id, x.AccountId, x.CategoryId, x.Amount, x.Type.ToString(), x.OccurredOnUtc.ToString("O"), x.Note, x.TransferGroupId)).ToList(),
+            transactions.Select(x => new BackupTransactionResponse(x.Id, x.AccountId, x.CategoryId, x.Amount, x.Type.ToString(), x.OccurredOnUtc.ToString("O"), x.Note, x.TransferGroupId, x.SplitGroupId, x.ParentTransactionId)).ToList(),
             budgetPeriods.Select(x => new BackupBudgetPeriodResponse(
                 x.Id,
                 x.Year,
@@ -85,7 +85,9 @@ public sealed class BackupController : ControllerBase
             Type = Enum.Parse<Ledgerra.Domain.Transactions.TransactionType>(x.Type),
             OccurredOnUtc = DateTime.Parse(x.OccurredOnUtc),
             Note = x.Note,
-            TransferGroupId = x.TransferGroupId
+            TransferGroupId = x.TransferGroupId,
+            SplitGroupId = x.SplitGroupId,
+            ParentTransactionId = x.ParentTransactionId
         }).ToList();
         var periods = archive.BudgetPeriods.Select(x => new Ledgerra.Domain.Budgets.BudgetPeriod
         {

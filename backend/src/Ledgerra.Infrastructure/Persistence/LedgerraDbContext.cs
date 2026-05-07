@@ -95,6 +95,7 @@ public sealed class LedgerraDbContext : DbContext
             builder.Property(transaction => transaction.Amount).HasPrecision(18, 2);
             builder.Property(transaction => transaction.Note).HasMaxLength(400);
             builder.HasIndex(transaction => new { transaction.UserId, transaction.OccurredOnUtc });
+            builder.HasIndex(transaction => new { transaction.UserId, transaction.SplitGroupId });
             builder.HasOne<AppUser>()
                 .WithMany(user => user.Transactions)
                 .HasForeignKey(transaction => transaction.UserId)
@@ -111,6 +112,10 @@ public sealed class LedgerraDbContext : DbContext
                 .WithMany(category => category.Transactions)
                 .HasForeignKey(transaction => transaction.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne<Transaction>()
+                .WithMany()
+                .HasForeignKey(transaction => transaction.ParentTransactionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
 

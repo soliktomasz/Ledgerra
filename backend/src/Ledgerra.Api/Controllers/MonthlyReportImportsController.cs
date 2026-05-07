@@ -117,7 +117,9 @@ public sealed class MonthlyReportImportsController : ControllerBase
             transaction.OccurredOnUtc,
             transaction.Note,
             transaction.TransferGroupId,
-            transaction.SavingsGoalId);
+            transaction.SavingsGoalId,
+            transaction.SplitGroupId,
+            transaction.ParentTransactionId);
     }
 
     private static MonthlyReportDraftTransactionResponse MapDraft(AnalyzedMonthlyReportDraft draft)

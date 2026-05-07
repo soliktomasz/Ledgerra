@@ -254,7 +254,10 @@ public sealed class ApplicationReviewRegressionTests
             return Task.CompletedTask;
         }
 
-        public Task<Transaction> CreateAsync(Transaction transaction, CancellationToken cancellationToken)
+        public Task<Transaction> CreateAsync(
+            Transaction transaction,
+            CancellationToken cancellationToken,
+            IReadOnlyList<TransactionSplitLine>? splitLines = null)
         {
             CreatedTransaction = true;
             return Task.FromResult(transaction);
@@ -285,7 +288,11 @@ public sealed class ApplicationReviewRegressionTests
             });
         }
 
-        public Task<Transaction> ReplaceAsync(Transaction existing, Transaction replacement, CancellationToken cancellationToken)
+        public Task<Transaction> ReplaceAsync(
+            Transaction existing,
+            Transaction replacement,
+            CancellationToken cancellationToken,
+            IReadOnlyList<TransactionSplitLine>? splitLines = null)
         {
             ReplacedTransaction = true;
             return Task.FromResult(replacement);

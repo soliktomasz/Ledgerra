@@ -20,7 +20,9 @@ public sealed record BackupTransactionResponse(
     string Type,
     string OccurredOnUtc,
     string? Note,
-    Guid? TransferGroupId);
+    Guid? TransferGroupId,
+    Guid? SplitGroupId = null,
+    Guid? ParentTransactionId = null);
 
 public sealed record BackupBudgetPeriodResponse(Guid Id, int Year, int Month, IReadOnlyList<BackupBudgetCategoryLimitResponse> CategoryLimits);
 
