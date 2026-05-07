@@ -28,6 +28,14 @@ function transactionLabel(transaction: Transaction, t: ReturnType<typeof useI18n
   return transaction.note?.trim() || categoryName || getTransactionTypeLabel(transaction.type, t);
 }
 
+function isTransferTransaction(transaction: Transaction) {
+  return transaction.type.startsWith("Transfer");
+}
+
+function getCategorisableTransactionKind(transaction: Transaction) {
+  return transaction.type === "Expense" || transaction.type === "Income" ? transaction.type : "";
+}
+
 export function TransactionsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
@@ -155,7 +163,24 @@ export function TransactionsPage() {
     [visibleTransactions, selectedTransactionIds]
   );
   const allVisibleSelected = visibleTransactions.length > 0 && selectedTransactionIds.length === visibleTransactions.length;
+  const selectedCategorisableTransactions = useMemo(
+    () => selectedTransactions.filter((transaction) => getCategorisableTransactionKind(transaction)),
+    [selectedTransactions]
+  );
+  const bulkCategoryKind = useMemo(() => {
+    const selectedKinds = new Set(selectedCategorisableTransactions.map(getCategorisableTransactionKind));
+    return selectedKinds.size === 1 ? Array.from(selectedKinds)[0] : "";
+  }, [selectedCategorisableTransactions]);
 
+  const bulkCategories = useMemo(
+    () => categories.filter((category) => bulkCategoryKind && category.kind === bulkCategoryKind),
+    [bulkCategoryKind, categories]
+  );
+  useEffect(() => {
+    if (bulkCategoryId && !bulkCategories.some((category) => category.id === bulkCategoryId)) {
+      setBulkCategoryId("");
+    }
+  }, [bulkCategories, bulkCategoryId]);
   const expenseCategories = useMemo(
     () => categories.filter((category) => category.kind === "Expense"),
     [categories]
@@ -188,6 +213,17 @@ export function TransactionsPage() {
   const toggleSelectAllVisible = (selected: boolean) => {
     setSelectedTransactionIds(selected ? visibleTransactions.map((transaction) => transaction.id) : []);
   };
+  const getUniqueDeleteTargets = () => {
+    const deleteTargets = new Map<string, Transaction>();
+    selectedTransactions.forEach((transaction) => {
+      const deleteKey = transaction.transferGroupId ? `transfer:${transaction.transferGroupId}` : `transaction:${transaction.id}`;
+      if (!deleteTargets.has(deleteKey)) {
+        deleteTargets.set(deleteKey, transaction);
+      }
+    });
+
+    return Array.from(deleteTargets.values());
+  };
 
   const startEdit = (transaction: Transaction) => {
     setFormMode("edit");
@@ -210,7 +246,7 @@ export function TransactionsPage() {
       return;
     }
 
-    if (transaction.type.startsWith("Transfer")) {
+    if (isTransferTransaction(transaction)) {
       setFormMode("create");
       setFormValues({
         type: "Transfer",
@@ -285,9 +321,10 @@ export function TransactionsPage() {
 
   const bulkDeleteTransactions = async () => {
     if (!auth?.accessToken || selectedTransactions.length === 0) return;
+    const deleteTargets = getUniqueDeleteTargets();
     try {
       setIsApplyingBulkAction(true);
-      await Promise.all(selectedTransactions.map((transaction) => apiClient.deleteTransaction(auth.accessToken, transaction.id)));
+      await Promise.all(deleteTargets.map((transaction) => apiClient.deleteTransaction(auth.accessToken, transaction.id)));
       setStatusMessage(`Deleted ${selectedTransactions.length} transactions.`);
       clearSelection();
       await refreshAfterMutation();
@@ -298,12 +335,11 @@ export function TransactionsPage() {
     }
   };
   const bulkAssignCategory = async () => {
-    if (!auth?.accessToken || !bulkCategoryId || selectedTransactions.length === 0) return;
-    const targets = selectedTransactions.filter((transaction) => transaction.type !== "Transfer");
+    if (!auth?.accessToken || !bulkCategoryId || selectedCategorisableTransactions.length === 0 || !bulkCategoryKind) return;
     try {
       setIsApplyingBulkAction(true);
       await Promise.all(
-        targets.map((transaction) =>
+        selectedCategorisableTransactions.map((transaction) =>
           apiClient.updateTransaction(auth.accessToken, transaction.id, {
             categoryId: bulkCategoryId,
             amount: transaction.amount,
@@ -313,7 +349,7 @@ export function TransactionsPage() {
           })
         )
       );
-      setStatusMessage(`Updated category for ${targets.length} transactions.`);
+      setStatusMessage(`Updated category for ${selectedCategorisableTransactions.length} transactions.`);
       clearSelection();
       await refreshAfterMutation();
     } catch (caughtError) {
@@ -324,7 +360,7 @@ export function TransactionsPage() {
   };
   const bulkMoveAccount = async () => {
     if (!auth?.accessToken || !bulkAccountId || selectedTransactions.length === 0) return;
-    const targets = selectedTransactions.filter((transaction) => !transaction.type.startsWith("Transfer"));
+    const targets = selectedTransactions.filter((transaction) => !isTransferTransaction(transaction));
     try {
       setIsApplyingBulkAction(true);
       await Promise.all(
@@ -468,12 +504,12 @@ export function TransactionsPage() {
                 <button className="ghost-button compact-button danger-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>Bulk delete</button>
                 <label>
                   Bulk category
-                  <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)}>
+                  <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
                     <option value="">{t("common.chooseCategory")}</option>
-                    {expenseCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                    {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
                   </select>
                 </label>
-                <button className="ghost-button compact-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedTransactionIds.length === 0 || !bulkCategoryId || isApplyingBulkAction}>Apply category</button>
+                <button className="ghost-button compact-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>Apply category</button>
                 <label>
                   Move to account
                   <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
