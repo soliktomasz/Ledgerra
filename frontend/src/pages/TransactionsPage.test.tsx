@@ -67,6 +67,7 @@ vi.mock("../hooks/useLedgerraData", () => ({
 describe("TransactionsPage", () => {
   beforeEach(() => {
     cleanup();
+    window.history.replaceState(null, "", "/transactions");
     vi.clearAllMocks();
     mocks.getTransactions.mockResolvedValue([
       {
