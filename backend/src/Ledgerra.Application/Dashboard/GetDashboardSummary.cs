@@ -71,7 +71,7 @@ public sealed class GetDashboardSummaryQueryHandler
             : BudgetSummaryCalculator.BuildMonthlySummary(period, transactions).TotalRemaining;
 
         var topCategoryIds = transactions
-            .Where(item => item.Type == TransactionType.Expense && item.CategoryId.HasValue)
+            .Where(IsCategoryExpense)
             .Select(item => item.CategoryId!.Value)
             .Distinct()
             .ToArray();
@@ -79,7 +79,7 @@ public sealed class GetDashboardSummaryQueryHandler
         var categoryNames = await _dataProvider.GetCategoryNamesAsync(query.UserId, topCategoryIds, cancellationToken);
 
         var topCategories = transactions
-            .Where(item => item.Type == TransactionType.Expense && item.CategoryId.HasValue)
+            .Where(IsCategoryExpense)
             .GroupBy(item => item.CategoryId!.Value)
             .Select(group => new DashboardCategorySpendResult(
                 group.Key,
@@ -89,8 +89,8 @@ public sealed class GetDashboardSummaryQueryHandler
             .Take(5)
             .ToList();
 
-        var income = transactions.Where(item => item.Type == TransactionType.Income).Sum(item => item.Amount);
-        var expenses = transactions.Where(item => item.Type == TransactionType.Expense).Sum(item => item.Amount);
+        var income = transactions.Where(item => item.Type == TransactionType.Income && !item.ParentTransactionId.HasValue).Sum(item => item.Amount);
+        var expenses = transactions.Where(item => item.Type == TransactionType.Expense && !item.ParentTransactionId.HasValue).Sum(item => item.Amount);
 
         return new DashboardSummaryResult(
             income,
@@ -118,5 +118,12 @@ public sealed class GetDashboardSummaryQueryHandler
         decimal? percent = previousSpending == 0m ? null : Math.Round(delta / previousSpending * 100m, 2);
 
         return new DashboardTrendsResult(delta, percent, spending);
+    }
+
+    private static bool IsCategoryExpense(Transaction transaction)
+    {
+        return transaction.Type == TransactionType.Expense &&
+            transaction.CategoryId.HasValue &&
+            (transaction.ParentTransactionId.HasValue || !transaction.SplitGroupId.HasValue);
     }
 }

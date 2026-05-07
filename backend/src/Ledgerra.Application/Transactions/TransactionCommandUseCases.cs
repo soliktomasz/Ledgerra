@@ -13,7 +13,7 @@ public sealed record CreateTransactionCommand(
     DateTime OccurredOnUtc,
     string? Note,
     Guid? SavingsGoalId,
-    IReadOnlyList<TransactionSplitLine>? SplitLines);
+    IReadOnlyList<TransactionSplitLine>? SplitLines = null);
 
 public sealed record UpdateTransactionCommand(
     Guid UserId,
@@ -25,7 +25,7 @@ public sealed record UpdateTransactionCommand(
     DateTime OccurredOnUtc,
     string? Note,
     Guid? SavingsGoalId,
-    IReadOnlyList<TransactionSplitLine>? SplitLines);
+    IReadOnlyList<TransactionSplitLine>? SplitLines = null);
 
 public sealed record TransactionSplitLine(Guid CategoryId, decimal Amount);
 
@@ -56,7 +56,10 @@ public interface ITransactionCommandStore
 
     Task DeleteTransferGroupAsync(Guid userId, Guid transferGroupId, CancellationToken cancellationToken);
 
-    Task<Transaction> CreateAsync(Transaction transaction, CancellationToken cancellationToken);
+    Task<Transaction> CreateAsync(
+        Transaction transaction,
+        CancellationToken cancellationToken,
+        IReadOnlyList<TransactionSplitLine>? splitLines = null);
 
     Task<Transaction> CreateTransferAsync(
         Guid userId,
@@ -68,7 +71,11 @@ public interface ITransactionCommandStore
         Guid? savingsGoalId,
         CancellationToken cancellationToken);
 
-    Task<Transaction> ReplaceAsync(Transaction existing, Transaction replacement, CancellationToken cancellationToken);
+    Task<Transaction> ReplaceAsync(
+        Transaction existing,
+        Transaction replacement,
+        CancellationToken cancellationToken,
+        IReadOnlyList<TransactionSplitLine>? splitLines = null);
 
     Task<Transaction> ReplaceWithTransferAsync(
         Transaction existing,
@@ -132,7 +139,8 @@ public sealed class CreateTransactionCommandHandler
                 OccurredOnUtc = command.OccurredOnUtc,
                 SavingsGoalId = command.SavingsGoalId
             },
-            cancellationToken);
+            cancellationToken,
+            command.SplitLines);
 
         await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, command.AccountId, cancellationToken);
         return TransactionCommandResult.Success(MapTransaction(transaction));
@@ -337,7 +345,8 @@ public sealed class UpdateTransactionCommandHandler
                 OccurredOnUtc = replacementCommand.OccurredOnUtc,
                 SavingsGoalId = replacementCommand.SavingsGoalId
             },
-            cancellationToken);
+            cancellationToken,
+            replacementCommand.SplitLines);
 
         await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, existing.AccountId, cancellationToken);
         return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transaction));

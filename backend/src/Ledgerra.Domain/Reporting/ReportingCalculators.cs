@@ -46,7 +46,7 @@ public static class TransactionAggregationCalculator
         IEnumerable<Transaction> transactions)
     {
         var expensesByMonth = transactions
-            .Where(item => item.Type == TransactionType.Expense)
+            .Where(IsRootExpense)
             .GroupBy(item => new DateOnly(item.OccurredOnUtc.Year, item.OccurredOnUtc.Month, 1))
             .ToDictionary(group => group.Key, group => group.Sum(item => item.Amount));
 
@@ -60,7 +60,7 @@ public static class TransactionAggregationCalculator
         IEnumerable<Transaction> transactions)
     {
         var cashFlowByMonth = transactions
-            .Where(item => item.Type is TransactionType.Income or TransactionType.Expense)
+            .Where(item => !item.ParentTransactionId.HasValue && item.Type is TransactionType.Income or TransactionType.Expense)
             .GroupBy(item => new DateOnly(item.OccurredOnUtc.Year, item.OccurredOnUtc.Month, 1))
             .ToDictionary(
                 group => group.Key,
@@ -80,6 +80,11 @@ public static class TransactionAggregationCalculator
             })
             .ToList();
     }
+
+    private static bool IsRootExpense(Transaction transaction)
+    {
+        return transaction.Type == TransactionType.Expense && !transaction.ParentTransactionId.HasValue;
+    }
 }
 
 public static class CategoryBreakdownCalculator
@@ -89,7 +94,7 @@ public static class CategoryBreakdownCalculator
         IReadOnlyDictionary<Guid, string> categoryNames)
     {
         var totals = transactions
-            .Where(item => item.Type == TransactionType.Expense && item.CategoryId.HasValue)
+            .Where(IsCategoryExpense)
             .GroupBy(item => item.CategoryId!.Value)
             .Select(group => new
             {
@@ -109,6 +114,13 @@ public static class CategoryBreakdownCalculator
                 item.Amount,
                 totalAmount == 0m ? 0m : Math.Round(item.Amount / totalAmount * 100m, 2)))
             .ToList();
+    }
+
+    private static bool IsCategoryExpense(Transaction transaction)
+    {
+        return transaction.Type == TransactionType.Expense &&
+            transaction.CategoryId.HasValue &&
+            (transaction.ParentTransactionId.HasValue || !transaction.SplitGroupId.HasValue);
     }
 }
 

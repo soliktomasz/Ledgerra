@@ -13,6 +13,7 @@ public static class BudgetSummaryCalculator
                     .Where(transaction =>
                         transaction.Type == TransactionType.Expense &&
                         transaction.CategoryId == limit.CategoryId &&
+                        (transaction.ParentTransactionId.HasValue || !transaction.SplitGroupId.HasValue) &&
                         transaction.OccurredOnUtc.Year == period.Year &&
                         transaction.OccurredOnUtc.Month == period.Month)
                     .Sum(transaction => transaction.Amount);

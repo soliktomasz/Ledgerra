@@ -30,7 +30,19 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
 
     public async Task DeleteAsync(Transaction transaction, CancellationToken cancellationToken)
     {
-        _dbContext.Transactions.Remove(transaction);
+        if (transaction.SplitGroupId.HasValue)
+        {
+            var linkedTransactions = await _dbContext.Transactions
+                .Where(item => item.UserId == transaction.UserId && item.SplitGroupId == transaction.SplitGroupId.Value)
+                .ToListAsync(cancellationToken);
+
+            _dbContext.Transactions.RemoveRange(linkedTransactions);
+        }
+        else
+        {
+            _dbContext.Transactions.Remove(transaction);
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
@@ -44,11 +56,20 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Transaction> CreateAsync(Transaction transaction, CancellationToken cancellationToken)
+    public async Task<Transaction> CreateAsync(
+        Transaction transaction,
+        CancellationToken cancellationToken,
+        IReadOnlyList<TransactionSplitLine>? splitLines = null)
     {
         EnsureUtc(transaction.OccurredOnUtc);
 
+        var splitTransactions = BuildSplitTransactions(transaction, splitLines);
         _dbContext.Transactions.Add(transaction);
+        if (splitTransactions.Count > 0)
+        {
+            _dbContext.Transactions.AddRange(splitTransactions);
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return transaction;
     }
@@ -97,12 +118,22 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
         return transferOut;
     }
 
-    public async Task<Transaction> ReplaceAsync(Transaction existing, Transaction replacement, CancellationToken cancellationToken)
+    public async Task<Transaction> ReplaceAsync(
+        Transaction existing,
+        Transaction replacement,
+        CancellationToken cancellationToken,
+        IReadOnlyList<TransactionSplitLine>? splitLines = null)
     {
         EnsureUtc(replacement.OccurredOnUtc);
 
         await RemoveExistingAsync(existing, cancellationToken);
+        var splitTransactions = BuildSplitTransactions(replacement, splitLines);
         _dbContext.Transactions.Add(replacement);
+        if (splitTransactions.Count > 0)
+        {
+            _dbContext.Transactions.AddRange(splitTransactions);
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return replacement;
     }
@@ -163,7 +194,46 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
             return;
         }
 
+        if (existing.SplitGroupId.HasValue)
+        {
+            var linkedTransactions = await _dbContext.Transactions
+                .Where(item => item.UserId == existing.UserId && item.SplitGroupId == existing.SplitGroupId.Value)
+                .ToListAsync(cancellationToken);
+
+            _dbContext.Transactions.RemoveRange(linkedTransactions);
+            return;
+        }
+
         _dbContext.Transactions.Remove(existing);
+    }
+
+    private static IReadOnlyList<Transaction> BuildSplitTransactions(
+        Transaction parent,
+        IReadOnlyList<TransactionSplitLine>? splitLines)
+    {
+        if (splitLines is not { Count: > 0 })
+        {
+            return [];
+        }
+
+        var splitGroupId = Guid.NewGuid();
+        parent.SplitGroupId = splitGroupId;
+
+        return splitLines
+            .Select(line => new Transaction
+            {
+                Id = Guid.NewGuid(),
+                UserId = parent.UserId,
+                AccountId = parent.AccountId,
+                CategoryId = line.CategoryId,
+                Amount = line.Amount,
+                Type = parent.Type,
+                Note = parent.Note,
+                OccurredOnUtc = parent.OccurredOnUtc,
+                SplitGroupId = splitGroupId,
+                ParentTransactionId = parent.Id
+            })
+            .ToList();
     }
 
     private static void EnsureUtc(DateTime occurredOnUtc)
