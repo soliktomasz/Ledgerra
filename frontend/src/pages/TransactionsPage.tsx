@@ -50,7 +50,12 @@ function getCategorisableTransactionKind(transaction: Transaction) {
 export function TransactionsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
-  const { accounts, categories, transactions, budget, refresh } = useLedgerraData();
+  const { accounts, categories, transactions, budget, refresh } = useLedgerraData({
+    accounts: true,
+    categories: true,
+    transactions: true,
+    budget: true
+  });
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>({});
@@ -417,17 +422,7 @@ export function TransactionsPage() {
     try {
       setIsApplyingBulkAction(true);
       await Promise.all(
-        targets.map(async (transaction) => {
-          await apiClient.createTransaction(auth.accessToken, {
-            accountId: bulkAccountId,
-            categoryId: transaction.categoryId ?? undefined,
-            amount: transaction.amount,
-            type: transaction.type,
-            occurredOnUtc: transaction.occurredOnUtc,
-            note: transaction.note ?? undefined
-          });
-          await apiClient.deleteTransaction(auth.accessToken!, transaction.id);
-        })
+        targets.map((transaction) => apiClient.moveTransactionAccount(auth.accessToken, transaction.id, bulkAccountId))
       );
       setStatusMessage(`Moved ${targets.length} transactions to the selected account.`);
       clearSelection();

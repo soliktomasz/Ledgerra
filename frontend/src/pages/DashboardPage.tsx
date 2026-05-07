@@ -206,7 +206,14 @@ function buildDashboardInsights(
 export function DashboardPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
-  const { accounts, categories, dashboard, budget, loading, error, profile, transactions, refresh } = useLedgerraData();
+  const { accounts, categories, dashboard, budget, loading, error, profile, transactions, refresh } = useLedgerraData({
+    accounts: true,
+    categories: true,
+    dashboard: true,
+    budget: true,
+    profile: true,
+    transactions: true
+  });
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
   const widgetPreferenceStorageKey = `ledgerra:dashboard-widgets:${profile?.email ?? "anonymous"}`;

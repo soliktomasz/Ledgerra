@@ -9,7 +9,7 @@ import { formatCurrency } from "../utils/format";
 
 export function GoalsPage() {
   const { auth } = useAuth();
-  const { profile } = useLedgerraData();
+  const { profile } = useLedgerraData({ profile: true });
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("0");

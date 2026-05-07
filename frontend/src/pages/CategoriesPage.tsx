@@ -20,7 +20,7 @@ function getCategoryKindLabel(kind: string, t: ReturnType<typeof useI18n>["t"]) 
 export function CategoriesPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
-  const { categories, refresh } = useLedgerraData();
+  const { categories, refresh } = useLedgerraData({ categories: true });
   const [name, setName] = useState("");
   const [kind, setKind] = useState("Expense");
   const [color, setColor] = useState("#5f8f7b");

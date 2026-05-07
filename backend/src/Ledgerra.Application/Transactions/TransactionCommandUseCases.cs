@@ -31,6 +31,8 @@ public sealed record TransactionSplitLine(Guid CategoryId, decimal Amount);
 
 public sealed record DeleteTransactionCommand(Guid UserId, Guid TransactionId);
 
+public sealed record MoveTransactionAccountCommand(Guid UserId, Guid TransactionId, Guid DestinationAccountId);
+
 public sealed record TransactionDetails(
     Guid Id,
     Guid AccountId,
@@ -55,6 +57,11 @@ public interface ITransactionCommandStore
     Task DeleteAsync(Transaction transaction, CancellationToken cancellationToken);
 
     Task DeleteTransferGroupAsync(Guid userId, Guid transferGroupId, CancellationToken cancellationToken);
+
+    Task<Transaction> MoveToAccountAsync(
+        Transaction existing,
+        Guid destinationAccountId,
+        CancellationToken cancellationToken);
 
     Task<Transaction> CreateAsync(
         Transaction transaction,
@@ -414,6 +421,57 @@ public sealed class DeleteTransactionCommandHandler
         }
 
         return TransactionDeleteResult.Success();
+    }
+}
+
+public sealed class MoveTransactionAccountCommandHandler
+{
+    private readonly ITransactionCommandStore _transactionCommandStore;
+    private readonly IMonthlyAccountBalanceSnapshotService? _snapshotService;
+
+    public MoveTransactionAccountCommandHandler(
+        ITransactionCommandStore transactionCommandStore,
+        IMonthlyAccountBalanceSnapshotService? snapshotService = null)
+    {
+        _transactionCommandStore = transactionCommandStore;
+        _snapshotService = snapshotService;
+    }
+
+    public async Task<TransactionCommandResult> HandleAsync(MoveTransactionAccountCommand command, CancellationToken cancellationToken)
+    {
+        var existing = await _transactionCommandStore.GetByIdAsync(command.UserId, command.TransactionId, cancellationToken);
+        if (existing is null)
+        {
+            return TransactionCommandResult.NotFound();
+        }
+
+        if (existing.TransferGroupId.HasValue)
+        {
+            return TransactionCommandResult.ValidationError("transactionId", "Transfer transactions cannot be moved to another account.");
+        }
+
+        if (existing.AccountId == command.DestinationAccountId)
+        {
+            return TransactionCommandResult.ValidationError("destinationAccountId", "Destination account must be different from the current account.");
+        }
+
+        var destinationExists = await _transactionCommandStore.AccountExistsAsync(command.UserId, command.DestinationAccountId, cancellationToken);
+        if (!destinationExists)
+        {
+            return TransactionCommandResult.NotFound("Destination account not found");
+        }
+
+        var previousAccountId = existing.AccountId;
+        var transaction = await _transactionCommandStore.MoveToAccountAsync(existing, command.DestinationAccountId, cancellationToken);
+
+        if (_snapshotService is not null)
+        {
+            var refreshFrom = new DateOnly(existing.OccurredOnUtc.Year, existing.OccurredOnUtc.Month, 1);
+            await _snapshotService.RefreshFromAsync(command.UserId, refreshFrom, previousAccountId, cancellationToken);
+            await _snapshotService.RefreshFromAsync(command.UserId, refreshFrom, command.DestinationAccountId, cancellationToken);
+        }
+
+        return TransactionCommandResult.Success(CreateTransactionCommandHandler.MapTransaction(transaction));
     }
 }
 

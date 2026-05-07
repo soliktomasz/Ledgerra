@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   createTransaction: vi.fn(),
   updateTransaction: vi.fn(),
   deleteTransaction: vi.fn(),
+  moveTransactionAccount: vi.fn(),
   getTransactions: vi.fn(),
   refresh: vi.fn(),
   accounts: [
@@ -51,6 +52,7 @@ vi.mock("../api/client", () => ({
     createTransaction: mocks.createTransaction,
     updateTransaction: mocks.updateTransaction,
     deleteTransaction: mocks.deleteTransaction,
+    moveTransactionAccount: mocks.moveTransactionAccount,
     getTransactions: mocks.getTransactions
   }
 }));
@@ -105,6 +107,7 @@ describe("TransactionsPage", () => {
     mocks.createTransaction.mockResolvedValue({ id: "transaction-3" });
     mocks.updateTransaction.mockResolvedValue({ id: "transaction-4" });
     mocks.deleteTransaction.mockResolvedValue(undefined);
+    mocks.moveTransactionAccount.mockResolvedValue({ id: "transaction-1", accountId: "account-2" });
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn() });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
@@ -306,7 +309,7 @@ describe("TransactionsPage", () => {
     await user.click(screen.getByLabelText("Select Market"));
     await user.selectOptions(screen.getByLabelText("Move to account"), "account-2");
     await user.click(screen.getByRole("button", { name: "Move transactions" }));
-    await waitFor(() => expect(mocks.createTransaction).toHaveBeenCalledWith("token", expect.objectContaining({ accountId: "account-2" })));
+    await waitFor(() => expect(mocks.moveTransactionAccount).toHaveBeenCalledWith("token", "transaction-1", "account-2"));
   });
 
   test("deduplicates transfer group deletes in bulk actions", async () => {

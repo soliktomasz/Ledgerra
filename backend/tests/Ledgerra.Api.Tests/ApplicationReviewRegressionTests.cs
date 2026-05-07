@@ -263,6 +263,15 @@ public sealed class ApplicationReviewRegressionTests
             return Task.FromResult(transaction);
         }
 
+        public Task<Transaction> MoveToAccountAsync(
+            Transaction existing,
+            Guid destinationAccountId,
+            CancellationToken cancellationToken)
+        {
+            existing.AccountId = destinationAccountId;
+            return Task.FromResult(existing);
+        }
+
         public Task<Transaction> CreateTransferAsync(
             Guid userId,
             Guid sourceAccountId,

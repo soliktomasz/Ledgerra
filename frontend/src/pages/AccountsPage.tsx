@@ -30,7 +30,10 @@ function getAccountTypeLabel(type: string, t: ReturnType<typeof useI18n>["t"]) {
 export function AccountsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
-  const { accounts, profile, refresh } = useLedgerraData();
+  const { accounts, profile, refresh } = useLedgerraData({
+    accounts: true,
+    profile: true
+  });
   const [name, setName] = useState("");
   const [type, setType] = useState("Checking");
   const [currencyCode, setCurrencyCode] = useState("USD");

@@ -5,10 +5,30 @@ import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
 import type { Account, AiSettings, BudgetSummary, Category, DashboardSummary, ImportRule, Profile, Transaction } from "../types";
 
-export function useLedgerraData() {
+type LedgerraDataOptions = {
+  profile?: boolean;
+  aiSettings?: boolean;
+  dashboard?: boolean;
+  accounts?: boolean;
+  categories?: boolean;
+  transactions?: boolean;
+  budget?: boolean;
+  importRules?: boolean;
+};
+
+export function useLedgerraData(options: LedgerraDataOptions = {}) {
   const { auth } = useAuth();
   const { setLanguageCode, t } = useI18n();
   const { selectedMonth, selectedYear, selectedMonthNumber } = useMonthSelection();
+  const loadAll = Object.keys(options).length === 0;
+  const loadProfile = options.profile ?? loadAll;
+  const loadAiSettings = options.aiSettings ?? loadAll;
+  const loadDashboard = options.dashboard ?? loadAll;
+  const loadAccounts = options.accounts ?? loadAll;
+  const loadCategories = options.categories ?? loadAll;
+  const loadTransactions = options.transactions ?? loadAll;
+  const loadBudget = options.budget ?? loadAll;
+  const loadImportRules = options.importRules ?? loadAll;
   const translatorRef = useRef(t);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -44,30 +64,43 @@ export function useLedgerraData() {
         budgetPayload,
         importRulesPayload
       ] = await Promise.all([
-        apiClient.getProfile(auth.accessToken),
-        apiClient.getAiSettings(auth.accessToken),
-        apiClient.getDashboard(auth.accessToken, selectedMonth),
-        apiClient.getAccounts(auth.accessToken),
-        apiClient.getCategories(auth.accessToken),
-        apiClient.getTransactions(auth.accessToken),
-        apiClient.getBudget(auth.accessToken, selectedYear, selectedMonthNumber),
-        apiClient.getImportRules(auth.accessToken).catch(() => [])
+        loadProfile ? apiClient.getProfile(auth.accessToken) : Promise.resolve(null),
+        loadAiSettings ? apiClient.getAiSettings(auth.accessToken) : Promise.resolve(null),
+        loadDashboard ? apiClient.getDashboard(auth.accessToken, selectedMonth) : Promise.resolve(null),
+        loadAccounts ? apiClient.getAccounts(auth.accessToken) : Promise.resolve([]),
+        loadCategories ? apiClient.getCategories(auth.accessToken) : Promise.resolve([]),
+        loadTransactions ? apiClient.getTransactions(auth.accessToken) : Promise.resolve([]),
+        loadBudget ? apiClient.getBudget(auth.accessToken, selectedYear, selectedMonthNumber) : Promise.resolve(null),
+        loadImportRules ? apiClient.getImportRules(auth.accessToken).catch(() => []) : Promise.resolve([])
       ]);
 
-      setProfile(profilePayload);
-      setAiSettings(aiSettingsPayload);
-      setDashboard(dashboardPayload);
-      setAccounts(accountsPayload);
-      setCategories(categoriesPayload);
-      setTransactions(transactionsPayload);
-      setBudget(budgetPayload);
-      setImportRules(importRulesPayload);
+      if (loadProfile) setProfile(profilePayload);
+      if (loadAiSettings) setAiSettings(aiSettingsPayload);
+      if (loadDashboard) setDashboard(dashboardPayload);
+      if (loadAccounts) setAccounts(accountsPayload);
+      if (loadCategories) setCategories(categoriesPayload);
+      if (loadTransactions) setTransactions(transactionsPayload);
+      if (loadBudget) setBudget(budgetPayload);
+      if (loadImportRules) setImportRules(importRulesPayload);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : translatorRef.current("common.unknown"));
     } finally {
       setLoading(false);
     }
-  }, [auth?.accessToken, selectedMonth, selectedMonthNumber, selectedYear]);
+  }, [
+    auth?.accessToken,
+    loadAccounts,
+    loadAiSettings,
+    loadBudget,
+    loadCategories,
+    loadDashboard,
+    loadImportRules,
+    loadProfile,
+    loadTransactions,
+    selectedMonth,
+    selectedMonthNumber,
+    selectedYear
+  ]);
 
   useEffect(() => {
     void refresh();

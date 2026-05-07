@@ -13,11 +13,16 @@ type AuthContextValue = {
 const STORAGE_KEY = "ledgerra.auth";
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function getAuthStorage() {
+  return window.sessionStorage;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth, setAuth] = useState<AuthPayload | null>(null);
 
   useEffect(() => {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = getAuthStorage().getItem(STORAGE_KEY);
+    window.localStorage.removeItem(STORAGE_KEY);
     if (!raw) {
       return;
     }
@@ -25,16 +30,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setAuth(JSON.parse(raw) as AuthPayload);
     } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
+      getAuthStorage().removeItem(STORAGE_KEY);
     }
   }, []);
+
+  useEffect(() => apiClient.onUnauthorized(() => persist(null)), []);
 
   const persist = (payload: AuthPayload | null) => {
     setAuth(payload);
     if (payload) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      getAuthStorage().setItem(STORAGE_KEY, JSON.stringify(payload));
     } else {
-      window.localStorage.removeItem(STORAGE_KEY);
+      getAuthStorage().removeItem(STORAGE_KEY);
     }
   };
 
