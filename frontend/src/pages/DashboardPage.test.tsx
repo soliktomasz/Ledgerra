@@ -353,6 +353,38 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("link", { name: "Open reports" })).toHaveAttribute("href", "/reports");
   });
 
+  test("customizes dashboard widgets and persists order/visibility per user", async () => {
+    const user = userEvent.setup();
+    mocks.data.dashboard = {
+      income: 4000,
+      expenses: 540,
+      net: 3460,
+      budgetRemaining: 260,
+      topCategories: [{ categoryId: "category-1", categoryName: "Groceries", amount: 100 }],
+      accounts: [{ accountId: "account-1", name: "Main checking", balance: 900 }],
+      trends: {
+        spendingDeltaAmount: 60,
+        spendingDeltaPercent: 12.5,
+        spendingSparkline: [{ month: "2026-04", amount: 540 }]
+      }
+    } as DashboardSummary;
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Top categories")).toBeInTheDocument();
+    await user.click(screen.getByRole("checkbox", { name: "Top categories" }));
+    expect(screen.queryByText("Top categories")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Move down" }));
+    const stored = localStorage.getItem("ledgerra:dashboard-widgets:owner@ledgerra.local");
+    expect(stored).toContain("\"id\":\"metrics\"");
+    expect(stored?.indexOf("\"id\":\"metrics\"")).toBeGreaterThan(stored?.indexOf("\"id\":\"trends\"") ?? -1);
+  });
+
   test("opens quick transaction dialog and saves a transaction from the dashboard", async () => {
     const user = userEvent.setup();
     mocks.data.accounts = [

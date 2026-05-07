@@ -38,11 +38,20 @@ type OnboardingAcknowledgements = {
   currency: boolean;
   categories: boolean;
 };
+type DashboardWidgetId = "metrics" | "trends" | "insights" | "topCategories" | "accountBalances";
+type DashboardWidgetPreference = { id: DashboardWidgetId; visible: boolean };
 
 const acknowledgementDefaults: OnboardingAcknowledgements = {
   currency: false,
   categories: false
 };
+const dashboardWidgetDefaults: DashboardWidgetPreference[] = [
+  { id: "metrics", visible: true },
+  { id: "trends", visible: true },
+  { id: "insights", visible: true },
+  { id: "topCategories", visible: true },
+  { id: "accountBalances", visible: true }
+];
 
 function readAcknowledgements(storageKey: string, legacyStorageKey?: string): OnboardingAcknowledgements {
   try {
@@ -162,11 +171,26 @@ export function DashboardPage() {
   const { accounts, categories, dashboard, budget, loading, error, profile, transactions, refresh } = useLedgerraData();
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
+  const widgetPreferenceStorageKey = `ledgerra:dashboard-widgets:${profile?.email ?? "anonymous"}`;
   const legacyAcknowledgementStorageKey = `${acknowledgementStorageKey}:${mainCurrencyCode}`;
   const [acknowledgements, setAcknowledgements] = useState(() =>
     readAcknowledgements(acknowledgementStorageKey, legacyAcknowledgementStorageKey)
   );
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [widgetPreferences, setWidgetPreferences] = useState<DashboardWidgetPreference[]>(() => {
+    try {
+      const stored = window.localStorage.getItem(widgetPreferenceStorageKey);
+      if (!stored) {
+        return dashboardWidgetDefaults;
+      }
+
+      const parsed = JSON.parse(stored) as DashboardWidgetPreference[];
+      const byId = new Map(parsed.map((item) => [item.id, item.visible]));
+      return dashboardWidgetDefaults.map((item) => ({ ...item, visible: byId.get(item.id) ?? item.visible }));
+    } catch {
+      return dashboardWidgetDefaults;
+    }
+  });
   const [quickAddError, setQuickAddError] = useState("");
   const [quickAddStatus, setQuickAddStatus] = useState("");
   const accountCurrencyCodes = useMemo(
@@ -182,6 +206,29 @@ export function DashboardPage() {
       return next;
     });
   }, [acknowledgementStorageKey]);
+  const updateWidgetPreferences = useCallback((updater: (current: DashboardWidgetPreference[]) => DashboardWidgetPreference[]) => {
+    setWidgetPreferences((current) => {
+      const next = updater(current);
+      window.localStorage.setItem(widgetPreferenceStorageKey, JSON.stringify(next));
+      return next;
+    });
+  }, [widgetPreferenceStorageKey]);
+  const toggleWidgetVisibility = useCallback((id: DashboardWidgetId) => {
+    updateWidgetPreferences((current) => current.map((widget) => (widget.id === id ? { ...widget, visible: !widget.visible } : widget)));
+  }, [updateWidgetPreferences]);
+  const moveWidget = useCallback((id: DashboardWidgetId, direction: "up" | "down") => {
+    updateWidgetPreferences((current) => {
+      const index = current.findIndex((widget) => widget.id === id);
+      const nextIndex = direction === "up" ? index - 1 : index + 1;
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      const [item] = next.splice(index, 1);
+      next.splice(nextIndex, 0, item);
+      return next;
+    });
+  }, [updateWidgetPreferences]);
 
   const checklistItems: ChecklistItem[] = useMemo(
     () => [
@@ -239,6 +286,30 @@ export function DashboardPage() {
     setAcknowledgements(nextAcknowledgements);
     window.localStorage.setItem(acknowledgementStorageKey, JSON.stringify(nextAcknowledgements));
   }, [acknowledgementStorageKey, legacyAcknowledgementStorageKey]);
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(widgetPreferenceStorageKey);
+      if (!stored) {
+        setWidgetPreferences(dashboardWidgetDefaults);
+        return;
+      }
+      const parsed = JSON.parse(stored) as DashboardWidgetPreference[];
+      const byId = new Map(parsed.map((item) => [item.id, item.visible]));
+      const next = dashboardWidgetDefaults.map((item) => ({ ...item, visible: byId.get(item.id) ?? item.visible }));
+      setWidgetPreferences(next);
+    } catch {
+      setWidgetPreferences(dashboardWidgetDefaults);
+    }
+  }, [widgetPreferenceStorageKey]);
+
+  const visibleWidgetIds = useMemo(() => new Set(widgetPreferences.filter((widget) => widget.visible).map((widget) => widget.id)), [widgetPreferences]);
+  const widgetLabels: Record<DashboardWidgetId, string> = {
+    metrics: t("dashboard.widgetMetrics"),
+    trends: t("dashboard.widgetTrends"),
+    insights: t("dashboard.widgetInsights"),
+    topCategories: t("dashboard.widgetTopCategories"),
+    accountBalances: t("dashboard.widgetAccountBalances")
+  };
 
   return (
     <div className="page-stack">
@@ -339,8 +410,35 @@ export function DashboardPage() {
           </div>
         </section>
       ) : null}
+      <section className="widget-customization" aria-label={t("dashboard.widgetCustomize")}>
+        <div className="section-header">
+          <h2>{t("dashboard.widgetCustomize")}</h2>
+        </div>
+        <div className="widget-customization-list">
+          {widgetPreferences.map((widget, index) => (
+            <article className="widget-customization-row" key={widget.id}>
+              <label>
+                <input
+                  checked={widget.visible}
+                  onChange={() => toggleWidgetVisibility(widget.id)}
+                  type="checkbox"
+                />
+                <span>{widgetLabels[widget.id]}</span>
+              </label>
+              <div className="widget-customization-actions">
+                <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "up")} disabled={index === 0}>
+                  {t("dashboard.moveUp")}
+                </button>
+                <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "down")} disabled={index === widgetPreferences.length - 1}>
+                  {t("dashboard.moveDown")}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
-      <div className="metric-grid">
+      {visibleWidgetIds.has("metrics") ? <div className="metric-grid">
         <MetricCard
           label={t("dashboard.income")}
           value={formatCurrency(dashboard?.income ?? 0, mainCurrencyCode)}
@@ -364,9 +462,9 @@ export function DashboardPage() {
           value={formatCurrency(budget?.totalRemaining ?? dashboard?.budgetRemaining ?? 0, mainCurrencyCode)}
           detail={t("dashboard.acrossTrackedBudgetCategories")}
         />
-      </div>
+      </div> : null}
 
-      {dashboard?.trends.spendingSparkline.length ? (
+      {visibleWidgetIds.has("trends") && dashboard?.trends.spendingSparkline.length ? (
         <section className="reports-preview" aria-label={t("dashboard.reportsPreview")}>
           <div>
             <span className="eyebrow">{t("dashboard.trends")}</span>
@@ -380,7 +478,7 @@ export function DashboardPage() {
         </section>
       ) : null}
 
-      {insights.length > 0 ? (
+      {visibleWidgetIds.has("insights") && insights.length > 0 ? (
         <section className="insights-panel" aria-label={t("dashboard.insightsAria")}>
           <div className="section-header">
             <h2>{t("dashboard.insights")}</h2>
@@ -404,7 +502,7 @@ export function DashboardPage() {
       ) : null}
 
       <div className="dashboard-grid">
-        <SectionCard title={t("dashboard.topCategories")}>
+        {visibleWidgetIds.has("topCategories") ? <SectionCard title={t("dashboard.topCategories")}>
           {!dashboard?.topCategories.length ? (
             <EmptyState
               title={loading ? t("dashboard.loadingSpending") : t("dashboard.noSpendingYet")}
@@ -430,9 +528,9 @@ export function DashboardPage() {
               })}
             </div>
           )}
-        </SectionCard>
+        </SectionCard> : null}
 
-        <SectionCard title={t("dashboard.accountBalances")}>
+        {visibleWidgetIds.has("accountBalances") ? <SectionCard title={t("dashboard.accountBalances")}>
           {!dashboard?.accounts.length ? (
             <EmptyState
               title={loading ? t("dashboard.loadingAccounts") : t("dashboard.noAccountsYet")}
@@ -451,7 +549,7 @@ export function DashboardPage() {
               ))}
             </div>
           )}
-        </SectionCard>
+        </SectionCard> : null}
       </div>
     </div>
   );
