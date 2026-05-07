@@ -76,7 +76,9 @@ public sealed class GetTransactionsQueryHandler
             transaction.OccurredOnUtc,
             transaction.Note,
             transaction.TransferGroupId,
-            transaction.SavingsGoalId);
+            transaction.SavingsGoalId,
+            transaction.SplitGroupId,
+            transaction.ParentTransactionId);
     }
 }
 
@@ -103,6 +105,8 @@ public sealed class GetTransactionByIdQueryHandler
                 transaction.OccurredOnUtc,
                 transaction.Note,
                 transaction.TransferGroupId,
-            transaction.SavingsGoalId);
+                transaction.SavingsGoalId,
+                transaction.SplitGroupId,
+                transaction.ParentTransactionId);
     }
 }

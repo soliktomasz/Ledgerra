@@ -70,7 +70,8 @@ public sealed class TransactionsController : ControllerBase
                 request.Type,
                 request.OccurredOnUtc,
                 request.Note,
-                request.SavingsGoalId),
+                request.SavingsGoalId,
+                request.SplitLines?.Select(line => new TransactionSplitLine(line.CategoryId, line.Amount)).ToList()),
             cancellationToken);
 
         if (result.IsNotFound)
@@ -105,7 +106,8 @@ public sealed class TransactionsController : ControllerBase
                 request.Type,
                 request.OccurredOnUtc,
                 request.Note,
-                request.SavingsGoalId),
+                request.SavingsGoalId,
+                request.SplitLines?.Select(line => new TransactionSplitLine(line.CategoryId, line.Amount)).ToList()),
             cancellationToken);
 
         if (result.IsNotFound)
@@ -153,6 +155,8 @@ public sealed class TransactionsController : ControllerBase
             transaction.OccurredOnUtc,
             transaction.Note,
             transaction.TransferGroupId,
-            transaction.SavingsGoalId);
+            transaction.SavingsGoalId,
+            transaction.SplitGroupId,
+            transaction.ParentTransactionId);
     }
 }

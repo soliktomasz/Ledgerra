@@ -20,6 +20,10 @@ public sealed class Transaction
 
     public Guid? TransferGroupId { get; set; }
 
+    public Guid? SplitGroupId { get; set; }
+
+    public Guid? ParentTransactionId { get; set; }
+
     public Guid? SavingsGoalId { get; set; }
 
     public Accounts.Account? Account { get; set; }

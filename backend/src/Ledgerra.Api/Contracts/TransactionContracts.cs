@@ -24,6 +24,8 @@ public sealed class CreateTransactionRequest
 
     [MaxLength(400)]
     public string? Note { get; init; }
+
+    public IReadOnlyList<TransactionSplitLineRequest>? SplitLines { get; init; }
 }
 
 public sealed class UpdateTransactionRequest
@@ -45,6 +47,17 @@ public sealed class UpdateTransactionRequest
 
     [MaxLength(400)]
     public string? Note { get; init; }
+
+    public IReadOnlyList<TransactionSplitLineRequest>? SplitLines { get; init; }
+}
+
+public sealed class TransactionSplitLineRequest
+{
+    [Required]
+    public Guid CategoryId { get; init; }
+
+    [Range(0.01, 999999999)]
+    public decimal Amount { get; init; }
 }
 
 public sealed record TransactionResponse(
@@ -56,4 +69,6 @@ public sealed record TransactionResponse(
     DateTime OccurredOnUtc,
     string? Note,
     Guid? TransferGroupId,
-    Guid? SavingsGoalId);
+    Guid? SavingsGoalId,
+    Guid? SplitGroupId,
+    Guid? ParentTransactionId);

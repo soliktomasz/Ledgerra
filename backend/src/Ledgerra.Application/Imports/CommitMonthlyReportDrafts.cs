@@ -201,7 +201,9 @@ public sealed class CommitMonthlyReportDraftsCommandHandler
             transaction.OccurredOnUtc,
             transaction.Note,
             transaction.TransferGroupId,
-            transaction.SavingsGoalId);
+            transaction.SavingsGoalId,
+            transaction.SplitGroupId,
+            transaction.ParentTransactionId);
     }
 }
 
