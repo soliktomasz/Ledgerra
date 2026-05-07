@@ -12,7 +12,8 @@ import type {
   ReportingOverview,
   ReportingRangePreset,
   BackupArchive,
-  Transaction
+  Transaction,
+  SavingsGoal
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
@@ -190,6 +191,14 @@ export const apiClient = {
       body: payload
     });
   },
+
+  getSavingsGoals(token: string) {
+    return request<SavingsGoal[]>("/api/savings-goals", { token });
+  },
+  createSavingsGoal(token: string, payload: { name: string; targetAmount: number; deadlineUtc?: string | null }) {
+    return request<SavingsGoal>("/api/savings-goals", { method: "POST", token, body: payload });
+  },
+
   getTransactions(token: string, query = "") {
     return request<Transaction[]>(`/api/transactions${query}`, { token });
   },

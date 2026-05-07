@@ -76,6 +76,7 @@ public sealed class ApplicationReviewRegressionTests
                 0m,
                 "Expense",
                 new DateTime(2026, 4, 10, 12, 0, 0, DateTimeKind.Utc),
+                null,
                 null),
             CancellationToken.None);
 
@@ -102,6 +103,7 @@ public sealed class ApplicationReviewRegressionTests
                 10m,
                 "Expense",
                 new DateTime(2026, 4, 10, 12, 0, 0, DateTimeKind.Unspecified),
+                null,
                 null),
             CancellationToken.None);
 
@@ -139,6 +141,7 @@ public sealed class ApplicationReviewRegressionTests
                 0m,
                 "Expense",
                 new DateTime(2026, 4, 10, 12, 0, 0, DateTimeKind.Utc),
+                null,
                 null),
             CancellationToken.None);
 
@@ -264,6 +267,7 @@ public sealed class ApplicationReviewRegressionTests
             decimal amount,
             DateTime occurredOnUtc,
             string? note,
+            Guid? savingsGoalId,
             CancellationToken cancellationToken)
         {
             CreatedTransaction = true;
@@ -276,7 +280,8 @@ public sealed class ApplicationReviewRegressionTests
                 Type = TransactionType.TransferOut,
                 OccurredOnUtc = occurredOnUtc,
                 Note = note,
-                TransferGroupId = Guid.NewGuid()
+                TransferGroupId = Guid.NewGuid(),
+                SavingsGoalId = savingsGoalId
             });
         }
 
@@ -292,6 +297,7 @@ public sealed class ApplicationReviewRegressionTests
             decimal amount,
             DateTime occurredOnUtc,
             string? note,
+            Guid? savingsGoalId,
             CancellationToken cancellationToken)
         {
             ReplacedTransaction = true;
@@ -304,7 +310,8 @@ public sealed class ApplicationReviewRegressionTests
                 Type = TransactionType.TransferOut,
                 OccurredOnUtc = occurredOnUtc,
                 Note = note,
-                TransferGroupId = Guid.NewGuid()
+                TransferGroupId = Guid.NewGuid(),
+                SavingsGoalId = savingsGoalId
             });
         }
     }

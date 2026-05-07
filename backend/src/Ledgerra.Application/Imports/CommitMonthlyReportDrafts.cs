@@ -200,7 +200,8 @@ public sealed class CommitMonthlyReportDraftsCommandHandler
             transaction.Type.ToString(),
             transaction.OccurredOnUtc,
             transaction.Note,
-            transaction.TransferGroupId);
+            transaction.TransferGroupId,
+            transaction.SavingsGoalId);
     }
 }
 

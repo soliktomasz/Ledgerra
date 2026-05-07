@@ -2,6 +2,7 @@ using Ledgerra.Domain.Accounts;
 using Ledgerra.Domain.Ai;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
+using Ledgerra.Domain.Goals;
 using Ledgerra.Domain.Imports;
 using Ledgerra.Domain.Transactions;
 
@@ -28,6 +29,8 @@ public sealed class AppUser
     public List<Transaction> Transactions { get; set; } = [];
 
     public List<BudgetPeriod> BudgetPeriods { get; set; } = [];
+
+    public List<SavingsGoal> SavingsGoals { get; set; } = [];
 
     public List<RefreshToken> RefreshTokens { get; set; } = [];
 

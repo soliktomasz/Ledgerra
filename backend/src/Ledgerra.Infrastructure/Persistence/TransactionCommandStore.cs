@@ -60,6 +60,7 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
         decimal amount,
         DateTime occurredOnUtc,
         string? note,
+        Guid? savingsGoalId,
         CancellationToken cancellationToken)
     {
         EnsureUtc(occurredOnUtc);
@@ -75,7 +76,8 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
             Type = TransactionType.TransferOut,
             Note = note,
             OccurredOnUtc = occurredOnUtc,
-            TransferGroupId = transferGroupId
+            TransferGroupId = transferGroupId,
+            SavingsGoalId = savingsGoalId
         };
 
         var transferIn = new Transaction
@@ -111,6 +113,7 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
         decimal amount,
         DateTime occurredOnUtc,
         string? note,
+        Guid? savingsGoalId,
         CancellationToken cancellationToken)
     {
         EnsureUtc(occurredOnUtc);
@@ -127,7 +130,8 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
             Type = TransactionType.TransferOut,
             Note = note,
             OccurredOnUtc = occurredOnUtc,
-            TransferGroupId = transferGroupId
+            TransferGroupId = transferGroupId,
+            SavingsGoalId = savingsGoalId
         };
 
         var transferIn = new Transaction

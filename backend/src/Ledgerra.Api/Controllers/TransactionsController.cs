@@ -69,7 +69,8 @@ public sealed class TransactionsController : ControllerBase
                 request.Amount,
                 request.Type,
                 request.OccurredOnUtc,
-                request.Note),
+                request.Note,
+                request.SavingsGoalId),
             cancellationToken);
 
         if (result.IsNotFound)
@@ -103,7 +104,8 @@ public sealed class TransactionsController : ControllerBase
                 request.Amount,
                 request.Type,
                 request.OccurredOnUtc,
-                request.Note),
+                request.Note,
+                request.SavingsGoalId),
             cancellationToken);
 
         if (result.IsNotFound)
@@ -150,6 +152,7 @@ public sealed class TransactionsController : ControllerBase
             transaction.Type,
             transaction.OccurredOnUtc,
             transaction.Note,
-            transaction.TransferGroupId);
+            transaction.TransferGroupId,
+            transaction.SavingsGoalId);
     }
 }
