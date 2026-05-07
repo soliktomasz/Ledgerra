@@ -279,4 +279,76 @@ describe("TransactionsPage", () => {
     expect(screen.queryByLabelText("New category name")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Destination account")).toBeInTheDocument();
   });
+
+  test("supports select-all bulk delete, category assignment, and account move", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsPage />);
+
+    await user.click(await screen.findByLabelText("Select all in current filtered view"));
+    await user.click(screen.getByRole("button", { name: "Bulk delete" }));
+    await waitFor(() => expect(mocks.deleteTransaction).toHaveBeenCalledTimes(2));
+
+    await user.click(screen.getByLabelText("Select Market"));
+    await user.selectOptions(screen.getByLabelText("Bulk category"), "category-3");
+    await user.click(screen.getByRole("button", { name: "Apply category" }));
+    await waitFor(() => expect(mocks.updateTransaction).toHaveBeenCalledWith("token", "transaction-1", expect.objectContaining({ categoryId: "category-3" })));
+
+    await user.click(screen.getByLabelText("Select Market"));
+    await user.selectOptions(screen.getByLabelText("Move to account"), "account-2");
+    await user.click(screen.getByRole("button", { name: "Move transactions" }));
+    await waitFor(() => expect(mocks.createTransaction).toHaveBeenCalledWith("token", expect.objectContaining({ accountId: "account-2" })));
+  });
+
+  test("deduplicates transfer group deletes in bulk actions", async () => {
+    const user = userEvent.setup();
+    mocks.getTransactions.mockResolvedValue([
+      {
+        id: "transfer-out",
+        accountId: "account-1",
+        categoryId: null,
+        amount: 100,
+        type: "TransferOut",
+        occurredOnUtc: "2026-04-15T12:00:00Z",
+        note: "Savings move",
+        transferGroupId: "transfer-group-1"
+      },
+      {
+        id: "transfer-in",
+        accountId: "account-2",
+        categoryId: null,
+        amount: 100,
+        type: "TransferIn",
+        occurredOnUtc: "2026-04-15T12:00:00Z",
+        note: "Savings move",
+        transferGroupId: "transfer-group-1"
+      }
+    ]);
+
+    render(<TransactionsPage />);
+
+    await user.click(await screen.findByLabelText("Select all in current filtered view"));
+    await user.click(screen.getByRole("button", { name: "Bulk delete" }));
+
+    await waitFor(() => expect(mocks.deleteTransaction).toHaveBeenCalledTimes(1));
+    expect(mocks.deleteTransaction).toHaveBeenCalledWith("token", "transfer-out");
+  });
+
+  test("limits bulk category assignment to one transaction kind", async () => {
+    const user = userEvent.setup();
+    render(<TransactionsPage />);
+
+    await user.click(await screen.findByLabelText("Select all in current filtered view"));
+
+    expect(screen.getByRole("button", { name: "Apply category" })).toBeDisabled();
+    expect(screen.getByLabelText("Bulk category")).toBeDisabled();
+
+    await user.click(screen.getByLabelText("Select Market"));
+    await user.selectOptions(screen.getByLabelText("Bulk category"), "category-2");
+    await user.click(screen.getByRole("button", { name: "Apply category" }));
+
+    await waitFor(() => {
+      expect(mocks.updateTransaction).toHaveBeenCalledWith("token", "transaction-2", expect.objectContaining({ categoryId: "category-2" }));
+    });
+    expect(mocks.updateTransaction).not.toHaveBeenCalledWith("token", "transaction-1", expect.anything());
+  });
 });
