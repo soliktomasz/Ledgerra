@@ -67,6 +67,7 @@ vi.mock("../hooks/useLedgerraData", () => ({
 describe("TransactionsPage", () => {
   beforeEach(() => {
     cleanup();
+    window.history.replaceState(null, "", "/transactions");
     vi.clearAllMocks();
     mocks.getTransactions.mockResolvedValue([
       {
@@ -105,11 +106,13 @@ describe("TransactionsPage", () => {
 
     render(<TransactionsPage />);
 
-    await user.selectOptions(screen.getByLabelText("Filter by account"), "account-1");
-    await user.selectOptions(screen.getByLabelText("Filter by category"), "category-1");
+    await user.selectOptions(screen.getByLabelText("Filter by account"), ["account-1"]);
+    await user.selectOptions(screen.getByLabelText("Filter by category"), ["category-1"]);
     await user.selectOptions(screen.getByLabelText("Filter by type"), "Expense");
     fireEvent.change(screen.getByLabelText("From date"), { target: { value: "2026-04-01" } });
     fireEvent.change(screen.getByLabelText("To date"), { target: { value: "2026-04-30" } });
+    fireEvent.change(screen.getByLabelText("Min amount"), { target: { value: "10" } });
+    fireEvent.change(screen.getByLabelText("Max amount"), { target: { value: "100" } });
     await user.type(screen.getByLabelText("Search notes"), "market");
 
     await waitFor(() => {
@@ -121,6 +124,11 @@ describe("TransactionsPage", () => {
 
     expect(screen.getByText("Market")).toBeInTheDocument();
     expect(screen.queryByText("Payroll")).not.toBeInTheDocument();
+    expect(window.location.search).toContain("accountId=account-1");
+    expect(window.location.search).toContain("categoryId=category-1");
+    expect(window.location.search).toContain("minAmount=10");
+    expect(window.location.search).toContain("maxAmount=100");
+    expect(window.location.search).toContain("q=market");
   });
 
   test("edits a transaction from the ledger", async () => {

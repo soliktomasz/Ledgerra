@@ -35,13 +35,16 @@ export function TransactionsPage() {
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>({});
-  const [filterAccountId, setFilterAccountId] = useState("");
-  const [filterCategoryId, setFilterCategoryId] = useState("");
-  const [filterType, setFilterType] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [noteSearch, setNoteSearch] = useState("");
-  const [showUncategorizedOnly, setShowUncategorizedOnly] = useState(() => new URLSearchParams(window.location.search).get("view") === "uncategorized");
+  const initialQuery = useMemo(() => new URLSearchParams(window.location.search), []);
+  const [filterAccountIds, setFilterAccountIds] = useState<string[]>(() => initialQuery.getAll("accountId"));
+  const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>(() => initialQuery.getAll("categoryId"));
+  const [filterType, setFilterType] = useState(() => initialQuery.get("type") ?? "");
+  const [fromDate, setFromDate] = useState(() => initialQuery.get("from") ?? "");
+  const [toDate, setToDate] = useState(() => initialQuery.get("to") ?? "");
+  const [minAmount, setMinAmount] = useState(() => initialQuery.get("minAmount") ?? "");
+  const [maxAmount, setMaxAmount] = useState(() => initialQuery.get("maxAmount") ?? "");
+  const [noteSearch, setNoteSearch] = useState(() => initialQuery.get("q") ?? "");
+  const [showUncategorizedOnly, setShowUncategorizedOnly] = useState(() => initialQuery.get("view") === "uncategorized");
   const [ledgerTransactions, setLedgerTransactions] = useState<Transaction[]>(transactions);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -52,11 +55,11 @@ export function TransactionsPage() {
 
   const filterQuery = useMemo(() => {
     const params = new URLSearchParams();
-    if (filterAccountId) {
-      params.set("accountId", filterAccountId);
+    if (filterAccountIds.length === 1) {
+      params.set("accountId", filterAccountIds[0]);
     }
-    if (filterCategoryId && filterType !== "Transfer") {
-      params.set("categoryId", filterCategoryId);
+    if (filterCategoryIds.length === 1 && filterType !== "Transfer") {
+      params.set("categoryId", filterCategoryIds[0]);
     }
     if (filterType && filterType !== "Transfer") {
       params.set("type", filterType);
@@ -70,7 +73,24 @@ export function TransactionsPage() {
 
     const query = params.toString();
     return query ? `?${query}` : "";
-  }, [filterAccountId, filterCategoryId, filterType, fromDate, toDate]);
+  }, [filterAccountIds, filterCategoryIds, filterType, fromDate, toDate]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    filterAccountIds.forEach((id) => params.append("accountId", id));
+    if (filterType !== "Transfer") {
+      filterCategoryIds.forEach((id) => params.append("categoryId", id));
+    }
+    if (filterType) params.set("type", filterType);
+    if (fromDate) params.set("from", fromDate);
+    if (toDate) params.set("to", toDate);
+    if (minAmount) params.set("minAmount", minAmount);
+    if (maxAmount) params.set("maxAmount", maxAmount);
+    if (noteSearch.trim()) params.set("q", noteSearch.trim());
+    if (showUncategorizedOnly) params.set("view", "uncategorized");
+    const query = params.toString();
+    window.history.replaceState(null, "", query ? `?${query}` : window.location.pathname);
+  }, [filterAccountIds, filterCategoryIds, filterType, fromDate, toDate, minAmount, maxAmount, noteSearch, showUncategorizedOnly]);
 
   const loadTransactions = useCallback(async () => {
     if (!auth?.accessToken) {
@@ -92,8 +112,22 @@ export function TransactionsPage() {
 
   const visibleTransactions = useMemo(() => {
     const normalizedSearch = noteSearch.trim().toLowerCase();
+    const min = minAmount ? Number(minAmount) : null;
+    const max = maxAmount ? Number(maxAmount) : null;
     return ledgerTransactions.filter((transaction) => {
       if (filterType === "Transfer" && !transaction.type.startsWith("Transfer")) {
+        return false;
+      }
+      if (filterAccountIds.length > 0 && !filterAccountIds.includes(transaction.accountId)) {
+        return false;
+      }
+      if (filterType !== "Transfer" && filterCategoryIds.length > 0 && !filterCategoryIds.includes(transaction.categoryId ?? "")) {
+        return false;
+      }
+      if (min !== null && transaction.amount < min) {
+        return false;
+      }
+      if (max !== null && transaction.amount > max) {
         return false;
       }
 
@@ -107,7 +141,7 @@ export function TransactionsPage() {
 
       return (transaction.note ?? "").toLowerCase().includes(normalizedSearch);
     });
-  }, [filterType, ledgerTransactions, noteSearch, showUncategorizedOnly]);
+  }, [filterType, filterAccountIds, filterCategoryIds, ledgerTransactions, minAmount, maxAmount, noteSearch, showUncategorizedOnly]);
 
   const expenseCategories = useMemo(
     () => categories.filter((category) => category.kind === "Expense"),
@@ -259,8 +293,7 @@ export function TransactionsPage() {
           <div className="transaction-filters">
             <label>
               {t("transactions.filterByAccount")}
-              <select value={filterAccountId} onChange={(event) => setFilterAccountId(event.target.value)}>
-                <option value="">{t("common.allAccounts")}</option>
+              <select multiple value={filterAccountIds} onChange={(event) => setFilterAccountIds(Array.from(event.target.selectedOptions, (option) => option.value))}>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.name}
@@ -270,8 +303,12 @@ export function TransactionsPage() {
             </label>
             <label>
               {t("transactions.filterByCategory")}
-              <select value={filterCategoryId} onChange={(event) => setFilterCategoryId(event.target.value)} disabled={filterType === "Transfer"}>
-                <option value="">{t("common.allCategories")}</option>
+              <select
+                multiple
+                value={filterCategoryIds}
+                onChange={(event) => setFilterCategoryIds(Array.from(event.target.selectedOptions, (option) => option.value))}
+                disabled={filterType === "Transfer"}
+              >
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -301,6 +338,14 @@ export function TransactionsPage() {
             <label>
               {t("transactions.searchNotes")}
               <input value={noteSearch} onChange={(event) => setNoteSearch(event.target.value)} placeholder={t("transactions.searchPlaceholder")} />
+            </label>
+            <label>
+              Min amount
+              <input value={minAmount} onChange={(event) => setMinAmount(event.target.value)} type="number" step="0.01" />
+            </label>
+            <label>
+              Max amount
+              <input value={maxAmount} onChange={(event) => setMaxAmount(event.target.value)} type="number" step="0.01" />
             </label>
             <label className="inline-checkbox">
               <input
