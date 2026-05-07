@@ -51,6 +51,12 @@ public sealed class UpdateTransactionRequest
     public IReadOnlyList<TransactionSplitLineRequest>? SplitLines { get; init; }
 }
 
+public sealed class MoveTransactionAccountRequest
+{
+    [Required]
+    public Guid DestinationAccountId { get; init; }
+}
+
 public sealed class TransactionSplitLineRequest
 {
     [Required]

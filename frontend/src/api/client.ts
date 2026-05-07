@@ -24,6 +24,14 @@ type RequestOptions = {
   token?: string | null;
 };
 
+type UnauthorizedListener = () => void;
+
+const unauthorizedListeners = new Set<UnauthorizedListener>();
+
+function notifyUnauthorized() {
+  unauthorizedListeners.forEach((listener) => listener());
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? "GET",
@@ -35,6 +43,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      notifyUnauthorized();
+    }
+
     throw new Error(await readErrorMessage(response));
   }
 
@@ -70,6 +82,12 @@ async function readErrorMessage(response: Response): Promise<string> {
 }
 
 export const apiClient = {
+  onUnauthorized(listener: UnauthorizedListener) {
+    unauthorizedListeners.add(listener);
+    return () => {
+      unauthorizedListeners.delete(listener);
+    };
+  },
   register(email: string, password: string) {
     return request<AuthPayload>("/api/auth/register", {
       method: "POST",
@@ -244,6 +262,13 @@ export const apiClient = {
       token
     });
   },
+  moveTransactionAccount(token: string, transactionId: string, destinationAccountId: string) {
+    return request<Transaction>(`/api/transactions/${transactionId}/move-account`, {
+      method: "POST",
+      token,
+      body: { destinationAccountId }
+    });
+  },
   analyzeMonthlyReport(token: string, payload: { accountId: string; month: string; provider: string; file: File }) {
     const body = new FormData();
     body.append("accountId", payload.accountId);
@@ -257,6 +282,10 @@ export const apiClient = {
       body
     }).then(async (response) => {
       if (!response.ok) {
+        if (response.status === 401) {
+          notifyUnauthorized();
+        }
+
         throw new Error(await readErrorMessage(response));
       }
 

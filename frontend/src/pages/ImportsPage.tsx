@@ -21,7 +21,11 @@ function getErrorMessage(exception: unknown, fallback: string) {
 export function ImportsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
-  const { accounts, categories, aiSettings, refresh } = useLedgerraData();
+  const { accounts, categories, aiSettings, refresh } = useLedgerraData({
+    accounts: true,
+    categories: true,
+    aiSettings: true
+  });
   const [accountId, setAccountId] = useState("");
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [provider, setProvider] = useState("OpenAi");

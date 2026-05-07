@@ -12,7 +12,11 @@ export function BudgetsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
   const { selectedYear, selectedMonthNumber } = useMonthSelection();
-  const { categories, budget, profile, refresh } = useLedgerraData();
+  const { categories, budget, profile, refresh } = useLedgerraData({
+    categories: true,
+    budget: true,
+    profile: true
+  });
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const expenseCategories = useMemo(
     () => categories.filter((category) => category.kind === "Expense"),

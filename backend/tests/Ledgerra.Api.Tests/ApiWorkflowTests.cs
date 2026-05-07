@@ -244,6 +244,91 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task AuthenticatedUser_CanMoveNonTransferTransactionToAnotherAccount()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var savingsId = await CreateAccountAsync(client, "Savings", "Savings", 600m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var createResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-10T08:00:00Z",
+            note = "Weekly groceries"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var createdPayload = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var transactionId = createdPayload.GetProperty("id").GetGuid();
+
+        var moveResponse = await client.PostAsJsonAsync($"/api/transactions/{transactionId}/move-account", new
+        {
+            destinationAccountId = savingsId
+        });
+
+        Assert.Equal(HttpStatusCode.OK, moveResponse.StatusCode);
+        var movedPayload = await moveResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(transactionId, movedPayload.GetProperty("id").GetGuid());
+        Assert.Equal(savingsId, movedPayload.GetProperty("accountId").GetGuid());
+
+        var checkingTransactionsResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}");
+        var checkingTransactions = await checkingTransactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, checkingTransactions.GetArrayLength());
+
+        var savingsTransactionsResponse = await client.GetAsync($"/api/transactions?accountId={savingsId}");
+        var savingsTransactions = await savingsTransactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(savingsTransactions.EnumerateArray());
+        Assert.Equal(transactionId, savingsTransactions[0].GetProperty("id").GetGuid());
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CannotMoveTransferTransactionToAnotherAccount()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var savingsId = await CreateAccountAsync(client, "Savings", "Savings", 600m);
+        var jointId = await CreateAccountAsync(client, "Shared Household", "Joint", 600m);
+
+        var createResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            destinationAccountId = savingsId,
+            amount = 200m,
+            type = "Transfer",
+            occurredOnUtc = "2026-04-06T08:00:00Z",
+            note = "Move to savings"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var createdPayload = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var transactionId = createdPayload.GetProperty("id").GetGuid();
+
+        var moveResponse = await client.PostAsJsonAsync($"/api/transactions/{transactionId}/move-account", new
+        {
+            destinationAccountId = jointId
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, moveResponse.StatusCode);
+
+        var checkingTransactionsResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}");
+        var checkingTransactions = await checkingTransactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(checkingTransactions.EnumerateArray());
+        Assert.Equal(transactionId, checkingTransactions[0].GetProperty("id").GetGuid());
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanFilterTransactionsAndGetTransactionById()
     {
         using var client = _factory.CreateClient();

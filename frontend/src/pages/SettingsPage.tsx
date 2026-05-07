@@ -18,7 +18,12 @@ export function SettingsPage() {
   const { auth } = useAuth();
   const { setLanguageCode, t } = useI18n();
   const { themePreference, resolvedTheme, setThemePreference } = useTheme();
-  const { profile, aiSettings, categories, importRules, refresh } = useLedgerraData();
+  const { profile, aiSettings, categories, importRules, refresh } = useLedgerraData({
+    profile: true,
+    aiSettings: true,
+    categories: true,
+    importRules: true
+  });
   const [preferredCurrencyCode, setPreferredCurrencyCode] = useState("USD");
   const [preferredLanguageCode, setPreferredLanguageCode] = useState("en");
   const [defaultProvider, setDefaultProvider] = useState("OpenAi");

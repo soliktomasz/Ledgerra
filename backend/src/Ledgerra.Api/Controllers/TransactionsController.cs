@@ -16,19 +16,22 @@ public sealed class TransactionsController : ControllerBase
     private readonly GetTransactionsQueryHandler _getTransactionsQueryHandler;
     private readonly UpdateTransactionCommandHandler _updateTransactionCommandHandler;
     private readonly DeleteTransactionCommandHandler _deleteTransactionCommandHandler;
+    private readonly MoveTransactionAccountCommandHandler _moveTransactionAccountCommandHandler;
 
     public TransactionsController(
         CreateTransactionCommandHandler createTransactionCommandHandler,
         GetTransactionByIdQueryHandler getTransactionByIdQueryHandler,
         GetTransactionsQueryHandler getTransactionsQueryHandler,
         UpdateTransactionCommandHandler updateTransactionCommandHandler,
-        DeleteTransactionCommandHandler deleteTransactionCommandHandler)
+        DeleteTransactionCommandHandler deleteTransactionCommandHandler,
+        MoveTransactionAccountCommandHandler moveTransactionAccountCommandHandler)
     {
         _createTransactionCommandHandler = createTransactionCommandHandler;
         _getTransactionByIdQueryHandler = getTransactionByIdQueryHandler;
         _getTransactionsQueryHandler = getTransactionsQueryHandler;
         _updateTransactionCommandHandler = updateTransactionCommandHandler;
         _deleteTransactionCommandHandler = deleteTransactionCommandHandler;
+        _moveTransactionAccountCommandHandler = moveTransactionAccountCommandHandler;
     }
 
     [HttpGet]
@@ -108,6 +111,35 @@ public sealed class TransactionsController : ControllerBase
                 request.Note,
                 request.SavingsGoalId,
                 request.SplitLines?.Select(line => new TransactionSplitLine(line.CategoryId, line.Amount)).ToList()),
+            cancellationToken);
+
+        if (result.IsNotFound)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = result.NotFoundTitle
+            });
+        }
+
+        if (result.HasValidationError)
+        {
+            return this.ValidationError(new Dictionary<string, string[]>
+            {
+                [result.ValidationKey!] = [result.ValidationMessage!]
+            });
+        }
+
+        return Ok(MapTransaction(result.Transaction!));
+    }
+
+    [HttpPost("{id:guid}/move-account")]
+    public async Task<ActionResult<TransactionResponse>> MoveAccount(
+        Guid id,
+        MoveTransactionAccountRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _moveTransactionAccountCommandHandler.HandleAsync(
+            new MoveTransactionAccountCommand(User.GetRequiredUserId(), id, request.DestinationAccountId),
             cancellationToken);
 
         if (result.IsNotFound)

@@ -52,6 +52,7 @@ builder.Services.AddScoped<IMonthlyReportAnalyzer, MonthlyReportAnalysisAdapter>
 builder.Services.AddScoped<IMonthlyReportDuplicateMarker, MonthlyReportDuplicateMarkerAdapter>();
 builder.Services.AddScoped<CreateTransactionCommandHandler>();
 builder.Services.AddScoped<DeleteTransactionCommandHandler>();
+builder.Services.AddScoped<MoveTransactionAccountCommandHandler>();
 builder.Services.AddScoped<GetProfileQueryHandler>();
 builder.Services.AddScoped<IMonthlyReportDuplicateReviewer, MonthlyReportDuplicateReviewerAdapter>();
 builder.Services.AddScoped<IMonthlyReportImportCommitStore, MonthlyReportImportCommitStore>();

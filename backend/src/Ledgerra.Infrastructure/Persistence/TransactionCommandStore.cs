@@ -56,6 +56,31 @@ public sealed class TransactionCommandStore : ITransactionCommandStore
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<Transaction> MoveToAccountAsync(
+        Transaction existing,
+        Guid destinationAccountId,
+        CancellationToken cancellationToken)
+    {
+        if (existing.SplitGroupId.HasValue)
+        {
+            var linkedTransactions = await _dbContext.Transactions
+                .Where(item => item.UserId == existing.UserId && item.SplitGroupId == existing.SplitGroupId.Value)
+                .ToListAsync(cancellationToken);
+
+            foreach (var transaction in linkedTransactions)
+            {
+                transaction.AccountId = destinationAccountId;
+            }
+        }
+        else
+        {
+            existing.AccountId = destinationAccountId;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return existing;
+    }
+
     public async Task<Transaction> CreateAsync(
         Transaction transaction,
         CancellationToken cancellationToken,
