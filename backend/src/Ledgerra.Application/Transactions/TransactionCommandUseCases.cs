@@ -59,6 +59,7 @@ public interface ITransactionCommandStore
         decimal amount,
         DateTime occurredOnUtc,
         string? note,
+        Guid? savingsGoalId,
         CancellationToken cancellationToken);
 
     Task<Transaction> ReplaceAsync(Transaction existing, Transaction replacement, CancellationToken cancellationToken);
@@ -69,6 +70,7 @@ public interface ITransactionCommandStore
         decimal amount,
         DateTime occurredOnUtc,
         string? note,
+        Guid? savingsGoalId,
         CancellationToken cancellationToken);
 }
 
@@ -103,6 +105,7 @@ public sealed class CreateTransactionCommandHandler
                 command.Amount,
                 command.OccurredOnUtc,
                 command.Note,
+                command.SavingsGoalId,
                 cancellationToken);
 
             await RefreshSnapshotsAsync(command.UserId, command.OccurredOnUtc, null, cancellationToken);
@@ -265,7 +268,8 @@ public sealed class UpdateTransactionCommandHandler
             command.Amount,
             command.Type,
             command.OccurredOnUtc,
-            command.Note);
+            command.Note,
+            command.SavingsGoalId);
 
         var validation = await _createTransactionCommandHandler.ValidateAsync(replacementCommand, cancellationToken);
         if (validation is not null)
@@ -281,6 +285,7 @@ public sealed class UpdateTransactionCommandHandler
                 replacementCommand.Amount,
                 replacementCommand.OccurredOnUtc,
                 replacementCommand.Note,
+                replacementCommand.SavingsGoalId,
                 cancellationToken);
 
             await RefreshSnapshotsAsync(command.UserId, existing.OccurredOnUtc, replacementCommand.OccurredOnUtc, null, cancellationToken);
@@ -298,7 +303,8 @@ public sealed class UpdateTransactionCommandHandler
                 Amount = replacementCommand.Amount,
                 Type = CreateTransactionCommandHandler.ParseNonTransferType(replacementCommand.Type),
                 Note = replacementCommand.Note,
-                OccurredOnUtc = replacementCommand.OccurredOnUtc
+                OccurredOnUtc = replacementCommand.OccurredOnUtc,
+                SavingsGoalId = replacementCommand.SavingsGoalId
             },
             cancellationToken);
 

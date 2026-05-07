@@ -10,7 +10,7 @@ public sealed record SavingsGoalResponse(
     decimal ProgressPercent,
     DateTime? DeadlineUtc);
 
-public sealed class CreateSavingsGoalRequest
+public class CreateSavingsGoalRequest
 {
     [Required]
     [MaxLength(120)]

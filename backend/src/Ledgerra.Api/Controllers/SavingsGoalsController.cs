@@ -93,7 +93,7 @@ public sealed class SavingsGoalsController : ControllerBase
     private async Task<Dictionary<Guid, decimal>> GetProgressByGoalAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await _dbContext.Transactions
-            .Where(t => t.UserId == userId && t.SavingsGoalId != null && t.Type == Domain.Transactions.TransactionType.Transfer)
+            .Where(t => t.UserId == userId && t.SavingsGoalId != null && t.Type == Domain.Transactions.TransactionType.TransferOut)
             .GroupBy(t => t.SavingsGoalId!.Value)
             .Select(group => new { GoalId = group.Key, Amount = group.Sum(t => t.Amount) })
             .ToDictionaryAsync(item => item.GoalId, item => item.Amount, cancellationToken);
