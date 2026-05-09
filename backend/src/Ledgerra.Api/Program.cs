@@ -15,7 +15,6 @@ using Ledgerra.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -124,8 +123,22 @@ builder.Services
                     return;
                 }
 
-                token.LastUsedAtUtc = DateTime.UtcNow;
-                await dbContext.SaveChangesAsync(context.HttpContext.RequestAborted);
+                var now = DateTime.UtcNow;
+                if (token.LastUsedAtUtc == null || (now - token.LastUsedAtUtc.Value) > TimeSpan.FromHours(1))
+                {
+                    token.LastUsedAtUtc = now;
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await dbContext.SaveChangesAsync();
+                        }
+                        catch
+                        {
+                            // Fail silently - token validation should not fail due to DB save errors
+                        }
+                    });
+                }
             }
         };
     });

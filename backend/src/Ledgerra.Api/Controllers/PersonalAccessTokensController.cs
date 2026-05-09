@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
 using Ledgerra.Domain.Auth;
@@ -46,15 +48,24 @@ public sealed class PersonalAccessTokensController : ControllerBase
             return NotFound();
         }
 
+        var trimmedName = request.Name?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedName))
+        {
+            ModelState.AddModelError(nameof(request.Name), "Token name cannot be empty or whitespace.");
+            return BadRequest(ModelState);
+        }
+
         var tokenId = Guid.NewGuid();
         var plainTextToken = _jwtTokenService.IssuePersonalAccessToken(user, tokenId);
+        var tokenPrefixBytes = SHA256.HashData(Encoding.UTF8.GetBytes(plainTextToken));
+        var tokenPrefix = Convert.ToHexString(tokenPrefixBytes)[..16];
         var token = new PersonalAccessToken
         {
             Id = tokenId,
             UserId = user.Id,
-            Name = request.Name.Trim(),
+            Name = trimmedName,
             TokenHash = _jwtTokenService.HashRefreshToken(plainTextToken),
-            TokenPrefix = plainTextToken[..16]
+            TokenPrefix = tokenPrefix
         };
 
         _dbContext.PersonalAccessTokens.Add(token);
@@ -74,7 +85,10 @@ public sealed class PersonalAccessTokensController : ControllerBase
             return NotFound();
         }
 
-        token.RevokedAtUtc = DateTime.UtcNow;
+        if (token.RevokedAtUtc == null)
+        {
+            token.RevokedAtUtc = DateTime.UtcNow;
+        }
         await _dbContext.SaveChangesAsync(cancellationToken);
         return NoContent();
     }

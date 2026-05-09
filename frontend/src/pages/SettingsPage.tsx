@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
@@ -179,14 +179,14 @@ export function SettingsPage() {
     }
   };
 
-  const loadPersonalAccessTokens = async () => {
+  const loadPersonalAccessTokens = useCallback(async () => {
     if (!auth?.accessToken) {
       return;
     }
 
     const tokens = await apiClient.getPersonalAccessTokens(auth.accessToken);
     setPersonalAccessTokens(tokens);
-  };
+  }, [auth?.accessToken]);
 
   const handleCreatePersonalAccessToken = async (event: FormEvent) => {
     event.preventDefault();
@@ -211,7 +211,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     loadPersonalAccessTokens();
-  }, [auth?.accessToken]);
+  }, [loadPersonalAccessTokens]);
 
   const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
   const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
