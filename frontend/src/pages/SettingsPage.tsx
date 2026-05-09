@@ -3,12 +3,14 @@ import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
-import { useTheme, type ThemePreference } from "../state/ThemeContext";
+import { accentPresets, useTheme, type AccentColor, type ThemePreference } from "../state/ThemeContext";
 import type { ImportRule } from "../types";
 import { AccountsIcon, CashFlowIcon, CategoryIcon, ImportsIcon, ReportsIcon, SettingsIcon } from "../ui/icons";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 import { normalizeLanguageCode, supportedLanguages } from "../utils/language";
+
+type SettingsSection = "appearance" | "region" | "session" | "ai" | "rules" | "backup";
 
 function getErrorMessage(exception: unknown, fallback: string) {
   return exception instanceof Error ? exception.message : fallback;
@@ -17,7 +19,8 @@ function getErrorMessage(exception: unknown, fallback: string) {
 export function SettingsPage() {
   const { auth } = useAuth();
   const { setLanguageCode, t } = useI18n();
-  const { themePreference, resolvedTheme, setThemePreference } = useTheme();
+  const { themePreference, resolvedTheme, accentColor, setThemePreference, setAccentColor } = useTheme();
+  const [activeSection, setActiveSection] = useState<SettingsSection>("appearance");
   const { profile, aiSettings, categories, importRules, refresh } = useLedgerraData({
     profile: true,
     aiSettings: true,
@@ -184,27 +187,36 @@ export function SettingsPage() {
     {
       label: t("settings.applicationGroup"),
       items: [
-        { href: "#settings-appearance", label: t("settings.navAppearance"), icon: SettingsIcon },
-        { href: "#settings-region", label: t("settings.navRegion"), icon: CashFlowIcon },
-        { href: "#settings-session", label: t("settings.navSession"), icon: AccountsIcon }
+        { section: "appearance" as SettingsSection, label: t("settings.navAppearance"), icon: SettingsIcon },
+        { section: "region" as SettingsSection, label: t("settings.navRegion"), icon: CashFlowIcon },
+        { section: "session" as SettingsSection, label: t("settings.navSession"), icon: AccountsIcon }
       ]
     },
     {
       label: t("settings.dataGroup"),
       items: [
-        { href: "#settings-ai", label: t("settings.navAi"), icon: ReportsIcon, badge: configuredAiProviderCount },
-        { href: "#settings-rules", label: t("settings.navRules"), icon: CategoryIcon, badge: importRules.length },
-        { href: "#settings-backup", label: t("settings.navBackup"), icon: ImportsIcon }
+        { section: "ai" as SettingsSection, label: t("settings.navAi"), icon: ReportsIcon, badge: configuredAiProviderCount },
+        { section: "rules" as SettingsSection, label: t("settings.navRules"), icon: CategoryIcon, badge: importRules.length },
+        { section: "backup" as SettingsSection, label: t("settings.navBackup"), icon: ImportsIcon }
       ]
     },
     {
       label: t("settings.accountGroup"),
       items: [
-        { href: "#settings-session", label: t("settings.profile"), icon: AccountsIcon },
-        { href: "#settings-session", label: t("settings.security"), icon: SettingsIcon }
+        { section: "session" as SettingsSection, label: t("settings.profile"), icon: AccountsIcon },
+        { section: "session" as SettingsSection, label: t("settings.security"), icon: SettingsIcon }
       ]
     }
   ];
+
+  const sectionBreadcrumbs: Record<SettingsSection, string> = {
+    appearance: t("settings.appearance"),
+    region: t("settings.regionalPreferences"),
+    session: t("settings.currentSession"),
+    ai: t("settings.aiProviders"),
+    rules: t("settings.importRules"),
+    backup: t("settings.backupAndRestore")
+  };
 
   const handleExportBackup = async () => {
     if (!auth?.accessToken) {
@@ -267,7 +279,7 @@ export function SettingsPage() {
             <span>/</span>
             <span>{t("settings.eyebrow")}</span>
             <span>/</span>
-            <strong>{t("settings.appearanceBreadcrumb")}</strong>
+            <strong>{sectionBreadcrumbs[activeSection]}</strong>
           </div>
           <h1>{t("settings.title")}</h1>
           <p>{t("settings.description")}</p>
@@ -285,278 +297,284 @@ export function SettingsPage() {
             <div className="settings-subnav-group" key={group.label}>
               <span>{group.label}</span>
               {group.items.map((item) => (
-                <a href={item.href} className="settings-subnav-link" key={`${group.label}-${item.label}`}>
+                <button
+                  type="button"
+                  className={`settings-subnav-link${activeSection === item.section ? " active" : ""}`}
+                  key={`${group.label}-${item.label}`}
+                  onClick={() => setActiveSection(item.section)}
+                >
                   <item.icon />
                   <span>{item.label}</span>
                   {typeof item.badge === "number" ? <strong>{item.badge}</strong> : null}
-                </a>
+                </button>
               ))}
             </div>
           ))}
         </aside>
 
         <div className="settings-main-panels">
-          <div className="settings-grid settings-grid--preferences">
-            <div id="settings-appearance">
-              <SectionCard title={t("settings.appearance")} icon={<SettingsIcon />}>
-          <form className="stack-form settings-compact-form" onSubmit={(event) => event.preventDefault()}>
-            <label>
-              {t("settings.theme")}
-              <select
-                value={themePreference}
-                onChange={(event) => setThemePreference(event.target.value as ThemePreference)}
-              >
-                <option value="system">{t("settings.themeSystem")}</option>
-                <option value="light">{t("settings.themeLight")}</option>
-                <option value="dark">{t("settings.themeDark")}</option>
-              </select>
-            </label>
-            <p className="helper-text">
-              {t("settings.themeDescription", {
-                theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
-              })}
-            </p>
-            <div className="settings-choice-stack" aria-hidden="true">
-              <span>{t("settings.accent")}</span>
-              <div className="settings-swatch-row">
-                <i style={{ background: "#34D9A8" }} />
-                <i style={{ background: "#7AB8F5" }} />
-                <i style={{ background: "#F5C56B" }} />
-                <i style={{ background: "#A78BFA" }} />
-                <i style={{ background: "#F07A6A" }} />
-              </div>
-            </div>
-          </form>
-              </SectionCard>
-            </div>
-
-            <div id="settings-region">
-              <SectionCard title={t("settings.regionalPreferences")} icon={<CashFlowIcon />}>
-          <form className="settings-form-grid" onSubmit={handleSubmit}>
-            <label>
-              {t("settings.preferredCurrency")}
-              <select value={preferredCurrencyCode} onChange={(event) => setPreferredCurrencyCode(event.target.value)}>
-                {supportedCurrencies.map((currency) => (
-                  <option key={currency.code} value={currency.code}>
-                    {currency.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              {t("settings.preferredLanguage")}
-              <select value={preferredLanguageCode} onChange={(event) => setPreferredLanguageCode(event.target.value)}>
-                {supportedLanguages.map((language) => (
-                  <option key={language.code} value={language.code}>
-                    {language.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button className="primary-button" type="submit">
-              {t("settings.savePreferences")}
-            </button>
-          </form>
-              </SectionCard>
-            </div>
-          </div>
-
-          <div id="settings-ai">
-            <SectionCard title={t("settings.aiProviders")} icon={<ReportsIcon />}>
-        <div className="settings-ai-layout">
-          <form className="stack-form settings-ai-form" onSubmit={handleAiProviderSubmit}>
-            {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
-            <label>
-              {t("settings.defaultProvider")}
-              <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
-                <option value="OpenAi">OpenAI</option>
-                <option value="Anthropic">Anthropic</option>
-              </select>
-            </label>
-            <div className="settings-key-grid">
-              <label>
-                {t("settings.openAiApiKey")}
-                <input
-                  value={openAiKey}
-                  onChange={(event) => setOpenAiKey(event.target.value)}
-                  type="password"
-                  placeholder={aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}
-                />
-              </label>
-              <label>
-                {t("settings.anthropicApiKey")}
-                <input
-                  value={anthropicKey}
-                  onChange={(event) => setAnthropicKey(event.target.value)}
-                  type="password"
-                  placeholder={aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}
-                />
-              </label>
-            </div>
-            <button className="primary-button" type="submit">
-              {t("settings.saveAiSettings")}
-            </button>
-          </form>
-
-          <div className="settings-provider-list">
-            <article className="settings-provider-row">
-              <div>
-                <strong>OpenAI</strong>
-                <p>{aiSettings?.providers.openAi.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
-              </div>
-              <div className="settings-provider-actions">
-                <strong>{aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}</strong>
-                <button
-                  className="ghost-button compact-button"
-                  type="button"
-                  disabled={!isOpenAiConfigured}
-                  onClick={() => {
-                    if (isOpenAiConfigured) {
-                      handleRemoveProvider("openai");
-                    }
-                  }}
-                >
-                  {t("common.remove")}
-                </button>
-              </div>
-            </article>
-            <article className="settings-provider-row">
-              <div>
-                <strong>Anthropic</strong>
-                <p>{aiSettings?.providers.anthropic.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
-              </div>
-              <div className="settings-provider-actions">
-                <strong>{aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}</strong>
-                <button
-                  className="ghost-button compact-button"
-                  type="button"
-                  disabled={!isAnthropicConfigured}
-                  onClick={() => {
-                    if (isAnthropicConfigured) {
-                      handleRemoveProvider("anthropic");
-                    }
-                  }}
-                >
-                  {t("common.remove")}
-                </button>
-              </div>
-            </article>
-          </div>
-        </div>
+          {activeSection === "appearance" && (
+            <SectionCard title={t("settings.appearance")} icon={<SettingsIcon />}>
+              <form className="stack-form settings-compact-form" onSubmit={(event) => event.preventDefault()}>
+                <label>
+                  {t("settings.theme")}
+                  <select
+                    value={themePreference}
+                    onChange={(event) => setThemePreference(event.target.value as ThemePreference)}
+                  >
+                    <option value="system">{t("settings.themeSystem")}</option>
+                    <option value="light">{t("settings.themeLight")}</option>
+                    <option value="dark">{t("settings.themeDark")}</option>
+                  </select>
+                </label>
+                <p className="helper-text">
+                  {t("settings.themeDescription", {
+                    theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
+                  })}
+                </p>
+                <div className="settings-choice-stack">
+                  <span>{t("settings.accent")}</span>
+                  <div className="settings-swatch-row">
+                    {accentPresets.map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        className={`settings-swatch${accentColor === preset.id ? " active" : ""}`}
+                        style={{ background: preset.swatch }}
+                        aria-label={preset.id}
+                        onClick={() => setAccentColor(preset.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </form>
             </SectionCard>
-          </div>
-
-          <div id="settings-rules">
-            <SectionCard title={t("settings.importRules")} icon={<CategoryIcon />}>
-        <form className="stack-form rule-form" onSubmit={handleRuleSubmit}>
-          {ruleError ? <p className="error-banner">{ruleError}</p> : null}
-          <label>
-            {t("settings.ruleName")}
-            <input value={ruleName} onChange={(event) => setRuleName(event.target.value)} placeholder={t("settings.ruleNamePlaceholder")} required />
-          </label>
-          <label>
-            {t("settings.matchText")}
-            <input value={ruleMatchValue} onChange={(event) => setRuleMatchValue(event.target.value)} placeholder={t("settings.matchTextPlaceholder")} required />
-          </label>
-          <label>
-            {t("settings.transactionType")}
-            <select value={transactionType} onChange={(event) => setTransactionType(event.target.value)}>
-              <option value="Expense">{t("transactionType.Expense")}</option>
-              <option value="Income">{t("transactionType.Income")}</option>
-            </select>
-          </label>
-          <label>
-            {t("settings.category")}
-            <select value={ruleCategoryId} onChange={(event) => setRuleCategoryId(event.target.value)} disabled={filteredCategories.length === 0}>
-              {filteredCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button className="primary-button" type="submit" disabled={filteredCategories.length === 0}>
-            {t("settings.addRule")}
-          </button>
-        </form>
-        <div className="table-list compact-list rule-list">
-          {importRules.length === 0 ? (
-            <p className="empty-state">{t("settings.noRules")}</p>
-          ) : (
-            importRules.map((rule) => (
-              <article className="table-row rule-row" key={rule.id}>
-                <div>
-                  <strong>{rule.name}</strong>
-                  <p>
-                    {rule.matchField} {rule.matchOperator.toLowerCase()} "{rule.matchValue}" -&gt;{" "}
-                    {categoryNamesById.get(rule.assignCategoryId) ?? t("settings.unknownCategory")}
-                  </p>
-                </div>
-                <div className="rule-actions">
-                  <strong>{rule.isActive ? t("common.active") : t("common.disabled")}</strong>
-                  <button className="ghost-button compact-button" type="button" aria-label={`${rule.isActive ? t("common.disable") : t("common.enable")} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
-                    {rule.isActive ? t("common.disable") : t("common.enable")}
-                  </button>
-                  <button className="ghost-button compact-button danger-button" type="button" aria-label={`${t("common.delete")} ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
-                    {t("common.delete")}
-                  </button>
-                </div>
-              </article>
-            ))
           )}
-        </div>
+
+          {activeSection === "region" && (
+            <SectionCard title={t("settings.regionalPreferences")} icon={<CashFlowIcon />}>
+              <form className="settings-form-grid" onSubmit={handleSubmit}>
+                <label>
+                  {t("settings.preferredCurrency")}
+                  <select value={preferredCurrencyCode} onChange={(event) => setPreferredCurrencyCode(event.target.value)}>
+                    {supportedCurrencies.map((currency) => (
+                      <option key={currency.code} value={currency.code}>
+                        {currency.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  {t("settings.preferredLanguage")}
+                  <select value={preferredLanguageCode} onChange={(event) => setPreferredLanguageCode(event.target.value)}>
+                    {supportedLanguages.map((language) => (
+                      <option key={language.code} value={language.code}>
+                        {language.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button className="primary-button" type="submit">
+                  {t("settings.savePreferences")}
+                </button>
+              </form>
             </SectionCard>
-          </div>
+          )}
 
-          <div className="settings-grid settings-grid--support">
-            <div id="settings-session">
-              <SectionCard title={t("settings.currentSession")} icon={<AccountsIcon />}>
-          <div className="settings-session-grid">
-            <article className="settings-fact">
-              <span>{t("settings.userEmail")}</span>
-              <strong>{profile?.email ?? auth?.email ?? t("common.unknown")}</strong>
-              <p>{t("settings.activeLocalAccount")}</p>
-            </article>
-            <article className="settings-fact">
-              <span>{t("settings.mainCurrency")}</span>
-              <strong>{profile?.preferredCurrencyCode ?? "USD"}</strong>
-              <p>{t("settings.appWideTotals")}</p>
-            </article>
-            <article className="settings-fact">
-              <span>{t("settings.preferredLanguage")}</span>
-              <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
-              <p>{t("settings.languageAndFormatting")}</p>
-            </article>
-            <article className="settings-fact">
-              <span>{t("settings.apiModel")}</span>
-              <strong>{t("settings.v1Ready")}</strong>
-              <p>{t("settings.singleUserJwt")}</p>
-            </article>
-            <article className="settings-fact">
-              <span>{t("settings.mobileReadiness")}</span>
-              <strong>{t("settings.prepared")}</strong>
-              <p>{t("settings.mobileReadinessDescription")}</p>
-            </article>
-          </div>
-              </SectionCard>
-            </div>
+          {activeSection === "ai" && (
+            <SectionCard title={t("settings.aiProviders")} icon={<ReportsIcon />}>
+              <div className="settings-ai-layout">
+                <form className="stack-form settings-ai-form" onSubmit={handleAiProviderSubmit}>
+                  {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
+                  <label>
+                    {t("settings.defaultProvider")}
+                    <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
+                      <option value="OpenAi">OpenAI</option>
+                      <option value="Anthropic">Anthropic</option>
+                    </select>
+                  </label>
+                  <div className="settings-key-grid">
+                    <label>
+                      {t("settings.openAiApiKey")}
+                      <input
+                        value={openAiKey}
+                        onChange={(event) => setOpenAiKey(event.target.value)}
+                        type="password"
+                        placeholder={aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}
+                      />
+                    </label>
+                    <label>
+                      {t("settings.anthropicApiKey")}
+                      <input
+                        value={anthropicKey}
+                        onChange={(event) => setAnthropicKey(event.target.value)}
+                        type="password"
+                        placeholder={aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}
+                      />
+                    </label>
+                  </div>
+                  <button className="primary-button" type="submit">
+                    {t("settings.saveAiSettings")}
+                  </button>
+                </form>
 
-            <div id="settings-backup">
-              <SectionCard title={t("settings.backupAndRestore")} icon={<ImportsIcon />}>
-          <div className="stack-form settings-backup-panel">
-            {backupError ? <p className="error-banner">{backupError}</p> : null}
-            {backupNotice ? <p className="success-banner settings-inline-banner">{backupNotice}</p> : null}
-            <button className="primary-button" type="button" onClick={() => void handleExportBackup()}>
-              {t("settings.exportBackup")}
-            </button>
-            <label>
-              {t("settings.restoreBackup")}
-              <input type="file" accept="application/json" onChange={(event) => void handleRestoreBackup(event)} />
-            </label>
-          </div>
-              </SectionCard>
-            </div>
-          </div>
+                <div className="settings-provider-list">
+                  <article className="settings-provider-row">
+                    <div>
+                      <strong>OpenAI</strong>
+                      <p>{aiSettings?.providers.openAi.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
+                    </div>
+                    <div className="settings-provider-actions">
+                      <strong>{aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}</strong>
+                      <button
+                        className="ghost-button compact-button"
+                        type="button"
+                        disabled={!isOpenAiConfigured}
+                        onClick={() => {
+                          if (isOpenAiConfigured) {
+                            handleRemoveProvider("openai");
+                          }
+                        }}
+                      >
+                        {t("common.remove")}
+                      </button>
+                    </div>
+                  </article>
+                  <article className="settings-provider-row">
+                    <div>
+                      <strong>Anthropic</strong>
+                      <p>{aiSettings?.providers.anthropic.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
+                    </div>
+                    <div className="settings-provider-actions">
+                      <strong>{aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}</strong>
+                      <button
+                        className="ghost-button compact-button"
+                        type="button"
+                        disabled={!isAnthropicConfigured}
+                        onClick={() => {
+                          if (isAnthropicConfigured) {
+                            handleRemoveProvider("anthropic");
+                          }
+                        }}
+                      >
+                        {t("common.remove")}
+                      </button>
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </SectionCard>
+          )}
+
+          {activeSection === "rules" && (
+            <SectionCard title={t("settings.importRules")} icon={<CategoryIcon />}>
+              <form className="stack-form rule-form" onSubmit={handleRuleSubmit}>
+                {ruleError ? <p className="error-banner">{ruleError}</p> : null}
+                <label>
+                  {t("settings.ruleName")}
+                  <input value={ruleName} onChange={(event) => setRuleName(event.target.value)} placeholder={t("settings.ruleNamePlaceholder")} required />
+                </label>
+                <label>
+                  {t("settings.matchText")}
+                  <input value={ruleMatchValue} onChange={(event) => setRuleMatchValue(event.target.value)} placeholder={t("settings.matchTextPlaceholder")} required />
+                </label>
+                <label>
+                  {t("settings.transactionType")}
+                  <select value={transactionType} onChange={(event) => setTransactionType(event.target.value)}>
+                    <option value="Expense">{t("transactionType.Expense")}</option>
+                    <option value="Income">{t("transactionType.Income")}</option>
+                  </select>
+                </label>
+                <label>
+                  {t("settings.category")}
+                  <select value={ruleCategoryId} onChange={(event) => setRuleCategoryId(event.target.value)} disabled={filteredCategories.length === 0}>
+                    {filteredCategories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button className="primary-button" type="submit" disabled={filteredCategories.length === 0}>
+                  {t("settings.addRule")}
+                </button>
+              </form>
+              <div className="table-list compact-list rule-list">
+                {importRules.length === 0 ? (
+                  <p className="empty-state">{t("settings.noRules")}</p>
+                ) : (
+                  importRules.map((rule) => (
+                    <article className="table-row rule-row" key={rule.id}>
+                      <div>
+                        <strong>{rule.name}</strong>
+                        <p>
+                          {rule.matchField} {rule.matchOperator.toLowerCase()} "{rule.matchValue}" -&gt;{" "}
+                          {categoryNamesById.get(rule.assignCategoryId) ?? t("settings.unknownCategory")}
+                        </p>
+                      </div>
+                      <div className="rule-actions">
+                        <strong>{rule.isActive ? t("common.active") : t("common.disabled")}</strong>
+                        <button className="ghost-button compact-button" type="button" aria-label={`${rule.isActive ? t("common.disable") : t("common.enable")} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
+                          {rule.isActive ? t("common.disable") : t("common.enable")}
+                        </button>
+                        <button className="ghost-button compact-button danger-button" type="button" aria-label={`${t("common.delete")} ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
+                          {t("common.delete")}
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </div>
+            </SectionCard>
+          )}
+
+          {activeSection === "session" && (
+            <SectionCard title={t("settings.currentSession")} icon={<AccountsIcon />}>
+              <div className="settings-session-grid">
+                <article className="settings-fact">
+                  <span>{t("settings.userEmail")}</span>
+                  <strong>{profile?.email ?? auth?.email ?? t("common.unknown")}</strong>
+                  <p>{t("settings.activeLocalAccount")}</p>
+                </article>
+                <article className="settings-fact">
+                  <span>{t("settings.mainCurrency")}</span>
+                  <strong>{profile?.preferredCurrencyCode ?? "USD"}</strong>
+                  <p>{t("settings.appWideTotals")}</p>
+                </article>
+                <article className="settings-fact">
+                  <span>{t("settings.preferredLanguage")}</span>
+                  <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
+                  <p>{t("settings.languageAndFormatting")}</p>
+                </article>
+                <article className="settings-fact">
+                  <span>{t("settings.apiModel")}</span>
+                  <strong>{t("settings.v1Ready")}</strong>
+                  <p>{t("settings.singleUserJwt")}</p>
+                </article>
+                <article className="settings-fact">
+                  <span>{t("settings.mobileReadiness")}</span>
+                  <strong>{t("settings.prepared")}</strong>
+                  <p>{t("settings.mobileReadinessDescription")}</p>
+                </article>
+              </div>
+            </SectionCard>
+          )}
+
+          {activeSection === "backup" && (
+            <SectionCard title={t("settings.backupAndRestore")} icon={<ImportsIcon />}>
+              <div className="stack-form settings-backup-panel">
+                {backupError ? <p className="error-banner">{backupError}</p> : null}
+                {backupNotice ? <p className="success-banner settings-inline-banner">{backupNotice}</p> : null}
+                <button className="primary-button" type="button" onClick={() => void handleExportBackup()}>
+                  {t("settings.exportBackup")}
+                </button>
+                <label>
+                  {t("settings.restoreBackup")}
+                  <input type="file" accept="application/json" onChange={(event) => void handleRestoreBackup(event)} />
+                </label>
+              </div>
+            </SectionCard>
+          )}
         </div>
       </div>
     </div>

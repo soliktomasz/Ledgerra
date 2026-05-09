@@ -1381,9 +1381,12 @@ label {
   padding: 0.45rem 0.55rem;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
+  background: transparent;
   color: var(--muted-strong);
   font-size: 0.9rem;
   font-weight: 750;
+  cursor: pointer;
+  text-align: left;
 }
 
 .settings-subnav-link:hover,
@@ -1391,6 +1394,12 @@ label {
   border-color: var(--border);
   background: var(--surface-muted);
   color: var(--text);
+}
+
+.settings-subnav-link.active {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .settings-subnav-link svg {
@@ -1479,13 +1488,25 @@ label {
   gap: 0.5rem;
 }
 
-.settings-swatch-row i {
+.settings-swatch {
   display: block;
   width: 2rem;
   height: 2rem;
+  padding: 0;
   border: 2px solid var(--surface);
   border-radius: 999px;
   box-shadow: 0 0 0 1px var(--border-strong);
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.settings-swatch:hover {
+  transform: scale(1.12);
+}
+
+.settings-swatch.active {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px currentColor;
+  transform: scale(1.12);
 }
 
 .settings-form-grid {

@@ -85,12 +85,15 @@ describe("SettingsPage", () => {
     mocks.revokePersonalAccessToken.mockResolvedValue(undefined);
   });
 
-  test("shows AI provider configuration state", () => {
+  test("shows AI provider configuration state", async () => {
+    const user = userEvent.setup();
     render(<SettingsPage />);
 
-    expect(screen.getByText("AI providers")).toBeInTheDocument();
-    expect(screen.getByText("Appearance")).toBeInTheDocument();
-    expect(screen.getByLabelText("Preferred language")).toHaveValue("en");
+    expect(screen.getByRole("heading", { name: "Appearance" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
+
+    expect(screen.getByRole("heading", { name: "AI providers" })).toBeInTheDocument();
     expect(screen.getByText("...3456")).toBeInTheDocument();
     expect(screen.getAllByText("Not configured").length).toBeGreaterThan(0);
   });
@@ -125,6 +128,8 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: "Region and language" }));
+
     await user.selectOptions(screen.getByLabelText("Preferred currency"), "PLN");
     await user.selectOptions(screen.getByLabelText("Preferred language"), "pl");
     await user.click(screen.getByRole("button", { name: "Save preferences" }));
@@ -142,6 +147,7 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
     await user.type(screen.getByLabelText("OpenAI API key"), "sk-test-openai-secret-3456");
     await user.selectOptions(screen.getByLabelText("Default provider"), "OpenAi");
     await user.click(screen.getByRole("button", { name: "Save AI settings" }));
@@ -159,6 +165,8 @@ describe("SettingsPage", () => {
     mocks.removeAiProviderKey.mockResolvedValue(mocks.aiSettings);
 
     const { rerender } = render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
 
     const removeButtons = screen.getAllByRole("button", { name: "Remove" });
     expect(removeButtons[0]).toBeEnabled();
@@ -184,7 +192,9 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
-    expect(screen.getByText("Import rules")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
+
+    expect(screen.getByRole("heading", { name: "Import rules" })).toBeInTheDocument();
     expect(screen.getByText("Market groceries")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Rule name"), "Coffee");
@@ -229,6 +239,8 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
+
     await user.selectOptions(screen.getByLabelText("Transaction type"), "Income");
     expect(screen.getByLabelText("Category")).toHaveValue("category-2");
 
@@ -255,6 +267,8 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
+
     await user.type(screen.getByLabelText("Rule name"), "   ");
     await user.type(screen.getByLabelText("Match text"), "   ");
     await user.click(screen.getByRole("button", { name: "Add rule" }));
@@ -268,6 +282,8 @@ describe("SettingsPage", () => {
     mocks.createImportRule.mockRejectedValue(new Error("Rule name already exists."));
 
     render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
 
     await user.type(screen.getByLabelText("Rule name"), "Coffee");
     await user.type(screen.getByLabelText("Match text"), "Cafe");
@@ -283,6 +299,8 @@ describe("SettingsPage", () => {
     mocks.updateDefaultAiProvider.mockResolvedValue(mocks.aiSettings);
 
     const { rerender } = render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
 
     await user.selectOptions(screen.getByLabelText("Default provider"), "Anthropic");
     await user.click(screen.getByRole("button", { name: "Save AI settings" }));
