@@ -10,7 +10,7 @@ import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 import { normalizeLanguageCode, supportedLanguages } from "../utils/language";
 
-type SettingsSection = "appearance" | "region" | "session" | "ai" | "rules" | "backup";
+type SettingsSection = "appearance" | "region" | "profile" | "security" | "ai" | "rules" | "backup";
 
 function getErrorMessage(exception: unknown, fallback: string) {
   return exception instanceof Error ? exception.message : fallback;
@@ -188,8 +188,7 @@ export function SettingsPage() {
       label: t("settings.applicationGroup"),
       items: [
         { section: "appearance" as SettingsSection, label: t("settings.navAppearance"), icon: SettingsIcon },
-        { section: "region" as SettingsSection, label: t("settings.navRegion"), icon: CashFlowIcon },
-        { section: "session" as SettingsSection, label: t("settings.navSession"), icon: AccountsIcon }
+        { section: "region" as SettingsSection, label: t("settings.navRegion"), icon: CashFlowIcon }
       ]
     },
     {
@@ -203,8 +202,8 @@ export function SettingsPage() {
     {
       label: t("settings.accountGroup"),
       items: [
-        { section: "session" as SettingsSection, label: t("settings.profile"), icon: AccountsIcon },
-        { section: "session" as SettingsSection, label: t("settings.security"), icon: SettingsIcon }
+        { section: "profile" as SettingsSection, label: t("settings.profile"), icon: AccountsIcon },
+        { section: "security" as SettingsSection, label: t("settings.security"), icon: SettingsIcon }
       ]
     }
   ];
@@ -212,7 +211,8 @@ export function SettingsPage() {
   const sectionBreadcrumbs: Record<SettingsSection, string> = {
     appearance: t("settings.appearance"),
     region: t("settings.regionalPreferences"),
-    session: t("settings.currentSession"),
+    profile: t("settings.profile"),
+    security: t("settings.security"),
     ai: t("settings.aiProviders"),
     rules: t("settings.importRules"),
     backup: t("settings.backupAndRestore")
@@ -528,8 +528,8 @@ export function SettingsPage() {
             </SectionCard>
           )}
 
-          {activeSection === "session" && (
-            <SectionCard title={t("settings.currentSession")} icon={<AccountsIcon />}>
+          {activeSection === "profile" && (
+            <SectionCard title={t("settings.profile")} icon={<AccountsIcon />}>
               <div className="settings-session-grid">
                 <article className="settings-fact">
                   <span>{t("settings.userEmail")}</span>
@@ -546,6 +546,13 @@ export function SettingsPage() {
                   <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
                   <p>{t("settings.languageAndFormatting")}</p>
                 </article>
+              </div>
+            </SectionCard>
+          )}
+
+          {activeSection === "security" && (
+            <SectionCard title={t("settings.security")} icon={<SettingsIcon />}>
+              <div className="settings-session-grid">
                 <article className="settings-fact">
                   <span>{t("settings.apiModel")}</span>
                   <strong>{t("settings.v1Ready")}</strong>
