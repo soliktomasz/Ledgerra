@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
+import { AccountsIcon, BudgetsIcon, CategoriesIcon, DashboardIcon, GoalsIcon, ImportsIcon, ReportsIcon, SettingsIcon, TransactionsIcon } from "./icons";
 import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
 
@@ -9,15 +10,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const { selectedMonth, setSelectedMonth, goToPreviousMonth, goToNextMonth, goToCurrentMonth } = useMonthSelection();
   const navItems = [
-    { to: "/dashboard", label: t("nav.dashboard") },
-    { to: "/reports", label: t("nav.reports") },
-    { to: "/transactions", label: t("nav.transactions") },
-    { to: "/imports", label: t("nav.imports") },
-    { to: "/accounts", label: t("nav.accounts") },
-    { to: "/budgets", label: t("nav.budgets") },
-    { to: "/goals", label: t("nav.goals") },
-    { to: "/categories", label: t("nav.categories") },
-    { to: "/settings", label: t("nav.settings") }
+    { to: "/dashboard", label: t("nav.dashboard"), icon: DashboardIcon },
+    { to: "/reports", label: t("nav.reports"), icon: ReportsIcon },
+    { to: "/transactions", label: t("nav.transactions"), icon: TransactionsIcon },
+    { to: "/imports", label: t("nav.imports"), icon: ImportsIcon },
+    { to: "/accounts", label: t("nav.accounts"), icon: AccountsIcon },
+    { to: "/budgets", label: t("nav.budgets"), icon: BudgetsIcon },
+    { to: "/goals", label: t("nav.goals"), icon: GoalsIcon },
+    { to: "/categories", label: t("nav.categories"), icon: CategoriesIcon },
+    { to: "/settings", label: t("nav.settings"), icon: SettingsIcon }
   ];
 
   return (
@@ -38,6 +39,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               to={item.to}
               className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
             >
+              <item.icon />
               <span>{item.label}</span>
             </NavLink>
           ))}
@@ -76,6 +78,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <main className="content">{children}</main>
+
+      <nav className="mobile-nav" aria-label={t("appShell.navigation")} >
+        {navItems.map((item) => (
+          <NavLink
+            key={`mobile-${item.to}`}
+            to={item.to}
+            className={({ isActive }) => isActive ? "mobile-nav-link active" : "mobile-nav-link"}
+          >
+            <item.icon />
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }
