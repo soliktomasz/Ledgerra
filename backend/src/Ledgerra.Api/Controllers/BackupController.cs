@@ -50,7 +50,8 @@ public sealed class BackupController : ControllerBase
         var userId = User.GetRequiredUserId();
 
         await using var tx = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-        _dbContext.BudgetCategoryLimits.RemoveRange(_dbContext.BudgetCategoryLimits.Where(x => x.BudgetPeriod.UserId == userId));
+        var budgetPeriodIds = _dbContext.BudgetPeriods.Where(x => x.UserId == userId).Select(x => x.Id);
+        _dbContext.BudgetCategoryLimits.RemoveRange(_dbContext.BudgetCategoryLimits.Where(x => budgetPeriodIds.Contains(x.BudgetPeriodId)));
         _dbContext.BudgetPeriods.RemoveRange(_dbContext.BudgetPeriods.Where(x => x.UserId == userId));
         _dbContext.Transactions.RemoveRange(_dbContext.Transactions.Where(x => x.UserId == userId));
         _dbContext.Categories.RemoveRange(_dbContext.Categories.Where(x => x.UserId == userId));
