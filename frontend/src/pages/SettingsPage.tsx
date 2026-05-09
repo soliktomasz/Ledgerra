@@ -1,10 +1,10 @@
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import { accentPresets, useTheme, type AccentColor, type ThemePreference } from "../state/ThemeContext";
-import type { ImportRule } from "../types";
+import type { ImportRule, PersonalAccessToken } from "../types";
 import { AccountsIcon, CashFlowIcon, CategoryIcon, ImportsIcon, ReportsIcon, SettingsIcon } from "../ui/icons";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
@@ -40,6 +40,9 @@ export function SettingsPage() {
   const [ruleError, setRuleError] = useState<string | null>(null);
   const [backupError, setBackupError] = useState<string | null>(null);
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
+  const [personalAccessTokens, setPersonalAccessTokens] = useState<PersonalAccessToken[]>([]);
+  const [newTokenName, setNewTokenName] = useState("");
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
 
   const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
@@ -178,6 +181,40 @@ export function SettingsPage() {
       setRuleError(getErrorMessage(exception, t("settings.unableToDeleteRule")));
     }
   };
+
+  const loadPersonalAccessTokens = useCallback(async () => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    const tokens = await apiClient.getPersonalAccessTokens(auth.accessToken);
+    setPersonalAccessTokens(tokens);
+  }, [auth?.accessToken]);
+
+  const handleCreatePersonalAccessToken = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!auth?.accessToken || !newTokenName.trim()) {
+      return;
+    }
+
+    const response = await apiClient.createPersonalAccessToken(auth.accessToken, newTokenName.trim());
+    setCreatedToken(response.plainTextToken);
+    setNewTokenName("");
+    await loadPersonalAccessTokens();
+  };
+
+  const handleRevokePersonalAccessToken = async (id: string) => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    await apiClient.revokePersonalAccessToken(auth.accessToken, id);
+    await loadPersonalAccessTokens();
+  };
+
+  useEffect(() => {
+    loadPersonalAccessTokens();
+  }, [loadPersonalAccessTokens]);
 
   const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
   const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
@@ -563,6 +600,52 @@ export function SettingsPage() {
                   <strong>{t("settings.prepared")}</strong>
                   <p>{t("settings.mobileReadinessDescription")}</p>
                 </article>
+              </div>
+
+              <div className="settings-token-section">
+                <h3>{t("settings.personalAccessTokens")}</h3>
+                <p className="helper-text">{t("settings.personalAccessTokensDescription")}</p>
+                {createdToken ? (
+                  <div className="success-banner settings-inline-banner">
+                    <p>{t("settings.tokenCreatedNotice")}</p>
+                    <code className="settings-token-value">{createdToken}</code>
+                    <button className="ghost-button compact-button" type="button" onClick={() => setCreatedToken(null)}>
+                      {t("common.dismiss")}
+                    </button>
+                  </div>
+                ) : null}
+                <form className="settings-token-form" onSubmit={(event) => void handleCreatePersonalAccessToken(event)}>
+                  <input
+                    value={newTokenName}
+                    onChange={(event) => setNewTokenName(event.target.value)}
+                    placeholder={t("settings.tokenNamePlaceholder")}
+                    required
+                  />
+                  <button className="primary-button compact-button" type="submit">
+                    {t("settings.createToken")}
+                  </button>
+                </form>
+                <div className="table-list compact-list">
+                  {personalAccessTokens.length === 0 ? (
+                    <p className="empty-state">{t("settings.noTokens")}</p>
+                  ) : (
+                    personalAccessTokens.map((pat) => (
+                      <article className="table-row" key={pat.id}>
+                        <div>
+                          <strong>{pat.name}</strong>
+                          <p>{pat.tokenPrefix}...</p>
+                        </div>
+                        <button
+                          className="ghost-button compact-button danger-button"
+                          type="button"
+                          onClick={() => void handleRevokePersonalAccessToken(pat.id)}
+                        >
+                          {t("settings.revokeToken")}
+                        </button>
+                      </article>
+                    ))
+                  )}
+                </div>
               </div>
             </SectionCard>
           )}
