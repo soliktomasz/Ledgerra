@@ -11,9 +11,36 @@ import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 import { normalizeLanguageCode, supportedLanguages } from "../utils/language";
 
 type SettingsSection = "appearance" | "region" | "profile" | "security" | "ai" | "rules" | "backup";
+type DensityPreference = "comfortable" | "standard" | "compact";
+
+const densityStorageKey = "ledgerra:density";
+const animationStorageKey = "ledgerra:animations";
+const minimalNavigationStorageKey = "ledgerra:minimal-navigation";
 
 function getErrorMessage(exception: unknown, fallback: string) {
   return exception instanceof Error ? exception.message : fallback;
+}
+
+function resolveInitialDensityPreference(): DensityPreference {
+  if (typeof window === "undefined") {
+    return "standard";
+  }
+
+  const storedDensityPreference = window.localStorage.getItem(densityStorageKey);
+  return storedDensityPreference === "comfortable" || storedDensityPreference === "compact" || storedDensityPreference === "standard"
+    ? storedDensityPreference
+    : "standard";
+}
+
+function resolveInitialBooleanPreference(storageKey: string, fallback: boolean) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  const storedPreference = window.localStorage.getItem(storageKey);
+  if (storedPreference === "true") return true;
+  if (storedPreference === "false") return false;
+  return fallback;
 }
 
 export function SettingsPage() {
@@ -44,6 +71,9 @@ export function SettingsPage() {
   const [newTokenName, setNewTokenName] = useState("");
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<string | null>(null);
+  const [densityPreference, setDensityPreference] = useState<DensityPreference>(() => resolveInitialDensityPreference());
+  const [animationsEnabled, setAnimationsEnabled] = useState(() => resolveInitialBooleanPreference(animationStorageKey, true));
+  const [minimalNavigation, setMinimalNavigation] = useState(() => resolveInitialBooleanPreference(minimalNavigationStorageKey, false));
 
   const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
@@ -58,6 +88,28 @@ export function SettingsPage() {
   useEffect(() => {
     setDefaultProvider(aiSettings?.defaultProvider ?? "OpenAi");
   }, [aiSettings?.defaultProvider]);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.density = densityPreference;
+    }
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(densityStorageKey, densityPreference);
+    }
+  }, [densityPreference]);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.motion = animationsEnabled ? "full" : "reduced";
+      document.documentElement.dataset.navigationDensity = minimalNavigation ? "minimal" : "full";
+    }
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(animationStorageKey, String(animationsEnabled));
+      window.localStorage.setItem(minimalNavigationStorageKey, String(minimalNavigation));
+    }
+  }, [animationsEnabled, minimalNavigation]);
 
   useEffect(() => {
     if (filteredCategories.length === 0) {
@@ -271,6 +323,24 @@ export function SettingsPage() {
     backup: t("settings.backupAndRestore")
   };
 
+  const accentLabels: Record<AccentColor, string> = {
+    teal: t("settings.accentTeal"),
+    blue: t("settings.accentBlue"),
+    gold: t("settings.accentGold"),
+    purple: t("settings.accentPurple"),
+    coral: t("settings.accentCoral")
+  };
+  const themeOptions = [
+    { value: "light" as ThemePreference, label: t("settings.themeLight"), previewClassName: "is-light" },
+    { value: "dark" as ThemePreference, label: t("settings.themeDark"), previewClassName: "is-dark" },
+    { value: "system" as ThemePreference, label: t("settings.themeSystem"), previewClassName: "is-system" }
+  ];
+  const densityOptions = [
+    { value: "comfortable" as DensityPreference, label: t("settings.densityComfortable"), detail: "52 px" },
+    { value: "standard" as DensityPreference, label: t("settings.densityStandard"), detail: "44 px" },
+    { value: "compact" as DensityPreference, label: t("settings.densityCompact"), detail: "36 px" }
+  ];
+
   const handleExportBackup = async () => {
     if (!auth?.accessToken) {
       return;
@@ -334,8 +404,6 @@ export function SettingsPage() {
             <span>/</span>
             <strong>{sectionBreadcrumbs[activeSection]}</strong>
           </div>
-          <h1>{t("settings.title")}</h1>
-          <p>{t("settings.description")}</p>
         </div>
         <div className="settings-search" aria-hidden="true">
           <span>⌕</span>
@@ -367,41 +435,133 @@ export function SettingsPage() {
 
         <div className="settings-main-panels">
           {activeSection === "appearance" && (
-            <SectionCard title={t("settings.appearance")} icon={<SettingsIcon />}>
-              <form className="stack-form settings-compact-form" onSubmit={(event) => event.preventDefault()}>
-                <label>
-                  {t("settings.theme")}
-                  <select
-                    value={themePreference}
-                    onChange={(event) => setThemePreference(event.target.value as ThemePreference)}
-                  >
-                    <option value="system">{t("settings.themeSystem")}</option>
-                    <option value="light">{t("settings.themeLight")}</option>
-                    <option value="dark">{t("settings.themeDark")}</option>
-                  </select>
-                </label>
-                <p className="helper-text">
-                  {t("settings.themeDescription", {
-                    theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
-                  })}
-                </p>
-                <div className="settings-choice-stack">
-                  <span>{t("settings.accent")}</span>
-                  <div className="settings-swatch-row">
+            <section className="settings-appearance-stack" aria-labelledby="settings-appearance-title">
+              <div className="settings-section-intro">
+                <h1 id="settings-appearance-title">{t("settings.appearance")}</h1>
+                <p>{t("settings.appearanceDescription")}</p>
+              </div>
+
+              <div className="settings-appearance-grid">
+                <article className="settings-preference-panel">
+                  <div className="settings-panel-heading">
+                    <span className="settings-panel-icon">
+                      <SettingsIcon />
+                    </span>
+                    <div>
+                      <h2>{t("settings.theme")}</h2>
+                      <p>
+                        {t("settings.themeDescription", {
+                          theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="settings-theme-options" aria-label={t("settings.theme")}>
+                    {themeOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`settings-theme-option${themePreference === option.value ? " active" : ""}`}
+                        aria-pressed={themePreference === option.value}
+                        onClick={() => setThemePreference(option.value)}
+                      >
+                        <span className={`settings-theme-preview ${option.previewClassName}`}>
+                          <span />
+                        </span>
+                        <strong>{option.label}</strong>
+                      </button>
+                    ))}
+                  </div>
+                </article>
+
+                <article className="settings-preference-panel">
+                  <div className="settings-panel-heading">
+                    <span className="settings-panel-icon settings-panel-icon--accent" />
+                    <div>
+                      <h2>{t("settings.accent")}</h2>
+                      <p>{t("settings.accentDescription")}</p>
+                    </div>
+                  </div>
+                  <div className="settings-accent-options" aria-label={t("settings.accent")}>
                     {accentPresets.map((preset) => (
                       <button
                         key={preset.id}
                         type="button"
-                        className={`settings-swatch${accentColor === preset.id ? " active" : ""}`}
-                        style={{ background: preset.swatch }}
-                        aria-label={preset.id}
+                        className={`settings-accent-chip${accentColor === preset.id ? " active" : ""}`}
+                        aria-pressed={accentColor === preset.id}
                         onClick={() => setAccentColor(preset.id)}
-                      />
+                      >
+                        <span style={{ background: preset.swatch }} />
+                        {accentLabels[preset.id]}
+                      </button>
                     ))}
                   </div>
+                </article>
+              </div>
+
+              <article className="settings-preference-panel">
+                <div className="settings-panel-heading">
+                  <span className="settings-panel-icon settings-panel-icon--text">Tt</span>
+                  <div>
+                    <h2>{t("settings.density")}</h2>
+                    <p>{t("settings.densityDescription")}</p>
+                  </div>
                 </div>
-              </form>
-            </SectionCard>
+                <div className="settings-density-options" aria-label={t("settings.density")}>
+                  {densityOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`settings-density-option${densityPreference === option.value ? " active" : ""}`}
+                      aria-pressed={densityPreference === option.value}
+                      onClick={() => setDensityPreference(option.value)}
+                    >
+                      <span className={`settings-density-preview is-${option.value}`}>
+                        <span />
+                        <span />
+                        <span />
+                      </span>
+                      <strong>{option.label}</strong>
+                      <em>{option.detail}</em>
+                    </button>
+                  ))}
+                </div>
+              </article>
+
+              <article className="settings-preference-panel settings-motion-panel">
+                <div className="settings-panel-heading">
+                  <span className="settings-panel-icon settings-panel-icon--motion" />
+                  <div>
+                    <h2>{t("settings.motionAndChrome")}</h2>
+                  </div>
+                </div>
+                <div className="settings-toggle-list">
+                  <label className="settings-toggle-row">
+                    <span>
+                      <strong>{t("settings.transitionAnimations")}</strong>
+                      <small>{t("settings.transitionAnimationsDescription")}</small>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={animationsEnabled}
+                      onChange={(event) => setAnimationsEnabled(event.target.checked)}
+                    />
+                  </label>
+                  <label className="settings-toggle-row">
+                    <span>
+                      <strong>{t("settings.minimalNavigation")}</strong>
+                      <small>{t("settings.minimalNavigationDescription")}</small>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={minimalNavigation}
+                      onChange={(event) => setMinimalNavigation(event.target.checked)}
+                    />
+                  </label>
+                </div>
+                <p className="settings-save-status">{t("settings.everythingSaved")}</p>
+              </article>
+            </section>
           )}
 
           {activeSection === "region" && (

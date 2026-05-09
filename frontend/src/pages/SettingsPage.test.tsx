@@ -77,6 +77,9 @@ describe("SettingsPage", () => {
     vi.clearAllMocks();
     window.localStorage.clear();
     document.documentElement.removeAttribute("data-theme");
+    document.documentElement.removeAttribute("data-density");
+    document.documentElement.removeAttribute("data-motion");
+    document.documentElement.removeAttribute("data-navigation-density");
     mocks.aiSettings.providers.openAi = { isConfigured: true, maskedKey: "...3456" };
     mocks.aiSettings.providers.anthropic = { isConfigured: false, maskedKey: null };
     mocks.aiSettings.defaultProvider = "OpenAi";
@@ -107,12 +110,12 @@ describe("SettingsPage", () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByLabelText("Theme")).toHaveValue("system");
+    expect(screen.getByRole("button", { name: "Match system" })).toHaveAttribute("aria-pressed", "true");
     expect(document.documentElement.dataset.theme).toBe("light");
 
-    await user.selectOptions(screen.getByLabelText("Theme"), "dark");
+    await user.click(screen.getByRole("button", { name: "Dark" }));
 
-    expect(screen.getByLabelText("Theme")).toHaveValue("dark");
+    expect(screen.getByRole("button", { name: "Dark" })).toHaveAttribute("aria-pressed", "true");
     expect(document.documentElement.dataset.theme).toBe("dark");
     expect(window.localStorage.getItem("ledgerra:theme")).toBe("dark");
     expect(screen.getByText("Ledgerra is currently using the dark theme.")).toBeInTheDocument();
