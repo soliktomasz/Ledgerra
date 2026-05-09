@@ -356,6 +356,29 @@ label {
   padding: 1.75rem;
 }
 
+.mobile-nav {
+  display: none;
+}
+
+.mobile-nav-link {
+  display: grid;
+  place-items: center;
+  gap: 0.15rem;
+  padding: 0.45rem 0.25rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.mobile-nav-link svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.mobile-nav-link.active {
+  color: var(--accent);
+}
+
 .page-stack {
   display: grid;
   gap: 1.15rem;
@@ -1489,12 +1512,7 @@ label {
   }
 
   .sidebar {
-    position: static;
-    height: auto;
-    gap: 0.9rem;
-    padding: 1rem;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+    display: none;
   }
 
   .brand {
@@ -1525,6 +1543,26 @@ label {
   .content,
   .login-screen {
     padding: 1rem;
+  }
+
+  .content {
+    padding-bottom: 5rem;
+  }
+
+  .mobile-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.2rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface-overlay);
+    backdrop-filter: blur(14px);
+    padding: 0.4rem 0.35rem calc(0.4rem + env(safe-area-inset-bottom));
+    overflow-x: auto;
   }
 
   .page-header {
