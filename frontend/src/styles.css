@@ -260,6 +260,7 @@ label {
   position: relative;
   display: flex;
   align-items: center;
+  gap: 0.65rem;
   min-height: 2.5rem;
   padding: 0.68rem 0.75rem 0.68rem 1rem;
   border-radius: var(--radius-sm);
@@ -272,9 +273,18 @@ label {
   content: "";
   width: 0.38rem;
   height: 0.38rem;
-  margin-right: 0.65rem;
   border-radius: 999px;
   background: var(--border-strong);
+}
+
+.nav-link svg {
+  flex: 0 0 1.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.nav-link span {
+  min-width: 0;
 }
 
 .nav-link:hover {
