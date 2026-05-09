@@ -43,6 +43,7 @@ export function SettingsPage() {
   const [personalAccessTokens, setPersonalAccessTokens] = useState<PersonalAccessToken[]>([]);
   const [newTokenName, setNewTokenName] = useState("");
   const [createdToken, setCreatedToken] = useState<string | null>(null);
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
@@ -187,9 +188,13 @@ export function SettingsPage() {
       return;
     }
 
-    const tokens = await apiClient.getPersonalAccessTokens(auth.accessToken);
-    setPersonalAccessTokens(tokens);
-  }, [auth?.accessToken]);
+    try {
+      const tokens = await apiClient.getPersonalAccessTokens(auth.accessToken);
+      setPersonalAccessTokens(tokens.filter((token) => !token.revokedAtUtc));
+    } catch (exception) {
+      setTokenError(getErrorMessage(exception, t("settings.unableToLoadTokens")));
+    }
+  }, [auth?.accessToken, t]);
 
   const handleCreatePersonalAccessToken = async (event: FormEvent) => {
     event.preventDefault();
@@ -197,10 +202,15 @@ export function SettingsPage() {
       return;
     }
 
-    const response = await apiClient.createPersonalAccessToken(auth.accessToken, newTokenName.trim());
-    setCreatedToken(response.plainTextToken);
-    setNewTokenName("");
-    await loadPersonalAccessTokens();
+    try {
+      setTokenError(null);
+      const response = await apiClient.createPersonalAccessToken(auth.accessToken, newTokenName.trim());
+      setCreatedToken(response.plainTextToken);
+      setNewTokenName("");
+      await loadPersonalAccessTokens();
+    } catch (exception) {
+      setTokenError(getErrorMessage(exception, t("settings.unableToCreateToken")));
+    }
   };
 
   const handleRevokePersonalAccessToken = async (id: string) => {
@@ -208,8 +218,14 @@ export function SettingsPage() {
       return;
     }
 
-    await apiClient.revokePersonalAccessToken(auth.accessToken, id);
-    await loadPersonalAccessTokens();
+    try {
+      setTokenError(null);
+      await apiClient.revokePersonalAccessToken(auth.accessToken, id);
+      setPersonalAccessTokens((tokens) => tokens.filter((token) => token.id !== id));
+      await loadPersonalAccessTokens();
+    } catch (exception) {
+      setTokenError(getErrorMessage(exception, t("settings.unableToRevokeToken")));
+    }
   };
 
   useEffect(() => {
@@ -605,6 +621,7 @@ export function SettingsPage() {
               <div className="settings-token-section">
                 <h3>{t("settings.personalAccessTokens")}</h3>
                 <p className="helper-text">{t("settings.personalAccessTokensDescription")}</p>
+                {tokenError ? <p className="error-banner">{tokenError}</p> : null}
                 {createdToken ? (
                   <div className="success-banner settings-inline-banner">
                     <p>{t("settings.tokenCreatedNotice")}</p>

@@ -95,6 +95,25 @@ public static class CategorizationRuleSchemaInitializer
             CREATE UNIQUE INDEX IF NOT EXISTS "IX_AiProviderCredentials_UserId_Provider"
                 ON "AiProviderCredentials" ("UserId", "Provider");
 
+            CREATE TABLE IF NOT EXISTS "PersonalAccessTokens" (
+                "Id" uuid NOT NULL,
+                "UserId" uuid NOT NULL,
+                "Name" character varying(120) NOT NULL,
+                "TokenHash" character varying(128) NOT NULL,
+                "TokenPrefix" character varying(16) NOT NULL,
+                "CreatedAtUtc" timestamp with time zone NOT NULL,
+                "RevokedAtUtc" timestamp with time zone NULL,
+                "LastUsedAtUtc" timestamp with time zone NULL,
+                CONSTRAINT "PK_PersonalAccessTokens" PRIMARY KEY ("Id"),
+                CONSTRAINT "FK_PersonalAccessTokens_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_PersonalAccessTokens_TokenHash"
+                ON "PersonalAccessTokens" ("TokenHash");
+
+            CREATE INDEX IF NOT EXISTS "IX_PersonalAccessTokens_UserId_Name"
+                ON "PersonalAccessTokens" ("UserId", "Name");
+
             CREATE TABLE IF NOT EXISTS "UserAiPreferences" (
                 "UserId" uuid NOT NULL,
                 "DefaultProvider" character varying(32) NULL,

@@ -293,6 +293,73 @@ describe("SettingsPage", () => {
     expect(mocks.refresh).not.toHaveBeenCalled();
   });
 
+  test("creates personal access tokens from security settings", async () => {
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Security" }));
+    await user.type(screen.getByPlaceholderText("Token name"), "CLI token");
+    await user.click(screen.getByRole("button", { name: "Create token" }));
+
+    await waitFor(() => {
+      expect(mocks.createPersonalAccessToken).toHaveBeenCalledWith("token", "CLI token");
+    });
+    expect(await screen.findByText("ledgerra_pat_test")).toBeInTheDocument();
+  });
+
+  test("shows personal access token creation errors", async () => {
+    const user = userEvent.setup();
+    mocks.createPersonalAccessToken.mockRejectedValue(new Error("Request failed with status 500"));
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Security" }));
+    await user.type(screen.getByPlaceholderText("Token name"), "CLI token");
+    await user.click(screen.getByRole("button", { name: "Create token" }));
+
+    expect(await screen.findByText("Request failed with status 500")).toBeInTheDocument();
+  });
+
+  test("removes revoked personal access tokens from the list", async () => {
+    const user = userEvent.setup();
+    mocks.getPersonalAccessTokens
+      .mockResolvedValueOnce([
+        {
+          id: "pat-1",
+          name: "CLI token",
+          tokenPrefix: "ABC123",
+          createdAtUtc: "2026-05-09T10:00:00Z",
+          lastUsedAtUtc: null,
+          revokedAtUtc: null
+        }
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: "pat-1",
+          name: "CLI token",
+          tokenPrefix: "ABC123",
+          createdAtUtc: "2026-05-09T10:00:00Z",
+          lastUsedAtUtc: null,
+          revokedAtUtc: "2026-05-09T10:01:00Z"
+        }
+      ]);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Security" }));
+    expect(await screen.findByText("CLI token")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Revoke" }));
+
+    await waitFor(() => {
+      expect(mocks.revokePersonalAccessToken).toHaveBeenCalledWith("token", "pat-1");
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("CLI token")).not.toBeInTheDocument();
+    });
+  });
+
   test("changes the default provider through the settings form", async () => {
     const user = userEvent.setup();
     mocks.aiSettings.providers.anthropic = { isConfigured: true, maskedKey: "...cdef" };

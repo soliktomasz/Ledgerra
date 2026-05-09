@@ -30,7 +30,7 @@ public sealed class PersonalAccessTokensController : ControllerBase
     {
         var userId = User.GetRequiredUserId();
         var tokens = await _dbContext.PersonalAccessTokens
-            .Where(token => token.UserId == userId)
+            .Where(token => token.UserId == userId && token.RevokedAtUtc == null)
             .OrderByDescending(token => token.CreatedAtUtc)
             .Select(token => new PersonalAccessTokenResponse(token.Id, token.Name, token.TokenPrefix, token.CreatedAtUtc, token.LastUsedAtUtc, token.RevokedAtUtc))
             .ToListAsync(cancellationToken);

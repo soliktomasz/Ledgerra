@@ -63,6 +63,48 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task AuthenticatedUser_CanCreateAndUsePersonalAccessToken()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var createResponse = await client.PostAsJsonAsync("/api/settings/personal-access-tokens", new
+        {
+            name = "CLI token"
+        });
+
+        if (createResponse.StatusCode != HttpStatusCode.Created)
+        {
+            var body = await createResponse.Content.ReadAsStringAsync();
+            throw new Xunit.Sdk.XunitException($"Token creation failed with {(int)createResponse.StatusCode}: {body}");
+        }
+
+        var createPayload = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var personalAccessToken = createPayload.GetProperty("plainTextToken").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(personalAccessToken));
+        Assert.Equal("CLI token", createPayload.GetProperty("token").GetProperty("name").GetString());
+
+        using var patClient = _factory.CreateClient();
+        patClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personalAccessToken);
+
+        var profileResponse = await patClient.GetAsync("/api/settings/profile");
+
+        Assert.Equal(HttpStatusCode.OK, profileResponse.StatusCode);
+
+        var revokeResponse = await client.DeleteAsync($"/api/settings/personal-access-tokens/{createPayload.GetProperty("token").GetProperty("id").GetGuid()}");
+        Assert.Equal(HttpStatusCode.NoContent, revokeResponse.StatusCode);
+
+        var revokedProfileResponse = await patClient.GetAsync("/api/settings/profile");
+        Assert.Equal(HttpStatusCode.Unauthorized, revokedProfileResponse.StatusCode);
+
+        var listResponse = await client.GetAsync("/api/settings/personal-access-tokens");
+        var listPayload = await listResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Empty(listPayload.EnumerateArray());
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanCreateAccountsCategoriesTransactionsBudgetsAndDashboard()
     {
         using var client = _factory.CreateClient();
