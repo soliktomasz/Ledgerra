@@ -77,6 +77,9 @@ describe("SettingsPage", () => {
     vi.clearAllMocks();
     window.localStorage.clear();
     document.documentElement.removeAttribute("data-theme");
+    document.documentElement.removeAttribute("data-density");
+    document.documentElement.removeAttribute("data-motion");
+    document.documentElement.removeAttribute("data-navigation-density");
     mocks.aiSettings.providers.openAi = { isConfigured: true, maskedKey: "...3456" };
     mocks.aiSettings.providers.anthropic = { isConfigured: false, maskedKey: null };
     mocks.aiSettings.defaultProvider = "OpenAi";
@@ -85,12 +88,15 @@ describe("SettingsPage", () => {
     mocks.revokePersonalAccessToken.mockResolvedValue(undefined);
   });
 
-  test("shows AI provider configuration state", () => {
+  test("shows AI provider configuration state", async () => {
+    const user = userEvent.setup();
     render(<SettingsPage />);
 
-    expect(screen.getByText("AI providers")).toBeInTheDocument();
-    expect(screen.getByText("Appearance")).toBeInTheDocument();
-    expect(screen.getByLabelText("Preferred language")).toHaveValue("en");
+    expect(screen.getByRole("heading", { name: "Appearance" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
+
+    expect(screen.getByRole("heading", { name: "AI providers" })).toBeInTheDocument();
     expect(screen.getByText("...3456")).toBeInTheDocument();
     expect(screen.getAllByText("Not configured").length).toBeGreaterThan(0);
   });
@@ -104,12 +110,12 @@ describe("SettingsPage", () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByLabelText("Theme")).toHaveValue("system");
+    expect(screen.getByRole("button", { name: "Match system" })).toHaveAttribute("aria-pressed", "true");
     expect(document.documentElement.dataset.theme).toBe("light");
 
-    await user.selectOptions(screen.getByLabelText("Theme"), "dark");
+    await user.click(screen.getByRole("button", { name: "Dark" }));
 
-    expect(screen.getByLabelText("Theme")).toHaveValue("dark");
+    expect(screen.getByRole("button", { name: "Dark" })).toHaveAttribute("aria-pressed", "true");
     expect(document.documentElement.dataset.theme).toBe("dark");
     expect(window.localStorage.getItem("ledgerra:theme")).toBe("dark");
     expect(screen.getByText("Ledgerra is currently using the dark theme.")).toBeInTheDocument();
@@ -124,6 +130,8 @@ describe("SettingsPage", () => {
     });
 
     render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Region and language" }));
 
     await user.selectOptions(screen.getByLabelText("Preferred currency"), "PLN");
     await user.selectOptions(screen.getByLabelText("Preferred language"), "pl");
@@ -142,6 +150,7 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
     await user.type(screen.getByLabelText("OpenAI API key"), "sk-test-openai-secret-3456");
     await user.selectOptions(screen.getByLabelText("Default provider"), "OpenAi");
     await user.click(screen.getByRole("button", { name: "Save AI settings" }));
@@ -159,6 +168,8 @@ describe("SettingsPage", () => {
     mocks.removeAiProviderKey.mockResolvedValue(mocks.aiSettings);
 
     const { rerender } = render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
 
     const removeButtons = screen.getAllByRole("button", { name: "Remove" });
     expect(removeButtons[0]).toBeEnabled();
@@ -184,7 +195,9 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
-    expect(screen.getByText("Import rules")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
+
+    expect(screen.getByRole("heading", { name: "Import rules" })).toBeInTheDocument();
     expect(screen.getByText("Market groceries")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Rule name"), "Coffee");
@@ -229,6 +242,8 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
+
     await user.selectOptions(screen.getByLabelText("Transaction type"), "Income");
     expect(screen.getByLabelText("Category")).toHaveValue("category-2");
 
@@ -255,6 +270,8 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
+
     await user.type(screen.getByLabelText("Rule name"), "   ");
     await user.type(screen.getByLabelText("Match text"), "   ");
     await user.click(screen.getByRole("button", { name: "Add rule" }));
@@ -269,6 +286,8 @@ describe("SettingsPage", () => {
 
     render(<SettingsPage />);
 
+    await user.click(screen.getByRole("button", { name: /^Rules/ }));
+
     await user.type(screen.getByLabelText("Rule name"), "Coffee");
     await user.type(screen.getByLabelText("Match text"), "Cafe");
     await user.click(screen.getByRole("button", { name: "Add rule" }));
@@ -277,12 +296,81 @@ describe("SettingsPage", () => {
     expect(mocks.refresh).not.toHaveBeenCalled();
   });
 
+  test("creates personal access tokens from security settings", async () => {
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Security" }));
+    await user.type(screen.getByPlaceholderText("Token name"), "CLI token");
+    await user.click(screen.getByRole("button", { name: "Create token" }));
+
+    await waitFor(() => {
+      expect(mocks.createPersonalAccessToken).toHaveBeenCalledWith("token", "CLI token");
+    });
+    expect(await screen.findByText("ledgerra_pat_test")).toBeInTheDocument();
+  });
+
+  test("shows personal access token creation errors", async () => {
+    const user = userEvent.setup();
+    mocks.createPersonalAccessToken.mockRejectedValue(new Error("Request failed with status 500"));
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Security" }));
+    await user.type(screen.getByPlaceholderText("Token name"), "CLI token");
+    await user.click(screen.getByRole("button", { name: "Create token" }));
+
+    expect(await screen.findByText("Request failed with status 500")).toBeInTheDocument();
+  });
+
+  test("removes revoked personal access tokens from the list", async () => {
+    const user = userEvent.setup();
+    mocks.getPersonalAccessTokens
+      .mockResolvedValueOnce([
+        {
+          id: "pat-1",
+          name: "CLI token",
+          tokenPrefix: "ABC123",
+          createdAtUtc: "2026-05-09T10:00:00Z",
+          lastUsedAtUtc: null,
+          revokedAtUtc: null
+        }
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: "pat-1",
+          name: "CLI token",
+          tokenPrefix: "ABC123",
+          createdAtUtc: "2026-05-09T10:00:00Z",
+          lastUsedAtUtc: null,
+          revokedAtUtc: "2026-05-09T10:01:00Z"
+        }
+      ]);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Security" }));
+    expect(await screen.findByText("CLI token")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Revoke" }));
+
+    await waitFor(() => {
+      expect(mocks.revokePersonalAccessToken).toHaveBeenCalledWith("token", "pat-1");
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("CLI token")).not.toBeInTheDocument();
+    });
+  });
+
   test("changes the default provider through the settings form", async () => {
     const user = userEvent.setup();
     mocks.aiSettings.providers.anthropic = { isConfigured: true, maskedKey: "...cdef" };
     mocks.updateDefaultAiProvider.mockResolvedValue(mocks.aiSettings);
 
     const { rerender } = render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
 
     await user.selectOptions(screen.getByLabelText("Default provider"), "Anthropic");
     await user.click(screen.getByRole("button", { name: "Save AI settings" }));
