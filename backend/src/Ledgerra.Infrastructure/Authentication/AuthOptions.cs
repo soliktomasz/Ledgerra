@@ -13,4 +13,6 @@ public sealed class AuthOptions
     public int AccessTokenMinutes { get; set; } = 60;
 
     public int RefreshTokenDays { get; set; } = 30;
+
+    public TimeSpan PersonalAccessTokenLifetime { get; set; } = TimeSpan.FromDays(365);
 }

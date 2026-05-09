@@ -10,7 +10,7 @@ public sealed record BackupArchiveResponse(
 
 public sealed record BackupAccountResponse(Guid Id, string Name, string Type, string CurrencyCode, decimal OpeningBalance, bool IsActive);
 
-public sealed record BackupCategoryResponse(Guid Id, string Name, string Kind, string Color);
+public sealed record BackupCategoryResponse(Guid Id, string Name, string Kind, string? Color);
 
 public sealed record BackupTransactionResponse(
     Guid Id,

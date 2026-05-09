@@ -49,6 +49,23 @@ public sealed class JwtTokenService : IJwtTokenService
             expiresAt);
     }
 
+
+    public string IssuePersonalAccessToken(AppUser user, Guid personalAccessTokenId)
+    {
+        var now = DateTime.UtcNow;
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new("pat_id", personalAccessTokenId.ToString())
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SigningKey));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken(_options.Issuer, _options.Audience, claims, now, now.Add(_options.PersonalAccessTokenLifetime), credentials);
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
     public string HashRefreshToken(string refreshToken)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken));

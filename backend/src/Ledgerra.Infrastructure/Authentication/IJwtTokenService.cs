@@ -7,4 +7,6 @@ public interface IJwtTokenService
     IssuedAuthToken IssueToken(AppUser user);
 
     string HashRefreshToken(string refreshToken);
+
+    string IssuePersonalAccessToken(AppUser user, Guid personalAccessTokenId);
 }

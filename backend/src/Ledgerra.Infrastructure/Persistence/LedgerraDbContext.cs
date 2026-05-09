@@ -35,6 +35,8 @@ public sealed class LedgerraDbContext : DbContext
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    public DbSet<PersonalAccessToken> PersonalAccessTokens => Set<PersonalAccessToken>();
+
     public DbSet<AiProviderCredential> AiProviderCredentials => Set<AiProviderCredential>();
 
     public DbSet<UserAiPreference> UserAiPreferences => Set<UserAiPreference>();
@@ -173,6 +175,21 @@ public sealed class LedgerraDbContext : DbContext
             builder.HasIndex(token => token.TokenHash).IsUnique();
             builder.HasOne(token => token.User)
                 .WithMany(user => user.RefreshTokens)
+                .HasForeignKey(token => token.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+
+        modelBuilder.Entity<PersonalAccessToken>(builder =>
+        {
+            builder.HasKey(token => token.Id);
+            builder.Property(token => token.Name).HasMaxLength(120);
+            builder.Property(token => token.TokenHash).HasMaxLength(128);
+            builder.Property(token => token.TokenPrefix).HasMaxLength(16);
+            builder.HasIndex(token => token.TokenHash).IsUnique();
+            builder.HasIndex(token => new { token.UserId, token.Name });
+            builder.HasOne(token => token.User)
+                .WithMany(user => user.PersonalAccessTokens)
                 .HasForeignKey(token => token.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });

@@ -34,6 +34,8 @@ public sealed class AppUser
 
     public List<RefreshToken> RefreshTokens { get; set; } = [];
 
+    public List<PersonalAccessToken> PersonalAccessTokens { get; set; } = [];
+
     public List<AiProviderCredential> AiProviderCredentials { get; set; } = [];
 
     public List<CategorizationRule> CategorizationRules { get; set; } = [];

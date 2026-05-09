@@ -1,10 +1,10 @@
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import { useTheme, type ThemePreference } from "../state/ThemeContext";
-import type { ImportRule } from "../types";
+import type { ImportRule, PersonalAccessToken } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
@@ -37,6 +37,9 @@ export function SettingsPage() {
   const [ruleError, setRuleError] = useState<string | null>(null);
   const [backupError, setBackupError] = useState<string | null>(null);
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
+  const [personalAccessTokens, setPersonalAccessTokens] = useState<PersonalAccessToken[]>([]);
+  const [newTokenName, setNewTokenName] = useState("");
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
 
   const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
@@ -175,6 +178,40 @@ export function SettingsPage() {
       setRuleError(getErrorMessage(exception, t("settings.unableToDeleteRule")));
     }
   };
+
+  const loadPersonalAccessTokens = useCallback(async () => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    const tokens = await apiClient.getPersonalAccessTokens(auth.accessToken);
+    setPersonalAccessTokens(tokens);
+  }, [auth?.accessToken]);
+
+  const handleCreatePersonalAccessToken = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!auth?.accessToken || !newTokenName.trim()) {
+      return;
+    }
+
+    const response = await apiClient.createPersonalAccessToken(auth.accessToken, newTokenName.trim());
+    setCreatedToken(response.plainTextToken);
+    setNewTokenName("");
+    await loadPersonalAccessTokens();
+  };
+
+  const handleRevokePersonalAccessToken = async (id: string) => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    await apiClient.revokePersonalAccessToken(auth.accessToken, id);
+    await loadPersonalAccessTokens();
+  };
+
+  useEffect(() => {
+    loadPersonalAccessTokens();
+  }, [loadPersonalAccessTokens]);
 
   const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
   const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;

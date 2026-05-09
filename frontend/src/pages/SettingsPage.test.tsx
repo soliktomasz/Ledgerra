@@ -10,6 +10,9 @@ const mocks = vi.hoisted(() => ({
   saveAiProviderKey: vi.fn(),
   removeAiProviderKey: vi.fn(),
   updateDefaultAiProvider: vi.fn(),
+  getPersonalAccessTokens: vi.fn(),
+  createPersonalAccessToken: vi.fn(),
+  revokePersonalAccessToken: vi.fn(),
   createImportRule: vi.fn(),
   updateImportRule: vi.fn(),
   deleteImportRule: vi.fn(),
@@ -32,6 +35,9 @@ vi.mock("../api/client", () => ({
     saveAiProviderKey: mocks.saveAiProviderKey,
     removeAiProviderKey: mocks.removeAiProviderKey,
     updateDefaultAiProvider: mocks.updateDefaultAiProvider,
+    getPersonalAccessTokens: mocks.getPersonalAccessTokens,
+    createPersonalAccessToken: mocks.createPersonalAccessToken,
+    revokePersonalAccessToken: mocks.revokePersonalAccessToken,
     createImportRule: mocks.createImportRule,
     updateImportRule: mocks.updateImportRule,
     deleteImportRule: mocks.deleteImportRule
@@ -74,6 +80,9 @@ describe("SettingsPage", () => {
     mocks.aiSettings.providers.openAi = { isConfigured: true, maskedKey: "...3456" };
     mocks.aiSettings.providers.anthropic = { isConfigured: false, maskedKey: null };
     mocks.aiSettings.defaultProvider = "OpenAi";
+    mocks.getPersonalAccessTokens.mockResolvedValue([]);
+    mocks.createPersonalAccessToken.mockResolvedValue({ plainTextToken: "ledgerra_pat_test" });
+    mocks.revokePersonalAccessToken.mockResolvedValue(undefined);
   });
 
   test("shows AI provider configuration state", () => {

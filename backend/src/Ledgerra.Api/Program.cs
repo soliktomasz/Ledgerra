@@ -105,6 +105,42 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions.SigningKey)),
             ClockSkew = TimeSpan.FromSeconds(30)
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var patId = context.Principal?.FindFirst("pat_id")?.Value;
+                if (string.IsNullOrWhiteSpace(patId) || !Guid.TryParse(patId, out var parsedPatId))
+                {
+                    return;
+                }
+
+                var dbContext = context.HttpContext.RequestServices.GetRequiredService<LedgerraDbContext>();
+                var token = await dbContext.PersonalAccessTokens.SingleOrDefaultAsync(item => item.Id == parsedPatId);
+                if (token is null || token.RevokedAtUtc is not null)
+                {
+                    context.Fail("Token revoked.");
+                    return;
+                }
+
+                var now = DateTime.UtcNow;
+                if (token.LastUsedAtUtc == null || (now - token.LastUsedAtUtc.Value) > TimeSpan.FromHours(1))
+                {
+                    token.LastUsedAtUtc = now;
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await dbContext.SaveChangesAsync();
+                        }
+                        catch
+                        {
+                            // Fail silently - token validation should not fail due to DB save errors
+                        }
+                    });
+                }
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
