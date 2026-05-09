@@ -1458,7 +1458,7 @@ label {
   scroll-margin-top: 1rem;
 }
 
-.settings-appearance-stack {
+.settings-section-stack {
   display: grid;
   gap: 1.35rem;
 }
