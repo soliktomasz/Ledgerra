@@ -20,6 +20,21 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/categories", label: t("nav.categories"), icon: CategoriesIcon },
     { to: "/settings", label: t("nav.settings"), icon: SettingsIcon }
   ];
+  const workspaceNavItems = navItems.filter((item) => item.to !== "/settings");
+  const systemNavItems = navItems.filter((item) => item.to === "/settings");
+
+  const renderNavLink = (item: (typeof navItems)[number]) => (
+    <NavLink
+      key={item.to}
+      to={item.to}
+      className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+    >
+      <span className="nav-icon">
+        <item.icon />
+      </span>
+      <span>{item.label}</span>
+    </NavLink>
+  );
 
   return (
     <div className="shell">
@@ -33,16 +48,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Link>
 
         <nav className="nav">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-            >
-              <item.icon />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+          <div className="nav-group">
+            <span className="nav-group-label">{t("appShell.workspace")}</span>
+            {workspaceNavItems.map(renderNavLink)}
+          </div>
+          <div className="nav-group">
+            <span className="nav-group-label">{t("appShell.system")}</span>
+            {systemNavItems.map(renderNavLink)}
+          </div>
         </nav>
 
         <div className="month-panel">

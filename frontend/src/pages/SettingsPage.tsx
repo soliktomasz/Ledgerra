@@ -6,7 +6,6 @@ import { useI18n } from "../state/I18nContext";
 import { useTheme, type ThemePreference } from "../state/ThemeContext";
 import type { ImportRule } from "../types";
 import { AccountsIcon, CashFlowIcon, CategoryIcon, ImportsIcon, ReportsIcon, SettingsIcon } from "../ui/icons";
-import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 import { normalizeLanguageCode, supportedLanguages } from "../utils/language";
@@ -180,6 +179,32 @@ export function SettingsPage() {
   const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
   const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
   const categoryNamesById = new Map(categories.map((category) => [category.id, category.name]));
+  const configuredAiProviderCount = Number(isOpenAiConfigured) + Number(isAnthropicConfigured);
+  const settingsGroups = [
+    {
+      label: t("settings.applicationGroup"),
+      items: [
+        { href: "#settings-appearance", label: t("settings.navAppearance"), icon: SettingsIcon },
+        { href: "#settings-region", label: t("settings.navRegion"), icon: CashFlowIcon },
+        { href: "#settings-session", label: t("settings.navSession"), icon: AccountsIcon }
+      ]
+    },
+    {
+      label: t("settings.dataGroup"),
+      items: [
+        { href: "#settings-ai", label: t("settings.navAi"), icon: ReportsIcon, badge: configuredAiProviderCount },
+        { href: "#settings-rules", label: t("settings.navRules"), icon: CategoryIcon, badge: importRules.length },
+        { href: "#settings-backup", label: t("settings.navBackup"), icon: ImportsIcon }
+      ]
+    },
+    {
+      label: t("settings.accountGroup"),
+      items: [
+        { href: "#settings-session", label: t("settings.profile"), icon: AccountsIcon },
+        { href: "#settings-session", label: t("settings.security"), icon: SettingsIcon }
+      ]
+    }
+  ];
 
   const handleExportBackup = async () => {
     if (!auth?.accessToken) {
@@ -234,15 +259,46 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="page-stack settings-page">
-      <PageHeader
-        eyebrow={t("settings.eyebrow")}
-        title={t("settings.title")}
-        description={t("settings.description")}
-      />
+    <div className="settings-page">
+      <header className="settings-hero">
+        <div>
+          <div className="settings-breadcrumb">
+            <span>Ledgerra</span>
+            <span>/</span>
+            <span>{t("settings.eyebrow")}</span>
+            <span>/</span>
+            <strong>{t("settings.appearanceBreadcrumb")}</strong>
+          </div>
+          <h1>{t("settings.title")}</h1>
+          <p>{t("settings.description")}</p>
+        </div>
+        <div className="settings-search" aria-hidden="true">
+          <span>⌕</span>
+          <span>{t("settings.searchPlaceholder")}</span>
+          <kbd>⌘K</kbd>
+        </div>
+      </header>
 
-      <div className="settings-grid settings-grid--preferences">
-        <SectionCard title={t("settings.appearance")} icon={<SettingsIcon />}>
+      <div className="settings-workspace-grid">
+        <aside className="settings-subnav" aria-label={t("settings.sections")}>
+          {settingsGroups.map((group) => (
+            <div className="settings-subnav-group" key={group.label}>
+              <span>{group.label}</span>
+              {group.items.map((item) => (
+                <a href={item.href} className="settings-subnav-link" key={`${group.label}-${item.label}`}>
+                  <item.icon />
+                  <span>{item.label}</span>
+                  {typeof item.badge === "number" ? <strong>{item.badge}</strong> : null}
+                </a>
+              ))}
+            </div>
+          ))}
+        </aside>
+
+        <div className="settings-main-panels">
+          <div className="settings-grid settings-grid--preferences">
+            <div id="settings-appearance">
+              <SectionCard title={t("settings.appearance")} icon={<SettingsIcon />}>
           <form className="stack-form settings-compact-form" onSubmit={(event) => event.preventDefault()}>
             <label>
               {t("settings.theme")}
@@ -260,10 +316,22 @@ export function SettingsPage() {
                 theme: resolvedTheme === "dark" ? t("settings.themeDark").toLowerCase() : t("settings.themeLight").toLowerCase()
               })}
             </p>
+            <div className="settings-choice-stack" aria-hidden="true">
+              <span>{t("settings.accent")}</span>
+              <div className="settings-swatch-row">
+                <i style={{ background: "#34D9A8" }} />
+                <i style={{ background: "#7AB8F5" }} />
+                <i style={{ background: "#F5C56B" }} />
+                <i style={{ background: "#A78BFA" }} />
+                <i style={{ background: "#F07A6A" }} />
+              </div>
+            </div>
           </form>
-        </SectionCard>
+              </SectionCard>
+            </div>
 
-        <SectionCard title={t("settings.regionalPreferences")} icon={<CashFlowIcon />}>
+            <div id="settings-region">
+              <SectionCard title={t("settings.regionalPreferences")} icon={<CashFlowIcon />}>
           <form className="settings-form-grid" onSubmit={handleSubmit}>
             <label>
               {t("settings.preferredCurrency")}
@@ -289,10 +357,12 @@ export function SettingsPage() {
               {t("settings.savePreferences")}
             </button>
           </form>
-        </SectionCard>
-      </div>
+              </SectionCard>
+            </div>
+          </div>
 
-      <SectionCard title={t("settings.aiProviders")} icon={<ReportsIcon />}>
+          <div id="settings-ai">
+            <SectionCard title={t("settings.aiProviders")} icon={<ReportsIcon />}>
         <div className="settings-ai-layout">
           <form className="stack-form settings-ai-form" onSubmit={handleAiProviderSubmit}>
             {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
@@ -373,9 +443,11 @@ export function SettingsPage() {
             </article>
           </div>
         </div>
-      </SectionCard>
+            </SectionCard>
+          </div>
 
-      <SectionCard title={t("settings.importRules")} icon={<CategoryIcon />}>
+          <div id="settings-rules">
+            <SectionCard title={t("settings.importRules")} icon={<CategoryIcon />}>
         <form className="stack-form rule-form" onSubmit={handleRuleSubmit}>
           {ruleError ? <p className="error-banner">{ruleError}</p> : null}
           <label>
@@ -433,10 +505,12 @@ export function SettingsPage() {
             ))
           )}
         </div>
-      </SectionCard>
+            </SectionCard>
+          </div>
 
-      <div className="settings-grid settings-grid--support">
-        <SectionCard title={t("settings.currentSession")} icon={<AccountsIcon />}>
+          <div className="settings-grid settings-grid--support">
+            <div id="settings-session">
+              <SectionCard title={t("settings.currentSession")} icon={<AccountsIcon />}>
           <div className="settings-session-grid">
             <article className="settings-fact">
               <span>{t("settings.userEmail")}</span>
@@ -464,9 +538,11 @@ export function SettingsPage() {
               <p>{t("settings.mobileReadinessDescription")}</p>
             </article>
           </div>
-        </SectionCard>
+              </SectionCard>
+            </div>
 
-        <SectionCard title={t("settings.backupAndRestore")} icon={<ImportsIcon />}>
+            <div id="settings-backup">
+              <SectionCard title={t("settings.backupAndRestore")} icon={<ImportsIcon />}>
           <div className="stack-form settings-backup-panel">
             {backupError ? <p className="error-banner">{backupError}</p> : null}
             {backupNotice ? <p className="success-banner settings-inline-banner">{backupNotice}</p> : null}
@@ -478,7 +554,10 @@ export function SettingsPage() {
               <input type="file" accept="application/json" onChange={(event) => void handleRestoreBackup(event)} />
             </label>
           </div>
-        </SectionCard>
+              </SectionCard>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

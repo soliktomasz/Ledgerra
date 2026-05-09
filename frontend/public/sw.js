@@ -1,4 +1,4 @@
-const CACHE_NAME = "ledgerra-shell-v1";
+const CACHE_NAME = "ledgerra-shell-v2";
 const APP_SHELL = ["/", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
