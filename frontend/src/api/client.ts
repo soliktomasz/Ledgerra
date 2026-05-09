@@ -13,7 +13,9 @@ import type {
   ReportingRangePreset,
   BackupArchive,
   Transaction,
-  SavingsGoal
+  SavingsGoal,
+  PersonalAccessToken,
+  CreatePersonalAccessTokenResponse
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
@@ -167,6 +169,24 @@ export const apiClient = {
       body: { provider }
     });
   },
+
+  getPersonalAccessTokens(token: string) {
+    return request<PersonalAccessToken[]>("/api/settings/personal-access-tokens", { token });
+  },
+  createPersonalAccessToken(token: string, name: string) {
+    return request<CreatePersonalAccessTokenResponse>("/api/settings/personal-access-tokens", {
+      method: "POST",
+      token,
+      body: { name }
+    });
+  },
+  revokePersonalAccessToken(token: string, id: string) {
+    return request<void>(`/api/settings/personal-access-tokens/${id}`, {
+      method: "DELETE",
+      token
+    });
+  },
+
   getCategories(token: string) {
     return request<Category[]>("/api/categories", { token });
   },

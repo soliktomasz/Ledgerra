@@ -225,3 +225,18 @@ export type BackupArchive = {
     categoryLimits: Array<{ id: string; categoryId: string; plannedAmount: number }>;
   }>;
 };
+
+
+export type PersonalAccessToken = {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  createdAtUtc: string;
+  lastUsedAtUtc?: string | null;
+  revokedAtUtc?: string | null;
+};
+
+export type CreatePersonalAccessTokenResponse = {
+  token: PersonalAccessToken;
+  plainTextToken: string;
+};

@@ -15,6 +15,7 @@ using Ledgerra.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +105,28 @@ builder.Services
             ValidAudience = authOptions.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions.SigningKey)),
             ClockSkew = TimeSpan.FromSeconds(30)
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var patId = context.Principal?.FindFirst("pat_id")?.Value;
+                if (string.IsNullOrWhiteSpace(patId) || !Guid.TryParse(patId, out var parsedPatId))
+                {
+                    return;
+                }
+
+                var dbContext = context.HttpContext.RequestServices.GetRequiredService<LedgerraDbContext>();
+                var token = await dbContext.PersonalAccessTokens.SingleOrDefaultAsync(item => item.Id == parsedPatId);
+                if (token is null || token.RevokedAtUtc is not null)
+                {
+                    context.Fail("Token revoked.");
+                    return;
+                }
+
+                token.LastUsedAtUtc = DateTime.UtcNow;
+                await dbContext.SaveChangesAsync(context.HttpContext.RequestAborted);
+            }
         };
     });
 
