@@ -1,10 +1,11 @@
-import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import { useTheme, type ThemePreference } from "../state/ThemeContext";
-import type { ImportRule, PersonalAccessToken } from "../types";
+import type { ImportRule } from "../types";
+import { AccountsIcon, CashFlowIcon, CategoryIcon, ImportsIcon, ReportsIcon, SettingsIcon } from "../ui/icons";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
@@ -37,9 +38,6 @@ export function SettingsPage() {
   const [ruleError, setRuleError] = useState<string | null>(null);
   const [backupError, setBackupError] = useState<string | null>(null);
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
-  const [personalAccessTokens, setPersonalAccessTokens] = useState<PersonalAccessToken[]>([]);
-  const [newTokenName, setNewTokenName] = useState("");
-  const [createdToken, setCreatedToken] = useState<string | null>(null);
 
   const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
@@ -179,40 +177,6 @@ export function SettingsPage() {
     }
   };
 
-  const loadPersonalAccessTokens = useCallback(async () => {
-    if (!auth?.accessToken) {
-      return;
-    }
-
-    const tokens = await apiClient.getPersonalAccessTokens(auth.accessToken);
-    setPersonalAccessTokens(tokens);
-  }, [auth?.accessToken]);
-
-  const handleCreatePersonalAccessToken = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!auth?.accessToken || !newTokenName.trim()) {
-      return;
-    }
-
-    const response = await apiClient.createPersonalAccessToken(auth.accessToken, newTokenName.trim());
-    setCreatedToken(response.plainTextToken);
-    setNewTokenName("");
-    await loadPersonalAccessTokens();
-  };
-
-  const handleRevokePersonalAccessToken = async (id: string) => {
-    if (!auth?.accessToken) {
-      return;
-    }
-
-    await apiClient.revokePersonalAccessToken(auth.accessToken, id);
-    await loadPersonalAccessTokens();
-  };
-
-  useEffect(() => {
-    loadPersonalAccessTokens();
-  }, [loadPersonalAccessTokens]);
-
   const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
   const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
   const categoryNamesById = new Map(categories.map((category) => [category.id, category.name]));
@@ -253,9 +217,7 @@ export function SettingsPage() {
       const content = await file.text();
       const archive = JSON.parse(content);
 
-      const confirmed = window.confirm(
-        "This will delete all your current data and replace it with the backup. This action cannot be undone. Are you sure you want to continue?"
-      );
+      const confirmed = window.confirm(t("settings.restoreBackupConfirm"));
 
       if (!confirmed) {
         return;
@@ -272,16 +234,16 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="page-stack">
+    <div className="page-stack settings-page">
       <PageHeader
         eyebrow={t("settings.eyebrow")}
         title={t("settings.title")}
         description={t("settings.description")}
       />
 
-      <div className="split-grid">
-        <SectionCard title={t("settings.appearance")}>
-          <form className="stack-form" onSubmit={(event) => event.preventDefault()}>
+      <div className="settings-grid settings-grid--preferences">
+        <SectionCard title={t("settings.appearance")} icon={<SettingsIcon />}>
+          <form className="stack-form settings-compact-form" onSubmit={(event) => event.preventDefault()}>
             <label>
               {t("settings.theme")}
               <select
@@ -301,8 +263,8 @@ export function SettingsPage() {
           </form>
         </SectionCard>
 
-        <SectionCard title={t("settings.regionalPreferences")}>
-          <form className="stack-form" onSubmit={handleSubmit}>
+        <SectionCard title={t("settings.regionalPreferences")} icon={<CashFlowIcon />}>
+          <form className="settings-form-grid" onSubmit={handleSubmit}>
             <label>
               {t("settings.preferredCurrency")}
               <select value={preferredCurrencyCode} onChange={(event) => setPreferredCurrencyCode(event.target.value)}>
@@ -330,127 +292,90 @@ export function SettingsPage() {
         </SectionCard>
       </div>
 
-      <div className="split-grid">
-        <SectionCard title={t("settings.aiProviders")}>
-        <form className="stack-form" onSubmit={handleAiProviderSubmit}>
-          {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
-          <label>
-            {t("settings.defaultProvider")}
-            <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
-              <option value="OpenAi">OpenAI</option>
-              <option value="Anthropic">Anthropic</option>
-            </select>
-          </label>
-          <label>
-            {t("settings.openAiApiKey")}
-            <input
-              value={openAiKey}
-              onChange={(event) => setOpenAiKey(event.target.value)}
-              type="password"
-              placeholder={aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}
-            />
-          </label>
-          <label>
-            {t("settings.anthropicApiKey")}
-            <input
-              value={anthropicKey}
-              onChange={(event) => setAnthropicKey(event.target.value)}
-              type="password"
-              placeholder={aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}
-            />
-          </label>
-          <button className="primary-button" type="submit">
-            {t("settings.saveAiSettings")}
-          </button>
-        </form>
-        <div className="table-list compact-list">
-          <article className="table-row">
-            <div>
-              <strong>OpenAI</strong>
-              <p>{aiSettings?.providers.openAi.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
+      <SectionCard title={t("settings.aiProviders")} icon={<ReportsIcon />}>
+        <div className="settings-ai-layout">
+          <form className="stack-form settings-ai-form" onSubmit={handleAiProviderSubmit}>
+            {aiProviderError ? <p className="error-banner">{aiProviderError}</p> : null}
+            <label>
+              {t("settings.defaultProvider")}
+              <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
+                <option value="OpenAi">OpenAI</option>
+                <option value="Anthropic">Anthropic</option>
+              </select>
+            </label>
+            <div className="settings-key-grid">
+              <label>
+                {t("settings.openAiApiKey")}
+                <input
+                  value={openAiKey}
+                  onChange={(event) => setOpenAiKey(event.target.value)}
+                  type="password"
+                  placeholder={aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}
+                />
+              </label>
+              <label>
+                {t("settings.anthropicApiKey")}
+                <input
+                  value={anthropicKey}
+                  onChange={(event) => setAnthropicKey(event.target.value)}
+                  type="password"
+                  placeholder={aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}
+                />
+              </label>
             </div>
-            <div className="settings-provider-actions">
-              <strong>{aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}</strong>
-              <button
-                className="ghost-button"
-                type="button"
-                disabled={!isOpenAiConfigured}
-                onClick={() => {
-                  if (isOpenAiConfigured) {
-                    handleRemoveProvider("openai");
-                  }
-                }}
-              >
-                {t("common.remove")}
-              </button>
-            </div>
-          </article>
-          <article className="table-row">
-            <div>
-              <strong>Anthropic</strong>
-              <p>{aiSettings?.providers.anthropic.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
-            </div>
-            <div className="settings-provider-actions">
-              <strong>{aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}</strong>
-              <button
-                className="ghost-button"
-                type="button"
-                disabled={!isAnthropicConfigured}
-                onClick={() => {
-                  if (isAnthropicConfigured) {
-                    handleRemoveProvider("anthropic");
-                  }
-                }}
-              >
-                {t("common.remove")}
-              </button>
-            </div>
-          </article>
-        </div>
-        </SectionCard>
+            <button className="primary-button" type="submit">
+              {t("settings.saveAiSettings")}
+            </button>
+          </form>
 
-        <SectionCard title={t("settings.currentSession")}>
-          <div className="table-list">
-            <article className="table-row">
+          <div className="settings-provider-list">
+            <article className="settings-provider-row">
               <div>
-                <strong>{t("settings.userEmail")}</strong>
-                <p>{t("settings.activeLocalAccount")}</p>
+                <strong>OpenAI</strong>
+                <p>{aiSettings?.providers.openAi.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
               </div>
-              <strong>{profile?.email ?? auth?.email ?? t("common.unknown")}</strong>
+              <div className="settings-provider-actions">
+                <strong>{aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}</strong>
+                <button
+                  className="ghost-button compact-button"
+                  type="button"
+                  disabled={!isOpenAiConfigured}
+                  onClick={() => {
+                    if (isOpenAiConfigured) {
+                      handleRemoveProvider("openai");
+                    }
+                  }}
+                >
+                  {t("common.remove")}
+                </button>
+              </div>
             </article>
-            <article className="table-row">
+            <article className="settings-provider-row">
               <div>
-                <strong>{t("settings.mainCurrency")}</strong>
-                <p>{t("settings.appWideTotals")}</p>
+                <strong>Anthropic</strong>
+                <p>{aiSettings?.providers.anthropic.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
               </div>
-              <strong>{profile?.preferredCurrencyCode ?? "USD"}</strong>
-            </article>
-            <article className="table-row">
-              <div>
-                <strong>{t("settings.preferredLanguage")}</strong>
-                <p>{t("settings.languageAndFormatting")}</p>
+              <div className="settings-provider-actions">
+                <strong>{aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}</strong>
+                <button
+                  className="ghost-button compact-button"
+                  type="button"
+                  disabled={!isAnthropicConfigured}
+                  onClick={() => {
+                    if (isAnthropicConfigured) {
+                      handleRemoveProvider("anthropic");
+                    }
+                  }}
+                >
+                  {t("common.remove")}
+                </button>
               </div>
-              <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
-            </article>
-            <article className="table-row">
-              <div>
-                <strong>{t("settings.apiModel")}</strong>
-                <p>{t("settings.singleUserJwt")}</p>
-              </div>
-              <strong>{t("settings.v1Ready")}</strong>
-            </article>
-            <article className="table-row">
-              <div>
-                <strong>{t("settings.mobileReadiness")}</strong>
-                <p>{t("settings.mobileReadinessDescription")}</p>
-              </div>
-              <strong>{t("settings.prepared")}</strong>
             </article>
           </div>
-        </SectionCard>
-      </div>
+        </div>
+      </SectionCard>
 
-      <SectionCard title={t("settings.importRules")}>
+      <SectionCard title={t("settings.importRules")} icon={<CategoryIcon />}>
         <form className="stack-form rule-form" onSubmit={handleRuleSubmit}>
           {ruleError ? <p className="error-banner">{ruleError}</p> : null}
           <label>
@@ -497,10 +422,10 @@ export function SettingsPage() {
                 </div>
                 <div className="rule-actions">
                   <strong>{rule.isActive ? t("common.active") : t("common.disabled")}</strong>
-                  <button className="ghost-button" type="button" aria-label={`${rule.isActive ? t("common.disable") : t("common.enable")} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
+                  <button className="ghost-button compact-button" type="button" aria-label={`${rule.isActive ? t("common.disable") : t("common.enable")} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
                     {rule.isActive ? t("common.disable") : t("common.enable")}
                   </button>
-                  <button className="ghost-button danger-button" type="button" aria-label={`${t("common.delete")} ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
+                  <button className="ghost-button compact-button danger-button" type="button" aria-label={`${t("common.delete")} ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
                     {t("common.delete")}
                   </button>
                 </div>
@@ -510,19 +435,51 @@ export function SettingsPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Backup and restore">
-        <div className="stack-form">
-          {backupError ? <p className="error-banner">{backupError}</p> : null}
-          {backupNotice ? <p className="helper-text">{backupNotice}</p> : null}
-          <button className="primary-button" type="button" onClick={() => void handleExportBackup()}>
-            Export full JSON backup
-          </button>
-          <label>
-            Restore from JSON backup
-            <input type="file" accept="application/json" onChange={(event) => void handleRestoreBackup(event)} />
-          </label>
-        </div>
-      </SectionCard>
+      <div className="settings-grid settings-grid--support">
+        <SectionCard title={t("settings.currentSession")} icon={<AccountsIcon />}>
+          <div className="settings-session-grid">
+            <article className="settings-fact">
+              <span>{t("settings.userEmail")}</span>
+              <strong>{profile?.email ?? auth?.email ?? t("common.unknown")}</strong>
+              <p>{t("settings.activeLocalAccount")}</p>
+            </article>
+            <article className="settings-fact">
+              <span>{t("settings.mainCurrency")}</span>
+              <strong>{profile?.preferredCurrencyCode ?? "USD"}</strong>
+              <p>{t("settings.appWideTotals")}</p>
+            </article>
+            <article className="settings-fact">
+              <span>{t("settings.preferredLanguage")}</span>
+              <strong>{supportedLanguages.find((language) => language.code === (profile?.preferredLanguageCode ?? preferredLanguageCode))?.label ?? preferredLanguageCode.toUpperCase()}</strong>
+              <p>{t("settings.languageAndFormatting")}</p>
+            </article>
+            <article className="settings-fact">
+              <span>{t("settings.apiModel")}</span>
+              <strong>{t("settings.v1Ready")}</strong>
+              <p>{t("settings.singleUserJwt")}</p>
+            </article>
+            <article className="settings-fact">
+              <span>{t("settings.mobileReadiness")}</span>
+              <strong>{t("settings.prepared")}</strong>
+              <p>{t("settings.mobileReadinessDescription")}</p>
+            </article>
+          </div>
+        </SectionCard>
+
+        <SectionCard title={t("settings.backupAndRestore")} icon={<ImportsIcon />}>
+          <div className="stack-form settings-backup-panel">
+            {backupError ? <p className="error-banner">{backupError}</p> : null}
+            {backupNotice ? <p className="success-banner settings-inline-banner">{backupNotice}</p> : null}
+            <button className="primary-button" type="button" onClick={() => void handleExportBackup()}>
+              {t("settings.exportBackup")}
+            </button>
+            <label>
+              {t("settings.restoreBackup")}
+              <input type="file" accept="application/json" onChange={(event) => void handleRestoreBackup(event)} />
+            </label>
+          </div>
+        </SectionCard>
+      </div>
     </div>
   );
 }
