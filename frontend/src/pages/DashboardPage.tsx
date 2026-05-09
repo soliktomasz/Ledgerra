@@ -216,11 +216,15 @@ export function DashboardPage() {
   });
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
+  const checklistDismissalStorageKey = `ledgerra:onboarding-dismissed:${profile?.email ?? "anonymous"}`;
   const widgetPreferenceStorageKey = `ledgerra:dashboard-widgets:${profile?.email ?? "anonymous"}`;
+  const widgetCustomizationStorageKey = `ledgerra:dashboard-widget-customization-closed:${profile?.email ?? "anonymous"}`;
   const legacyAcknowledgementStorageKey = `${acknowledgementStorageKey}:${mainCurrencyCode}`;
   const [acknowledgements, setAcknowledgements] = useState(() =>
     readAcknowledgements(acknowledgementStorageKey, legacyAcknowledgementStorageKey)
   );
+  const [isChecklistDismissed, setIsChecklistDismissed] = useState(() => window.localStorage.getItem(checklistDismissalStorageKey) === "true");
+  const [isWidgetCustomizationClosed, setIsWidgetCustomizationClosed] = useState(() => window.localStorage.getItem(widgetCustomizationStorageKey) === "true");
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [widgetPreferences, setWidgetPreferences] = useState<DashboardWidgetPreference[]>(() =>
     normalizeDashboardWidgetPreferences(window.localStorage.getItem(widgetPreferenceStorageKey))
@@ -240,6 +244,14 @@ export function DashboardPage() {
       return next;
     });
   }, [acknowledgementStorageKey]);
+  const dismissChecklist = useCallback(() => {
+    window.localStorage.setItem(checklistDismissalStorageKey, "true");
+    setIsChecklistDismissed(true);
+  }, [checklistDismissalStorageKey]);
+  const setWidgetCustomizationClosed = useCallback((closed: boolean) => {
+    window.localStorage.setItem(widgetCustomizationStorageKey, String(closed));
+    setIsWidgetCustomizationClosed(closed);
+  }, [widgetCustomizationStorageKey]);
   const updateWidgetPreferences = useCallback((updater: (current: DashboardWidgetPreference[]) => DashboardWidgetPreference[]) => {
     setWidgetPreferences((current) => {
       const next = updater(current);
@@ -321,8 +333,14 @@ export function DashboardPage() {
     window.localStorage.setItem(acknowledgementStorageKey, JSON.stringify(nextAcknowledgements));
   }, [acknowledgementStorageKey, legacyAcknowledgementStorageKey]);
   useEffect(() => {
+    setIsChecklistDismissed(window.localStorage.getItem(checklistDismissalStorageKey) === "true");
+  }, [checklistDismissalStorageKey]);
+  useEffect(() => {
     setWidgetPreferences(normalizeDashboardWidgetPreferences(window.localStorage.getItem(widgetPreferenceStorageKey)));
   }, [widgetPreferenceStorageKey]);
+  useEffect(() => {
+    setIsWidgetCustomizationClosed(window.localStorage.getItem(widgetCustomizationStorageKey) === "true");
+  }, [widgetCustomizationStorageKey]);
 
   const visibleWidgets = useMemo(() => widgetPreferences.filter((widget) => widget.visible), [widgetPreferences]);
   const widgetLabels: Record<DashboardWidgetId, string> = {
@@ -390,7 +408,7 @@ export function DashboardPage() {
         </div>
       ) : null}
 
-      {!isChecklistComplete ? (
+      {!isChecklistComplete && !isChecklistDismissed ? (
         <section className="onboarding-checklist" aria-label={t("dashboard.firstRunChecklist")}>
           <div className="onboarding-checklist-header">
             <div>
@@ -398,7 +416,12 @@ export function DashboardPage() {
               <h2>{t("dashboard.firstRunChecklist")}</h2>
               <p>{t("dashboard.firstRunChecklistDescription")}</p>
             </div>
-            <strong>{t("dashboard.checklistComplete", { completed: completedChecklistItems, total: checklistItems.length })}</strong>
+            <div className="onboarding-checklist-header-actions">
+              <strong>{t("dashboard.checklistComplete", { completed: completedChecklistItems, total: checklistItems.length })}</strong>
+              <button className="ghost-button compact-button" type="button" onClick={dismissChecklist}>
+                {t("dashboard.dismissChecklist")}
+              </button>
+            </div>
           </div>
           <div className="onboarding-checklist-items">
             {checklistItems.map((item) => (
@@ -432,33 +455,44 @@ export function DashboardPage() {
           </div>
         </section>
       ) : null}
-      <section className="widget-customization" aria-label={t("dashboard.widgetCustomize")}>
-        <div className="section-header">
-          <h2>{t("dashboard.widgetCustomize")}</h2>
+      {isWidgetCustomizationClosed ? (
+        <div className="widget-customization-toggle">
+          <button className="ghost-button compact-button" type="button" onClick={() => setWidgetCustomizationClosed(false)}>
+            {t("dashboard.widgetCustomize")}
+          </button>
         </div>
-        <div className="widget-customization-list">
-          {widgetPreferences.map((widget, index) => (
-            <article className="widget-customization-row" key={widget.id}>
-              <label>
-                <input
-                  checked={widget.visible}
-                  onChange={() => toggleWidgetVisibility(widget.id)}
-                  type="checkbox"
-                />
-                <span>{widgetLabels[widget.id]}</span>
-              </label>
-              <div className="widget-customization-actions">
-                <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "up")} disabled={index === 0}>
-                  {t("dashboard.moveUp")}
-                </button>
-                <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "down")} disabled={index === widgetPreferences.length - 1}>
-                  {t("dashboard.moveDown")}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      ) : (
+        <section className="widget-customization" aria-label={t("dashboard.widgetCustomize")}>
+          <div className="section-header">
+            <h2>{t("dashboard.widgetCustomize")}</h2>
+            <button className="ghost-button compact-button" type="button" onClick={() => setWidgetCustomizationClosed(true)}>
+              {t("common.close")}
+            </button>
+          </div>
+          <div className="widget-customization-list">
+            {widgetPreferences.map((widget, index) => (
+              <article className="widget-customization-row" key={widget.id}>
+                <label>
+                  <input
+                    checked={widget.visible}
+                    onChange={() => toggleWidgetVisibility(widget.id)}
+                    type="checkbox"
+                  />
+                  <span>{widgetLabels[widget.id]}</span>
+                </label>
+                <div className="widget-customization-actions">
+                  <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "up")} disabled={index === 0}>
+                    {t("dashboard.moveUp")}
+                  </button>
+                  <button className="ghost-button compact-button" type="button" onClick={() => moveWidget(widget.id, "down")} disabled={index === widgetPreferences.length - 1}>
+                    {t("dashboard.moveDown")}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       {visibleWidgets.map((widget) => {
         if (widget.id === "metrics") {

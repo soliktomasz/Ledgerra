@@ -162,6 +162,34 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Categories reviewed")).toBeInTheDocument();
   });
 
+  test("lets users close the first-run checklist without completing steps", async () => {
+    const user = userEvent.setup();
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByLabelText("First run checklist")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Close checklist" }));
+
+    expect(screen.queryByLabelText("First run checklist")).not.toBeInTheDocument();
+    expect(localStorage.getItem("ledgerra:onboarding-dismissed:owner@ledgerra.local")).toBe("true");
+    expect(JSON.parse(localStorage.getItem("ledgerra:onboarding:owner@ledgerra.local") ?? "{}")).toEqual({
+      currency: false,
+      categories: false
+    });
+
+    rerender(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByLabelText("First run checklist")).not.toBeInTheDocument();
+  });
+
   test("hides onboarding checklist after every step is complete", () => {
     localStorage.setItem(
       "ledgerra:onboarding:owner@ledgerra.local",
@@ -392,6 +420,36 @@ describe("DashboardPage", () => {
     const stored = localStorage.getItem("ledgerra:dashboard-widgets:owner@ledgerra.local");
     expect(stored).toContain("\"id\":\"metrics\"");
     expect(stored?.indexOf("\"id\":\"metrics\"")).toBeGreaterThan(stored?.indexOf("\"id\":\"trends\"") ?? -1);
+  });
+
+  test("closes and reopens dashboard widget customization without changing widget preferences", async () => {
+    const user = userEvent.setup();
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    const customizationPanel = screen.getByLabelText("Customize widgets");
+    await user.click(within(customizationPanel).getByRole("button", { name: "Close" }));
+
+    expect(screen.queryByLabelText("Customize widgets")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Customize widgets" })).toBeInTheDocument();
+    expect(localStorage.getItem("ledgerra:dashboard-widget-customization-closed:owner@ledgerra.local")).toBe("true");
+    expect(localStorage.getItem("ledgerra:dashboard-widgets:owner@ledgerra.local")).toBeNull();
+
+    rerender(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByLabelText("Customize widgets")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Customize widgets" }));
+
+    expect(screen.getByLabelText("Customize widgets")).toBeInTheDocument();
+    expect(localStorage.getItem("ledgerra:dashboard-widget-customization-closed:owner@ledgerra.local")).toBe("false");
   });
 
   test("opens quick transaction dialog and saves a transaction from the dashboard", async () => {

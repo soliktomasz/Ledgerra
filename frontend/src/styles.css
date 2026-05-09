@@ -634,7 +634,16 @@ label {
   line-height: 1.45;
 }
 
-.onboarding-checklist-header > strong {
+.onboarding-checklist-header-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.onboarding-checklist-header-actions > strong {
   flex: 0 0 auto;
   padding: 0.42rem 0.65rem;
   border-radius: var(--radius-sm);
@@ -707,6 +716,11 @@ label {
   border-radius: var(--radius);
   padding: 1rem;
   background: var(--surface);
+}
+
+.widget-customization-toggle {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .widget-customization-list {
@@ -1510,6 +1524,10 @@ label {
   .onboarding-checklist-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .onboarding-checklist-header-actions {
+    justify-content: flex-start;
   }
 
   .onboarding-checklist-items {
