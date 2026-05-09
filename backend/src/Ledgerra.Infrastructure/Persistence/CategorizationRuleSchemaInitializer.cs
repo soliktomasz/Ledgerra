@@ -19,6 +19,67 @@ public static class CategorizationRuleSchemaInitializer
             ALTER TABLE "Users"
                 ADD COLUMN IF NOT EXISTS "PreferredLanguageCode" character varying(10) NOT NULL DEFAULT 'en';
 
+            ALTER TABLE "Transactions"
+                ADD COLUMN IF NOT EXISTS "ParentTransactionId" uuid NULL;
+
+            ALTER TABLE "Transactions"
+                ADD COLUMN IF NOT EXISTS "SplitGroupId" uuid NULL;
+
+            ALTER TABLE "Transactions"
+                ADD COLUMN IF NOT EXISTS "TransferGroupId" uuid NULL;
+
+            CREATE TABLE IF NOT EXISTS "SavingsGoals" (
+                "Id" uuid NOT NULL,
+                "UserId" uuid NOT NULL,
+                "Name" character varying(120) NOT NULL,
+                "TargetAmount" numeric(18,2) NOT NULL,
+                "DeadlineUtc" timestamp with time zone NULL,
+                "CreatedAtUtc" timestamp with time zone NOT NULL,
+                "UpdatedAtUtc" timestamp with time zone NOT NULL,
+                CONSTRAINT "PK_SavingsGoals" PRIMARY KEY ("Id"),
+                CONSTRAINT "FK_SavingsGoals_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_SavingsGoals_UserId_Name"
+                ON "SavingsGoals" ("UserId", "Name");
+
+            ALTER TABLE "Transactions"
+                ADD COLUMN IF NOT EXISTS "SavingsGoalId" uuid NULL;
+
+            CREATE INDEX IF NOT EXISTS "IX_Transactions_ParentTransactionId"
+                ON "Transactions" ("ParentTransactionId");
+
+            CREATE INDEX IF NOT EXISTS "IX_Transactions_SavingsGoalId"
+                ON "Transactions" ("SavingsGoalId");
+
+            CREATE INDEX IF NOT EXISTS "IX_Transactions_UserId_SplitGroupId"
+                ON "Transactions" ("UserId", "SplitGroupId");
+
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conname = 'FK_Transactions_Transactions_ParentTransactionId'
+                      AND conrelid = '"Transactions"'::regclass
+                ) THEN
+                    ALTER TABLE "Transactions"
+                        ADD CONSTRAINT "FK_Transactions_Transactions_ParentTransactionId"
+                        FOREIGN KEY ("ParentTransactionId") REFERENCES "Transactions" ("Id") ON DELETE CASCADE;
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conname = 'FK_Transactions_SavingsGoals_SavingsGoalId'
+                      AND conrelid = '"Transactions"'::regclass
+                ) THEN
+                    ALTER TABLE "Transactions"
+                        ADD CONSTRAINT "FK_Transactions_SavingsGoals_SavingsGoalId"
+                        FOREIGN KEY ("SavingsGoalId") REFERENCES "SavingsGoals" ("Id") ON DELETE SET NULL;
+                END IF;
+            END $$;
+
             CREATE TABLE IF NOT EXISTS "AiProviderCredentials" (
                 "Id" uuid NOT NULL,
                 "UserId" uuid NOT NULL,
