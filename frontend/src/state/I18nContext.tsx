@@ -1007,6 +1007,7 @@ const es: typeof en = {
   "appShell.previousMonth": "Mes anterior",
   "appShell.nextMonth": "Mes siguiente",
   "appShell.currentMonth": "Mes actual",
+  "appShell.navigation": "Navegación principal",
   "appShell.signedInAs": "Sesión iniciada como",
   "appShell.signOut": "Cerrar sesión",
   "common.save": "Guardar",
