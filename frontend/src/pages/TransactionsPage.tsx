@@ -127,6 +127,7 @@ export function TransactionsPage() {
   const [bulkAccountId, setBulkAccountId] = useState("");
   const [isApplyingBulkAction, setIsApplyingBulkAction] = useState(false);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+  const [isEntryOpen, setIsEntryOpen] = useState(false);
 
   useEffect(() => {
     setLedgerTransactions(transactions);
@@ -381,6 +382,7 @@ export function TransactionsPage() {
     setFormMode("create");
     setEditingTransactionId(null);
     setFormValues({});
+    setIsEntryOpen(false);
   };
 
   const refreshAfterMutation = async () => {
@@ -413,6 +415,7 @@ export function TransactionsPage() {
   };
 
   const startEdit = (transaction: Transaction) => {
+    setIsEntryOpen(true);
     setFormMode("edit");
     setEditingTransactionId(transaction.id);
     setFormValues({
@@ -434,7 +437,9 @@ export function TransactionsPage() {
     }
 
     if (isTransferTransaction(transaction)) {
+      setIsEntryOpen(true);
       setFormMode("create");
+      setEditingTransactionId(null);
       setFormValues({
         type: "Transfer",
         accountId: transaction.accountId,
@@ -443,6 +448,7 @@ export function TransactionsPage() {
         occurredOnUtc: toDateTimeLocal(transaction.occurredOnUtc),
         note: transaction.note ?? ""
       });
+      setErrorMessage("");
       setStatusMessage(t("transactions.chooseDestination"));
       return;
     }
@@ -462,6 +468,14 @@ export function TransactionsPage() {
     } catch (caughtError) {
       setErrorMessage(caughtError instanceof Error ? caughtError.message : t("transactions.unableToDuplicate"));
     }
+  };
+
+  const openCreateEntry = () => {
+    setIsEntryOpen(true);
+    setFormMode("create");
+    setEditingTransactionId(null);
+    setFormValues({});
+    setErrorMessage("");
   };
 
   const deleteTransaction = async (transaction: Transaction) => {
@@ -596,35 +610,52 @@ export function TransactionsPage() {
             </article>
           </div>
 
-          <section className={`transaction-entry-panel${formMode === "edit" ? " is-editing" : ""}`}>
-            <div className="transaction-entry-header">
+          {errorMessage ? <p className="error-banner">{errorMessage}</p> : null}
+          {statusMessage ? <p className="success-banner">{statusMessage}</p> : null}
+          {isEntryOpen ? (
+            <section className={`transaction-entry-panel${formMode === "edit" ? " is-editing" : ""}`} id="transaction-entry-form">
+              <div className="transaction-entry-header">
+                <div>
+                  <span>{t("transactions.quickEntry")}</span>
+                  <h2>{formMode === "edit" ? t("transactions.editTransaction") : t("transactions.addTransaction")}</h2>
+                </div>
+                <div className="transaction-entry-header-actions">
+                  <strong>{formMode === "edit" ? t("transactions.editing") : t("transactions.ready")}</strong>
+                  <button className="ghost-button compact-button" type="button" onClick={resetForm}>
+                    {t("common.close")}
+                  </button>
+                </div>
+              </div>
+              {auth?.accessToken ? (
+                <TransactionForm
+                  key={`${formMode}-${editingTransactionId ?? "new"}`}
+                  token={auth.accessToken}
+                  accounts={accounts}
+                  categories={categories}
+                  mode={formMode}
+                  transactionId={editingTransactionId}
+                  initialValues={formValues}
+                  onCancel={formMode === "edit" ? resetForm : undefined}
+                  onError={setErrorMessage}
+                  onStatus={setStatusMessage}
+                  onSaved={async () => {
+                    resetForm();
+                    await refreshAfterMutation();
+                  }}
+                />
+              ) : null}
+            </section>
+          ) : (
+            <section className="transaction-entry-launcher">
               <div>
                 <span>{t("transactions.quickEntry")}</span>
-                <h2>{formMode === "edit" ? t("transactions.editTransaction") : t("transactions.addTransaction")}</h2>
+                <h2>{t("transactions.addTransaction")}</h2>
               </div>
-              <strong>{formMode === "edit" ? t("transactions.editing") : t("transactions.ready")}</strong>
-            </div>
-            {errorMessage ? <p className="error-banner">{errorMessage}</p> : null}
-            {statusMessage ? <p className="success-banner">{statusMessage}</p> : null}
-            {auth?.accessToken ? (
-              <TransactionForm
-                key={`${formMode}-${editingTransactionId ?? "new"}`}
-                token={auth.accessToken}
-                accounts={accounts}
-                categories={categories}
-                mode={formMode}
-                transactionId={editingTransactionId}
-                initialValues={formValues}
-                onCancel={formMode === "edit" ? resetForm : undefined}
-                onError={setErrorMessage}
-                onStatus={setStatusMessage}
-                onSaved={async () => {
-                  resetForm();
-                  await refreshAfterMutation();
-                }}
-              />
-            ) : null}
-          </section>
+              <button className="primary-button transaction-entry-open-button" type="button" aria-expanded={isEntryOpen} aria-controls="transaction-entry-form" onClick={openCreateEntry}>
+                {t("transactions.addTransaction")}
+              </button>
+            </section>
+          )}
 
           <section className="transaction-ledger-panel">
             <div className="transaction-ledger-heading">

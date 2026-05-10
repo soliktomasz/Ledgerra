@@ -2116,14 +2116,28 @@ label {
   font-weight: 700;
 }
 
+.transaction-entry-launcher,
 .transaction-entry-panel,
 .transaction-ledger-panel {
-  display: grid;
   gap: 0.85rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-soft);
+}
+
+.transaction-entry-panel,
+.transaction-ledger-panel {
+  display: grid;
+}
+
+.transaction-entry-launcher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.78rem 0.85rem;
+  border-color: var(--accent-border);
+  background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 115%);
 }
 
 .transaction-entry-panel {
@@ -2151,6 +2165,14 @@ label {
   border-bottom: 1px dashed var(--accent-border);
 }
 
+.transaction-entry-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transaction-entry-launcher span,
 .transaction-entry-header span,
 .transaction-ledger-heading span {
   color: var(--muted);
@@ -2160,6 +2182,7 @@ label {
   text-transform: uppercase;
 }
 
+.transaction-entry-launcher h2,
 .transaction-entry-header h2,
 .transaction-ledger-heading h2 {
   margin: 0.18rem 0 0;
@@ -2167,14 +2190,17 @@ label {
   letter-spacing: 0;
 }
 
-.transaction-entry-header > strong {
-  flex: 0 0 auto;
+.transaction-entry-header-actions > strong {
   border: 1px solid var(--accent-border);
   border-radius: 999px;
   padding: 0.28rem 0.52rem;
   background: var(--surface-overlay);
   color: var(--accent-strong);
   font-size: 0.76rem;
+}
+
+.transaction-entry-open-button {
+  flex: 0 0 auto;
 }
 
 .transaction-entry-panel .stack-form {
@@ -3348,10 +3374,20 @@ label {
   }
 
   .transaction-day-heading,
+  .transaction-entry-launcher,
   .transaction-entry-header,
   .transaction-ledger-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .transaction-entry-header-actions,
+  .transaction-entry-open-button {
+    width: 100%;
+  }
+
+  .transaction-entry-header-actions {
+    justify-content: space-between;
   }
 
   .transaction-day-heading div {

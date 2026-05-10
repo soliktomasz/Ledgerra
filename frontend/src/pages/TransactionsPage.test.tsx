@@ -253,6 +253,7 @@ describe("TransactionsPage", () => {
 
     render(<TransactionsPage />);
 
+    await user.click(screen.getByRole("button", { name: "Add transaction" }));
     await user.selectOptions(screen.getByLabelText("Type"), "Expense");
     await user.selectOptions(screen.getByLabelText("Account"), "account-1");
     await user.selectOptions(screen.getByLabelText("Category"), "__create_new__");
@@ -286,6 +287,7 @@ describe("TransactionsPage", () => {
 
     render(<TransactionsPage />);
 
+    await user.click(screen.getByRole("button", { name: "Add transaction" }));
     await user.selectOptions(screen.getByLabelText("Type"), "Transfer");
 
     expect(screen.queryByLabelText("Category")).not.toBeInTheDocument();
