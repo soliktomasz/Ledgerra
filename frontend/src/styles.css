@@ -2041,6 +2041,279 @@ label {
   margin-bottom: 1rem;
 }
 
+.transaction-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 22rem);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.transaction-primary-column,
+.transaction-settings-panel,
+.transaction-filter-section,
+.transaction-filter-actions {
+  display: grid;
+}
+
+.transaction-primary-column {
+  gap: 1rem;
+  min-width: 0;
+}
+
+.transaction-settings-panel {
+  position: sticky;
+  top: 1.75rem;
+  gap: 1.15rem;
+  padding: 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.transaction-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.transaction-settings-header h2 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.transaction-filter-reset {
+  min-height: 2.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.42rem 0.72rem;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.transaction-filter-reset:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.transaction-filter-section {
+  gap: 0.55rem;
+}
+
+.transaction-filter-label {
+  color: var(--muted-strong);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.transaction-filter-section select,
+.transaction-filter-section input:not([type="checkbox"]) {
+  min-height: 2.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.transaction-filter-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.32rem;
+  padding: 0.32rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+
+.transaction-filter-segmented button {
+  min-height: 2.1rem;
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.42rem 0.52rem;
+  background: transparent;
+  color: var(--muted-strong);
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.transaction-filter-segmented button.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+
+.transaction-category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transaction-filter-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  min-height: 2rem;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.34rem 0.62rem;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.transaction-filter-chip.active {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.transaction-filter-chip.disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.transaction-filter-chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.transaction-filter-chip-dot {
+  flex: 0 0 0.58rem;
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.transaction-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.transaction-filter-grid label {
+  min-width: 0;
+}
+
+.transaction-toggle-row {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-top: 0.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.transaction-toggle-row > span {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.transaction-toggle-row strong {
+  color: var(--text);
+  font-size: 0.93rem;
+}
+
+.transaction-toggle-row small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.transaction-toggle-row input {
+  flex: 0 0 2.7rem;
+  width: 2.7rem;
+  height: 1.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 0;
+  appearance: none;
+  background: var(--surface-muted);
+  cursor: pointer;
+  position: relative;
+}
+
+.transaction-toggle-row input::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: var(--muted);
+  transform: translateY(-50%);
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.transaction-toggle-row input:checked {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+
+.transaction-toggle-row input:checked::after {
+  background: var(--accent);
+  transform: translate(1.18rem, -50%);
+}
+
+.transaction-filter-actions {
+  gap: 0.55rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.transaction-filter-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  min-height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.transaction-filter-action:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-muted);
+}
+
+.transaction-filter-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.transaction-filter-action svg {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
 .transaction-list {
   align-content: start;
 }
@@ -2270,6 +2543,7 @@ label {
   .insight-list,
   .split-grid,
   .split-grid.wide,
+  .transaction-workspace,
   .settings-workspace-grid,
   .settings-grid,
   .settings-appearance-grid,
@@ -2287,6 +2561,11 @@ label {
 
   .settings-ai-layout {
     grid-template-columns: 1fr;
+  }
+
+  .transaction-settings-panel {
+    position: static;
+    order: -1;
   }
 
   .import-row {
@@ -2457,10 +2736,15 @@ label {
   .settings-theme-options,
   .settings-density-options,
   .settings-toggle-row,
+  .transaction-filter-grid,
   .rule-form,
   .rule-row,
   .transaction-filters {
     grid-template-columns: 1fr;
+  }
+
+  .transaction-filter-segmented {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .rule-actions,
