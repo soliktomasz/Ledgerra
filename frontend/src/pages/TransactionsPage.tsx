@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { apiClient } from "../api/client";
 import { TransactionForm, toDateTimeLocal, toFormType, type TransactionFormMode, type TransactionFormValues } from "../components/TransactionForm";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import type { Transaction } from "../types";
-import { BookmarkIcon, DownloadIcon } from "../ui/icons";
+import { BookmarkIcon, ChevronDownIcon, DownloadIcon, DuplicateIcon, EditIcon, TrashIcon } from "../ui/icons";
 import { PageHeader } from "../ui/PageHeader";
-import { SectionCard } from "../ui/SectionCard";
 import { formatCurrency, formatDate } from "../utils/format";
 
 const transactionTypes = ["Expense", "Income", "Transfer"];
@@ -52,6 +51,52 @@ function getCategoryFallbackColor(kind: string) {
   return kind === "Income" ? "#34d399" : "#60a5fa";
 }
 
+function getTransactionSignedAmount(transaction: Transaction) {
+  if (transaction.type === "Expense" || transaction.type === "TransferOut") {
+    return -Math.abs(transaction.amount);
+  }
+
+  if (transaction.type === "Income" || transaction.type === "TransferIn") {
+    return Math.abs(transaction.amount);
+  }
+
+  return transaction.amount;
+}
+
+function formatSignedCurrency(value: number, currencyCode: string) {
+  if (value > 0) {
+    return `+ ${formatCurrency(value, currencyCode)}`;
+  }
+
+  if (value < 0) {
+    return `- ${formatCurrency(Math.abs(value), currencyCode)}`;
+  }
+
+  return formatCurrency(0, currencyCode);
+}
+
+function getDateKey(value: string) {
+  const date = new Date(value);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function getRelativeDayLabel(value: string, t: ReturnType<typeof useI18n>["t"]) {
+  const dateKey = getDateKey(value);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (dateKey === getDateKey(today.toISOString())) {
+    return t("transactions.today");
+  }
+
+  if (dateKey === getDateKey(yesterday.toISOString())) {
+    return t("transactions.yesterday");
+  }
+
+  return formatDate(value);
+}
+
 export function TransactionsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
@@ -81,6 +126,7 @@ export function TransactionsPage() {
   const [bulkCategoryId, setBulkCategoryId] = useState("");
   const [bulkAccountId, setBulkAccountId] = useState("");
   const [isApplyingBulkAction, setIsApplyingBulkAction] = useState(false);
+  const [filtersCollapsed, setFiltersCollapsed] = useState(false);
 
   useEffect(() => {
     setLedgerTransactions(transactions);
@@ -206,10 +252,53 @@ export function TransactionsPage() {
     () => categories.filter((category) => category.kind === "Expense"),
     [categories]
   );
+  const accountById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts]);
+  const categoryById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories]);
+  const defaultCurrencyCode = accounts[0]?.currencyCode ?? "USD";
   const uncategorizedExpenseCount = useMemo(
     () => ledgerTransactions.filter((transaction) => transaction.type === "Expense" && !transaction.categoryId).length,
     [ledgerTransactions]
   );
+  const transactionSummary = useMemo(() => {
+    const income = visibleTransactions
+      .filter((transaction) => transaction.type === "Income")
+      .reduce((total, transaction) => total + Math.abs(transaction.amount), 0);
+    const expenses = visibleTransactions
+      .filter((transaction) => transaction.type === "Expense")
+      .reduce((total, transaction) => total + Math.abs(transaction.amount), 0);
+
+    return {
+      income,
+      expenses,
+      balance: income - expenses,
+      averageDaily: expenses / 30
+    };
+  }, [visibleTransactions]);
+  const groupedTransactions = useMemo(() => {
+    const groups = new Map<string, { label: string; dateLabel: string; total: number; transactions: Transaction[] }>();
+    const sortedTransactions = [...visibleTransactions].sort((first, second) => new Date(second.occurredOnUtc).getTime() - new Date(first.occurredOnUtc).getTime());
+
+    sortedTransactions.forEach((transaction) => {
+      const key = getDateKey(transaction.occurredOnUtc);
+      const existing = groups.get(key);
+      const signedAmount = getTransactionSignedAmount(transaction);
+
+      if (existing) {
+        existing.total += signedAmount;
+        existing.transactions.push(transaction);
+        return;
+      }
+
+      groups.set(key, {
+        label: getRelativeDayLabel(transaction.occurredOnUtc, t),
+        dateLabel: formatDate(transaction.occurredOnUtc),
+        total: signedAmount,
+        transactions: [transaction]
+      });
+    });
+
+    return Array.from(groups.values());
+  }, [t, visibleTransactions]);
   const hasActiveFilters =
     filterAccountIds.length > 0 ||
     filterCategoryIds.length > 0 ||
@@ -478,9 +567,39 @@ export function TransactionsPage() {
         description={t("transactions.description")}
       />
 
-      <div className="transaction-workspace">
+      <div className={`transaction-workspace${filtersCollapsed ? " is-filters-collapsed" : ""}`}>
         <div className="transaction-primary-column">
-          <SectionCard title={formMode === "edit" ? t("transactions.editTransaction") : t("transactions.addTransaction")}>
+          <div className="transaction-summary-grid" aria-label={t("transactions.currentView")}>
+            <article className="transaction-summary-card positive">
+              <span>{t("transactions.summaryIncome")}</span>
+              <strong>{formatSignedCurrency(transactionSummary.income, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.currentView")}</small>
+            </article>
+            <article className="transaction-summary-card negative">
+              <span>{t("transactions.summaryExpenses")}</span>
+              <strong>{formatSignedCurrency(-transactionSummary.expenses, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.transactionCount", { count: visibleTransactions.length })}</small>
+            </article>
+            <article className="transaction-summary-card positive">
+              <span>{t("transactions.summaryBalance")}</span>
+              <strong>{formatSignedCurrency(transactionSummary.balance, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.filteredBalance")}</small>
+            </article>
+            <article className="transaction-summary-card">
+              <span>{t("transactions.summaryAverageDaily")}</span>
+              <strong>{formatCurrency(transactionSummary.averageDaily, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.last30Days")}</small>
+            </article>
+          </div>
+
+          <section className={`transaction-entry-panel${formMode === "edit" ? " is-editing" : ""}`}>
+            <div className="transaction-entry-header">
+              <div>
+                <span>{t("transactions.quickEntry")}</span>
+                <h2>{formMode === "edit" ? t("transactions.editTransaction") : t("transactions.addTransaction")}</h2>
+              </div>
+              <strong>{formMode === "edit" ? t("transactions.editing") : t("transactions.ready")}</strong>
+            </div>
             {errorMessage ? <p className="error-banner">{errorMessage}</p> : null}
             {statusMessage ? <p className="success-banner">{statusMessage}</p> : null}
             {auth?.accessToken ? (
@@ -501,16 +620,24 @@ export function TransactionsPage() {
                 }}
               />
             ) : null}
-          </SectionCard>
+          </section>
 
-          <SectionCard title={t("transactions.ledger")}>
+          <section className="transaction-ledger-panel">
+            <div className="transaction-ledger-heading">
+              <div>
+                <span>{t("transactions.currentView")}</span>
+                <h2>{t("transactions.ledger")}</h2>
+              </div>
+              <strong>{t("transactions.transactionCount", { count: visibleTransactions.length })}</strong>
+            </div>
+
             {showUncategorizedOnly ? (
               <p className="workflow-banner">
                 {t("transactions.workflowBanner", { count: uncategorizedExpenseCount })}
               </p>
             ) : null}
             {visibleTransactions.length > 0 ? (
-              <div className="review-toolbar" aria-label="Bulk transaction actions">
+              <div className="review-toolbar transaction-bulk-toolbar" aria-label="Bulk transaction actions">
                 <div className="review-toolbar-actions">
                   <label className="inline-checkbox">
                     <input type="checkbox" checked={allVisibleSelected} onChange={(event) => toggleSelectAllVisible(event.target.checked)} />
@@ -540,83 +667,142 @@ export function TransactionsPage() {
               </div>
             ) : null}
 
-            <div className="table-list transaction-list">
+            <div className="transaction-table-shell">
               {visibleTransactions.length === 0 ? (
                 <p className="empty-state">{t("transactions.noMatches")}</p>
               ) : (
-                visibleTransactions.map((transaction) => {
-                  const account = accounts.find((item) => item.id === transaction.accountId);
-                  const category = categories.find((item) => item.id === transaction.categoryId);
-                  const label = transactionLabel(transaction, t, category?.name);
+                <>
+                  <div className="transaction-table-header" aria-hidden="true">
+                    <span>{t("transactions.tableMerchant")}</span>
+                    <span>{t("transactions.tableAccount")}</span>
+                    <span>{t("transactions.tableAmount")}</span>
+                    <span>{t("transactions.tableType")}</span>
+                    <span>{t("transactions.tableActions")}</span>
+                  </div>
+                  <div className="transaction-day-groups">
+                    {groupedTransactions.map((group) => (
+                      <section className="transaction-day-group" key={group.dateLabel}>
+                        <div className="transaction-day-heading">
+                          <div>
+                            <strong>{group.label}</strong>
+                            <span>{group.dateLabel}</span>
+                          </div>
+                          <span>{t("transactions.dayBalance")} {formatSignedCurrency(group.total, defaultCurrencyCode)}</span>
+                        </div>
+                        {group.transactions.map((transaction) => {
+                          const account = accountById.get(transaction.accountId);
+                          const category = transaction.categoryId ? categoryById.get(transaction.categoryId) : undefined;
+                          const label = transactionLabel(transaction, t, category?.name);
+                          const signedAmount = getTransactionSignedAmount(transaction);
+                          const rowCurrencyCode = account?.currencyCode ?? defaultCurrencyCode;
 
-                  return (
-                    <article className="table-row transaction-row" key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
-                      <label className="inline-checkbox">
-                        <input type="checkbox" checked={selectedTransactionIds.includes(transaction.id)} onChange={(event) => toggleTransactionSelection(transaction.id, event.target.checked)} aria-label={`Select ${label}`} />
-                      </label>
-                      <div className="transaction-main">
-                        <strong>{category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)}</strong>
-                        <p>{account?.name ?? t("transactions.unknownAccount")} • {formatDate(transaction.occurredOnUtc)}</p>
-                        {transaction.note ? <p className="transaction-note">{transaction.note}</p> : null}
-                      </div>
-                      <div className="align-right transaction-amount">
-                        <strong>{formatCurrency(transaction.amount, account?.currencyCode)}</strong>
-                        <p>{getTransactionTypeLabel(transaction.type, t)}</p>
-                      </div>
-                      <div className="transaction-actions">
-                        {!transaction.categoryId && transaction.type === "Expense" ? (
-                          <label className="quick-category-control">
-                            {t("transactions.assignCategoryTo", { label })}
-                            <select
-                              aria-label={t("transactions.assignCategoryTo", { label })}
-                              value=""
-                              onChange={(event) => void assignTransactionCategory(transaction, event.target.value)}
-                            >
-                              <option value="">{t("common.chooseCategory")}</option>
-                              {expenseCategories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                  {category.name}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                        ) : null}
-                        <button className="ghost-button compact-button" type="button" onClick={() => startEdit(transaction)} aria-label={`${t("transactions.edit")} ${label}`}>
-                          {t("transactions.edit")}
-                        </button>
-                        <button
-                          className="ghost-button compact-button"
-                          type="button"
-                          onClick={() => void duplicateTransaction(transaction)}
-                          aria-label={`${t("transactions.duplicate")} ${label}`}
-                        >
-                          {t("transactions.duplicate")}
-                        </button>
-                        <button
-                          className="ghost-button compact-button danger-button"
-                          type="button"
-                          onClick={() => void deleteTransaction(transaction)}
-                          aria-label={`${t("transactions.delete")} ${label}`}
-                        >
-                          {t("transactions.delete")}
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })
+                          return (
+                            <article className="transaction-ledger-row" key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
+                              <label className="transaction-row-selector">
+                                <input type="checkbox" checked={selectedTransactionIds.includes(transaction.id)} onChange={(event) => toggleTransactionSelection(transaction.id, event.target.checked)} aria-label={`Select ${label}`} />
+                              </label>
+                              <div className="transaction-merchant-cell">
+                                <span
+                                  className="transaction-category-avatar"
+                                  style={{ "--transaction-category-color": category?.color ?? getCategoryFallbackColor(category?.kind ?? transaction.type) } as CSSProperties}
+                                >
+                                  {(category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)).slice(0, 1)}
+                                </span>
+                                <div>
+                                  <strong>{label}</strong>
+                                  <p>{category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)}</p>
+                                </div>
+                              </div>
+                              <div className="transaction-account-cell">
+                                <strong>{account?.name ?? t("transactions.unknownAccount")}</strong>
+                                <p>{formatDate(transaction.occurredOnUtc)}</p>
+                              </div>
+                              <div className={`transaction-amount-cell${signedAmount >= 0 ? " positive" : " negative"}`}>
+                                <strong>{formatSignedCurrency(signedAmount, rowCurrencyCode)}</strong>
+                              </div>
+                              <div className="transaction-type-cell">
+                                <span>{getTransactionTypeLabel(toFormType(transaction.type), t)}</span>
+                              </div>
+                              <div className="transaction-row-actions">
+                                {!transaction.categoryId && transaction.type === "Expense" ? (
+                                  <label className="quick-category-control">
+                                    {t("transactions.assignCategoryTo", { label })}
+                                    <select
+                                      aria-label={t("transactions.assignCategoryTo", { label })}
+                                      value=""
+                                      onChange={(event) => void assignTransactionCategory(transaction, event.target.value)}
+                                    >
+                                      <option value="">{t("common.chooseCategory")}</option>
+                                      {expenseCategories.map((categoryOption) => (
+                                        <option key={categoryOption.id} value={categoryOption.id}>
+                                          {categoryOption.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </label>
+                                ) : null}
+                                <button
+                                  className="ghost-button compact-button transaction-icon-button"
+                                  type="button"
+                                  onClick={() => startEdit(transaction)}
+                                  aria-label={`${t("transactions.edit")} ${label}`}
+                                  title={t("transactions.edit")}
+                                >
+                                  <EditIcon />
+                                </button>
+                                <button
+                                  className="ghost-button compact-button transaction-icon-button"
+                                  type="button"
+                                  onClick={() => void duplicateTransaction(transaction)}
+                                  aria-label={`${t("transactions.duplicate")} ${label}`}
+                                  title={t("transactions.duplicate")}
+                                >
+                                  <DuplicateIcon />
+                                </button>
+                                <button
+                                  className="ghost-button compact-button danger-button transaction-icon-button"
+                                  type="button"
+                                  onClick={() => void deleteTransaction(transaction)}
+                                  aria-label={`${t("transactions.delete")} ${label}`}
+                                  title={t("transactions.delete")}
+                                >
+                                  <TrashIcon />
+                                </button>
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </section>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
-          </SectionCard>
+          </section>
         </div>
 
-        <aside className="transaction-settings-panel" aria-label={t("transactions.filters")}>
+        <aside className={`transaction-settings-panel${filtersCollapsed ? " is-collapsed" : ""}`} aria-label={t("transactions.filters")}>
           <div className="transaction-settings-header">
             <h2>{t("transactions.filters")}</h2>
-            <button className="transaction-filter-reset" type="button" onClick={clearFilters} disabled={!hasActiveFilters}>
-              {t("common.clear")}
-            </button>
+            <div className="transaction-settings-header-actions">
+              <button className="transaction-filter-reset" type="button" onClick={clearFilters} disabled={!hasActiveFilters}>
+                {t("common.clear")}
+              </button>
+              <button
+                className="transaction-collapse-button"
+                type="button"
+                onClick={() => setFiltersCollapsed((current) => !current)}
+                aria-expanded={!filtersCollapsed}
+                aria-controls="transaction-filter-content"
+                aria-label={filtersCollapsed ? t("transactions.expandFilters") : t("transactions.collapseFilters")}
+                title={filtersCollapsed ? t("transactions.expandFilters") : t("transactions.collapseFilters")}
+              >
+                <ChevronDownIcon />
+              </button>
+            </div>
           </div>
 
+          <div id="transaction-filter-content" className="transaction-settings-content" hidden={filtersCollapsed}>
           <div className="transaction-filter-section">
             <span className="transaction-filter-label">{t("transactions.filterByType")}</span>
             <div className="transaction-filter-segmented" aria-label={t("transactions.filterByType")}>
@@ -741,6 +927,7 @@ export function TransactionsPage() {
               <BookmarkIcon />
               {t("transactions.saveView")}
             </button>
+          </div>
           </div>
         </aside>
       </div>
