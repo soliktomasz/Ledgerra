@@ -5,7 +5,7 @@ import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import type { Transaction } from "../types";
-import { BookmarkIcon, ChevronDownIcon, DownloadIcon, DuplicateIcon, EditIcon, TrashIcon } from "../ui/icons";
+import { AccountsIcon, BookmarkIcon, CategoryIcon, ChevronDownIcon, DownloadIcon, DuplicateIcon, EditIcon, TrashIcon } from "../ui/icons";
 import { PageHeader } from "../ui/PageHeader";
 import { formatCurrency, formatDate } from "../utils/format";
 
@@ -255,6 +255,10 @@ export function TransactionsPage() {
   const accountById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts]);
   const categoryById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories]);
   const defaultCurrencyCode = accounts[0]?.currencyCode ?? "USD";
+  const selectedTotal = useMemo(
+    () => selectedTransactions.reduce((total, transaction) => total + Math.abs(transaction.amount), 0),
+    [selectedTransactions]
+  );
   const uncategorizedExpenseCount = useMemo(
     () => ledgerTransactions.filter((transaction) => transaction.type === "Expense" && !transaction.categoryId).length,
     [ledgerTransactions]
@@ -637,32 +641,47 @@ export function TransactionsPage() {
               </p>
             ) : null}
             {visibleTransactions.length > 0 ? (
-              <div className="review-toolbar transaction-bulk-toolbar" aria-label="Bulk transaction actions">
-                <div className="review-toolbar-actions">
-                  <label className="inline-checkbox">
-                    <input type="checkbox" checked={allVisibleSelected} onChange={(event) => toggleSelectAllVisible(event.target.checked)} />
-                    Select all in current filtered view
+              <div className="transaction-bulk-toolbar" aria-label="Bulk transaction actions">
+                <div className="transaction-bulk-selection">
+                  <label className="transaction-select-all-control">
+                    <input type="checkbox" aria-label="Select all in current filtered view" checked={allVisibleSelected} onChange={(event) => toggleSelectAllVisible(event.target.checked)} />
+                    <span>
+                      <strong>{selectedTransactionIds.length} selected</strong>
+                      <small>{formatCurrency(selectedTotal, defaultCurrencyCode)} selected total · {visibleTransactions.length} in view</small>
+                    </span>
                   </label>
-                  <strong>{selectedTransactionIds.length} selected</strong>
                 </div>
-                <div className="bulk-category-actions">
-                  <button className="ghost-button compact-button danger-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>Bulk delete</button>
-                  <label>
-                    Bulk category
-                    <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
-                      <option value="">{t("common.chooseCategory")}</option>
-                      {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-                    </select>
-                  </label>
-                  <button className="ghost-button compact-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>Apply category</button>
-                  <label>
-                    Move to account
-                    <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
-                      <option value="">{t("common.selectAccount")}</option>
-                      {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
-                    </select>
-                  </label>
-                  <button className="ghost-button compact-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>Move transactions</button>
+                <div className="transaction-bulk-actions">
+                  <button className="ghost-button compact-button danger-button transaction-bulk-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>
+                    <TrashIcon />
+                    Bulk delete
+                  </button>
+                  <div className="transaction-bulk-control">
+                    <label>
+                      Bulk category
+                      <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
+                        <option value="">{t("common.chooseCategory")}</option>
+                        {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                      </select>
+                    </label>
+                    <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>
+                      <CategoryIcon />
+                      Apply category
+                    </button>
+                  </div>
+                  <div className="transaction-bulk-control">
+                    <label>
+                      Move to account
+                      <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
+                        <option value="">{t("common.selectAccount")}</option>
+                        {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
+                      </select>
+                    </label>
+                    <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>
+                      <AccountsIcon />
+                      Move transactions
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : null}
