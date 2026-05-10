@@ -415,7 +415,7 @@ export function TransactionsPage() {
   };
 
   const startEdit = (transaction: Transaction) => {
-    setIsEntryOpen(true);
+    setIsEntryOpen(false);
     setFormMode("edit");
     setEditingTransactionId(transaction.id);
     setFormValues({
@@ -746,8 +746,10 @@ export function TransactionsPage() {
                           const signedAmount = getTransactionSignedAmount(transaction);
                           const rowCurrencyCode = account?.currencyCode ?? defaultCurrencyCode;
 
+                          const isEditingRow = editingTransactionId === transaction.id;
+
                           return (
-                            <article className="transaction-ledger-row" key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
+                            <article className={`transaction-ledger-row${isEditingRow ? " is-editing" : ""}`} key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
                               <label className="transaction-row-selector">
                                 <input type="checkbox" checked={selectedTransactionIds.includes(transaction.id)} onChange={(event) => toggleTransactionSelection(transaction.id, event.target.checked)} aria-label={`Select ${label}`} />
                               </label>
@@ -819,6 +821,30 @@ export function TransactionsPage() {
                                   <TrashIcon />
                                 </button>
                               </div>
+                              {isEditingRow && auth?.accessToken ? (
+                                <div className="transaction-inline-editor">
+                                  <div className="transaction-inline-editor-heading">
+                                    <span>{t("transactions.editing")}</span>
+                                    <h3>{t("transactions.editTransaction")}</h3>
+                                  </div>
+                                  <TransactionForm
+                                    key={`inline-edit-${transaction.id}`}
+                                    token={auth.accessToken}
+                                    accounts={accounts}
+                                    categories={categories}
+                                    mode="edit"
+                                    transactionId={transaction.id}
+                                    initialValues={formValues}
+                                    onCancel={resetForm}
+                                    onError={setErrorMessage}
+                                    onStatus={setStatusMessage}
+                                    onSaved={async () => {
+                                      resetForm();
+                                      await refreshAfterMutation();
+                                    }}
+                                  />
+                                </div>
+                              ) : null}
                             </article>
                           );
                         })}
