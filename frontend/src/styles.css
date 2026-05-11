@@ -1894,6 +1894,34 @@ label {
   gap: 0.85rem;
 }
 
+.settings-compatible-provider-panel {
+  display: grid;
+  gap: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  background: var(--surface);
+}
+
+.settings-compatible-provider-panel h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.settings-compatible-provider-panel p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.settings-model-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.65rem;
+}
+
 .settings-provider-list {
   display: grid;
   gap: 0.65rem;
@@ -3519,6 +3547,7 @@ label {
 
   .settings-form-grid,
   .settings-key-grid,
+  .settings-model-row,
   .settings-provider-row,
   .settings-session-grid,
   .settings-theme-options,

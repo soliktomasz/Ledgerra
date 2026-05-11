@@ -59,6 +59,11 @@ export function SettingsPage() {
   const [defaultProvider, setDefaultProvider] = useState("OpenAi");
   const [openAiKey, setOpenAiKey] = useState("");
   const [anthropicKey, setAnthropicKey] = useState("");
+  const [openAiCompatibleKey, setOpenAiCompatibleKey] = useState("");
+  const [openAiCompatibleBaseUrl, setOpenAiCompatibleBaseUrl] = useState("");
+  const [openAiCompatibleModel, setOpenAiCompatibleModel] = useState("");
+  const [openAiCompatibleModels, setOpenAiCompatibleModels] = useState<string[]>([]);
+  const [isLoadingOpenAiCompatibleModels, setIsLoadingOpenAiCompatibleModels] = useState(false);
   const [aiProviderError, setAiProviderError] = useState<string | null>(null);
   const [ruleName, setRuleName] = useState("");
   const [ruleMatchValue, setRuleMatchValue] = useState("");
@@ -85,9 +90,20 @@ export function SettingsPage() {
     setPreferredLanguageCode(normalizeLanguageCode(profile?.preferredLanguageCode ?? "en").split("-")[0] ?? "en");
   }, [profile?.preferredLanguageCode]);
 
+  const openAiProvider = aiSettings?.providers.openAi;
+  const anthropicProvider = aiSettings?.providers.anthropic;
+  const openAiCompatibleProvider = aiSettings?.providers.openAiCompatible;
+  const openAiCompatibleBaseUrlSetting = openAiCompatibleProvider?.baseUrl ?? "";
+  const openAiCompatibleModelSetting = openAiCompatibleProvider?.model ?? "";
+
   useEffect(() => {
     setDefaultProvider(aiSettings?.defaultProvider ?? "OpenAi");
   }, [aiSettings?.defaultProvider]);
+
+  useEffect(() => {
+    setOpenAiCompatibleBaseUrl(openAiCompatibleBaseUrlSetting);
+    setOpenAiCompatibleModel(openAiCompatibleModelSetting);
+  }, [openAiCompatibleBaseUrlSetting, openAiCompatibleModelSetting]);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -153,6 +169,15 @@ export function SettingsPage() {
         await apiClient.saveAiProviderKey(auth.accessToken, "anthropic", anthropicKey.trim());
       }
 
+      if (openAiCompatibleKey.trim()) {
+        await apiClient.saveAiProviderKey(auth.accessToken, "openai-compatible", openAiCompatibleKey.trim(), {
+          baseUrl: openAiCompatibleBaseUrl.trim(),
+          model: openAiCompatibleModel.trim() || undefined
+        });
+      } else if (openAiCompatibleModel.trim() && openAiCompatibleModel.trim() !== openAiCompatibleProvider?.model) {
+        await apiClient.updateAiProviderModel(auth.accessToken, "openai-compatible", openAiCompatibleModel.trim());
+      }
+
       await apiClient.updateDefaultAiProvider(auth.accessToken, defaultProvider);
       await refresh();
     } catch (exception) {
@@ -162,6 +187,27 @@ export function SettingsPage() {
     } finally {
       setOpenAiKey("");
       setAnthropicKey("");
+      setOpenAiCompatibleKey("");
+    }
+  };
+
+  const handleLoadOpenAiCompatibleModels = async () => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    try {
+      setAiProviderError(null);
+      setIsLoadingOpenAiCompatibleModels(true);
+      const response = await apiClient.getAiProviderModels(auth.accessToken, "openai-compatible");
+      setOpenAiCompatibleModels(response.models);
+      if (!openAiCompatibleModel && response.models.length > 0) {
+        setOpenAiCompatibleModel(response.models[0]);
+      }
+    } catch (exception) {
+      setAiProviderError(getErrorMessage(exception, t("settings.unableToLoadModels")));
+    } finally {
+      setIsLoadingOpenAiCompatibleModels(false);
     }
   };
 
@@ -284,10 +330,11 @@ export function SettingsPage() {
     loadPersonalAccessTokens();
   }, [loadPersonalAccessTokens]);
 
-  const isOpenAiConfigured = !!aiSettings?.providers.openAi.maskedKey;
-  const isAnthropicConfigured = !!aiSettings?.providers.anthropic.maskedKey;
+  const isOpenAiConfigured = !!openAiProvider?.maskedKey;
+  const isAnthropicConfigured = !!anthropicProvider?.maskedKey;
+  const isOpenAiCompatibleConfigured = !!openAiCompatibleProvider?.maskedKey;
   const categoryNamesById = new Map(categories.map((category) => [category.id, category.name]));
-  const configuredAiProviderCount = Number(isOpenAiConfigured) + Number(isAnthropicConfigured);
+  const configuredAiProviderCount = Number(isOpenAiConfigured) + Number(isAnthropicConfigured) + Number(isOpenAiCompatibleConfigured);
   const settingsGroups = [
     {
       label: t("settings.applicationGroup"),
@@ -624,6 +671,7 @@ export function SettingsPage() {
                         <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)}>
                           <option value="OpenAi">OpenAI</option>
                           <option value="Anthropic">Anthropic</option>
+                          <option value="OpenAiCompatible">{t("settings.openAiCompatibleProvider")}</option>
                         </select>
                       </label>
                       <div className="settings-key-grid">
@@ -633,7 +681,7 @@ export function SettingsPage() {
                             value={openAiKey}
                             onChange={(event) => setOpenAiKey(event.target.value)}
                             type="password"
-                            placeholder={aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}
+                            placeholder={openAiProvider?.maskedKey ?? t("common.notConfigured")}
                           />
                         </label>
                         <label>
@@ -642,9 +690,61 @@ export function SettingsPage() {
                             value={anthropicKey}
                             onChange={(event) => setAnthropicKey(event.target.value)}
                             type="password"
-                            placeholder={aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}
+                            placeholder={anthropicProvider?.maskedKey ?? t("common.notConfigured")}
                           />
                         </label>
+                      </div>
+                      <div className="settings-compatible-provider-panel">
+                        <div>
+                          <h3>{t("settings.openAiCompatibleProvider")}</h3>
+                          <p>{t("settings.openAiCompatibleDescription")}</p>
+                        </div>
+                        <div className="settings-key-grid">
+                          <label>
+                            {t("settings.openAiCompatibleApiKey")}
+                            <input
+                              value={openAiCompatibleKey}
+                              onChange={(event) => setOpenAiCompatibleKey(event.target.value)}
+                              type="password"
+                              placeholder={openAiCompatibleProvider?.maskedKey ?? t("common.notConfigured")}
+                            />
+                          </label>
+                          <label>
+                            {t("settings.openAiCompatibleBaseUrl")}
+                            <input
+                              value={openAiCompatibleBaseUrl}
+                              onChange={(event) => setOpenAiCompatibleBaseUrl(event.target.value)}
+                              placeholder="https://api.provider.example/v1"
+                            />
+                          </label>
+                        </div>
+                        <div className="settings-model-row">
+                          <label>
+                            {t("settings.openAiCompatibleModel")}
+                            {openAiCompatibleModels.length > 0 ? (
+                              <select value={openAiCompatibleModel} onChange={(event) => setOpenAiCompatibleModel(event.target.value)}>
+                                <option value="">{t("settings.chooseModel")}</option>
+                                {openAiCompatibleModels.map((model) => (
+                                  <option key={model} value={model}>{model}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                value={openAiCompatibleModel}
+                                onChange={(event) => setOpenAiCompatibleModel(event.target.value)}
+                                placeholder="model-id"
+                              />
+                            )}
+                          </label>
+                          <button
+                            className="ghost-button compact-button"
+                            type="button"
+                            disabled={!isOpenAiCompatibleConfigured || isLoadingOpenAiCompatibleModels}
+                            onClick={() => void handleLoadOpenAiCompatibleModels()}
+                          >
+                            {isLoadingOpenAiCompatibleModels ? t("settings.loadingModels") : t("settings.loadModels")}
+                          </button>
+                        </div>
                       </div>
                       <button className="primary-button" type="submit">
                         {t("settings.saveAiSettings")}
@@ -655,10 +755,10 @@ export function SettingsPage() {
                       <article className="settings-provider-row">
                         <div>
                           <strong>OpenAI</strong>
-                          <p>{aiSettings?.providers.openAi.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
+                          <p>{openAiProvider?.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
                         </div>
                         <div className="settings-provider-actions">
-                          <strong>{aiSettings?.providers.openAi.maskedKey ?? t("common.notConfigured")}</strong>
+                          <strong>{openAiProvider?.maskedKey ?? t("common.notConfigured")}</strong>
                           <button
                             className="ghost-button compact-button"
                             type="button"
@@ -676,10 +776,10 @@ export function SettingsPage() {
                       <article className="settings-provider-row">
                         <div>
                           <strong>Anthropic</strong>
-                          <p>{aiSettings?.providers.anthropic.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
+                          <p>{anthropicProvider?.isConfigured ? t("common.configured") : t("common.notConfigured")}</p>
                         </div>
                         <div className="settings-provider-actions">
-                          <strong>{aiSettings?.providers.anthropic.maskedKey ?? t("common.notConfigured")}</strong>
+                          <strong>{anthropicProvider?.maskedKey ?? t("common.notConfigured")}</strong>
                           <button
                             className="ghost-button compact-button"
                             type="button"
@@ -687,6 +787,31 @@ export function SettingsPage() {
                             onClick={() => {
                               if (isAnthropicConfigured) {
                                 handleRemoveProvider("anthropic");
+                              }
+                            }}
+                          >
+                            {t("common.remove")}
+                          </button>
+                        </div>
+                      </article>
+                      <article className="settings-provider-row">
+                        <div>
+                          <strong>{t("settings.openAiCompatibleProvider")}</strong>
+                          <p>
+                            {openAiCompatibleProvider?.isConfigured ? t("common.configured") : t("common.notConfigured")}
+                            {openAiCompatibleProvider?.baseUrl ? ` · ${openAiCompatibleProvider.baseUrl}` : ""}
+                            {openAiCompatibleProvider?.model ? ` · ${openAiCompatibleProvider.model}` : ""}
+                          </p>
+                        </div>
+                        <div className="settings-provider-actions">
+                          <strong>{openAiCompatibleProvider?.maskedKey ?? t("common.notConfigured")}</strong>
+                          <button
+                            className="ghost-button compact-button"
+                            type="button"
+                            disabled={!isOpenAiCompatibleConfigured}
+                            onClick={() => {
+                              if (isOpenAiCompatibleConfigured) {
+                                handleRemoveProvider("openai-compatible");
                               }
                             }}
                           >

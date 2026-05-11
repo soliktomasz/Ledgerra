@@ -40,7 +40,7 @@ public sealed class MonthlyReportImportsController : ControllerBase
         {
             return this.ValidationError(new Dictionary<string, string[]>
             {
-                ["provider"] = ["Supported providers are OpenAi and Anthropic."]
+                ["provider"] = ["Supported providers are OpenAi, Anthropic, and OpenAiCompatible."]
             });
         }
 

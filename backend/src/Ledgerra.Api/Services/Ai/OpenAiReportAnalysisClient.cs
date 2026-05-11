@@ -8,6 +8,8 @@ namespace Ledgerra.Api.Services.Ai;
 
 public sealed class OpenAiReportAnalysisClient : IAiReportAnalysisClient
 {
+    private const string DefaultBaseUrl = "https://api.openai.com/v1";
+    private const string DefaultModel = "gpt-5.5";
     private readonly HttpClient _httpClient;
 
     public OpenAiReportAnalysisClient(HttpClient httpClient)
@@ -20,11 +22,11 @@ public sealed class OpenAiReportAnalysisClient : IAiReportAnalysisClient
 
     public async Task<AiReportAnalysisResult> AnalyzeAsync(AiReportAnalysisRequest request, CancellationToken cancellationToken)
     {
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/responses");
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, BuildEndpoint(request.ProviderBaseUrl));
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.ProviderApiKey);
         httpRequest.Content = JsonContent.Create(new
         {
-            model = "gpt-5.5",
+            model = string.IsNullOrWhiteSpace(request.Model) ? DefaultModel : request.Model.Trim(),
             input = new object[]
             {
                 new { role = "system", content = "Extract reviewed transaction draft data from financial reports." },
@@ -120,5 +122,11 @@ public sealed class OpenAiReportAnalysisClient : IAiReportAnalysisClient
         }
 
         throw new InvalidDataException("OpenAI response did not include output_text content.");
+    }
+
+    private static Uri BuildEndpoint(string? baseUrl)
+    {
+        var normalizedBaseUrl = string.IsNullOrWhiteSpace(baseUrl) ? DefaultBaseUrl : baseUrl.Trim().TrimEnd('/');
+        return new Uri($"{normalizedBaseUrl}/responses", UriKind.Absolute);
     }
 }

@@ -149,12 +149,22 @@ export const apiClient = {
   getAiSettings(token: string) {
     return request<AiSettings>("/api/settings/ai", { token });
   },
-  saveAiProviderKey(token: string, provider: string, apiKey: string) {
+  saveAiProviderKey(token: string, provider: string, apiKey: string, options: { baseUrl?: string; model?: string } = {}) {
     return request<AiSettings>(`/api/settings/ai/${provider}`, {
       method: "PUT",
       token,
-      body: { apiKey }
+      body: { apiKey, ...options }
     });
+  },
+  updateAiProviderModel(token: string, provider: string, model: string) {
+    return request<AiSettings>(`/api/settings/ai/${provider}/model`, {
+      method: "PUT",
+      token,
+      body: { model }
+    });
+  },
+  getAiProviderModels(token: string, provider: string) {
+    return request<{ models: string[] }>(`/api/settings/ai/${provider}/models`, { token });
   },
   removeAiProviderKey(token: string, provider: string) {
     return request<AiSettings>(`/api/settings/ai/${provider}`, {

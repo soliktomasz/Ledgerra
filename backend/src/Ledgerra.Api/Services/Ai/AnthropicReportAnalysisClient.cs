@@ -6,6 +6,7 @@ namespace Ledgerra.Api.Services.Ai;
 
 public sealed class AnthropicReportAnalysisClient : IAiReportAnalysisClient
 {
+    private const string DefaultModel = "claude-sonnet-4-6";
     private readonly HttpClient _httpClient;
 
     public AnthropicReportAnalysisClient(HttpClient httpClient)
@@ -22,7 +23,7 @@ public sealed class AnthropicReportAnalysisClient : IAiReportAnalysisClient
         httpRequest.Headers.Add("anthropic-version", "2023-06-01");
         httpRequest.Content = JsonContent.Create(new
         {
-            model = "claude-sonnet-4-6",
+            model = string.IsNullOrWhiteSpace(request.Model) ? DefaultModel : request.Model.Trim(),
             max_tokens = 4096,
             messages = new[]
             {

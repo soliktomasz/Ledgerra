@@ -521,12 +521,38 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         var statusPayload = await statusResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.True(statusPayload.GetProperty("providers").GetProperty("openAi").GetProperty("isConfigured").GetBoolean());
         Assert.Equal("...3456", statusPayload.GetProperty("providers").GetProperty("openAi").GetProperty("maskedKey").GetString());
+        Assert.False(statusPayload.GetProperty("providers").GetProperty("openAiCompatible").GetProperty("isConfigured").GetBoolean());
         Assert.DoesNotContain("sk-test-openai-secret-123456", statusPayload.ToString(), StringComparison.Ordinal);
 
         var deleteResponse = await client.DeleteAsync("/api/settings/ai/openai");
         Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
         var deletePayload = await deleteResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.False(deletePayload.GetProperty("providers").GetProperty("openAi").GetProperty("isConfigured").GetBoolean());
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CanSaveOpenAiCompatibleProviderSettings()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var saveResponse = await client.PutAsJsonAsync("/api/settings/ai/openai-compatible", new
+        {
+            apiKey = "sk-test-compatible-secret-123456",
+            baseUrl = "https://api.synthetic.example/v1/",
+            model = "synthetic-finance-1"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
+        var savePayload = await saveResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var compatibleProvider = savePayload.GetProperty("providers").GetProperty("openAiCompatible");
+        Assert.True(compatibleProvider.GetProperty("isConfigured").GetBoolean());
+        Assert.Equal("https://api.synthetic.example/v1", compatibleProvider.GetProperty("baseUrl").GetString());
+        Assert.Equal("synthetic-finance-1", compatibleProvider.GetProperty("model").GetString());
+        Assert.Equal("OpenAiCompatible", savePayload.GetProperty("defaultProvider").GetString());
+        Assert.DoesNotContain("sk-test-compatible-secret-123456", savePayload.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -579,6 +605,29 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
         var payload = await deleteResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.False(payload.GetProperty("providers").GetProperty("openAi").GetProperty("isConfigured").GetBoolean());
+        Assert.Null(payload.GetProperty("defaultProvider").GetString());
+    }
+
+    [Fact]
+    public async Task AiProviderKeyRemoval_SkipsIncompleteOpenAiCompatibleFallback()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+        await client.PutAsJsonAsync("/api/settings/ai/openai-compatible", new
+        {
+            apiKey = "sk-test-compatible-secret-123456",
+            baseUrl = "https://api.synthetic.example/v1"
+        });
+
+        var deleteResponse = await client.DeleteAsync("/api/settings/ai/openai");
+
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+        var payload = await deleteResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(payload.GetProperty("providers").GetProperty("openAiCompatible").GetProperty("isConfigured").GetBoolean());
         Assert.Null(payload.GetProperty("defaultProvider").GetString());
     }
 

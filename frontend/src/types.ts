@@ -25,12 +25,15 @@ export type Profile = {
 export type AiProviderStatus = {
   isConfigured: boolean;
   maskedKey?: string | null;
+  baseUrl?: string | null;
+  model?: string | null;
 };
 
 export type AiSettings = {
   providers: {
     openAi: AiProviderStatus;
     anthropic: AiProviderStatus;
+    openAiCompatible?: AiProviderStatus;
   };
   defaultProvider?: string | null;
 };

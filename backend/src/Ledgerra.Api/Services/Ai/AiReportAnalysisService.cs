@@ -53,6 +53,8 @@ public sealed class AiReportAnalysisService
             var categories = await _dbContext.Categories.Where(item => item.UserId == userId).ToListAsync(cancellationToken);
             var request = new AiReportAnalysisRequest(
                 _secretProtector.Unprotect(credential.EncryptedApiKey),
+                credential.BaseUrl,
+                credential.Model,
                 report.Content,
                 month,
                 [new AiAccountContext(account.Id, account.Name, account.CurrencyCode)],

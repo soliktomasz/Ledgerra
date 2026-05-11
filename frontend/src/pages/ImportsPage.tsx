@@ -238,6 +238,7 @@ export function ImportsPage() {
             <select value={provider} onChange={(event) => setProvider(event.target.value)} disabled={isAnalyzing}>
               <option value="OpenAi">OpenAI</option>
               <option value="Anthropic">Anthropic</option>
+              <option value="OpenAiCompatible">OpenAI compatible</option>
             </select>
           </label>
           <label>
