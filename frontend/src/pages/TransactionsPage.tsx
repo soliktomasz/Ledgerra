@@ -114,8 +114,14 @@ export function TransactionsPage() {
     }
     return new URLSearchParams(window.location.search || window.localStorage.getItem("ledgerra:transactions:view") || "");
   }, []);
-  const initialFormFromQuery = initialQuery.get("form");
-  const initialFormAccountId = initialQuery.get("accountId");
+  const liveQuery = useMemo(
+    () => typeof window === "undefined"
+      ? new URLSearchParams()
+      : new URLSearchParams(window.location.search),
+    []
+  );
+  const initialFormFromQuery = liveQuery.get("form");
+  const initialFormAccountId = liveQuery.get("accountId");
   const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>(() => ({
     ...(initialFormFromQuery === "transfer" ? { type: "Transfer" } : {}),
     ...(initialFormAccountId ? { accountId: initialFormAccountId } : {})
