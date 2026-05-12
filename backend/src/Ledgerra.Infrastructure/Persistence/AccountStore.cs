@@ -45,6 +45,9 @@ public sealed class AccountStore : IAccountStore
         string currencyCode,
         decimal openingBalance,
         bool isActive,
+        string? institutionName,
+        string? accountNumberMasked,
+        AccountIconKind iconKind,
         CancellationToken cancellationToken)
     {
         var account = await _dbContext.Accounts.SingleOrDefaultAsync(item => item.UserId == userId && item.Id == accountId, cancellationToken);
@@ -58,6 +61,9 @@ public sealed class AccountStore : IAccountStore
         account.CurrencyCode = currencyCode;
         account.OpeningBalance = openingBalance;
         account.IsActive = isActive;
+        account.InstitutionName = institutionName;
+        account.AccountNumberMasked = accountNumberMasked;
+        account.IconKind = iconKind;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

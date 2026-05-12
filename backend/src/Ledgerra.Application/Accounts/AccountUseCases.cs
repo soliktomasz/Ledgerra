@@ -7,7 +7,15 @@ public sealed record GetAccountsQuery(Guid UserId);
 
 public sealed record GetAccountByIdQuery(Guid UserId, Guid AccountId);
 
-public sealed record CreateAccountCommand(Guid UserId, string Name, string Type, string CurrencyCode, decimal OpeningBalance);
+public sealed record CreateAccountCommand(
+    Guid UserId,
+    string Name,
+    string Type,
+    string CurrencyCode,
+    decimal OpeningBalance,
+    string? InstitutionName,
+    string? AccountNumberMasked,
+    string? IconKind);
 
 public sealed record UpdateAccountCommand(
     Guid UserId,
@@ -16,7 +24,10 @@ public sealed record UpdateAccountCommand(
     string Type,
     string CurrencyCode,
     decimal OpeningBalance,
-    bool IsActive);
+    bool IsActive,
+    string? InstitutionName,
+    string? AccountNumberMasked,
+    string? IconKind);
 
 public sealed record DeleteAccountCommand(Guid UserId, Guid AccountId);
 
@@ -27,7 +38,10 @@ public sealed record AccountDetails(
     string CurrencyCode,
     decimal OpeningBalance,
     decimal CurrentBalance,
-    bool IsActive);
+    bool IsActive,
+    string? InstitutionName,
+    string? AccountNumberMasked,
+    string IconKind);
 
 public interface IAccountStore
 {
@@ -45,6 +59,9 @@ public interface IAccountStore
         string currencyCode,
         decimal openingBalance,
         bool isActive,
+        string? institutionName,
+        string? accountNumberMasked,
+        AccountIconKind iconKind,
         CancellationToken cancellationToken);
 
     Task<AccountDeleteStatus> DeleteAsync(Guid userId, Guid accountId, CancellationToken cancellationToken);
@@ -115,7 +132,10 @@ public sealed class CreateAccountCommandHandler
                 Name = command.Name.Trim(),
                 Type = accountType,
                 CurrencyCode = command.CurrencyCode.ToUpperInvariant(),
-                OpeningBalance = command.OpeningBalance
+                OpeningBalance = command.OpeningBalance,
+                InstitutionName = command.InstitutionName,
+                AccountNumberMasked = command.AccountNumberMasked,
+                IconKind = Enum.TryParse<AccountIconKind>(command.IconKind, out var iconKind) ? iconKind : AccountIconKind.Bank
             },
             cancellationToken);
 
@@ -147,6 +167,8 @@ public sealed class UpdateAccountCommandHandler
             return AccountCommandResult.ValidationError("type", "Unsupported account type.");
         }
 
+        var iconKind = Enum.TryParse<AccountIconKind>(command.IconKind, out var parsedIconKind) ? parsedIconKind : AccountIconKind.Bank;
+
         var account = await _accountStore.UpdateAsync(
             command.UserId,
             command.AccountId,
@@ -155,6 +177,9 @@ public sealed class UpdateAccountCommandHandler
             command.CurrencyCode.ToUpperInvariant(),
             command.OpeningBalance,
             command.IsActive,
+            command.InstitutionName,
+            command.AccountNumberMasked,
+            iconKind,
             cancellationToken);
 
         if (account is null)
@@ -225,6 +250,9 @@ internal static class AccountMappings
             account.CurrencyCode,
             account.OpeningBalance,
             AccountBalanceCalculator.Calculate(account, account.Transactions),
-            account.IsActive);
+            account.IsActive,
+            account.InstitutionName,
+            account.AccountNumberMasked,
+            account.IconKind.ToString());
     }
 }
