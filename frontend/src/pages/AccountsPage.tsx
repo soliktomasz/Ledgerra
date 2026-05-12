@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
 import { useLedgerraData } from "../hooks/useLedgerraData";
@@ -38,7 +37,6 @@ function accountToFormValues(account: Account): AccountFormValues {
 export function AccountsPage() {
   const { accountId: routeAccountId } = useParams<{ accountId?: string }>();
   const navigate = useNavigate();
-  const { auth } = useAuth();
   const { t } = useI18n();
   const { selectedMonth } = useMonthSelection();
   const { accounts, categories, transactions, profile, refresh } = useLedgerraData({
