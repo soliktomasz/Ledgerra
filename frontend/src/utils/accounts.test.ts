@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Account, Transaction } from "../types";
-import { groupAccountsByType, ACCOUNT_GROUP_ORDER, computeBalanceSeries } from "./accounts";
+import { groupAccountsByType, ACCOUNT_GROUP_ORDER, computeBalanceSeries, filterAccounts, computeNetWorth } from "./accounts";
 
 function makeAccount(overrides: Partial<Account>): Account {
   return {
@@ -94,5 +94,46 @@ describe("computeBalanceSeries", () => {
     expect(lastPoint.balance).toBe(1000);
     const beforeMay10 = series.find((p) => p.date === "2026-05-09");
     expect(beforeMay10?.balance).toBe(850);
+  });
+});
+
+describe("filterAccounts", () => {
+  it("returns all accounts when query is empty", () => {
+    const accounts = [makeAccount({ id: "a", name: "mBank" })];
+    expect(filterAccounts(accounts, "")).toEqual(accounts);
+  });
+
+  it("matches by name, institutionName, and accountNumberMasked, case-insensitively", () => {
+    const accounts = [
+      makeAccount({ id: "1", name: "mBank Konto", institutionName: "mBank" }),
+      makeAccount({ id: "2", name: "Revolut", institutionName: "Revolut", accountNumberMasked: "GB ** 1042" }),
+      makeAccount({ id: "3", name: "Kasa", institutionName: "Gotówka" })
+    ];
+    expect(filterAccounts(accounts, "mbank").map((a) => a.id)).toEqual(["1"]);
+    expect(filterAccounts(accounts, "revolut").map((a) => a.id)).toEqual(["2"]);
+    expect(filterAccounts(accounts, "1042").map((a) => a.id)).toEqual(["2"]);
+    expect(filterAccounts(accounts, "GotÓwka").map((a) => a.id)).toEqual(["3"]);
+  });
+});
+
+describe("computeNetWorth", () => {
+  it("sums balances when all accounts share a currency", () => {
+    const accounts = [
+      makeAccount({ id: "a", currentBalance: 100, currencyCode: "PLN" }),
+      makeAccount({ id: "b", currentBalance: 250, currencyCode: "PLN" })
+    ];
+    expect(computeNetWorth(accounts)).toEqual({ value: 350, currencyCode: "PLN" });
+  });
+
+  it("returns null currency on mixed currencies", () => {
+    const accounts = [
+      makeAccount({ id: "a", currentBalance: 100, currencyCode: "PLN" }),
+      makeAccount({ id: "b", currentBalance: 250, currencyCode: "EUR" })
+    ];
+    expect(computeNetWorth(accounts)).toEqual({ value: 350, currencyCode: null });
+  });
+
+  it("returns zero with null currency when empty", () => {
+    expect(computeNetWorth([])).toEqual({ value: 0, currencyCode: null });
   });
 });

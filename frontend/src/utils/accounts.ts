@@ -28,6 +28,29 @@ export function groupAccountsByType(accounts: Account[]): AccountGroup[] {
     .filter((g): g is AccountGroup => g !== null);
 }
 
+export function filterAccounts(accounts: Account[], query: string): Account[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return accounts;
+  return accounts.filter((a) => {
+    const haystack = [
+      a.name ?? "",
+      a.institutionName ?? "",
+      a.accountNumberMasked ?? ""
+    ].join(" ").toLowerCase();
+    return haystack.includes(q);
+  });
+}
+
+export type NetWorth = { value: number; currencyCode: string | null };
+
+export function computeNetWorth(accounts: Account[]): NetWorth {
+  if (accounts.length === 0) return { value: 0, currencyCode: null };
+  const value = accounts.reduce((sum, a) => sum + a.currentBalance, 0);
+  const currencies = new Set(accounts.map((a) => a.currencyCode));
+  const currencyCode = currencies.size === 1 ? accounts[0].currencyCode : null;
+  return { value, currencyCode };
+}
+
 export type BalancePoint = { date: string; balance: number };
 
 export function signedAmount(t: Transaction): number {

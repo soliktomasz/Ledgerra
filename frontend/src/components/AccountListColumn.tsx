@@ -1,0 +1,103 @@
+import { useMemo } from "react";
+import { ACCOUNT_GROUP_ORDER, computeNetWorth, filterAccounts, groupAccountsByType } from "../utils/accounts";
+import { formatCurrency } from "../utils/format";
+import type { Account } from "../types";
+
+const GROUP_LABEL_PL: Record<typeof ACCOUNT_GROUP_ORDER[number], string> = {
+  Checking: "Konto bieżące",
+  Savings: "Oszczędności",
+  Credit: "Karta",
+  Cash: "Gotówka",
+  Investment: "Inwestycje",
+  Joint: "Wspólne"
+};
+
+const ICON_CLASS: Record<string, string> = {
+  Bank: "is-bank",
+  Piggy: "is-piggy",
+  Card: "is-card",
+  Cash: "is-cash",
+  Chart: "is-chart",
+  Users: "is-users"
+};
+
+export function AccountListColumn({
+  accounts,
+  selectedAccountId,
+  searchQuery,
+  onSearchQueryChange,
+  onSelectAccount,
+  onAddAccount
+}: {
+  accounts: Account[];
+  selectedAccountId: string | null;
+  searchQuery: string;
+  onSearchQueryChange: (q: string) => void;
+  onSelectAccount: (id: string) => void;
+  onAddAccount: () => void;
+}) {
+  const filtered = useMemo(() => filterAccounts(accounts, searchQuery), [accounts, searchQuery]);
+  const groups = useMemo(() => groupAccountsByType(filtered), [filtered]);
+  const netWorth = useMemo(() => computeNetWorth(accounts), [accounts]);
+
+  return (
+    <aside className="account-list-column">
+      <div className="net-worth-card">
+        <div>
+          <span className="net-worth-label">Wartość netto</span>
+          <strong className="net-worth-value">
+            {netWorth.currencyCode ? formatCurrency(netWorth.value, netWorth.currencyCode) : "—"}
+          </strong>
+        </div>
+        <button type="button" className="primary-button net-worth-add" onClick={onAddAccount}>
+          + Dodaj
+        </button>
+      </div>
+
+      <div className="account-search-input">
+        <input
+          type="search"
+          placeholder="Szukaj konta…"
+          value={searchQuery}
+          onChange={(e) => onSearchQueryChange(e.target.value)}
+        />
+      </div>
+
+      <div className="account-groups">
+        {groups.map((group) => (
+          <section key={group.type} className="account-group">
+            <header className="account-group-header">
+              <span className="account-group-label">{GROUP_LABEL_PL[group.type]}</span>
+              <span className="account-group-total">
+                {group.currencyCode ? formatCurrency(group.totalBalance, group.currencyCode) : "—"}
+              </span>
+            </header>
+            <ul className="account-group-body">
+              {group.accounts.map((account) => (
+                <li key={account.id}>
+                  <button
+                    type="button"
+                    className={"account-row " + (account.id === selectedAccountId ? "is-active" : "")}
+                    onClick={() => onSelectAccount(account.id)}
+                  >
+                    <span className={"account-icon " + (ICON_CLASS[account.iconKind] ?? "is-bank")} aria-hidden="true" />
+                    <span className="account-row-body">
+                      <span className="account-row-name">{account.name}</span>
+                      <span className="account-row-sub">
+                        {account.institutionName ? `${account.institutionName} · ` : ""}
+                        {account.accountNumberMasked ?? ""}
+                      </span>
+                    </span>
+                    <span className="account-row-balance">
+                      {formatCurrency(account.currentBalance, account.currencyCode)}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </aside>
+  );
+}
