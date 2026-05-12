@@ -1,4 +1,4 @@
-import type { Account } from "../types";
+import type { Account, Transaction } from "../types";
 
 export const ACCOUNT_GROUP_ORDER = [
   "Checking", "Savings", "Credit", "Cash", "Investment", "Joint"
@@ -26,4 +26,48 @@ export function groupAccountsByType(accounts: Account[]): AccountGroup[] {
       return { type, accounts: matches, totalBalance, currencyCode };
     })
     .filter((g): g is AccountGroup => g !== null);
+}
+
+export type BalancePoint = { date: string; balance: number };
+
+export function signedAmount(t: Transaction): number {
+  if (t.type === "Expense" || t.type === "TransferOut") return -Math.abs(t.amount);
+  if (t.type === "Income" || t.type === "TransferIn") return Math.abs(t.amount);
+  return t.amount;
+}
+
+function toDateKey(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
+export function computeBalanceSeries(args: {
+  currentBalance: number;
+  transactions: Transaction[];
+  rangeDays: number;
+  now: Date;
+}): BalancePoint[] {
+  const { currentBalance, transactions, rangeDays, now } = args;
+  const sorted = [...transactions].sort((a, b) => a.occurredOnUtc.localeCompare(b.occurredOnUtc));
+
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  if (rangeDays > 0) start.setUTCDate(start.getUTCDate() - rangeDays);
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+  const txByDay = new Map<string, number>();
+  for (const t of sorted) {
+    const key = toDateKey(new Date(t.occurredOnUtc));
+    txByDay.set(key, (txByDay.get(key) ?? 0) + signedAmount(t));
+  }
+
+  const points: BalancePoint[] = [];
+  let balance = currentBalance;
+  const cursor = new Date(end);
+
+  while (cursor >= start) {
+    const key = toDateKey(cursor);
+    points.unshift({ date: key, balance });
+    balance -= txByDay.get(key) ?? 0;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+  return points;
 }

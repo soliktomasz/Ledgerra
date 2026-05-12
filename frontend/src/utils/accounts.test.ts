@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Account } from "../types";
-import { groupAccountsByType, ACCOUNT_GROUP_ORDER } from "./accounts";
+import type { Account, Transaction } from "../types";
+import { groupAccountsByType, ACCOUNT_GROUP_ORDER, computeBalanceSeries } from "./accounts";
 
 function makeAccount(overrides: Partial<Account>): Account {
   return {
@@ -51,5 +51,48 @@ describe("groupAccountsByType", () => {
       makeAccount({ id: "2", type: "Checking", currencyCode: "EUR" })
     ]);
     expect(groups[0].currencyCode).toBeNull();
+  });
+});
+
+function makeTransaction(overrides: Partial<Transaction>): Transaction {
+  return {
+    id: overrides.id ?? "t",
+    accountId: overrides.accountId ?? "a",
+    amount: overrides.amount ?? 0,
+    type: overrides.type ?? "Expense",
+    occurredOnUtc: overrides.occurredOnUtc ?? "2026-05-10T00:00:00Z",
+    note: null,
+    ...overrides
+  };
+}
+
+describe("computeBalanceSeries", () => {
+  it("returns one point per day in the range with last point equal to currentBalance when there are no transactions", () => {
+    const series = computeBalanceSeries({
+      currentBalance: 1000,
+      transactions: [],
+      rangeDays: 30,
+      now: new Date("2026-05-12T00:00:00Z")
+    });
+    expect(series).toHaveLength(31);
+    expect(series[series.length - 1].balance).toBe(1000);
+    expect(series[0].balance).toBe(1000);
+  });
+
+  it("rolls back daily balances by signed transaction amounts", () => {
+    const series = computeBalanceSeries({
+      currentBalance: 1000,
+      transactions: [
+        makeTransaction({ amount: 200, type: "Income", occurredOnUtc: "2026-05-10T12:00:00Z" }),
+        makeTransaction({ amount: 50, type: "Expense", occurredOnUtc: "2026-05-11T12:00:00Z" })
+      ],
+      rangeDays: 5,
+      now: new Date("2026-05-12T00:00:00Z")
+    });
+
+    const lastPoint = series[series.length - 1];
+    expect(lastPoint.balance).toBe(1000);
+    const beforeMay10 = series.find((p) => p.date === "2026-05-09");
+    expect(beforeMay10?.balance).toBe(850);
   });
 });
