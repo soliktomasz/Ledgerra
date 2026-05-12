@@ -108,13 +108,18 @@ export function TransactionsPage() {
   });
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
-  const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>({});
   const initialQuery = useMemo(() => {
     if (typeof window === "undefined") {
       return new URLSearchParams();
     }
     return new URLSearchParams(window.location.search || window.localStorage.getItem("ledgerra:transactions:view") || "");
   }, []);
+  const initialFormFromQuery = initialQuery.get("form");
+  const initialFormAccountId = initialQuery.get("accountId");
+  const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>(() => ({
+    ...(initialFormFromQuery === "transfer" ? { type: "Transfer" } : {}),
+    ...(initialFormAccountId ? { accountId: initialFormAccountId } : {})
+  }));
   const [filterAccountIds, setFilterAccountIds] = useState<string[]>(() => initialQuery.getAll("accountId"));
   const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>(() => initialQuery.getAll("categoryId"));
   const [filterType, setFilterType] = useState(() => initialQuery.get("type") ?? "");
@@ -132,7 +137,7 @@ export function TransactionsPage() {
   const [bulkAccountId, setBulkAccountId] = useState("");
   const [isApplyingBulkAction, setIsApplyingBulkAction] = useState(false);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
-  const [isEntryOpen, setIsEntryOpen] = useState(false);
+  const [isEntryOpen, setIsEntryOpen] = useState(initialFormFromQuery === "transfer");
 
   useEffect(() => {
     setLedgerTransactions(transactions);
