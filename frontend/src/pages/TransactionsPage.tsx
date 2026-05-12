@@ -109,7 +109,12 @@ export function TransactionsPage() {
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>({});
-  const initialQuery = useMemo(() => new URLSearchParams(window.location.search || window.localStorage.getItem("ledgerra:transactions:view") || ""), []);
+  const initialQuery = useMemo(() => {
+    if (typeof window === "undefined") {
+      return new URLSearchParams();
+    }
+    return new URLSearchParams(window.location.search || window.localStorage.getItem("ledgerra:transactions:view") || "");
+  }, []);
   const [filterAccountIds, setFilterAccountIds] = useState<string[]>(() => initialQuery.getAll("accountId"));
   const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>(() => initialQuery.getAll("categoryId"));
   const [filterType, setFilterType] = useState(() => initialQuery.get("type") ?? "");
@@ -272,11 +277,14 @@ export function TransactionsPage() {
       .filter((transaction) => transaction.type === "Expense")
       .reduce((total, transaction) => total + Math.abs(transaction.amount), 0);
 
+    const uniqueDays = new Set(visibleTransactions.map((transaction) => getDateKey(transaction.occurredOnUtc)));
+    const dayCount = Math.max(uniqueDays.size, 1);
+
     return {
       income,
       expenses,
       balance: income - expenses,
-      averageDaily: expenses / 30
+      averageDaily: expenses / dayCount
     };
   }, [visibleTransactions]);
   const groupedTransactions = useMemo(() => {
@@ -606,7 +614,7 @@ export function TransactionsPage() {
             <article className="transaction-summary-card">
               <span>{t("transactions.summaryAverageDaily")}</span>
               <strong>{formatCurrency(transactionSummary.averageDaily, defaultCurrencyCode)}</strong>
-              <small>{t("transactions.last30Days")}</small>
+              <small>{t("transactions.currentView")}</small>
             </article>
           </div>
 

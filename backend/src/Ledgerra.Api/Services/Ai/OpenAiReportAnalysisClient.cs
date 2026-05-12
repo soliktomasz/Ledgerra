@@ -22,7 +22,7 @@ public sealed class OpenAiReportAnalysisClient : IAiReportAnalysisClient
 
     public async Task<AiReportAnalysisResult> AnalyzeAsync(AiReportAnalysisRequest request, CancellationToken cancellationToken)
     {
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, BuildEndpoint(request.ProviderBaseUrl));
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, BuildEndpoint());
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.ProviderApiKey);
         httpRequest.Content = JsonContent.Create(new
         {
@@ -124,9 +124,8 @@ public sealed class OpenAiReportAnalysisClient : IAiReportAnalysisClient
         throw new InvalidDataException("OpenAI response did not include output_text content.");
     }
 
-    private static Uri BuildEndpoint(string? baseUrl)
+    private static Uri BuildEndpoint()
     {
-        var normalizedBaseUrl = string.IsNullOrWhiteSpace(baseUrl) ? DefaultBaseUrl : baseUrl.Trim().TrimEnd('/');
-        return new Uri($"{normalizedBaseUrl}/responses", UriKind.Absolute);
+        return new Uri($"{DefaultBaseUrl}/responses", UriKind.Absolute);
     }
 }

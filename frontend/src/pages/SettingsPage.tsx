@@ -174,7 +174,7 @@ export function SettingsPage() {
           baseUrl: openAiCompatibleBaseUrl.trim(),
           model: openAiCompatibleModel.trim() || undefined
         });
-      } else if (openAiCompatibleModel.trim() && openAiCompatibleModel.trim() !== openAiCompatibleProvider?.model) {
+      } else if (isOpenAiCompatibleConfigured && openAiCompatibleModel.trim() && openAiCompatibleModel.trim() !== openAiCompatibleProvider?.model) {
         await apiClient.updateAiProviderModel(auth.accessToken, "openai-compatible", openAiCompatibleModel.trim());
       }
 

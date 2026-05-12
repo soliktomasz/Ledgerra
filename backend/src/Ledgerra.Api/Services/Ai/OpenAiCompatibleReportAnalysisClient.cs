@@ -30,7 +30,13 @@ public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClie
             throw new InvalidOperationException("OpenAI-compatible provider requires a selected model.");
         }
 
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, BuildEndpoint(request.ProviderBaseUrl));
+        var endpoint = BuildEndpoint(request.ProviderBaseUrl);
+        if (await EndpointValidator.ResolvesToBlockedAddressAsync(endpoint))
+        {
+            throw new InvalidOperationException("OpenAI-compatible base URL resolves to a blocked address.");
+        }
+
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.ProviderApiKey);
         httpRequest.Content = JsonContent.Create(new
         {

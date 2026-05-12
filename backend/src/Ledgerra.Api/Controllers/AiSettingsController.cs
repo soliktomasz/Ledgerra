@@ -1,5 +1,6 @@
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
+using Ledgerra.Api.Services.Ai;
 using Ledgerra.Domain.Ai;
 using Ledgerra.Infrastructure.Persistence;
 using Ledgerra.Infrastructure.Security;
@@ -95,6 +96,10 @@ public sealed class AiSettingsController : ControllerBase
 
         credential.EncryptedApiKey = _secretProtector.Protect(trimmedKey);
         credential.MaskedKey = MaskKey(trimmedKey);
+        if (credential.BaseUrl != normalizedBaseUrl && string.IsNullOrWhiteSpace(requestedModel))
+        {
+            credential.Model = null;
+        }
         credential.BaseUrl = normalizedBaseUrl;
         if (!string.IsNullOrWhiteSpace(requestedModel))
         {
@@ -252,7 +257,7 @@ public sealed class AiSettingsController : ControllerBase
         {
             return Ok(new AiProviderModelsResponse(await FetchOpenAiModelIdsAsync(parsedProvider, credential, cancellationToken)));
         }
-        catch (InvalidOperationException exception)
+        catch (Exception exception) when (exception is InvalidOperationException or JsonException)
         {
             return BadRequest(new ProblemDetails { Title = exception.Message });
         }
@@ -347,10 +352,18 @@ public sealed class AiSettingsController : ControllerBase
             throw new InvalidOperationException($"{provider} requires a base URL before models can be loaded.");
         }
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri($"{baseUrl.Trim().TrimEnd('/')}/models", UriKind.Absolute));
+        var modelsUri = new Uri($"{baseUrl.Trim().TrimEnd('/')}/models", UriKind.Absolute);
+        if (provider != AiProvider.OpenAi && await EndpointValidator.ResolvesToBlockedAddressAsync(modelsUri))
+        {
+            throw new InvalidOperationException($"{provider} base URL resolves to a blocked address.");
+        }
+
+        using var handler = new HttpClientHandler { AllowAutoRedirect = false };
+        using var httpClient = new HttpClient(handler);
+        using var request = new HttpRequestMessage(HttpMethod.Get, modelsUri);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _secretProtector.Unprotect(credential.EncryptedApiKey));
 
-        using var response = await _httpClientFactory.CreateClient().SendAsync(request, cancellationToken);
+        using var response = await httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
             throw new InvalidOperationException($"{provider} rejected the saved API key.");
@@ -401,6 +414,18 @@ public sealed class AiSettingsController : ControllerBase
             (parsedUri.Scheme != Uri.UriSchemeHttps && parsedUri.Scheme != Uri.UriSchemeHttp))
         {
             error = "Base URL must be an absolute HTTP or HTTPS URL.";
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(parsedUri.Host))
+        {
+            error = "Base URL must include a hostname.";
+            return null;
+        }
+
+        if (EndpointValidator.IsBlockedHost(parsedUri))
+        {
+            error = "Base URL must not point to a local, loopback, or private network address.";
             return null;
         }
 
