@@ -61,7 +61,7 @@ public interface IAccountStore
         bool isActive,
         string? institutionName,
         string? accountNumberMasked,
-        AccountIconKind iconKind,
+        AccountIconKind? iconKind,
         CancellationToken cancellationToken);
 
     Task<AccountDeleteStatus> DeleteAsync(Guid userId, Guid accountId, CancellationToken cancellationToken);
@@ -135,7 +135,7 @@ public sealed class CreateAccountCommandHandler
                 OpeningBalance = command.OpeningBalance,
                 InstitutionName = command.InstitutionName,
                 AccountNumberMasked = command.AccountNumberMasked,
-                IconKind = Enum.TryParse<AccountIconKind>(command.IconKind, out var iconKind) ? iconKind : AccountIconKind.Bank
+                IconKind = Enum.TryParse<AccountIconKind>(command.IconKind, ignoreCase: true, out var iconKind) ? iconKind : AccountIconKind.Bank
             },
             cancellationToken);
 
@@ -167,7 +167,11 @@ public sealed class UpdateAccountCommandHandler
             return AccountCommandResult.ValidationError("type", "Unsupported account type.");
         }
 
-        var iconKind = Enum.TryParse<AccountIconKind>(command.IconKind, out var parsedIconKind) ? parsedIconKind : AccountIconKind.Bank;
+        AccountIconKind? iconKindToPersist = string.IsNullOrWhiteSpace(command.IconKind)
+            ? null
+            : (Enum.TryParse<AccountIconKind>(command.IconKind, ignoreCase: true, out var parsedIconKind)
+                ? parsedIconKind
+                : (AccountIconKind?)null);
 
         var account = await _accountStore.UpdateAsync(
             command.UserId,
@@ -179,7 +183,7 @@ public sealed class UpdateAccountCommandHandler
             command.IsActive,
             command.InstitutionName,
             command.AccountNumberMasked,
-            iconKind,
+            iconKindToPersist,
             cancellationToken);
 
         if (account is null)
