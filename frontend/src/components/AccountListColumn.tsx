@@ -36,8 +36,14 @@ export function AccountListColumn({
   onSelectAccount: (id: string) => void;
   onAddAccount: () => void;
 }) {
-  const filtered = useMemo(() => filterAccounts(accounts, searchQuery), [accounts, searchQuery]);
-  const groups = useMemo(() => groupAccountsByType(filtered), [filtered]);
+  const groups = useMemo(() => groupAccountsByType(accounts), [accounts]);
+  const visibleGroups = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return groups.map((g) => ({ ...g, visibleAccounts: g.accounts }));
+    return groups
+      .map((g) => ({ ...g, visibleAccounts: filterAccounts(g.accounts, q) }))
+      .filter((g) => g.visibleAccounts.length > 0);
+  }, [groups, searchQuery]);
   const netWorth = useMemo(() => computeNetWorth(accounts), [accounts]);
 
   return (
@@ -64,7 +70,7 @@ export function AccountListColumn({
       </div>
 
       <div className="account-groups">
-        {groups.map((group) => (
+        {visibleGroups.map((group) => (
           <section key={group.type} className="account-group">
             <header className="account-group-header">
               <span className="account-group-label">{GROUP_LABEL_PL[group.type]}</span>
@@ -73,7 +79,7 @@ export function AccountListColumn({
               </span>
             </header>
             <ul className="account-group-body">
-              {group.accounts.map((account) => (
+              {group.visibleAccounts.map((account) => (
                 <li key={account.id}>
                   <button
                     type="button"
