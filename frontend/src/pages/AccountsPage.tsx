@@ -58,7 +58,10 @@ export function AccountsPage() {
       name,
       type,
       currencyCode: normalizeCurrencyCode(currencyCode),
-      openingBalance: Number(openingBalance)
+      openingBalance: Number(openingBalance),
+      institutionName: null,
+      accountNumberMasked: null,
+      iconKind: "Bank"
     });
 
     setName("");
