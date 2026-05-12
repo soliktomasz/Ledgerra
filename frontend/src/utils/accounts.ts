@@ -63,6 +63,33 @@ function toDateKey(d: Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
+export function computeWeekChange(transactions: Transaction[], now: Date): number {
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
+  return transactions
+    .filter((t) => {
+      const d = new Date(t.occurredOnUtc);
+      return d >= sevenDaysAgo && d <= now;
+    })
+    .reduce((sum, t) => sum + signedAmount(t), 0);
+}
+
+function monthKey(value: string): string {
+  return value.slice(0, 7);
+}
+
+export function computeMonthInflows(transactions: Transaction[], month: string): number {
+  return transactions
+    .filter((t) => monthKey(t.occurredOnUtc) === month && (t.type === "Income" || t.type === "TransferIn"))
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+}
+
+export function computeMonthOutflows(transactions: Transaction[], month: string): number {
+  return transactions
+    .filter((t) => monthKey(t.occurredOnUtc) === month && (t.type === "Expense" || t.type === "TransferOut"))
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+}
+
 export function computeBalanceSeries(args: {
   currentBalance: number;
   transactions: Transaction[];

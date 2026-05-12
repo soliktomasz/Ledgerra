@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Account, Transaction } from "../types";
-import { groupAccountsByType, ACCOUNT_GROUP_ORDER, computeBalanceSeries, filterAccounts, computeNetWorth } from "./accounts";
+import { groupAccountsByType, ACCOUNT_GROUP_ORDER, computeBalanceSeries, filterAccounts, computeNetWorth, computeWeekChange, computeMonthInflows, computeMonthOutflows } from "./accounts";
 
 function makeAccount(overrides: Partial<Account>): Account {
   return {
@@ -135,5 +135,38 @@ describe("computeNetWorth", () => {
 
   it("returns zero with null currency when empty", () => {
     expect(computeNetWorth([])).toEqual({ value: 0, currencyCode: null });
+  });
+});
+
+describe("computeWeekChange / computeMonthInflows / computeMonthOutflows", () => {
+  const now = new Date("2026-05-12T00:00:00Z");
+
+  it("computeWeekChange sums signed amounts in the last 7 days", () => {
+    const txs = [
+      makeTransaction({ id: "1", amount: 100, type: "Income", occurredOnUtc: "2026-05-10T00:00:00Z" }),
+      makeTransaction({ id: "2", amount: 30, type: "Expense", occurredOnUtc: "2026-05-11T00:00:00Z" }),
+      makeTransaction({ id: "3", amount: 999, type: "Expense", occurredOnUtc: "2026-04-01T00:00:00Z" })
+    ];
+    expect(computeWeekChange(txs, now)).toBe(70);
+  });
+
+  it("computeMonthInflows sums Income+TransferIn for the selected month (YYYY-MM)", () => {
+    const txs = [
+      makeTransaction({ id: "1", amount: 1200, type: "Income", occurredOnUtc: "2026-05-07T00:00:00Z" }),
+      makeTransaction({ id: "2", amount: 50, type: "TransferIn", occurredOnUtc: "2026-05-15T00:00:00Z" }),
+      makeTransaction({ id: "3", amount: 999, type: "Income", occurredOnUtc: "2026-04-30T00:00:00Z" }),
+      makeTransaction({ id: "4", amount: 50, type: "Expense", occurredOnUtc: "2026-05-08T00:00:00Z" })
+    ];
+    expect(computeMonthInflows(txs, "2026-05")).toBe(1250);
+  });
+
+  it("computeMonthOutflows sums Expense+TransferOut for the selected month (YYYY-MM)", () => {
+    const txs = [
+      makeTransaction({ id: "1", amount: 142, type: "Expense", occurredOnUtc: "2026-05-09T00:00:00Z" }),
+      makeTransaction({ id: "2", amount: 100, type: "TransferOut", occurredOnUtc: "2026-05-20T00:00:00Z" }),
+      makeTransaction({ id: "3", amount: 999, type: "Expense", occurredOnUtc: "2026-04-15T00:00:00Z" }),
+      makeTransaction({ id: "4", amount: 1200, type: "Income", occurredOnUtc: "2026-05-07T00:00:00Z" })
+    ];
+    expect(computeMonthOutflows(txs, "2026-05")).toBe(242);
   });
 });
