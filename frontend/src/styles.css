@@ -3602,3 +3602,582 @@ label {
     grid-template-columns: 1fr;
   }
 }
+
+/* === accounts page redesign === */
+
+.accounts-shell {
+  display: grid;
+  grid-template-columns: minmax(320px, 380px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.account-list-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-detail-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.account-detail-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Net worth card */
+.net-worth-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.net-worth-label {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.net-worth-value {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.net-worth-add {
+  flex-shrink: 0;
+  border-radius: 999px;
+}
+
+/* Search input */
+.account-search-input {
+  position: relative;
+  width: 100%;
+}
+
+.account-search-input::before {
+  content: "\2315";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.account-search-input input {
+  width: 100%;
+  padding: 0.6rem 0.85rem 0.6rem 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Grouped list */
+.account-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account-group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.account-group-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.account-group-total {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+
+.account-group-body {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.account-row:hover {
+  background: var(--surface-muted);
+}
+
+.account-row.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+
+.account-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.account-row-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-row-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.account-row-balance {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+}
+
+/* Account icon */
+.account-icon {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.account-icon-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+}
+
+.account-icon.is-bank {
+  background: #0f766e;
+  border-color: #0c5d57;
+}
+
+.account-icon.is-piggy {
+  background: #be185d;
+  border-color: #9c1450;
+}
+
+.account-icon.is-card {
+  background: #4f46e5;
+  border-color: #3f39b8;
+}
+
+.account-icon.is-cash {
+  background: #d97706;
+  border-color: #b35f04;
+}
+
+.account-icon.is-chart {
+  background: #a21caf;
+  border-color: #821691;
+}
+
+.account-icon.is-users {
+  background: #475569;
+  border-color: #364154;
+}
+
+/* Account detail header */
+.account-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.account-detail-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.account-detail-breadcrumb {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.account-detail-title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.account-detail-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.account-detail-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* KPI grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.kpi-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.kpi-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.kpi-helper {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.kpi-card.positive .kpi-value {
+  color: #34d399;
+}
+
+.kpi-card.negative .kpi-value {
+  color: #f87171;
+}
+
+/* Balance chart card */
+.balance-chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.balance-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.balance-chart-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.balance-chart-body {
+  width: 100%;
+  height: 240px;
+}
+
+.range-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px;
+  background: var(--surface-muted);
+}
+
+.range-tabs .range-tab {
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.range-tabs .range-tab:hover {
+  color: var(--text);
+}
+
+.range-tabs .range-tab.is-active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Recent operations */
+.recent-ops-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recent-ops-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recent-ops-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.recent-ops-link {
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.recent-ops-link:hover {
+  text-decoration: underline;
+}
+
+.recent-ops-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recent-op-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.recent-op-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--surface-muted);
+}
+
+.recent-op-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.recent-op-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.recent-op-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.recent-op-amount {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: right;
+  color: var(--text);
+}
+
+.recent-op-amount.is-positive {
+  color: #34d399;
+}
+
+.recent-op-amount.is-negative {
+  color: #f87171;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--modal-shadow);
+  max-width: 480px;
+  width: calc(100% - 32px);
+  padding: 20px 22px;
+  max-height: 90vh;
+  overflow: auto;
+  cursor: default;
+}
+
+/* Form helpers */
+.form-error {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted-strong);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1100px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .accounts-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-detail-header {
+    flex-wrap: wrap;
+  }
+
+  .account-detail-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
