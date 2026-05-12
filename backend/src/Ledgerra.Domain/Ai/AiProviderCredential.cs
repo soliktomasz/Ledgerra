@@ -12,6 +12,10 @@ public sealed class AiProviderCredential
 
     public string MaskedKey { get; set; } = string.Empty;
 
+    public string? BaseUrl { get; set; }
+
+    public string? Model { get; set; }
+
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;

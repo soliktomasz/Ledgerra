@@ -120,8 +120,8 @@ describe("TransactionsPage", () => {
     render(<TransactionsPage />);
 
     await user.selectOptions(screen.getByLabelText("Filter by account"), ["account-1"]);
-    await user.selectOptions(screen.getByLabelText("Filter by category"), ["category-1"]);
-    await user.selectOptions(screen.getByLabelText("Filter by type"), "Expense");
+    await user.click(screen.getByLabelText("Groceries"));
+    await user.click(screen.getByRole("button", { name: "Expense" }));
     fireEvent.change(screen.getByLabelText("From date"), { target: { value: "2026-04-01" } });
     fireEvent.change(screen.getByLabelText("To date"), { target: { value: "2026-04-30" } });
     fireEvent.change(screen.getByLabelText("Min amount"), { target: { value: "10" } });
@@ -253,6 +253,7 @@ describe("TransactionsPage", () => {
 
     render(<TransactionsPage />);
 
+    await user.click(screen.getByRole("button", { name: "Add transaction" }));
     await user.selectOptions(screen.getByLabelText("Type"), "Expense");
     await user.selectOptions(screen.getByLabelText("Account"), "account-1");
     await user.selectOptions(screen.getByLabelText("Category"), "__create_new__");
@@ -286,6 +287,7 @@ describe("TransactionsPage", () => {
 
     render(<TransactionsPage />);
 
+    await user.click(screen.getByRole("button", { name: "Add transaction" }));
     await user.selectOptions(screen.getByLabelText("Type"), "Transfer");
 
     expect(screen.queryByLabelText("Category")).not.toBeInTheDocument();
@@ -372,7 +374,7 @@ describe("TransactionsPage", () => {
 
     render(<TransactionsPage />);
 
-    await user.click(await screen.findByRole("button", { name: "Export filtered CSV" }));
+    await user.click(await screen.findByRole("button", { name: "Export CSV" }));
     await user.click(screen.getByRole("button", { name: "Export categories & budget" }));
 
     expect(URL.createObjectURL).toHaveBeenCalledTimes(3);

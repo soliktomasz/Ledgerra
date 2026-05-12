@@ -4,6 +4,8 @@ namespace Ledgerra.Api.Services.Ai;
 
 public sealed record AiReportAnalysisRequest(
     string ProviderApiKey,
+    string? ProviderBaseUrl,
+    string? Model,
     string ReportContent,
     string Month,
     IReadOnlyList<AiAccountContext> Accounts,

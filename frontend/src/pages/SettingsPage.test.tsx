@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   refresh: vi.fn(),
   updateProfile: vi.fn(),
   saveAiProviderKey: vi.fn(),
+  updateAiProviderModel: vi.fn(),
+  getAiProviderModels: vi.fn(),
   removeAiProviderKey: vi.fn(),
   updateDefaultAiProvider: vi.fn(),
   getPersonalAccessTokens: vi.fn(),
@@ -19,7 +21,8 @@ const mocks = vi.hoisted(() => ({
   aiSettings: {
     providers: {
       openAi: { isConfigured: true, maskedKey: "...3456" as string | null },
-      anthropic: { isConfigured: false, maskedKey: null as string | null }
+      anthropic: { isConfigured: false, maskedKey: null as string | null },
+      openAiCompatible: { isConfigured: false, maskedKey: null as string | null, baseUrl: null as string | null, model: null as string | null }
     },
     defaultProvider: "OpenAi"
   }
@@ -33,6 +36,8 @@ vi.mock("../api/client", () => ({
   apiClient: {
     updateProfile: mocks.updateProfile,
     saveAiProviderKey: mocks.saveAiProviderKey,
+    updateAiProviderModel: mocks.updateAiProviderModel,
+    getAiProviderModels: mocks.getAiProviderModels,
     removeAiProviderKey: mocks.removeAiProviderKey,
     updateDefaultAiProvider: mocks.updateDefaultAiProvider,
     getPersonalAccessTokens: mocks.getPersonalAccessTokens,
@@ -82,10 +87,12 @@ describe("SettingsPage", () => {
     document.documentElement.removeAttribute("data-navigation-density");
     mocks.aiSettings.providers.openAi = { isConfigured: true, maskedKey: "...3456" };
     mocks.aiSettings.providers.anthropic = { isConfigured: false, maskedKey: null };
+    mocks.aiSettings.providers.openAiCompatible = { isConfigured: false, maskedKey: null, baseUrl: null, model: null };
     mocks.aiSettings.defaultProvider = "OpenAi";
     mocks.getPersonalAccessTokens.mockResolvedValue([]);
     mocks.createPersonalAccessToken.mockResolvedValue({ plainTextToken: "ledgerra_pat_test" });
     mocks.revokePersonalAccessToken.mockResolvedValue(undefined);
+    mocks.getAiProviderModels.mockResolvedValue({ models: ["synthetic-finance-1", "synthetic-fast"] });
   });
 
   test("shows AI provider configuration state", async () => {
@@ -163,6 +170,49 @@ describe("SettingsPage", () => {
     expect(screen.getByText("...3456")).toBeInTheDocument();
   });
 
+  test("saves OpenAI-compatible provider settings and model", async () => {
+    const user = userEvent.setup();
+    mocks.saveAiProviderKey.mockResolvedValue(mocks.aiSettings);
+    mocks.updateDefaultAiProvider.mockResolvedValue(mocks.aiSettings);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
+    await user.selectOptions(screen.getByLabelText("Default provider"), "OpenAiCompatible");
+    await user.type(screen.getByLabelText("OpenAI-compatible API key"), "sk-compatible-secret-3456");
+    await user.type(screen.getByLabelText("OpenAI-compatible base URL"), "https://api.synthetic.example/v1");
+    await user.type(screen.getByLabelText("OpenAI-compatible model"), "synthetic-finance-1");
+    await user.click(screen.getByRole("button", { name: "Save AI settings" }));
+
+    await waitFor(() => {
+      expect(mocks.saveAiProviderKey).toHaveBeenCalledWith("token", "openai-compatible", "sk-compatible-secret-3456", {
+        baseUrl: "https://api.synthetic.example/v1",
+        model: "synthetic-finance-1"
+      });
+    });
+    expect(mocks.updateDefaultAiProvider).toHaveBeenCalledWith("token", "OpenAiCompatible");
+  });
+
+  test("loads OpenAI-compatible models for selection", async () => {
+    const user = userEvent.setup();
+    mocks.aiSettings.providers.openAiCompatible = {
+      isConfigured: true,
+      maskedKey: "...3456",
+      baseUrl: "https://api.synthetic.example/v1",
+      model: null
+    };
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
+    await user.click(screen.getByRole("button", { name: "Load models" }));
+
+    await waitFor(() => {
+      expect(mocks.getAiProviderModels).toHaveBeenCalledWith("token", "openai-compatible");
+    });
+    expect(screen.getByLabelText("OpenAI-compatible model")).toHaveValue("synthetic-finance-1");
+  });
+
   test("removes configured provider keys and disables missing provider removal", async () => {
     const user = userEvent.setup();
     mocks.removeAiProviderKey.mockResolvedValue(mocks.aiSettings);
@@ -174,6 +224,7 @@ describe("SettingsPage", () => {
     const removeButtons = screen.getAllByRole("button", { name: "Remove" });
     expect(removeButtons[0]).toBeEnabled();
     expect(removeButtons[1]).toBeDisabled();
+    expect(removeButtons[2]).toBeDisabled();
 
     await user.click(removeButtons[0]);
 
@@ -184,7 +235,7 @@ describe("SettingsPage", () => {
     mocks.aiSettings.providers.openAi = { isConfigured: false, maskedKey: null };
     rerender(<SettingsPage />);
 
-    expect(screen.getAllByText("Not configured").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Not configured").length).toBeGreaterThanOrEqual(3);
   });
 
   test("manages import categorization rules", async () => {

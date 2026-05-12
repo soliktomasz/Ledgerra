@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { apiClient } from "../api/client";
 import { TransactionForm, toDateTimeLocal, toFormType, type TransactionFormMode, type TransactionFormValues } from "../components/TransactionForm";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import type { Transaction } from "../types";
+import { AccountsIcon, BookmarkIcon, CategoryIcon, ChevronDownIcon, DownloadIcon, DuplicateIcon, EditIcon, TrashIcon } from "../ui/icons";
 import { PageHeader } from "../ui/PageHeader";
-import { SectionCard } from "../ui/SectionCard";
 import { formatCurrency, formatDate } from "../utils/format";
 
 const transactionTypes = ["Expense", "Income", "Transfer"];
@@ -47,6 +47,56 @@ function getCategorisableTransactionKind(transaction: Transaction) {
   return transaction.type === "Expense" || transaction.type === "Income" ? transaction.type : "";
 }
 
+function getCategoryFallbackColor(kind: string) {
+  return kind === "Income" ? "#34d399" : "#60a5fa";
+}
+
+function getTransactionSignedAmount(transaction: Transaction) {
+  if (transaction.type === "Expense" || transaction.type === "TransferOut") {
+    return -Math.abs(transaction.amount);
+  }
+
+  if (transaction.type === "Income" || transaction.type === "TransferIn") {
+    return Math.abs(transaction.amount);
+  }
+
+  return transaction.amount;
+}
+
+function formatSignedCurrency(value: number, currencyCode: string) {
+  if (value > 0) {
+    return `+ ${formatCurrency(value, currencyCode)}`;
+  }
+
+  if (value < 0) {
+    return `- ${formatCurrency(Math.abs(value), currencyCode)}`;
+  }
+
+  return formatCurrency(0, currencyCode);
+}
+
+function getDateKey(value: string) {
+  const date = new Date(value);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function getRelativeDayLabel(value: string, t: ReturnType<typeof useI18n>["t"]) {
+  const dateKey = getDateKey(value);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (dateKey === getDateKey(today.toISOString())) {
+    return t("transactions.today");
+  }
+
+  if (dateKey === getDateKey(yesterday.toISOString())) {
+    return t("transactions.yesterday");
+  }
+
+  return formatDate(value);
+}
+
 export function TransactionsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
@@ -59,7 +109,12 @@ export function TransactionsPage() {
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>({});
-  const initialQuery = useMemo(() => new URLSearchParams(window.location.search), []);
+  const initialQuery = useMemo(() => {
+    if (typeof window === "undefined") {
+      return new URLSearchParams();
+    }
+    return new URLSearchParams(window.location.search || window.localStorage.getItem("ledgerra:transactions:view") || "");
+  }, []);
   const [filterAccountIds, setFilterAccountIds] = useState<string[]>(() => initialQuery.getAll("accountId"));
   const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>(() => initialQuery.getAll("categoryId"));
   const [filterType, setFilterType] = useState(() => initialQuery.get("type") ?? "");
@@ -76,6 +131,8 @@ export function TransactionsPage() {
   const [bulkCategoryId, setBulkCategoryId] = useState("");
   const [bulkAccountId, setBulkAccountId] = useState("");
   const [isApplyingBulkAction, setIsApplyingBulkAction] = useState(false);
+  const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+  const [isEntryOpen, setIsEntryOpen] = useState(false);
 
   useEffect(() => {
     setLedgerTransactions(transactions);
@@ -201,10 +258,91 @@ export function TransactionsPage() {
     () => categories.filter((category) => category.kind === "Expense"),
     [categories]
   );
+  const accountById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts]);
+  const categoryById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories]);
+  const defaultCurrencyCode = accounts[0]?.currencyCode ?? "USD";
+  const selectedTotal = useMemo(
+    () => selectedTransactions.reduce((total, transaction) => total + Math.abs(transaction.amount), 0),
+    [selectedTransactions]
+  );
   const uncategorizedExpenseCount = useMemo(
     () => ledgerTransactions.filter((transaction) => transaction.type === "Expense" && !transaction.categoryId).length,
     [ledgerTransactions]
   );
+  const transactionSummary = useMemo(() => {
+    const income = visibleTransactions
+      .filter((transaction) => transaction.type === "Income")
+      .reduce((total, transaction) => total + Math.abs(transaction.amount), 0);
+    const expenses = visibleTransactions
+      .filter((transaction) => transaction.type === "Expense")
+      .reduce((total, transaction) => total + Math.abs(transaction.amount), 0);
+
+    const uniqueDays = new Set(visibleTransactions.map((transaction) => getDateKey(transaction.occurredOnUtc)));
+    const dayCount = Math.max(uniqueDays.size, 1);
+
+    return {
+      income,
+      expenses,
+      balance: income - expenses,
+      averageDaily: expenses / dayCount
+    };
+  }, [visibleTransactions]);
+  const groupedTransactions = useMemo(() => {
+    const groups = new Map<string, { label: string; dateLabel: string; total: number; transactions: Transaction[] }>();
+    const sortedTransactions = [...visibleTransactions].sort((first, second) => new Date(second.occurredOnUtc).getTime() - new Date(first.occurredOnUtc).getTime());
+
+    sortedTransactions.forEach((transaction) => {
+      const key = getDateKey(transaction.occurredOnUtc);
+      const existing = groups.get(key);
+      const signedAmount = getTransactionSignedAmount(transaction);
+
+      if (existing) {
+        existing.total += signedAmount;
+        existing.transactions.push(transaction);
+        return;
+      }
+
+      groups.set(key, {
+        label: getRelativeDayLabel(transaction.occurredOnUtc, t),
+        dateLabel: formatDate(transaction.occurredOnUtc),
+        total: signedAmount,
+        transactions: [transaction]
+      });
+    });
+
+    return Array.from(groups.values());
+  }, [t, visibleTransactions]);
+  const hasActiveFilters =
+    filterAccountIds.length > 0 ||
+    filterCategoryIds.length > 0 ||
+    Boolean(filterType || fromDate || toDate || minAmount || maxAmount || noteSearch.trim() || showUncategorizedOnly);
+
+  const setSingleFilterAccount = (accountId: string) => {
+    setFilterAccountIds(accountId ? [accountId] : []);
+  };
+
+  const toggleCategoryFilter = (categoryId: string, selected: boolean) => {
+    setFilterCategoryIds((current) =>
+      selected ? (current.includes(categoryId) ? current : [...current, categoryId]) : current.filter((id) => id !== categoryId)
+    );
+  };
+
+  const clearFilters = () => {
+    setFilterAccountIds([]);
+    setFilterCategoryIds([]);
+    setFilterType("");
+    setFromDate("");
+    setToDate("");
+    setMinAmount("");
+    setMaxAmount("");
+    setNoteSearch("");
+    setShowUncategorizedOnly(false);
+  };
+
+  const saveCurrentView = () => {
+    localStorage.setItem("ledgerra:transactions:view", window.location.search);
+    setStatusMessage(t("transactions.viewSaved"));
+  };
 
   const downloadCsv = (filename: string, csvContent: string) => {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -252,6 +390,7 @@ export function TransactionsPage() {
     setFormMode("create");
     setEditingTransactionId(null);
     setFormValues({});
+    setIsEntryOpen(false);
   };
 
   const refreshAfterMutation = async () => {
@@ -284,6 +423,7 @@ export function TransactionsPage() {
   };
 
   const startEdit = (transaction: Transaction) => {
+    setIsEntryOpen(false);
     setFormMode("edit");
     setEditingTransactionId(transaction.id);
     setFormValues({
@@ -305,7 +445,9 @@ export function TransactionsPage() {
     }
 
     if (isTransferTransaction(transaction)) {
+      setIsEntryOpen(true);
       setFormMode("create");
+      setEditingTransactionId(null);
       setFormValues({
         type: "Transfer",
         accountId: transaction.accountId,
@@ -314,6 +456,7 @@ export function TransactionsPage() {
         occurredOnUtc: toDateTimeLocal(transaction.occurredOnUtc),
         note: transaction.note ?? ""
       });
+      setErrorMessage("");
       setStatusMessage(t("transactions.chooseDestination"));
       return;
     }
@@ -333,6 +476,14 @@ export function TransactionsPage() {
     } catch (caughtError) {
       setErrorMessage(caughtError instanceof Error ? caughtError.message : t("transactions.unableToDuplicate"));
     }
+  };
+
+  const openCreateEntry = () => {
+    setIsEntryOpen(true);
+    setFormMode("create");
+    setEditingTransactionId(null);
+    setFormValues({});
+    setErrorMessage("");
   };
 
   const deleteTransaction = async (transaction: Transaction) => {
@@ -442,211 +593,427 @@ export function TransactionsPage() {
         description={t("transactions.description")}
       />
 
-      <div className="split-grid wide">
-        <SectionCard title={formMode === "edit" ? t("transactions.editTransaction") : t("transactions.addTransaction")}>
+      <div className={`transaction-workspace${filtersCollapsed ? " is-filters-collapsed" : ""}`}>
+        <div className="transaction-primary-column">
+          <div className="transaction-summary-grid" aria-label={t("transactions.currentView")}>
+            <article className="transaction-summary-card positive">
+              <span>{t("transactions.summaryIncome")}</span>
+              <strong>{formatSignedCurrency(transactionSummary.income, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.currentView")}</small>
+            </article>
+            <article className="transaction-summary-card negative">
+              <span>{t("transactions.summaryExpenses")}</span>
+              <strong>{formatSignedCurrency(-transactionSummary.expenses, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.transactionCount", { count: visibleTransactions.length })}</small>
+            </article>
+            <article className="transaction-summary-card positive">
+              <span>{t("transactions.summaryBalance")}</span>
+              <strong>{formatSignedCurrency(transactionSummary.balance, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.filteredBalance")}</small>
+            </article>
+            <article className="transaction-summary-card">
+              <span>{t("transactions.summaryAverageDaily")}</span>
+              <strong>{formatCurrency(transactionSummary.averageDaily, defaultCurrencyCode)}</strong>
+              <small>{t("transactions.currentView")}</small>
+            </article>
+          </div>
+
           {errorMessage ? <p className="error-banner">{errorMessage}</p> : null}
           {statusMessage ? <p className="success-banner">{statusMessage}</p> : null}
-          {auth?.accessToken ? (
-            <TransactionForm
-              key={`${formMode}-${editingTransactionId ?? "new"}`}
-              token={auth.accessToken}
-              accounts={accounts}
-              categories={categories}
-              mode={formMode}
-              transactionId={editingTransactionId}
-              initialValues={formValues}
-              onCancel={formMode === "edit" ? resetForm : undefined}
-              onError={setErrorMessage}
-              onStatus={setStatusMessage}
-              onSaved={async () => {
-                resetForm();
-                await refreshAfterMutation();
-              }}
-            />
-          ) : null}
-        </SectionCard>
-
-        <SectionCard title={t("transactions.ledger")}>
-          <div className="transaction-filters">
-            <label>
-              {t("transactions.filterByAccount")}
-              <select multiple value={filterAccountIds} onChange={(event) => setFilterAccountIds(Array.from(event.target.selectedOptions, (option) => option.value))}>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              {t("transactions.filterByCategory")}
-              <select
-                multiple
-                value={filterCategoryIds}
-                onChange={(event) => setFilterCategoryIds(Array.from(event.target.selectedOptions, (option) => option.value))}
-                disabled={filterType === "Transfer"}
-              >
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              {t("transactions.filterByType")}
-              <select value={filterType} onChange={(event) => setFilterType(event.target.value)}>
-                <option value="">{t("common.allTypes")}</option>
-                {transactionTypes.map((option) => (
-                  <option key={option} value={option}>
-                    {getTransactionTypeLabel(option, t)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              {t("transactions.fromDate")}
-              <input value={fromDate} onChange={(event) => setFromDate(event.target.value)} type="date" />
-            </label>
-            <label>
-              {t("transactions.toDate")}
-              <input value={toDate} onChange={(event) => setToDate(event.target.value)} type="date" />
-            </label>
-            <label>
-              {t("transactions.searchNotes")}
-              <input value={noteSearch} onChange={(event) => setNoteSearch(event.target.value)} placeholder={t("transactions.searchPlaceholder")} />
-            </label>
-            <label>
-              Min amount
-              <input value={minAmount} onChange={(event) => setMinAmount(event.target.value)} type="number" step="0.01" />
-            </label>
-            <label>
-              Max amount
-              <input value={maxAmount} onChange={(event) => setMaxAmount(event.target.value)} type="number" step="0.01" />
-            </label>
-            <label className="inline-checkbox">
-              <input
-                checked={showUncategorizedOnly}
-                onChange={(event) => setShowUncategorizedOnly(event.target.checked)}
-                type="checkbox"
-              />
-              {t("transactions.needsCategory")}
-            </label>
-          </div>
-          <div className="review-toolbar" aria-label="Export actions">
-            <div className="review-toolbar-actions">
-              <button className="ghost-button compact-button" type="button" onClick={exportFilteredTransactions} disabled={visibleTransactions.length === 0}>
-                Export filtered CSV
-              </button>
-              <button className="ghost-button compact-button" type="button" onClick={exportCategoriesAndBudgets} disabled={categories.length === 0}>
-                Export categories &amp; budget
-              </button>
-            </div>
-          </div>
-
-          {showUncategorizedOnly ? (
-            <p className="workflow-banner">
-              {t("transactions.workflowBanner", { count: uncategorizedExpenseCount })}
-            </p>
-          ) : null}
-          {visibleTransactions.length > 0 ? (
-            <div className="review-toolbar" aria-label="Bulk transaction actions">
-              <div className="review-toolbar-actions">
-                <label className="inline-checkbox">
-                  <input type="checkbox" checked={allVisibleSelected} onChange={(event) => toggleSelectAllVisible(event.target.checked)} />
-                  Select all in current filtered view
-                </label>
-                <strong>{selectedTransactionIds.length} selected</strong>
+          {isEntryOpen ? (
+            <section className={`transaction-entry-panel${formMode === "edit" ? " is-editing" : ""}`} id="transaction-entry-form">
+              <div className="transaction-entry-header">
+                <div>
+                  <span>{t("transactions.quickEntry")}</span>
+                  <h2>{formMode === "edit" ? t("transactions.editTransaction") : t("transactions.addTransaction")}</h2>
+                </div>
+                <div className="transaction-entry-header-actions">
+                  <strong>{formMode === "edit" ? t("transactions.editing") : t("transactions.ready")}</strong>
+                  <button className="ghost-button compact-button" type="button" onClick={resetForm}>
+                    {t("common.close")}
+                  </button>
+                </div>
               </div>
-              <div className="bulk-category-actions">
-                <button className="ghost-button compact-button danger-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>Bulk delete</button>
-                <label>
-                  Bulk category
-                  <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
-                    <option value="">{t("common.chooseCategory")}</option>
-                    {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-                  </select>
-                </label>
-                <button className="ghost-button compact-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>Apply category</button>
-                <label>
-                  Move to account
-                  <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
-                    <option value="">{t("common.selectAccount")}</option>
-                    {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
-                  </select>
-                </label>
-                <button className="ghost-button compact-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>Move transactions</button>
+              {auth?.accessToken ? (
+                <TransactionForm
+                  key={`${formMode}-${editingTransactionId ?? "new"}`}
+                  token={auth.accessToken}
+                  accounts={accounts}
+                  categories={categories}
+                  mode={formMode}
+                  transactionId={editingTransactionId}
+                  initialValues={formValues}
+                  onCancel={formMode === "edit" ? resetForm : undefined}
+                  onError={setErrorMessage}
+                  onStatus={setStatusMessage}
+                  onSaved={async () => {
+                    resetForm();
+                    await refreshAfterMutation();
+                  }}
+                />
+              ) : null}
+            </section>
+          ) : (
+            <section className="transaction-entry-launcher">
+              <div>
+                <span>{t("transactions.quickEntry")}</span>
+                <h2>{t("transactions.addTransaction")}</h2>
               </div>
+              <button className="primary-button transaction-entry-open-button" type="button" aria-expanded={isEntryOpen} aria-controls="transaction-entry-form" onClick={openCreateEntry}>
+                {t("transactions.addTransaction")}
+              </button>
+            </section>
+          )}
+
+          <section className="transaction-ledger-panel">
+            <div className="transaction-ledger-heading">
+              <div>
+                <span>{t("transactions.currentView")}</span>
+                <h2>{t("transactions.ledger")}</h2>
+              </div>
+              <strong>{t("transactions.transactionCount", { count: visibleTransactions.length })}</strong>
             </div>
-          ) : null}
 
-          <div className="table-list transaction-list">
-            {visibleTransactions.length === 0 ? (
-              <p className="empty-state">{t("transactions.noMatches")}</p>
-            ) : (
-              visibleTransactions.map((transaction) => {
-                const account = accounts.find((item) => item.id === transaction.accountId);
-                const category = categories.find((item) => item.id === transaction.categoryId);
-                const label = transactionLabel(transaction, t, category?.name);
-
-                return (
-                  <article className="table-row transaction-row" key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
-                    <label className="inline-checkbox">
-                      <input type="checkbox" checked={selectedTransactionIds.includes(transaction.id)} onChange={(event) => toggleTransactionSelection(transaction.id, event.target.checked)} aria-label={`Select ${label}`} />
+            {showUncategorizedOnly ? (
+              <p className="workflow-banner">
+                {t("transactions.workflowBanner", { count: uncategorizedExpenseCount })}
+              </p>
+            ) : null}
+            {visibleTransactions.length > 0 ? (
+              <div className="transaction-bulk-toolbar" aria-label="Bulk transaction actions">
+                <div className="transaction-bulk-selection">
+                  <label className="transaction-select-all-control">
+                    <input type="checkbox" aria-label="Select all in current filtered view" checked={allVisibleSelected} onChange={(event) => toggleSelectAllVisible(event.target.checked)} />
+                    <span>
+                      <strong>{selectedTransactionIds.length} selected</strong>
+                      <small>{formatCurrency(selectedTotal, defaultCurrencyCode)} selected total · {visibleTransactions.length} in view</small>
+                    </span>
+                  </label>
+                </div>
+                <div className="transaction-bulk-actions">
+                  <button className="ghost-button compact-button danger-button transaction-bulk-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>
+                    <TrashIcon />
+                    Bulk delete
+                  </button>
+                  <div className="transaction-bulk-control">
+                    <label>
+                      Bulk category
+                      <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
+                        <option value="">{t("common.chooseCategory")}</option>
+                        {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                      </select>
                     </label>
-                    <div className="transaction-main">
-                      <strong>{category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)}</strong>
-                      <p>{account?.name ?? t("transactions.unknownAccount")} • {formatDate(transaction.occurredOnUtc)}</p>
-                      {transaction.note ? <p className="transaction-note">{transaction.note}</p> : null}
-                    </div>
-                    <div className="align-right transaction-amount">
-                      <strong>{formatCurrency(transaction.amount, account?.currencyCode)}</strong>
-                      <p>{getTransactionTypeLabel(transaction.type, t)}</p>
-                    </div>
-                    <div className="transaction-actions">
-                      {!transaction.categoryId && transaction.type === "Expense" ? (
-                        <label className="quick-category-control">
-                          {t("transactions.assignCategoryTo", { label })}
-                          <select
-                            aria-label={t("transactions.assignCategoryTo", { label })}
-                            value=""
-                            onChange={(event) => void assignTransactionCategory(transaction, event.target.value)}
-                          >
-                            <option value="">{t("common.chooseCategory")}</option>
-                            {expenseCategories.map((category) => (
-                              <option key={category.id} value={category.id}>
-                                {category.name}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                      ) : null}
-                      <button className="ghost-button compact-button" type="button" onClick={() => startEdit(transaction)} aria-label={`${t("transactions.edit")} ${label}`}>
-                        {t("transactions.edit")}
-                      </button>
-                      <button
-                        className="ghost-button compact-button"
-                        type="button"
-                        onClick={() => void duplicateTransaction(transaction)}
-                        aria-label={`${t("transactions.duplicate")} ${label}`}
-                      >
-                        {t("transactions.duplicate")}
-                      </button>
-                      <button
-                        className="ghost-button compact-button danger-button"
-                        type="button"
-                        onClick={() => void deleteTransaction(transaction)}
-                        aria-label={`${t("transactions.delete")} ${label}`}
-                      >
-                        {t("transactions.delete")}
-                      </button>
-                    </div>
-                  </article>
-                );
-              })
-            )}
+                    <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>
+                      <CategoryIcon />
+                      Apply category
+                    </button>
+                  </div>
+                  <div className="transaction-bulk-control">
+                    <label>
+                      Move to account
+                      <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
+                        <option value="">{t("common.selectAccount")}</option>
+                        {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
+                      </select>
+                    </label>
+                    <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>
+                      <AccountsIcon />
+                      Move transactions
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="transaction-table-shell">
+              {visibleTransactions.length === 0 ? (
+                <p className="empty-state">{t("transactions.noMatches")}</p>
+              ) : (
+                <>
+                  <div className="transaction-table-header" aria-hidden="true">
+                    <span>{t("transactions.tableMerchant")}</span>
+                    <span>{t("transactions.tableAccount")}</span>
+                    <span>{t("transactions.tableAmount")}</span>
+                    <span>{t("transactions.tableType")}</span>
+                    <span>{t("transactions.tableActions")}</span>
+                  </div>
+                  <div className="transaction-day-groups">
+                    {groupedTransactions.map((group) => (
+                      <section className="transaction-day-group" key={group.dateLabel}>
+                        <div className="transaction-day-heading">
+                          <div>
+                            <strong>{group.label}</strong>
+                            <span>{group.dateLabel}</span>
+                          </div>
+                          <span>{t("transactions.dayBalance")} {formatSignedCurrency(group.total, defaultCurrencyCode)}</span>
+                        </div>
+                        {group.transactions.map((transaction) => {
+                          const account = accountById.get(transaction.accountId);
+                          const category = transaction.categoryId ? categoryById.get(transaction.categoryId) : undefined;
+                          const label = transactionLabel(transaction, t, category?.name);
+                          const signedAmount = getTransactionSignedAmount(transaction);
+                          const rowCurrencyCode = account?.currencyCode ?? defaultCurrencyCode;
+
+                          const isEditingRow = editingTransactionId === transaction.id;
+
+                          return (
+                            <article className={`transaction-ledger-row${isEditingRow ? " is-editing" : ""}`} key={transaction.id} aria-label={t("transactions.rowLabel", { label })}>
+                              <label className="transaction-row-selector">
+                                <input type="checkbox" checked={selectedTransactionIds.includes(transaction.id)} onChange={(event) => toggleTransactionSelection(transaction.id, event.target.checked)} aria-label={`Select ${label}`} />
+                              </label>
+                              <div className="transaction-merchant-cell">
+                                <span
+                                  className="transaction-category-avatar"
+                                  style={{ "--transaction-category-color": category?.color ?? getCategoryFallbackColor(category?.kind ?? transaction.type) } as CSSProperties}
+                                >
+                                  {(category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)).slice(0, 1)}
+                                </span>
+                                <div>
+                                  <strong>{label}</strong>
+                                  <p>{category?.name ?? getTransactionTypeLabel(toFormType(transaction.type), t)}</p>
+                                </div>
+                              </div>
+                              <div className="transaction-account-cell">
+                                <strong>{account?.name ?? t("transactions.unknownAccount")}</strong>
+                                <p>{formatDate(transaction.occurredOnUtc)}</p>
+                              </div>
+                              <div className={`transaction-amount-cell${signedAmount >= 0 ? " positive" : " negative"}`}>
+                                <strong>{formatSignedCurrency(signedAmount, rowCurrencyCode)}</strong>
+                              </div>
+                              <div className="transaction-type-cell">
+                                <span>{getTransactionTypeLabel(toFormType(transaction.type), t)}</span>
+                              </div>
+                              <div className="transaction-row-actions">
+                                {!transaction.categoryId && transaction.type === "Expense" ? (
+                                  <label className="quick-category-control">
+                                    {t("transactions.assignCategoryTo", { label })}
+                                    <select
+                                      aria-label={t("transactions.assignCategoryTo", { label })}
+                                      value=""
+                                      onChange={(event) => void assignTransactionCategory(transaction, event.target.value)}
+                                    >
+                                      <option value="">{t("common.chooseCategory")}</option>
+                                      {expenseCategories.map((categoryOption) => (
+                                        <option key={categoryOption.id} value={categoryOption.id}>
+                                          {categoryOption.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </label>
+                                ) : null}
+                                <button
+                                  className="ghost-button compact-button transaction-icon-button"
+                                  type="button"
+                                  onClick={() => startEdit(transaction)}
+                                  aria-label={`${t("transactions.edit")} ${label}`}
+                                  title={t("transactions.edit")}
+                                >
+                                  <EditIcon />
+                                </button>
+                                <button
+                                  className="ghost-button compact-button transaction-icon-button"
+                                  type="button"
+                                  onClick={() => void duplicateTransaction(transaction)}
+                                  aria-label={`${t("transactions.duplicate")} ${label}`}
+                                  title={t("transactions.duplicate")}
+                                >
+                                  <DuplicateIcon />
+                                </button>
+                                <button
+                                  className="ghost-button compact-button danger-button transaction-icon-button"
+                                  type="button"
+                                  onClick={() => void deleteTransaction(transaction)}
+                                  aria-label={`${t("transactions.delete")} ${label}`}
+                                  title={t("transactions.delete")}
+                                >
+                                  <TrashIcon />
+                                </button>
+                              </div>
+                              {isEditingRow && auth?.accessToken ? (
+                                <div className="transaction-inline-editor">
+                                  <div className="transaction-inline-editor-heading">
+                                    <span>{t("transactions.editing")}</span>
+                                    <h3>{t("transactions.editTransaction")}</h3>
+                                  </div>
+                                  <TransactionForm
+                                    key={`inline-edit-${transaction.id}`}
+                                    token={auth.accessToken}
+                                    accounts={accounts}
+                                    categories={categories}
+                                    mode="edit"
+                                    transactionId={transaction.id}
+                                    initialValues={formValues}
+                                    onCancel={resetForm}
+                                    onError={setErrorMessage}
+                                    onStatus={setStatusMessage}
+                                    onSaved={async () => {
+                                      resetForm();
+                                      await refreshAfterMutation();
+                                    }}
+                                  />
+                                </div>
+                              ) : null}
+                            </article>
+                          );
+                        })}
+                      </section>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <aside className={`transaction-settings-panel${filtersCollapsed ? " is-collapsed" : ""}`} aria-label={t("transactions.filters")}>
+          <div className="transaction-settings-header">
+            <h2>{t("transactions.filters")}</h2>
+            <div className="transaction-settings-header-actions">
+              <button className="transaction-filter-reset" type="button" onClick={clearFilters} disabled={!hasActiveFilters}>
+                {t("common.clear")}
+              </button>
+              <button
+                className="transaction-collapse-button"
+                type="button"
+                onClick={() => setFiltersCollapsed((current) => !current)}
+                aria-expanded={!filtersCollapsed}
+                aria-controls="transaction-filter-content"
+                aria-label={filtersCollapsed ? t("transactions.expandFilters") : t("transactions.collapseFilters")}
+                title={filtersCollapsed ? t("transactions.expandFilters") : t("transactions.collapseFilters")}
+              >
+                <ChevronDownIcon />
+              </button>
+            </div>
           </div>
-        </SectionCard>
+
+          <div id="transaction-filter-content" className="transaction-settings-content" hidden={filtersCollapsed}>
+          <div className="transaction-filter-section">
+            <span className="transaction-filter-label">{t("transactions.filterByType")}</span>
+            <div className="transaction-filter-segmented" aria-label={t("transactions.filterByType")}>
+              <button type="button" className={!filterType ? "active" : ""} onClick={() => setFilterType("")} aria-pressed={!filterType}>
+                {t("common.allTypes")}
+              </button>
+              {transactionTypes.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={filterType === option ? "active" : ""}
+                  onClick={() => {
+                    setFilterType(option);
+                    if (option === "Transfer") {
+                      setFilterCategoryIds([]);
+                    }
+                  }}
+                  aria-pressed={filterType === option}
+                >
+                  {getTransactionTypeLabel(option, t)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="transaction-filter-section">
+            <span className="transaction-filter-label">{t("transactions.filterByAccount")}</span>
+            <select value={filterAccountIds[0] ?? ""} onChange={(event) => setSingleFilterAccount(event.target.value)}>
+              <option value="">{t("common.allAccounts")}</option>
+              {accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="transaction-filter-section">
+            <span className="transaction-filter-label">{t("transactions.filterByCategory")}</span>
+            <div className="transaction-category-chips" aria-label={t("transactions.filterByCategory")}>
+              {categories.map((category) => {
+                const checked = filterCategoryIds.includes(category.id);
+                const disabled = filterType === "Transfer";
+                return (
+                  <label
+                    className={`transaction-filter-chip${checked ? " active" : ""}${disabled ? " disabled" : ""}`}
+                    key={category.id}
+                  >
+                    <input
+                      checked={checked}
+                      disabled={disabled}
+                      onChange={(event) => toggleCategoryFilter(category.id, event.target.checked)}
+                      type="checkbox"
+                    />
+                    <span
+                      className="transaction-filter-chip-dot"
+                      style={{ background: category.color ?? getCategoryFallbackColor(category.kind) }}
+                    />
+                    <span>{category.name}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="transaction-filter-section">
+            <span className="transaction-filter-label">{t("transactions.dateRange")}</span>
+            <div className="transaction-filter-grid">
+              <label>
+                {t("transactions.fromDate")}
+                <input value={fromDate} onChange={(event) => setFromDate(event.target.value)} type="date" />
+              </label>
+              <label>
+                {t("transactions.toDate")}
+                <input value={toDate} onChange={(event) => setToDate(event.target.value)} type="date" />
+              </label>
+            </div>
+          </div>
+
+          <div className="transaction-filter-section">
+            <span className="transaction-filter-label">{t("transactions.amountRange")}</span>
+            <div className="transaction-filter-grid">
+              <label>
+                {t("transactions.minAmount")}
+                <input value={minAmount} onChange={(event) => setMinAmount(event.target.value)} type="number" step="0.01" placeholder="0" />
+              </label>
+              <label>
+                {t("transactions.maxAmount")}
+                <input value={maxAmount} onChange={(event) => setMaxAmount(event.target.value)} type="number" step="0.01" placeholder="∞" />
+              </label>
+            </div>
+          </div>
+
+          <label className="transaction-filter-section">
+            <span className="transaction-filter-label">{t("transactions.searchNotes")}</span>
+            <input value={noteSearch} onChange={(event) => setNoteSearch(event.target.value)} placeholder={t("transactions.searchPlaceholder")} />
+          </label>
+
+          <label className="transaction-toggle-row">
+            <span>
+              <strong>{t("transactions.uncategorizedOnly")}</strong>
+              <small>{t("transactions.uncategorizedOnlyDescription")}</small>
+            </span>
+            <input
+              aria-label={t("transactions.needsCategory")}
+              checked={showUncategorizedOnly}
+              onChange={(event) => setShowUncategorizedOnly(event.target.checked)}
+              type="checkbox"
+            />
+          </label>
+
+          <div className="transaction-filter-actions">
+            <button className="transaction-filter-action" type="button" onClick={exportFilteredTransactions} disabled={visibleTransactions.length === 0}>
+              <DownloadIcon />
+              {t("transactions.exportCsv")}
+            </button>
+            <button className="transaction-filter-action" type="button" onClick={exportCategoriesAndBudgets} disabled={categories.length === 0}>
+              <DownloadIcon />
+              {t("transactions.exportCategoriesBudget")}
+            </button>
+            <button className="transaction-filter-action" type="button" onClick={saveCurrentView}>
+              <BookmarkIcon />
+              {t("transactions.saveView")}
+            </button>
+          </div>
+          </div>
+        </aside>
       </div>
     </div>
   );

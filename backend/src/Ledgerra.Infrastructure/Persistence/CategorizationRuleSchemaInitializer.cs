@@ -86,11 +86,19 @@ public static class CategorizationRuleSchemaInitializer
                 "Provider" character varying(32) NOT NULL,
                 "EncryptedApiKey" character varying(4096) NOT NULL,
                 "MaskedKey" character varying(32) NOT NULL,
+                "BaseUrl" character varying(2048) NULL,
+                "Model" character varying(200) NULL,
                 "CreatedAtUtc" timestamp with time zone NOT NULL,
                 "UpdatedAtUtc" timestamp with time zone NOT NULL,
                 CONSTRAINT "PK_AiProviderCredentials" PRIMARY KEY ("Id"),
                 CONSTRAINT "FK_AiProviderCredentials_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
             );
+
+            ALTER TABLE "AiProviderCredentials"
+                ADD COLUMN IF NOT EXISTS "BaseUrl" character varying(2048) NULL;
+
+            ALTER TABLE "AiProviderCredentials"
+                ADD COLUMN IF NOT EXISTS "Model" character varying(200) NULL;
 
             CREATE UNIQUE INDEX IF NOT EXISTS "IX_AiProviderCredentials_UserId_Provider"
                 ON "AiProviderCredentials" ("UserId", "Provider");

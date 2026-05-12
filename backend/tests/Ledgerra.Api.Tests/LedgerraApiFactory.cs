@@ -37,6 +37,7 @@ public sealed class LedgerraApiFactory : WebApplicationFactory<Program>
 
             services.AddScoped<IAiReportAnalysisClient>(_ => new FakeAiReportAnalysisClient(AiProvider.OpenAi));
             services.AddScoped<IAiReportAnalysisClient>(_ => new FakeAiReportAnalysisClient(AiProvider.Anthropic));
+            services.AddScoped<IAiReportAnalysisClient>(_ => new FakeAiReportAnalysisClient(AiProvider.OpenAiCompatible));
         });
     }
 }

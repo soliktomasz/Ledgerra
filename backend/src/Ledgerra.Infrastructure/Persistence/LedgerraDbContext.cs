@@ -201,6 +201,8 @@ public sealed class LedgerraDbContext : DbContext
             builder.Property(credential => credential.Provider).HasConversion<string>().HasMaxLength(32);
             builder.Property(credential => credential.EncryptedApiKey).HasMaxLength(4096);
             builder.Property(credential => credential.MaskedKey).HasMaxLength(32);
+            builder.Property(credential => credential.BaseUrl).HasMaxLength(2048);
+            builder.Property(credential => credential.Model).HasMaxLength(200);
             builder.HasOne<AppUser>()
                 .WithMany(user => user.AiProviderCredentials)
                 .HasForeignKey(credential => credential.UserId)

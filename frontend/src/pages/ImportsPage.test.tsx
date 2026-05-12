@@ -32,7 +32,8 @@ vi.mock("../hooks/useLedgerraData", () => ({
     aiSettings: {
       providers: {
         openAi: { isConfigured: true, maskedKey: "...3456" },
-        anthropic: { isConfigured: true, maskedKey: "...abcd" }
+        anthropic: { isConfigured: true, maskedKey: "...abcd" },
+        openAiCompatible: { isConfigured: true, maskedKey: "...cdef", baseUrl: "https://api.synthetic.example/v1", model: "synthetic-finance-1" }
       },
       defaultProvider: "OpenAi"
     },
