@@ -26,14 +26,15 @@ export function AccountBalanceChart({
   onRangeChange: (next: BalanceRange) => void;
 }) {
   const { t } = useI18n();
+  const now = useMemo(() => new Date(), []);
   const data = useMemo(
     () => computeBalanceSeries({
       currentBalance: account.currentBalance,
       transactions,
       rangeDays: RANGE_DAYS[range],
-      now: new Date()
+      now
     }),
-    [account.currentBalance, transactions, range]
+    [account.currentBalance, transactions, range, now]
   );
 
   return (

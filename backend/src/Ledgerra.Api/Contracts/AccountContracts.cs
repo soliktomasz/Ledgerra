@@ -18,7 +18,7 @@ public sealed class CreateAccountRequest
     [MaxLength(120)]
     public string? InstitutionName { get; init; }
 
-    [MaxLength(64)]
+    [MaxLength(64), RegularExpression(@"^(?!.*\d{5}).*$", ErrorMessage = "Account number must be masked; raw sequences of 5+ digits are not allowed.")]
     public string? AccountNumberMasked { get; init; }
 
     public string? IconKind { get; init; }
@@ -42,7 +42,7 @@ public sealed class UpdateAccountRequest
     [MaxLength(120)]
     public string? InstitutionName { get; init; }
 
-    [MaxLength(64)]
+    [MaxLength(64), RegularExpression(@"^(?!.*\d{5}).*$", ErrorMessage = "Account number must be masked; raw sequences of 5+ digits are not allowed.")]
     public string? AccountNumberMasked { get; init; }
 
     public string? IconKind { get; init; }

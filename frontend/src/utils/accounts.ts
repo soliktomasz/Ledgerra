@@ -46,7 +46,7 @@ export function filterAccounts(accounts: Account[], query: string): Account[] {
   if (!q) return accounts;
   return accounts.filter((a) => {
     const haystack = [
-      a.name ?? "",
+      a.name,
       a.institutionName ?? "",
       a.accountNumberMasked ?? ""
     ].join(" ").toLowerCase();

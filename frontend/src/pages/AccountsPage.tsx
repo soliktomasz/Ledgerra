@@ -48,7 +48,7 @@ export function AccountsPage() {
   const [editOpen, setEditOpen] = useState(false);
 
   const selectedAccount = useMemo(
-    () => accounts.find((a) => a.id === routeAccountId) ?? accounts[0] ?? null,
+    () => accounts.find((a) => a.id === routeAccountId) ?? (routeAccountId ? null : accounts[0] ?? null),
     [accounts, routeAccountId]
   );
 

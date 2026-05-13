@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AccountsPage } from "./AccountsPage";
 import { MonthProvider } from "../state/MonthContext";
 import type { Account, Category, Profile, Transaction } from "../types";
@@ -34,9 +34,13 @@ vi.mock("../hooks/useLedgerraData", () => ({
 function renderAccountsPage() {
   return render(
     <MemoryRouter initialEntries={["/accounts/acc-1"]}>
-      <MonthProvider>
-        <AccountsPage />
-      </MonthProvider>
+      <Routes>
+        <Route path="/accounts/:accountId" element={
+          <MonthProvider>
+            <AccountsPage />
+          </MonthProvider>
+        } />
+      </Routes>
     </MemoryRouter>
   );
 }

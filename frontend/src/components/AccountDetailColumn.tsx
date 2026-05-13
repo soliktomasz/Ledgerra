@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Account, Category, Transaction } from "../types";
-import { accountIconClass, computeMonthInflows, computeMonthOutflows, computeWeekChange } from "../utils/accounts";
+import { accountIconClass, computeMonthInflows, computeMonthOutflows, computeWeekChange, signedAmount } from "../utils/accounts";
 import { formatCurrency, formatDate } from "../utils/format";
 import { useI18n } from "../state/I18nContext";
 import { AccountBalanceChart, type BalanceRange } from "./AccountBalanceChart";
@@ -22,7 +22,7 @@ export function AccountDetailColumn({
   onEdit: () => void;
   onTransfer: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, languageCode } = useI18n();
   const [range, setRange] = useState<BalanceRange>("3m");
 
   const weekChange = useMemo(() => computeWeekChange(transactions, new Date()), [transactions]);
@@ -32,7 +32,7 @@ export function AccountDetailColumn({
     () => [...transactions].sort((a, b) => b.occurredOnUtc.localeCompare(a.occurredOnUtc)).slice(0, 5),
     [transactions]
   );
-  const monthLabel = formatMonthLabel(selectedMonth);
+  const monthLabel = formatMonthLabel(selectedMonth, languageCode);
 
   return (
     <section className="account-detail-column">
@@ -96,7 +96,7 @@ export function AccountDetailColumn({
           {recentOps.map((tx) => {
             const cat = categories.find((c) => c.id === tx.categoryId);
             const label = tx.note?.trim() || cat?.name || tx.type;
-            const signed = signedDelta(tx);
+            const signed = signedAmount(tx);
             return (
               <li key={tx.id} className="recent-op-row">
                 <span className="recent-op-icon" style={{ backgroundColor: cat?.color ?? "#475569" }} aria-hidden="true" />
@@ -140,23 +140,15 @@ function formatSigned(value: number, currencyCode: string): string {
   return formatCurrency(0, currencyCode);
 }
 
-function signedDelta(tx: Transaction): number {
-  if (tx.type === "Expense" || tx.type === "TransferOut") return -Math.abs(tx.amount);
-  if (tx.type === "Income" || tx.type === "TransferIn") return Math.abs(tx.amount);
-  return tx.amount;
-}
-
 function countInMonth(transactions: Transaction[], month: string, types: string[]): number {
   return transactions.filter((t) => t.occurredOnUtc.slice(0, 7) === month && types.includes(t.type)).length;
 }
 
-function formatMonthLabel(monthYYYYMM: string): string {
-  const [, m] = monthYYYYMM.split("-");
-  const months = [
-    "styczniu", "lutym", "marcu", "kwietniu", "maju", "czerwcu",
-    "lipcu", "sierpniu", "wrześniu", "październiku", "listopadzie", "grudniu"
-  ];
-  return months[Number(m) - 1] ?? monthYYYYMM;
+function formatMonthLabel(monthYYYYMM: string, locale: string): string {
+  const [y, m] = monthYYYYMM.split("-");
+  const date = new Date(Number(y), Number(m) - 1, 1);
+  if (isNaN(date.getTime())) return monthYYYYMM;
+  return new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
 }
 
 function breadcrumbForType(type: string, t: Translator): string {

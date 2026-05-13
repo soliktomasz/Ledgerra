@@ -1166,7 +1166,7 @@ git commit -m "Style: Add accounts page redesign styles"
 
 **Step 1:** Add to the English dictionary block (near line 105):
 
-```
+```json
 "accounts.netWorth": "Net worth",
 "accounts.searchPlaceholder": "Search accounts…",
 "accounts.add": "Add",
@@ -1201,7 +1201,7 @@ git commit -m "Style: Add accounts page redesign styles"
 
 **Step 2:** Add Polish equivalents to the `pl` block (near line 497):
 
-```
+```json
 "accounts.netWorth": "Wartość netto",
 "accounts.searchPlaceholder": "Szukaj konta…",
 "accounts.add": "Dodaj",

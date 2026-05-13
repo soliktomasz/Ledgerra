@@ -124,6 +124,13 @@ public sealed class CreateAccountCommandHandler
             return AccountCommandResult.ValidationError("type", "Unsupported account type.");
         }
 
+        AccountIconKind iconKind = AccountIconKind.Bank;
+        if (!string.IsNullOrWhiteSpace(command.IconKind) &&
+            !Enum.TryParse<AccountIconKind>(command.IconKind, ignoreCase: true, out iconKind))
+        {
+            return AccountCommandResult.ValidationError("iconKind", "Unsupported icon kind.");
+        }
+
         var account = await _accountStore.CreateAsync(
             new Account
             {
@@ -135,7 +142,7 @@ public sealed class CreateAccountCommandHandler
                 OpeningBalance = command.OpeningBalance,
                 InstitutionName = command.InstitutionName,
                 AccountNumberMasked = command.AccountNumberMasked,
-                IconKind = Enum.TryParse<AccountIconKind>(command.IconKind, ignoreCase: true, out var iconKind) ? iconKind : AccountIconKind.Bank
+                IconKind = iconKind
             },
             cancellationToken);
 
@@ -167,11 +174,15 @@ public sealed class UpdateAccountCommandHandler
             return AccountCommandResult.ValidationError("type", "Unsupported account type.");
         }
 
-        AccountIconKind? iconKindToPersist = string.IsNullOrWhiteSpace(command.IconKind)
-            ? null
-            : (Enum.TryParse<AccountIconKind>(command.IconKind, ignoreCase: true, out var parsedIconKind)
-                ? parsedIconKind
-                : (AccountIconKind?)null);
+        AccountIconKind? iconKindToPersist = null;
+        if (!string.IsNullOrWhiteSpace(command.IconKind))
+        {
+            if (!Enum.TryParse<AccountIconKind>(command.IconKind, ignoreCase: true, out var parsedIconKind))
+            {
+                return AccountCommandResult.ValidationError("iconKind", "Unsupported icon kind.");
+            }
+            iconKindToPersist = parsedIconKind;
+        }
 
         var account = await _accountStore.UpdateAsync(
             command.UserId,

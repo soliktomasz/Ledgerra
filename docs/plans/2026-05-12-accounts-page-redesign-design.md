@@ -29,7 +29,7 @@ This includes additive backend changes so that institution name, masked account 
 
 - Real bank linking / Plaid-style integrations. `AccountNumberMasked` is a free-form string entered by the user.
 - IBAN validation / formatting beyond display-as-stored.
-- New Transfer UI — "Transfer" button just navigates to `/transactions?accountId=…&type=Transfer&form=open` and lets the existing collapsible form handle it.
+- New Transfer UI — "Transfer" button just navigates to `/transactions?accountId=…&form=transfer` and lets the existing collapsible form handle it.
 - Balance snapshots / server-side chart endpoint. Chart is computed client-side from already-loaded transactions.
 - Multi-currency net-worth conversion. Net-worth in the header sums balances using the user's preferred currency only when all accounts share it; otherwise renders "—" with a tooltip explaining mixed currencies. (Decision deferred to a follow-up; see "Open questions".)
 - "Wartość netto" delta line (`+ 820,30 zł` under net worth in screenshot) — render only if all accounts share preferred currency; otherwise omit.
@@ -115,7 +115,7 @@ API client `createAccount` / `updateAccount` payloads pick the new fields.
 
 ### Component tree
 
-```
+```text
 AccountsPage
 ├── AccountListColumn
 │   ├── NetWorthCard          (net worth + Dodaj button)
