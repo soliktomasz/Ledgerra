@@ -1,4 +1,17 @@
-import type { Account, Transaction } from "../types";
+import type { Account, AccountIconKind, Transaction } from "../types";
+
+const ICON_CLASS: Record<AccountIconKind, string> = {
+  Bank: "is-bank",
+  Piggy: "is-piggy",
+  Card: "is-card",
+  Cash: "is-cash",
+  Chart: "is-chart",
+  Users: "is-users"
+};
+
+export function accountIconClass(iconKind: AccountIconKind): string {
+  return ICON_CLASS[iconKind] ?? "is-bank";
+}
 
 export const ACCOUNT_GROUP_ORDER = [
   "Checking", "Savings", "Credit", "Cash", "Investment", "Joint"

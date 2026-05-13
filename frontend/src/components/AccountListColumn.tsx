@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { computeNetWorth, filterAccounts, groupAccountsByType, type AccountGroupType } from "../utils/accounts";
+import { accountIconClass, computeNetWorth, filterAccounts, groupAccountsByType, type AccountGroupType } from "../utils/accounts";
 import { formatCurrency } from "../utils/format";
 import { useI18n } from "../state/I18nContext";
 import type { Account } from "../types";
@@ -20,15 +20,6 @@ function groupLabel(t: ReturnType<typeof useI18n>["t"], type: AccountGroupType):
       return t("accounts.group.joint");
   }
 }
-
-const ICON_CLASS: Record<string, string> = {
-  Bank: "is-bank",
-  Piggy: "is-piggy",
-  Card: "is-card",
-  Cash: "is-cash",
-  Chart: "is-chart",
-  Users: "is-users"
-};
 
 export function AccountListColumn({
   accounts,
@@ -96,7 +87,7 @@ export function AccountListColumn({
                     className={"account-row " + (account.id === selectedAccountId ? "is-active" : "")}
                     onClick={() => onSelectAccount(account.id)}
                   >
-                    <span className={"account-icon " + (ICON_CLASS[account.iconKind] ?? "is-bank")} aria-hidden="true" />
+                    <span className={"account-icon " + accountIconClass(account.iconKind)} aria-hidden="true" />
                     <span className="account-row-body">
                       <span className="account-row-name">{account.name}</span>
                       <span className="account-row-sub">

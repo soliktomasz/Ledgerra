@@ -1,20 +1,11 @@
 import { useMemo, useState } from "react";
 import type { Account, Category, Transaction } from "../types";
-import { computeMonthInflows, computeMonthOutflows, computeWeekChange } from "../utils/accounts";
+import { accountIconClass, computeMonthInflows, computeMonthOutflows, computeWeekChange } from "../utils/accounts";
 import { formatCurrency, formatDate } from "../utils/format";
 import { useI18n } from "../state/I18nContext";
 import { AccountBalanceChart, type BalanceRange } from "./AccountBalanceChart";
 
 type Translator = ReturnType<typeof useI18n>["t"];
-
-const ICON_CLASS: Record<string, string> = {
-  Bank: "is-bank",
-  Piggy: "is-piggy",
-  Card: "is-card",
-  Cash: "is-cash",
-  Chart: "is-chart",
-  Users: "is-users"
-};
 
 export function AccountDetailColumn({
   account,
@@ -46,7 +37,7 @@ export function AccountDetailColumn({
   return (
     <section className="account-detail-column">
       <header className="account-detail-header">
-        <div className={"account-icon account-icon-lg " + (ICON_CLASS[account.iconKind] ?? "is-bank")} aria-hidden="true" />
+        <div className={"account-icon account-icon-lg " + accountIconClass(account.iconKind)} aria-hidden="true" />
         <div className="account-detail-title">
           <p className="account-detail-breadcrumb">
             {breadcrumbForType(account.type, t)}{account.institutionName ? ` · ${account.institutionName}` : ""}
