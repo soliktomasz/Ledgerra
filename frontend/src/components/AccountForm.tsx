@@ -40,7 +40,7 @@ function getAccountTypeLabel(type: string, t: ReturnType<typeof useI18n>["t"]) {
     case "Joint":
       return t("accountType.Joint");
     case "Investment":
-      return "Investment";
+      return t("accountType.Investment");
     default:
       return type;
   }
@@ -91,7 +91,7 @@ export function AccountForm({
       </label>
 
       <label>
-        {"Icon"}
+        {t("accounts.form.iconKind")}
         <select
           value={values.iconKind}
           onChange={(event) => update("iconKind", event.target.value as AccountIconKind)}
@@ -129,7 +129,7 @@ export function AccountForm({
       </label>
 
       <label>
-        {"Institution name"}
+        {t("accounts.form.institutionName")}
         <input
           value={values.institutionName}
           onChange={(event) => update("institutionName", event.target.value)}
@@ -137,7 +137,7 @@ export function AccountForm({
       </label>
 
       <label>
-        {"Account number"}
+        {t("accounts.form.accountNumberMasked")}
         <input
           value={values.accountNumberMasked}
           onChange={(event) => update("accountNumberMasked", event.target.value)}
@@ -151,7 +151,7 @@ export function AccountForm({
             checked={values.isActive ?? true}
             onChange={(event) => update("isActive", event.target.checked)}
           />
-          {"Active"}
+          {t("accounts.form.active")}
         </label>
       ) : null}
 

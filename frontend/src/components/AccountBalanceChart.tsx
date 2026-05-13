@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { computeBalanceSeries } from "../utils/accounts";
+import { useI18n } from "../state/I18nContext";
 import type { Account, Transaction } from "../types";
 import { formatCurrency, formatDate } from "../utils/format";
 
@@ -24,6 +25,7 @@ export function AccountBalanceChart({
   range: BalanceRange;
   onRangeChange: (next: BalanceRange) => void;
 }) {
+  const { t } = useI18n();
   const data = useMemo(
     () => computeBalanceSeries({
       currentBalance: account.currentBalance,
@@ -37,7 +39,7 @@ export function AccountBalanceChart({
   return (
     <div className="balance-chart-card">
       <div className="balance-chart-header">
-        <h3>Saldo w czasie</h3>
+        <h3>{t("accounts.balanceOverTime")}</h3>
         <div className="range-tabs">
           {(Object.keys(RANGE_DAYS) as BalanceRange[]).map((r) => (
             <button
@@ -46,7 +48,7 @@ export function AccountBalanceChart({
               className={r === range ? "range-tab is-active" : "range-tab"}
               onClick={() => onRangeChange(r)}
             >
-              {labelFor(r)}
+              {labelFor(r, t)}
             </button>
           ))}
         </div>
@@ -81,11 +83,11 @@ export function AccountBalanceChart({
   );
 }
 
-function labelFor(r: BalanceRange): string {
+function labelFor(r: BalanceRange, t: ReturnType<typeof useI18n>["t"]): string {
   switch (r) {
-    case "1m": return "1 mies.";
-    case "3m": return "3 mies.";
-    case "1y": return "1 rok";
-    case "all": return "Wszystko";
+    case "1m": return t("accounts.range.month");
+    case "3m": return t("accounts.range.threeMonths");
+    case "1y": return t("accounts.range.year");
+    case "all": return t("accounts.range.all");
   }
 }

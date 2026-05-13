@@ -1,16 +1,25 @@
 import { useMemo } from "react";
-import { ACCOUNT_GROUP_ORDER, computeNetWorth, filterAccounts, groupAccountsByType } from "../utils/accounts";
+import { computeNetWorth, filterAccounts, groupAccountsByType, type AccountGroupType } from "../utils/accounts";
 import { formatCurrency } from "../utils/format";
+import { useI18n } from "../state/I18nContext";
 import type { Account } from "../types";
 
-const GROUP_LABEL_PL: Record<typeof ACCOUNT_GROUP_ORDER[number], string> = {
-  Checking: "Konto bieżące",
-  Savings: "Oszczędności",
-  Credit: "Karta",
-  Cash: "Gotówka",
-  Investment: "Inwestycje",
-  Joint: "Wspólne"
-};
+function groupLabel(t: ReturnType<typeof useI18n>["t"], type: AccountGroupType): string {
+  switch (type) {
+    case "Checking":
+      return t("accounts.group.checking");
+    case "Savings":
+      return t("accounts.group.savings");
+    case "Credit":
+      return t("accounts.group.credit");
+    case "Cash":
+      return t("accounts.group.cash");
+    case "Investment":
+      return t("accounts.group.investment");
+    case "Joint":
+      return t("accounts.group.joint");
+  }
+}
 
 const ICON_CLASS: Record<string, string> = {
   Bank: "is-bank",
@@ -36,6 +45,7 @@ export function AccountListColumn({
   onSelectAccount: (id: string) => void;
   onAddAccount: () => void;
 }) {
+  const { t } = useI18n();
   const groups = useMemo(() => groupAccountsByType(accounts), [accounts]);
   const visibleGroups = useMemo(() => {
     const q = searchQuery.trim();
@@ -50,20 +60,20 @@ export function AccountListColumn({
     <aside className="account-list-column">
       <div className="net-worth-card">
         <div>
-          <span className="net-worth-label">Wartość netto</span>
+          <span className="net-worth-label">{t("accounts.netWorth")}</span>
           <strong className="net-worth-value">
             {netWorth.currencyCode ? formatCurrency(netWorth.value, netWorth.currencyCode) : "—"}
           </strong>
         </div>
         <button type="button" className="primary-button net-worth-add" onClick={onAddAccount}>
-          + Dodaj
+          {"+ " + t("accounts.add")}
         </button>
       </div>
 
       <div className="account-search-input">
         <input
           type="search"
-          placeholder="Szukaj konta…"
+          placeholder={t("accounts.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
         />
@@ -73,7 +83,7 @@ export function AccountListColumn({
         {visibleGroups.map((group) => (
           <section key={group.type} className="account-group">
             <header className="account-group-header">
-              <span className="account-group-label">{GROUP_LABEL_PL[group.type]}</span>
+              <span className="account-group-label">{groupLabel(t, group.type)}</span>
               <span className="account-group-total">
                 {group.currencyCode ? formatCurrency(group.totalBalance, group.currencyCode) : "—"}
               </span>

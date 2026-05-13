@@ -2,7 +2,10 @@ import { useMemo, useState } from "react";
 import type { Account, Category, Transaction } from "../types";
 import { computeMonthInflows, computeMonthOutflows, computeWeekChange } from "../utils/accounts";
 import { formatCurrency, formatDate } from "../utils/format";
+import { useI18n } from "../state/I18nContext";
 import { AccountBalanceChart, type BalanceRange } from "./AccountBalanceChart";
+
+type Translator = ReturnType<typeof useI18n>["t"];
 
 const ICON_CLASS: Record<string, string> = {
   Bank: "is-bank",
@@ -28,6 +31,7 @@ export function AccountDetailColumn({
   onEdit: () => void;
   onTransfer: () => void;
 }) {
+  const { t } = useI18n();
   const [range, setRange] = useState<BalanceRange>("3m");
 
   const weekChange = useMemo(() => computeWeekChange(transactions, new Date()), [transactions]);
@@ -45,7 +49,7 @@ export function AccountDetailColumn({
         <div className={"account-icon account-icon-lg " + (ICON_CLASS[account.iconKind] ?? "is-bank")} aria-hidden="true" />
         <div className="account-detail-title">
           <p className="account-detail-breadcrumb">
-            {breadcrumbForType(account.type)}{account.institutionName ? ` · ${account.institutionName}` : ""}
+            {breadcrumbForType(account.type, t)}{account.institutionName ? ` · ${account.institutionName}` : ""}
           </p>
           <h2>{account.name}</h2>
           <p className="account-detail-sub">
@@ -54,33 +58,33 @@ export function AccountDetailColumn({
           </p>
         </div>
         <div className="account-detail-actions">
-          <button type="button" className="ghost-button" onClick={onEdit}>Edytuj</button>
-          <button type="button" className="primary-button" onClick={onTransfer}>Transfer</button>
+          <button type="button" className="ghost-button" onClick={onEdit}>{t("accounts.edit")}</button>
+          <button type="button" className="primary-button" onClick={onTransfer}>{t("accounts.transfer")}</button>
         </div>
       </header>
 
       <div className="kpi-grid">
         <KpiCard
-          label="Saldo bieżące"
+          label={t("accounts.kpi.balance")}
           value={formatCurrency(account.currentBalance, account.currencyCode)}
-          helper="Po ostatniej transakcji"
+          helper={t("accounts.kpi.afterLastTransaction")}
         />
         <KpiCard
-          label="Zmiana w tygodniu"
+          label={t("accounts.kpi.weekChange")}
           value={formatSigned(weekChange, account.currencyCode)}
-          helper="7 dni"
+          helper={t("accounts.kpi.sevenDays")}
           tone={weekChange > 0 ? "positive" : weekChange < 0 ? "negative" : undefined}
         />
         <KpiCard
-          label={`Wpływy w ${monthLabel}`}
+          label={t("accounts.kpi.monthIncome", { month: monthLabel })}
           value={"+ " + formatCurrency(monthIncome, account.currencyCode)}
-          helper={`${countInMonth(transactions, selectedMonth, ["Income", "TransferIn"])} transakcji`}
+          helper={t("accounts.kpi.transactionsCount", { count: String(countInMonth(transactions, selectedMonth, ["Income", "TransferIn"])) })}
           tone="positive"
         />
         <KpiCard
-          label={`Wydatki w ${monthLabel}`}
+          label={t("accounts.kpi.monthExpenses", { month: monthLabel })}
           value={"− " + formatCurrency(monthExpenses, account.currencyCode)}
-          helper={`${countInMonth(transactions, selectedMonth, ["Expense", "TransferOut"])} transakcji`}
+          helper={t("accounts.kpi.transactionsCount", { count: String(countInMonth(transactions, selectedMonth, ["Expense", "TransferOut"])) })}
           tone="negative"
         />
       </div>
@@ -94,8 +98,8 @@ export function AccountDetailColumn({
 
       <section className="recent-ops-card">
         <header className="recent-ops-header">
-          <h3>Ostatnie operacje</h3>
-          <a className="recent-ops-link" href={`/transactions?accountId=${account.id}`}>Zobacz wszystkie →</a>
+          <h3>{t("accounts.recentOps")}</h3>
+          <a className="recent-ops-link" href={`/transactions?accountId=${account.id}`}>{t("accounts.seeAll")}</a>
         </header>
         <ul className="recent-ops-list">
           {recentOps.map((tx) => {
@@ -164,14 +168,14 @@ function formatMonthLabel(monthYYYYMM: string): string {
   return months[Number(m) - 1] ?? monthYYYYMM;
 }
 
-function breadcrumbForType(type: string): string {
+function breadcrumbForType(type: string, t: Translator): string {
   switch (type) {
-    case "Checking": return "Konto bieżące";
-    case "Savings": return "Oszczędności";
-    case "Credit": return "Karta";
-    case "Cash": return "Gotówka";
-    case "Investment": return "Inwestycje";
-    case "Joint": return "Wspólne";
+    case "Checking": return t("accounts.group.checking");
+    case "Savings": return t("accounts.group.savings");
+    case "Credit": return t("accounts.group.credit");
+    case "Cash": return t("accounts.group.cash");
+    case "Investment": return t("accounts.group.investment");
+    case "Joint": return t("accounts.group.joint");
     default: return type;
   }
 }
