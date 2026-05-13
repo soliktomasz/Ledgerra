@@ -54,7 +54,7 @@ export function AccountDetailColumn({
           <h2>{account.name}</h2>
           <p className="account-detail-sub">
             {account.accountNumberMasked ? account.accountNumberMasked + " · " : ""}
-            waluta {account.currencyCode}
+            {t("accounts.currencyLabel", { code: account.currencyCode })}
           </p>
         </div>
         <div className="account-detail-actions">
