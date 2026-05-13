@@ -255,6 +255,9 @@ export const apiClient = {
   createSavingsGoal(token: string, payload: { name: string; targetAmount: number; deadlineUtc?: string | null }) {
     return request<SavingsGoal>("/api/savings-goals", { method: "POST", token, body: payload });
   },
+  updateSavingsGoal(token: string, goalId: string, payload: { name: string; targetAmount: number; deadlineUtc?: string | null }) {
+    return request<SavingsGoal>(`/api/savings-goals/${goalId}`, { method: "PUT", token, body: payload });
+  },
 
   getTransactions(token: string, query = "") {
     return request<Transaction[]>(`/api/transactions${query}`, { token });
