@@ -4562,6 +4562,7 @@ label {
 
 .goal-ring {
   --goal-progress: 0%;
+
   display: grid;
   place-items: center;
   width: min(100%, 14.5rem);

@@ -46,7 +46,7 @@ function getDaysLeft(goal: SavingsGoal) {
 
 function getMonthsLeft(goal: SavingsGoal) {
   const days = getDaysLeft(goal);
-  if (days === null) return 6;
+  if (days === null) return null;
   return Math.max(1, Math.ceil(days / 30.44));
 }
 
@@ -87,12 +87,15 @@ function getMonthlyPace(goalId: string, transactions: Transaction[], months = 6)
 }
 
 function getRequiredMonthly(goal: SavingsGoal) {
-  return getRemaining(goal) / getMonthsLeft(goal);
+  const monthsLeft = getMonthsLeft(goal);
+  return monthsLeft === null ? null : getRemaining(goal) / monthsLeft;
 }
 
 function getGoalStatus(goal: SavingsGoal, monthlyPace: number) {
   if (getProgress(goal) >= 100) return { label: "Zrealizowany", tone: "success" };
-  if (monthlyPace >= getRequiredMonthly(goal)) return { label: "W tempie", tone: "success" };
+  const requiredMonthly = getRequiredMonthly(goal);
+  if (requiredMonthly === null) return { label: "Bez terminu", tone: "neutral" };
+  if (monthlyPace >= requiredMonthly) return { label: "W tempie", tone: "success" };
   return { label: "Za wolno", tone: "warning" };
 }
 
@@ -126,13 +129,7 @@ function getMilestoneDate(goal: SavingsGoal, goalTransactions: Transaction[], am
     return fullDateFormatter.format(new Date(hit.occurredOnUtc));
   }
 
-  const deadline = getDeadlineDate(goal);
-  if (!deadline) return "planowo";
-
-  const createdLikeStart = Date.now();
-  const ratio = goal.targetAmount > 0 ? amount / goal.targetAmount : 0;
-  const projected = new Date(createdLikeStart + (deadline.getTime() - createdLikeStart) * ratio);
-  return fullDateFormatter.format(projected);
+  return null;
 }
 
 function getMonthlyDeposits(goalId: string, transactions: Transaction[], months = 10) {
@@ -229,11 +226,16 @@ export function GoalsPage() {
   }, [filter, goals, searchQuery, sort]);
 
   const selectedGoal = useMemo(
-    () => goals.find((goal) => goal.id === selectedGoalId) ?? visibleGoals[0] ?? goals[0] ?? null,
-    [goals, selectedGoalId, visibleGoals]
+    () => visibleGoals.find((goal) => goal.id === selectedGoalId) ?? visibleGoals[0] ?? null,
+    [selectedGoalId, visibleGoals]
   );
 
   useEffect(() => {
+    if (!selectedGoal && selectedGoalId !== null) {
+      setSelectedGoalId(null);
+      return;
+    }
+
     if (selectedGoal && selectedGoal.id !== selectedGoalId) {
       setSelectedGoalId(selectedGoal.id);
     }
@@ -245,14 +247,20 @@ export function GoalsPage() {
   const totalTarget = goals.reduce((sum, goal) => sum + goal.targetAmount, 0);
   const aggregateProgress = totalTarget > 0 ? Math.round((totalSaved / totalTarget) * 100) : 0;
   const totalMonthlyPace = goals.reduce((sum, goal) => sum + getMonthlyPace(goal.id, transactions), 0);
-  const goalsInPace = activeGoals.filter((goal) => getMonthlyPace(goal.id, transactions) >= getRequiredMonthly(goal)).length;
+  const goalsRequiringPace = activeGoals.filter((goal) => getRequiredMonthly(goal) !== null);
+  const goalsInPace = goalsRequiringPace.filter((goal) => {
+    const requiredMonthly = getRequiredMonthly(goal);
+    return requiredMonthly !== null && getMonthlyPace(goal.id, transactions) >= requiredMonthly;
+  }).length;
   const nearestDeadline = sortGoals(activeGoals.filter((goal) => goal.deadlineUtc), "deadline")[0] ?? null;
 
   const selectedTransactions = selectedGoal ? getGoalTransactions(selectedGoal.id, transactions) : [];
   const selectedMonthlyPace = selectedGoal ? getMonthlyPace(selectedGoal.id, transactions) : 0;
-  const selectedRequiredMonthly = selectedGoal ? getRequiredMonthly(selectedGoal) : 0;
+  const selectedRequiredMonthly = selectedGoal ? getRequiredMonthly(selectedGoal) : null;
   const selectedMonthlyDeposits = selectedGoal ? getMonthlyDeposits(selectedGoal.id, transactions) : [];
   const maxMonthlyDeposit = Math.max(...selectedMonthlyDeposits.map((item) => item.amount), 1);
+  const selectedGoalThemeIndex = selectedGoal ? goals.findIndex((goal) => goal.id === selectedGoal.id) : -1;
+  const selectedGoalTheme = selectedGoal ? getGoalTheme(selectedGoal, selectedGoalThemeIndex) : null;
 
   const openCreateDialog = () => {
     setDialogMode("create");
@@ -347,7 +355,7 @@ export function GoalsPage() {
         <article>
           <span>W tempie</span>
           <strong>{goalsInPace} / {activeGoals.length} celów</strong>
-          <p>{Math.max(activeGoals.length - goalsInPace, 0)} wymagają korekty</p>
+          <p>{Math.max(goalsRequiringPace.length - goalsInPace, 0)} wymagają korekty</p>
         </article>
         <article>
           <span>Najbliższy termin</span>
@@ -410,14 +418,14 @@ export function GoalsPage() {
                 <div className="goal-ring" style={{ "--goal-progress": `${getProgress(selectedGoal)}%` } as CSSProperties}>
                   <div>
                     <strong>{getProgress(selectedGoal)}%</strong>
-                    <span>{getGoalTheme(selectedGoal, goals.indexOf(selectedGoal)).label}</span>
+                    <span>{selectedGoalTheme?.label}</span>
                   </div>
                 </div>
 
                 <div className="goal-detail-content">
                   <div className="goal-detail-kicker">
-                    <GoalGlyph goal={selectedGoal} index={goals.indexOf(selectedGoal)} />
-                    <span>{getGoalTheme(selectedGoal, goals.indexOf(selectedGoal)).label} · MBANK · EMAX OSZCZĘDNOŚCIOWE</span>
+                    <GoalGlyph goal={selectedGoal} index={selectedGoalThemeIndex} />
+                    <span>{selectedGoalTheme?.label}</span>
                     <em><BookmarkIcon /> Ulubiony</em>
                   </div>
                   <h2>{selectedGoal.name}</h2>
@@ -434,7 +442,9 @@ export function GoalsPage() {
                     </article>
                     <article>
                       <span>Wymagane tempo</span>
-                      <strong className="accent-value">{formatCurrency(selectedRequiredMonthly, currencyCode)} / mies.</strong>
+                      <strong className="accent-value">
+                        {selectedRequiredMonthly === null ? "Bez terminu" : `${formatCurrency(selectedRequiredMonthly, currencyCode)} / mies.`}
+                      </strong>
                     </article>
                     <article>
                       <span>Twoje tempo</span>
@@ -463,11 +473,12 @@ export function GoalsPage() {
                   {[25, 50, 75, 100].map((point) => {
                     const amount = selectedGoal.targetAmount * (point / 100);
                     const reached = getProgress(selectedGoal) >= point;
+                    const milestoneDate = getMilestoneDate(selectedGoal, selectedTransactions, amount);
                     return (
                       <article key={point} className={reached ? "is-reached" : ""}>
                         <span>{reached ? "◉" : "○"} {point}%</span>
                         <strong>{formatCurrency(amount, currencyCode)}</strong>
-                        <p>{reached ? "osiągnięte" : "planowo"} {getMilestoneDate(selectedGoal, selectedTransactions, amount)}</p>
+                        <p>{milestoneDate ? `${reached ? "osiągnięte" : "planowo"} ${milestoneDate}` : "Do ustalenia"}</p>
                       </article>
                     );
                   })}
