@@ -16,6 +16,12 @@ public sealed class Account
 
     public bool IsActive { get; set; } = true;
 
+    public string? InstitutionName { get; set; }
+
+    public string? AccountNumberMasked { get; set; }
+
+    public AccountIconKind IconKind { get; set; } = AccountIconKind.Bank;
+
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
     public List<Transactions.Transaction> Transactions { get; set; } = [];

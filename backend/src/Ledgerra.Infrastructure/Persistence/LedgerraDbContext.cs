@@ -62,6 +62,9 @@ public sealed class LedgerraDbContext : DbContext
             builder.HasKey(account => account.Id);
             builder.Property(account => account.Name).HasMaxLength(120);
             builder.Property(account => account.CurrencyCode).HasMaxLength(3);
+            builder.Property(account => account.InstitutionName).HasMaxLength(120);
+            builder.Property(account => account.AccountNumberMasked).HasMaxLength(64);
+            builder.Property(account => account.IconKind).HasConversion<int>();
             builder.HasOne<AppUser>()
                 .WithMany(user => user.Accounts)
                 .HasForeignKey(account => account.UserId)

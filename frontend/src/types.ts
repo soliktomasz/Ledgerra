@@ -6,6 +6,8 @@ export type AuthPayload = {
   expiresAtUtc: string;
 };
 
+export type AccountIconKind = "Bank" | "Piggy" | "Card" | "Cash" | "Chart" | "Users";
+
 export type Account = {
   id: string;
   name: string;
@@ -14,6 +16,9 @@ export type Account = {
   openingBalance: number;
   currentBalance: number;
   isActive: boolean;
+  institutionName?: string | null;
+  accountNumberMasked?: string | null;
+  iconKind: AccountIconKind;
 };
 
 export type Profile = {

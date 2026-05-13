@@ -59,7 +59,10 @@ public sealed class AccountsController : ControllerBase
                 request.Name,
                 request.Type,
                 request.CurrencyCode,
-                request.OpeningBalance),
+                request.OpeningBalance,
+                request.InstitutionName,
+                request.AccountNumberMasked,
+                request.IconKind),
             cancellationToken);
 
         if (result.HasValidationError)
@@ -84,7 +87,10 @@ public sealed class AccountsController : ControllerBase
                 request.Type,
                 request.CurrencyCode,
                 request.OpeningBalance,
-                request.IsActive),
+                request.IsActive,
+                request.InstitutionName,
+                request.AccountNumberMasked,
+                request.IconKind),
             cancellationToken);
 
         if (result.HasValidationError)
@@ -136,6 +142,9 @@ public sealed class AccountsController : ControllerBase
             account.CurrencyCode,
             account.OpeningBalance,
             account.CurrentBalance,
-            account.IsActive);
+            account.IsActive,
+            account.InstitutionName,
+            account.AccountNumberMasked,
+            account.IconKind);
     }
 }

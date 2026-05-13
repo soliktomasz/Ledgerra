@@ -14,6 +14,14 @@ public sealed class CreateAccountRequest
     public string CurrencyCode { get; init; } = "USD";
 
     public decimal OpeningBalance { get; init; }
+
+    [MaxLength(120)]
+    public string? InstitutionName { get; init; }
+
+    [MaxLength(64), RegularExpression(@"^(?!.*\d{5}).*$", ErrorMessage = "Account number must be masked; raw sequences of 5+ digits are not allowed.")]
+    public string? AccountNumberMasked { get; init; }
+
+    public string? IconKind { get; init; }
 }
 
 public sealed class UpdateAccountRequest
@@ -30,6 +38,14 @@ public sealed class UpdateAccountRequest
     public decimal OpeningBalance { get; init; }
 
     public bool IsActive { get; init; }
+
+    [MaxLength(120)]
+    public string? InstitutionName { get; init; }
+
+    [MaxLength(64), RegularExpression(@"^(?!.*\d{5}).*$", ErrorMessage = "Account number must be masked; raw sequences of 5+ digits are not allowed.")]
+    public string? AccountNumberMasked { get; init; }
+
+    public string? IconKind { get; init; }
 }
 
 public sealed record AccountResponse(
@@ -39,4 +55,7 @@ public sealed record AccountResponse(
     string CurrencyCode,
     decimal OpeningBalance,
     decimal CurrentBalance,
-    bool IsActive);
+    bool IsActive,
+    string? InstitutionName,
+    string? AccountNumberMasked,
+    string IconKind);

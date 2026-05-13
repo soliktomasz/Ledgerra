@@ -116,7 +116,13 @@ export const apiClient = {
   getAccounts(token: string) {
     return request<Account[]>("/api/accounts", { token });
   },
-  createAccount(token: string, payload: Pick<Account, "name" | "type" | "currencyCode" | "openingBalance">) {
+  createAccount(
+    token: string,
+    payload: Pick<
+      Account,
+      "name" | "type" | "currencyCode" | "openingBalance" | "institutionName" | "accountNumberMasked" | "iconKind"
+    >
+  ) {
     return request<Account>("/api/accounts", {
       method: "POST",
       token,
@@ -132,7 +138,10 @@ export const apiClient = {
         type: account.type,
         currencyCode: account.currencyCode,
         openingBalance: account.openingBalance,
-        isActive: account.isActive
+        isActive: account.isActive,
+        institutionName: account.institutionName ?? null,
+        accountNumberMasked: account.accountNumberMasked ?? null,
+        iconKind: account.iconKind
       }
     });
   },

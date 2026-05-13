@@ -31,6 +31,7 @@ function ProtectedRoutes() {
             <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/imports" element={<ImportsPage />} />
             <Route path="/accounts" element={<AccountsPage />} />
+            <Route path="/accounts/:accountId" element={<AccountsPage />} />
             <Route path="/budgets" element={<BudgetsPage />} />
             <Route path="/goals" element={<GoalsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />

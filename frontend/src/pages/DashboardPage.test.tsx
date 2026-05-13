@@ -103,7 +103,8 @@ describe("DashboardPage", () => {
         currencyCode: "USD",
         openingBalance: 500,
         currentBalance: 500,
-        isActive: true
+        isActive: true,
+        iconKind: "Bank"
       }
     ];
     mocks.data.budget = {
@@ -203,7 +204,8 @@ describe("DashboardPage", () => {
         currencyCode: "USD",
         openingBalance: 500,
         currentBalance: 500,
-        isActive: true
+        isActive: true,
+        iconKind: "Bank"
       }
     ];
     mocks.data.budget = {
@@ -462,7 +464,8 @@ describe("DashboardPage", () => {
         currencyCode: "USD",
         openingBalance: 500,
         currentBalance: 500,
-        isActive: true
+        isActive: true,
+        iconKind: "Bank"
       }
     ];
 
@@ -507,7 +510,8 @@ describe("DashboardPage", () => {
         currencyCode: "USD",
         openingBalance: 500,
         currentBalance: 500,
-        isActive: true
+        isActive: true,
+        iconKind: "Bank"
       }
     ];
 
