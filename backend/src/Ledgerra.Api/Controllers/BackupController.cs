@@ -49,6 +49,12 @@ public sealed class BackupController : ControllerBase
     {
         var userId = User.GetRequiredUserId();
 
+        var referenceError = ValidateArchiveReferences(archive);
+        if (referenceError is not null)
+        {
+            return BadRequest(new ProblemDetails { Title = referenceError });
+        }
+
         await using var tx = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         var budgetPeriodIds = _dbContext.BudgetPeriods.Where(x => x.UserId == userId).Select(x => x.Id);
         _dbContext.BudgetCategoryLimits.RemoveRange(_dbContext.BudgetCategoryLimits.Where(x => budgetPeriodIds.Contains(x.BudgetPeriodId)));
@@ -114,5 +120,38 @@ public sealed class BackupController : ControllerBase
         await tx.CommitAsync(cancellationToken);
 
         return NoContent();
+    }
+
+    private static string? ValidateArchiveReferences(BackupArchiveResponse archive)
+    {
+        var accountIds = new HashSet<Guid>(archive.Accounts.Select(a => a.Id));
+        var categoryIds = new HashSet<Guid>(archive.Categories.Select(c => c.Id));
+        var budgetPeriodIds = new HashSet<Guid>(archive.BudgetPeriods.Select(bp => bp.Id));
+
+        foreach (var transaction in archive.Transactions)
+        {
+            if (!accountIds.Contains(transaction.AccountId))
+            {
+                return "Backup contains a transaction referencing an account not present in the archive.";
+            }
+
+            if (transaction.CategoryId.HasValue && !categoryIds.Contains(transaction.CategoryId.Value))
+            {
+                return "Backup contains a transaction referencing a category not present in the archive.";
+            }
+        }
+
+        foreach (var period in archive.BudgetPeriods)
+        {
+            foreach (var limit in period.CategoryLimits)
+            {
+                if (!categoryIds.Contains(limit.CategoryId))
+                {
+                    return "Backup contains a budget limit referencing a category not present in the archive.";
+                }
+            }
+        }
+
+        return null;
     }
 }

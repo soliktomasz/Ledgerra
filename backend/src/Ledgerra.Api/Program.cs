@@ -27,7 +27,8 @@ builder.Services.AddScoped<PdfReportContentExtractor>();
 builder.Services.AddScoped<IReportContentExtractor, ReportContentExtractor>();
 builder.Services.AddHttpClient<OpenAiReportAnalysisClient>();
 builder.Services.AddHttpClient<AnthropicReportAnalysisClient>();
-builder.Services.AddHttpClient<OpenAiCompatibleReportAnalysisClient>();
+builder.Services.AddHttpClient<OpenAiCompatibleReportAnalysisClient>()
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<OpenAiReportAnalysisClient>());
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<AnthropicReportAnalysisClient>());
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<OpenAiCompatibleReportAnalysisClient>());
