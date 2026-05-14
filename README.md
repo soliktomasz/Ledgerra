@@ -1,26 +1,68 @@
 # Ledgerra
 
-Ledgerra is a self-hosted budget planner and spending tracker built with an ASP.NET Core API and a React frontend. It is designed for homelab deployments such as Unraid, keeps a clean JSON API for future mobile clients, and focuses on multiple accounts, transaction tracking, and monthly category budgets.
+Ledgerra is a self-hosted personal finance tracker built with an ASP.NET Core API and a React frontend. It is designed for homelab deployments such as Unraid and TrueNAS SCALE, keeps a clean JSON API, and covers the full personal finance workflow — accounts, transactions, budgets, savings goals, and analytics.
 
-## Current MVP
+**Current version: v0.12.0**
 
-- Local email/password authentication with JWT access tokens and refresh tokens
-- CRUD-ready account, category, transaction, budget, and dashboard API endpoints
-- Transfer support between accounts without distorting income/expense reporting
-- React dashboard with:
-  - login and registration
-  - dashboard summary
-  - transaction entry
-  - accounts management
-  - categories management
-  - monthly budget planning
-- Dockerized PostgreSQL + backend + frontend stack
+## Features
+
+### Accounts
+- Multiple accounts with types: Checking, Savings, Credit Card, Investment, and more
+- Per-account balance chart with range selector
+- Institution, masked account number, and icon support
+- Transfer between accounts without distorting income/expense reporting
+
+### Transactions
+- Full transaction CRUD with inline editing
+- Split transactions across multiple categories
+- Recurring transaction templates with auto-generation
+- Bulk actions: categorize, transfer, delete
+- Advanced filters (date range, category, account, amount, type) with shareable URL state
+- CSV export of filtered transactions
+- Smart CSV import with field mapping
+
+### Budgets & Categories
+- Monthly category budgets with progress tracking
+- CSV export of budget data with category detail
+
+### Savings Goals
+- Savings goals with optional deadlines and target amounts
+- Progress tracking linked to actual account transfers
+
+### Dashboard
+- Customizable widget layout (persisted per user)
+- Global month selector
+- Quick transaction entry from the dashboard
+- Spending insights and net worth summary
+
+### Reports
+- Monthly income vs. expense charts (powered by Recharts)
+- AI-assisted monthly report analysis via OpenAI-compatible providers
+
+### Backup & Import
+- Full data export and restore (backup/restore flow)
+- CSV transaction import with preview and conflict handling
+
+### Settings & Security
+- JWT authentication with access tokens and refresh tokens
+- Personal access tokens for API access
+- Profile, security, and appearance settings
+- Accent color selection, density, motion, and minimal navigation preferences
+- Dark mode
+- Internationalization (i18n) with locale switching
+
+### App
+- Mobile-responsive PWA with bottom navigation bar
+- Onboarding checklist for new users
+- Security-hardened API and frontend (audit fixes in v0.1.0)
 
 ## Project Layout
 
-- `backend/` contains the .NET solution, API, domain, infrastructure, and tests
-- `frontend/` contains the React + TypeScript SPA
-- `docker-compose.yml` runs the full self-hosted stack
+- `backend/` — .NET solution: API, domain, infrastructure, and tests
+- `frontend/` — React + TypeScript SPA
+- `deploy/` — deployment templates for Unraid and TrueNAS SCALE
+- `site/` — static GitHub Pages project website
+- `docker-compose.yml` — full self-hosted stack
 
 ## Local Development
 
@@ -41,8 +83,6 @@ frontend if they are not already running. Defaults:
 ### Backend
 
 #### Local PostgreSQL setup
-
-You can run PostgreSQL locally with Docker:
 
 ```bash
 docker run --name ledgerra-postgres \
@@ -139,8 +179,8 @@ needs Docker Compose and does not need to build Ledgerra from source.
 To publish a release, create and push a semantic version tag:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.12.0
+git push origin v0.12.0
 ```
 
 The release workflow runs backend and frontend checks, builds multi-architecture
