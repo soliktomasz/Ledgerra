@@ -5,6 +5,7 @@ using Ledgerra.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ledgerra.Api.Tests;
@@ -33,6 +34,7 @@ public sealed class LedgerraApiFactory : WebApplicationFactory<Program>
             services.AddDbContext<LedgerraDbContext>(options =>
             {
                 options.UseInMemoryDatabase(_databaseName);
+                options.ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             });
 
             services.AddScoped<IAiReportAnalysisClient>(_ => new FakeAiReportAnalysisClient(AiProvider.OpenAi));

@@ -25,9 +25,12 @@ builder.Services.AddScoped<ISecretProtector, DataProtectionSecretProtector>();
 builder.Services.AddScoped<CsvReportContentExtractor>();
 builder.Services.AddScoped<PdfReportContentExtractor>();
 builder.Services.AddScoped<IReportContentExtractor, ReportContentExtractor>();
-builder.Services.AddHttpClient<OpenAiReportAnalysisClient>();
-builder.Services.AddHttpClient<AnthropicReportAnalysisClient>();
-builder.Services.AddHttpClient<OpenAiCompatibleReportAnalysisClient>();
+builder.Services.AddHttpClient<OpenAiReportAnalysisClient>()
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+builder.Services.AddHttpClient<AnthropicReportAnalysisClient>()
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+builder.Services.AddHttpClient<OpenAiCompatibleReportAnalysisClient>()
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<OpenAiReportAnalysisClient>());
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<AnthropicReportAnalysisClient>());
 builder.Services.AddScoped<IAiReportAnalysisClient>(provider => provider.GetRequiredService<OpenAiCompatibleReportAnalysisClient>());

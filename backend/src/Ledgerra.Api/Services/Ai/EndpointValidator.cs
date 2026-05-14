@@ -51,6 +51,11 @@ internal static class EndpointValidator
             return true;
         }
 
+        if (address.IsIPv4MappedToIPv6)
+        {
+            address = address.MapToIPv4();
+        }
+
         var bytes = address.GetAddressBytes();
 
         if (address.AddressFamily == AddressFamily.InterNetwork)
