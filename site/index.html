@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Ledgerra is a self-hosted budget planner and spending tracker for homelab deployments."
+      content="Ledgerra is a self-hosted personal finance tracker for homelab deployments. Accounts, budgets, savings goals, analytics, and CSV export — your data stays yours."
     />
     <title>Ledgerra | Self-hosted budget planning</title>
     <link rel="stylesheet" href="styles.css" />
@@ -31,8 +31,9 @@
           <p class="eyebrow">Self-hosted personal finance</p>
           <h1>Ledgerra</h1>
           <p class="lede">
-            A calm budget planner and spending tracker built for homelabs,
-            private data, and clear month-to-month money decisions.
+            A full-featured personal finance tracker built for homelabs —
+            accounts, budgets, savings goals, analytics, and CSV exports,
+            with your data staying on your own server.
           </p>
           <div class="actions">
             <a class="button primary" href="https://github.com/soliktomasz/Ledgerra">View on GitHub</a>
@@ -47,16 +48,16 @@
 
       <section class="summary-band" aria-label="Project highlights">
         <div>
-          <strong>Reporting</strong>
-          <span>Visualize trends with category analytics and period summaries.</span>
+          <strong>Reporting &amp; Analytics</strong>
+          <span>Visualize trends with category analytics, period summaries, and AI-assisted insights.</span>
         </div>
         <div>
-          <strong>Smart Imports</strong>
-          <span>Review AI-assisted report imports with duplicate and rule checks.</span>
+          <strong>Full Data Portability</strong>
+          <span>Export transactions, budgets, and categories to CSV. Back up and restore all your data.</span>
         </div>
         <div>
-          <strong>Goals</strong>
-          <span>Track savings targets alongside budgets and account balances.</span>
+          <strong>Mobile PWA</strong>
+          <span>Installable progressive web app with a responsive layout and bottom navigation.</span>
         </div>
       </section>
 
@@ -69,43 +70,49 @@
           <article class="feature-card">
             <h3>Private by default</h3>
             <p>
-              Run Ledgerra on your own server with PostgreSQL storage, local
-              authentication, and deployment settings you control.
+              Run Ledgerra on your own server with PostgreSQL storage, JWT
+              authentication, personal access tokens, and deployment settings
+              you control.
             </p>
           </article>
           <article class="feature-card">
-            <h3>Daily money workflow</h3>
+            <h3>Full transaction workflow</h3>
             <p>
-              Manage accounts, transactions, recurring entries, categories,
-              transfers, monthly budgets, and savings goals from one focused app.
+              Add, edit inline, split, and bulk-categorize transactions. Set up
+              recurring templates, use advanced filters with shareable URLs, and
+              transfer between accounts without distorting reports.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Budgets, goals &amp; accounts</h3>
+            <p>
+              Plan monthly category budgets, track savings goals with progress
+              linked to real transfers, and monitor all accounts with balance
+              charts and net worth summaries.
             </p>
           </article>
           <article class="feature-card">
             <h3>Insights and reporting</h3>
             <p>
-              Use dashboard snapshots and reporting views to monitor spending
-              behavior, budget performance, and account movement over time.
+              Customizable dashboard widgets, period income vs. expense charts,
+              and AI-assisted monthly report analysis via any OpenAI-compatible
+              provider.
             </p>
           </article>
           <article class="feature-card">
-            <h3>Smarter monthly imports</h3>
+            <h3>Data portability</h3>
             <p>
-              Upload CSV or PDF monthly reports, draft transactions with AI,
-              and review duplicate detection before committing changes.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>API-first foundation</h3>
-            <p>
-              The ASP.NET Core backend exposes a clean JSON API for the React
-              frontend and future clients.
+              Export transactions, budgets, and categories to CSV. Back up your
+              full dataset and restore it at any time. Import bank statements
+              via CSV or PDF with AI-assisted field mapping.
             </p>
           </article>
           <article class="feature-card">
             <h3>Homelab friendly</h3>
             <p>
-              Tagged GitHub releases publish Docker images and deployment
-              templates for Unraid, TrueNAS SCALE, and Linux hosts.
+              Mobile-responsive PWA with dark mode and i18n support. Tagged
+              releases publish multi-arch Docker images and deployment templates
+              for Unraid, TrueNAS SCALE, and Linux hosts.
             </p>
           </article>
         </div>
@@ -195,7 +202,7 @@
     </main>
 
     <footer class="site-footer">
-      <span>Ledgerra</span>
+      <span>Ledgerra v0.12.0</span>
       <a href="https://github.com/soliktomasz/Ledgerra">github.com/soliktomasz/Ledgerra</a>
     </footer>
   </body>
