@@ -244,8 +244,15 @@ const categoryCopy = {
   }
 };
 
+type CategoryCopyKey = keyof typeof categoryCopy;
+
+function isCategoryCopyKey(value: string): value is CategoryCopyKey {
+  return Object.prototype.hasOwnProperty.call(categoryCopy, value);
+}
+
 function getCategoryPageCopy(languageCode: string) {
-  return languageCode.startsWith("pl") ? categoryCopy.pl : categoryCopy.en;
+  const primaryLanguage = languageCode.split("-")[0].toLowerCase();
+  return isCategoryCopyKey(primaryLanguage) ? categoryCopy[primaryLanguage] : categoryCopy.en;
 }
 
 function getCategoryKindLabel(kind: string, t: ReturnType<typeof useI18n>["t"]) {
@@ -463,7 +470,8 @@ function buildSparklinePath(values: number[], width = 116, height = 34) {
 
 function escapeCsv(value: string | number | boolean) {
   const serialized = String(value);
-  return /[",\n]/.test(serialized) ? `"${serialized.replace(/"/g, '""')}"` : serialized;
+  const neutralized = /^[=+\-@]/.test(serialized) ? `'${serialized}` : serialized;
+  return /[",\n]/.test(neutralized) ? `"${neutralized.replace(/"/g, '""')}"` : neutralized;
 }
 
 function findSimilarCategoryPair(rows: CategoryRow[]) {
@@ -970,15 +978,16 @@ export function CategoriesPage() {
                               </span>
                             </div>
                             <div className="category-row-actions">
-                              <button type="button" title={copy.edit} onClick={() => selectCategory(row)}>
+                              <button type="button" title={copy.edit} aria-label={`${copy.edit} ${row.category.name}`} onClick={() => selectCategory(row)}>
                                 <EditIcon />
                               </button>
-                              <button type="button" title={copy.duplicate} onClick={() => duplicateCategory(row)}>
+                              <button type="button" title={copy.duplicate} aria-label={`${copy.duplicate} ${row.category.name}`} onClick={() => duplicateCategory(row)}>
                                 <DuplicateIcon />
                               </button>
                               <button
                                 type="button"
                                 title={row.canArchive ? copy.archive : copy.archiveUnavailable}
+                                aria-label={row.canArchive ? `${copy.archive} ${row.category.name}` : `Archive unavailable for ${row.category.name}`}
                                 onClick={() => archiveCategory(row)}
                                 disabled={!row.canArchive || saving}
                               >
