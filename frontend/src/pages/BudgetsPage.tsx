@@ -26,8 +26,24 @@ type BudgetEnvelope = {
 };
 
 const rowPalette = ["#34d9a8", "#c084fc", "#93c5fd", "#f9a8d4", "#fbbf24", "#fb9f7b"];
-const fixedKeywords = ["rent", "mortgage", "housing", "home", "utilities", "utility", "bill", "bills", "subscription", "insurance", "internet", "phone", "czynsz", "mieszkanie", "rachunki", "subskrypcje", "prad", "prąd", "woda", "abonament"];
-const dailyKeywords = ["groceries", "grocery", "food", "dining", "restaurant", "transport", "fuel", "shopping", "health", "pharmacy", "jedzenie", "spozywcze", "spożywcze", "restauracje", "transport", "zakupy", "apteka"];
+const budgetKeywords = {
+  en: {
+    fixed: ["rent", "mortgage", "housing", "home", "utilities", "utility", "bill", "bills", "subscription", "insurance", "internet", "phone"],
+    daily: ["groceries", "grocery", "food", "dining", "restaurant", "transport", "fuel", "shopping", "health", "pharmacy"]
+  },
+  pl: {
+    fixed: ["czynsz", "mieszkanie", "rachunki", "subskrypcje", "prad", "prąd", "woda", "abonament", "ubezpieczenie", "internet", "telefon"],
+    daily: ["jedzenie", "spozywcze", "spożywcze", "restauracje", "transport", "paliwo", "zakupy", "zdrowie", "apteka"]
+  },
+  de: {
+    fixed: ["miete", "hypothek", "wohnen", "wohnung", "nebenkosten", "rechnung", "rechnungen", "abo", "abonnement", "versicherung", "internet", "telefon", "strom", "wasser"],
+    daily: ["lebensmittel", "einkauf", "essen", "restaurant", "restaurants", "verkehr", "transport", "kraftstoff", "tanken", "shopping", "gesundheit", "apotheke"]
+  },
+  es: {
+    fixed: ["alquiler", "hipoteca", "vivienda", "casa", "servicios", "factura", "facturas", "suscripcion", "suscripción", "seguro", "internet", "telefono", "teléfono", "luz", "agua"],
+    daily: ["supermercado", "comestibles", "alimentacion", "alimentación", "comida", "restaurante", "restaurantes", "transporte", "combustible", "gasolina", "compras", "salud", "farmacia"]
+  }
+};
 
 function normalizeSearchText(value: string) {
   return value.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -88,81 +104,83 @@ function formatCompactCurrency(value: number, currencyCode: string, languageCode
   }).format(value);
 }
 
-function getBudgetCopy(languageCode: string) {
-  const polish = languageCode.startsWith("pl");
+function getKeywordLanguage(languageCode: string): keyof typeof budgetKeywords {
+  if (languageCode.startsWith("pl")) return "pl";
+  if (languageCode.startsWith("de")) return "de";
+  if (languageCode.startsWith("es")) return "es";
+  return "en";
+}
 
+function getBudgetCopy(t: ReturnType<typeof useI18n>["t"]) {
   return {
-    plan: polish ? "Plan" : "Plan",
-    searchLabel: polish ? "Szukaj kategorii budżetu" : "Search budget categories",
-    searchPlaceholder: polish ? "Szukaj w budżecie..." : "Search budget...",
-    month: polish ? "Miesiąc" : "Month",
-    quarter: polish ? "Kwartał" : "Quarter",
-    year: polish ? "Rok" : "Year",
-    periodView: polish ? "Widok okresu" : "Period view",
-    copyPrevious: polish ? "Skopiuj z poprzedniego" : "Copy previous",
-    copying: polish ? "Kopiowanie..." : "Copying...",
-    template: polish ? "Szablon 50/30/20" : "50/30/20 template",
-    totalBudget: polish ? "Budżet ogółem" : "Total budget",
-    spentAlready: polish ? "Już wydane" : "Already spent",
-    remaining: polish ? "Pozostało" : "Remaining",
-    dailyLimit: polish ? "Dzienny limit" : "Daily limit",
-    daysLeft: (count: number) => polish ? `${count} ${count === 1 ? "dzień" : "dni"} do końca` : `${count} ${count === 1 ? "day" : "days"} left`,
-    categoriesStatic: polish ? "kategorii" : "categories",
-    categoriesMutable: polish ? "edytowalnych" : "editable",
-    ofBudget: polish ? "budżetu" : "of budget",
-    pace: polish ? "tempo" : "pace",
-    toKeepPlan: polish ? "aby trzymać plan" : "to keep the plan",
+    plan: t("budgets.plan"),
+    searchLabel: t("budgets.searchLabel"),
+    searchPlaceholder: t("budgets.searchPlaceholder"),
+    copyPrevious: t("budgets.copyPrevious"),
+    copying: t("budgets.copying"),
+    template: t("budgets.template"),
+    totalBudget: t("budgets.totalBudget"),
+    spentAlready: t("budgets.spentAlready"),
+    remaining: t("budgets.remaining"),
+    dailyLimit: t("budgets.dailyLimit"),
+    daysLeft: (count: number) => t("budgets.daysLeft", { count }),
+    categoriesStatic: t("budgets.categoriesStatic"),
+    categoriesMutable: t("budgets.categoriesMutable"),
+    ofBudget: t("budgets.ofBudget"),
+    pace: t("budgets.pace"),
+    toKeepPlan: t("budgets.toKeepPlan"),
     dayProgress: (day: number, days: number, percent: number) =>
-      polish ? `Jesteś w ${day}. dniu z ${days} - to ${percent}% miesiąca.` : `You are on day ${day} of ${days} - ${percent}% of the month.`,
-    futureMonth: polish ? "Ten miesiąc jeszcze się nie rozpoczął." : "This month has not started yet.",
-    envelopes: polish ? "Koperty kategorii" : "Category envelopes",
-    editInline: polish ? "edytuj limity inline" : "edit limits inline",
-    all: polish ? "Wszystkie" : "All",
-    ok: polish ? "W normie" : "On track",
-    attention: polish ? "Uwaga" : "Attention",
-    over: polish ? "Przekroczono" : "Over",
-    addCategory: polish ? "Kategoria" : "Category",
-    fixed: polish ? "Stałe zobowiązania" : "Fixed commitments",
-    fixedDescription: polish ? "Czynsz, rachunki, subskrypcje" : "Rent, bills, subscriptions",
-    daily: polish ? "Codzienne życie" : "Everyday life",
-    dailyDescription: polish ? "Jedzenie, transport, zakupy" : "Food, transport, shopping",
-    flexible: polish ? "Elastyczne wydatki" : "Flexible spending",
-    flexibleDescription: polish ? "Pozostałe limity miesiąca" : "Everything else in the month",
-    operation: (count: number) => polish ? `${count} ${count === 1 ? "operacja" : "operacji"}` : `${count} ${count === 1 ? "operation" : "operations"}`,
-    noOperations: polish ? "brak operacji" : "no operations",
-    noLimit: polish ? "Bez limitu" : "No limit",
-    nearLimit: polish ? "Blisko limitu" : "Near limit",
-    monthlyLimit: polish ? "Limit miesięczny" : "Monthly limit",
-    remainingAmount: polish ? "Pozostało" : "Left",
-    overBy: polish ? "Ponad limit" : "Over by",
-    rhythm: polish ? "Rytm miesiąca" : "Month rhythm",
-    cumulative: polish ? "narastająco" : "cumulative",
-    actualSpending: polish ? "Faktyczne wydatki" : "Actual spending",
-    forecast: polish ? "Prognoza" : "Forecast",
-    idealPace: polish ? "Idealne tempo" : "Ideal pace",
-    today: polish ? "dziś" : "today",
-    limit: polish ? "Limit" : "Limit",
-    projection: polish ? "Prognoza na koniec miesiąca" : "End-of-month forecast",
-    vsLimit: polish ? "vs limit" : "vs limit",
-    currentPaceOver: (daily: string) => polish ? `Przy obecnym tempie zmiennych wydatków (${daily}/dzień) plan zostanie przekroczony.` : `At the current variable spending pace (${daily}/day), the plan will be exceeded.`,
-    currentPaceOk: (daily: string) => polish ? `Przy obecnym tempie wydatków (${daily}/dzień) plan zostaje w limicie.` : `At the current spending pace (${daily}/day), the plan stays inside the limit.`,
-    projectionTipOver: (category: string, amount: string) => polish ? `Aby zmieścić się w planie, ogranicz ${category} do około ${amount} dziennie.` : `To fit the plan, keep ${category} near ${amount} per day.`,
-    projectionTipOk: (amount: string) => polish ? `Masz jeszcze około ${amount} dziennie na pozostałą część miesiąca.` : `You still have about ${amount} per day for the rest of the month.`,
-    recurring: polish ? "Cykliczne" : "Recurring",
-    manage: polish ? "Zarządzaj" : "Manage",
-    emptyTitle: polish ? "Brak kategorii w tym widoku" : "No categories in this view",
-    emptyBody: polish ? "Zmień filtr albo dodaj limit dla kolejnej kategorii." : "Adjust the filter or add another category limit."
+      t("budgets.dayProgress", { day, days, percent }),
+    futureMonth: t("budgets.futureMonth"),
+    envelopes: t("budgets.envelopes"),
+    editInline: t("budgets.editInline"),
+    all: t("budgets.all"),
+    ok: t("budgets.ok"),
+    attention: t("budgets.attention"),
+    over: t("budgets.over"),
+    addCategory: t("budgets.addCategory"),
+    fixed: t("budgets.fixed"),
+    fixedDescription: t("budgets.fixedDescription"),
+    daily: t("budgets.daily"),
+    dailyDescription: t("budgets.dailyDescription"),
+    flexible: t("budgets.flexible"),
+    flexibleDescription: t("budgets.flexibleDescription"),
+    operation: (count: number) => t("budgets.operation", { count }),
+    noOperations: t("budgets.noOperations"),
+    noLimit: t("budgets.noLimit"),
+    nearLimit: t("budgets.nearLimit"),
+    monthlyLimit: t("budgets.monthlyLimit"),
+    remainingAmount: t("budgets.remainingAmount"),
+    overBy: t("budgets.overBy"),
+    rhythm: t("budgets.rhythm"),
+    cumulative: t("budgets.cumulative"),
+    actualSpending: t("budgets.actualSpending"),
+    forecast: t("budgets.forecast"),
+    idealPace: t("budgets.idealPace"),
+    today: t("budgets.today"),
+    limit: t("budgets.limit"),
+    projection: t("budgets.projection"),
+    vsLimit: t("budgets.vsLimit"),
+    currentPaceOver: (daily: string) => t("budgets.currentPaceOver", { daily }),
+    currentPaceOk: (daily: string) => t("budgets.currentPaceOk", { daily }),
+    projectionTipOver: (category: string, amount: string) => t("budgets.projectionTipOver", { category, amount }),
+    projectionTipOk: (amount: string) => t("budgets.projectionTipOk", { amount }),
+    recurring: t("budgets.recurring"),
+    manage: t("budgets.manage"),
+    emptyTitle: t("budgets.emptyTitle"),
+    emptyBody: t("budgets.emptyBody")
   };
 }
 
-function classifyBudgetCategory(categoryName: string): BudgetGroupId {
+function classifyBudgetCategory(categoryName: string, languageCode: string): BudgetGroupId {
   const normalized = normalizeSearchText(categoryName);
+  const keywords = budgetKeywords[getKeywordLanguage(languageCode)];
 
-  if (fixedKeywords.some((keyword) => normalized.includes(normalizeSearchText(keyword)))) {
+  if (keywords.fixed.some((keyword) => normalized.includes(normalizeSearchText(keyword)))) {
     return "fixed";
   }
 
-  if (dailyKeywords.some((keyword) => normalized.includes(normalizeSearchText(keyword)))) {
+  if (keywords.daily.some((keyword) => normalized.includes(normalizeSearchText(keyword)))) {
     return "daily";
   }
 
@@ -181,7 +199,8 @@ function buildBudgetRows(
   budgetCategories: BudgetCategory[],
   draft: Map<string, string>,
   transactions: Transaction[],
-  selectedMonth: string
+  selectedMonth: string,
+  languageCode: string
 ): BudgetEnvelope[] {
   const budgetByCategory = new Map(budgetCategories.map((category) => [category.categoryId, category]));
   const monthlyExpenseTransactions = transactions.filter((transaction) => transaction.type === "Expense" && transaction.occurredOnUtc.slice(0, 7) === selectedMonth);
@@ -199,7 +218,7 @@ function buildBudgetRows(
       categoryId: category.id,
       categoryName: category.name,
       color: category.color ?? rowPalette[index % rowPalette.length],
-      groupId: classifyBudgetCategory(category.name),
+      groupId: classifyBudgetCategory(category.name, languageCode),
       planned,
       spent,
       remaining,
@@ -357,7 +376,7 @@ export function BudgetsPage() {
     profile: true,
     transactions: true
   });
-  const copy = getBudgetCopy(languageCode);
+  const copy = getBudgetCopy(t);
   const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
   const expenseCategories = useMemo(
     () => categories.filter((category) => category.kind === "Expense"),
@@ -373,16 +392,17 @@ export function BudgetsPage() {
   const [draft, setDraft] = useState<Map<string, string>>(initialValues);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<BudgetFilter>("all");
-  const [periodView, setPeriodView] = useState<"month" | "quarter" | "year">("month");
   const [isCopying, setIsCopying] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setDraft(initialValues);
   }, [initialValues]);
 
   const budgetRows = useMemo(
-    () => buildBudgetRows(expenseCategories, budget?.categories ?? [], draft, transactions, selectedMonth),
-    [budget?.categories, draft, expenseCategories, selectedMonth, transactions]
+    () => buildBudgetRows(expenseCategories, budget?.categories ?? [], draft, transactions, selectedMonth, languageCode),
+    [budget?.categories, draft, expenseCategories, languageCode, selectedMonth, transactions]
   );
   const timing = useMemo(() => getBudgetTiming(selectedYear, selectedMonthNumber), [selectedMonthNumber, selectedYear]);
   const monthLabel = formatMonthLabel(getMonthDate(selectedYear, selectedMonthNumber), languageCode);
@@ -421,9 +441,12 @@ export function BudgetsPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!auth?.accessToken) {
+    if (!auth?.accessToken || isSaving) {
       return;
     }
+
+    setErrorMessage(null);
+    setIsSaving(true);
 
     const payload = expenseCategories
       .map((category) => ({
@@ -432,8 +455,15 @@ export function BudgetsPage() {
       }))
       .filter((item) => item.plannedAmount > 0);
 
-    await apiClient.updateBudget(auth.accessToken, selectedYear, selectedMonthNumber, payload);
-    await refresh();
+    try {
+      await apiClient.updateBudget(auth.accessToken, selectedYear, selectedMonthNumber, payload);
+      await refresh();
+    } catch (error) {
+      console.error("Unable to save budget", error);
+      setErrorMessage(error instanceof Error ? error.message : t("budgets.saveError"));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCopyPreviousMonth = async () => {
@@ -442,6 +472,7 @@ export function BudgetsPage() {
     }
 
     const previousMonthDate = new Date(Date.UTC(selectedYear, selectedMonthNumber - 2, 1));
+    setErrorMessage(null);
     setIsCopying(true);
 
     try {
@@ -451,6 +482,9 @@ export function BudgetsPage() {
         next.set(category.categoryId, String(category.planned));
       });
       setDraft(next);
+    } catch (error) {
+      console.error("Unable to copy previous budget", error);
+      setErrorMessage(error instanceof Error ? error.message : t("budgets.copyPreviousError"));
     } finally {
       setIsCopying(false);
     }
@@ -491,10 +525,8 @@ export function BudgetsPage() {
         </div>
 
         <div className="budget-hero-actions">
-          <div className="budget-period-toggle" role="group" aria-label={copy.periodView}>
-            <button className={periodView === "month" ? "active" : ""} type="button" onClick={() => setPeriodView("month")}>{copy.month}</button>
-            <button className={periodView === "quarter" ? "active" : ""} type="button" onClick={() => setPeriodView("quarter")}>{copy.quarter}</button>
-            <button className={periodView === "year" ? "active" : ""} type="button" onClick={() => setPeriodView("year")}>{copy.year}</button>
+          <div className="budget-period-toggle" role="group" aria-label={t("appShell.month")}>
+            <button className="active" type="button" disabled>{t("appShell.month")}</button>
           </div>
           <button className="budget-secondary-action" type="button" onClick={handleCopyPreviousMonth} disabled={isCopying}>
             <DuplicateIcon />
@@ -504,12 +536,14 @@ export function BudgetsPage() {
             <BookmarkIcon />
             {copy.template}
           </button>
-          <button className="budget-primary-action" type="submit">
+          <button className="budget-primary-action" type="submit" disabled={isSaving}>
             <span aria-hidden="true">✓</span>
-            {t("budgets.saveBudget")}
+            {isSaving ? t("budgets.saving") : t("budgets.saveBudget")}
           </button>
         </div>
       </section>
+
+      {errorMessage ? <p className="form-error" role="alert">{errorMessage}</p> : null}
 
       <section className="budget-summary-grid" aria-label={t("budgets.progress")}>
         <article className="budget-summary-card">

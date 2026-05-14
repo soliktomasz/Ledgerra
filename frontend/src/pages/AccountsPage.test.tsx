@@ -109,6 +109,7 @@ describe("AccountsPage", () => {
 
     // KPI label appears in pl or en depending on default i18n language.
     expect(screen.getByText(/Saldo bieżące|Current balance/)).toBeInTheDocument();
+    expect(screen.getByText("Track personal, shared, cash, and savings balances with clean visibility.")).toBeInTheDocument();
 
     // Edit + Transfer buttons exist (pl or en).
     expect(

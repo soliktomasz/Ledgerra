@@ -8,6 +8,7 @@ import { AccountListColumn } from "../components/AccountListColumn";
 import { AccountDetailColumn } from "../components/AccountDetailColumn";
 import { AccountFormModal } from "../components/AccountFormModal";
 import type { AccountFormValues } from "../components/AccountForm";
+import { PageHeader } from "../ui/PageHeader";
 
 function defaultFormValues(preferredCurrency: string): AccountFormValues {
   return {
@@ -74,32 +75,40 @@ export function AccountsPage() {
   );
 
   return (
-    <div className="accounts-shell">
-      <AccountListColumn
-        accounts={accounts}
-        selectedAccountId={selectedAccount?.id ?? null}
-        searchQuery={searchQuery}
-        onSearchQueryChange={setSearchQuery}
-        onSelectAccount={(id) => navigate(`/accounts/${id}`)}
-        onAddAccount={() => setCreateOpen(true)}
+    <div className="page-stack">
+      <PageHeader
+        eyebrow={t("accounts.eyebrow")}
+        title={t("accounts.title")}
+        description={t("accounts.description")}
       />
 
-      {selectedAccount ? (
-        <AccountDetailColumn
-          account={selectedAccount}
-          transactions={accountTransactions}
-          categories={categories}
-          selectedMonth={selectedMonth}
-          onEdit={() => setEditOpen(true)}
-          onTransfer={() => navigate(`/transactions?accountId=${selectedAccount.id}&form=transfer`)}
+      <div className="accounts-shell">
+        <AccountListColumn
+          accounts={accounts}
+          selectedAccountId={selectedAccount?.id ?? null}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          onSelectAccount={(id) => navigate(`/accounts/${id}`)}
+          onAddAccount={() => setCreateOpen(true)}
         />
-      ) : (
-        <section className="account-detail-column account-detail-empty">
-          <p>{t("accounts.eyebrow")}</p>
-          <h2>{t("accounts.title")}</h2>
-          <p>{t("accounts.description")}</p>
-        </section>
-      )}
+
+        {selectedAccount ? (
+          <AccountDetailColumn
+            account={selectedAccount}
+            transactions={accountTransactions}
+            categories={categories}
+            selectedMonth={selectedMonth}
+            onEdit={() => setEditOpen(true)}
+            onTransfer={() => navigate(`/transactions?accountId=${selectedAccount.id}&form=transfer`)}
+          />
+        ) : (
+          <section className="account-detail-column account-detail-empty">
+            <p>{t("accounts.eyebrow")}</p>
+            <h2>{t("accounts.title")}</h2>
+            <p>{t("accounts.description")}</p>
+          </section>
+        )}
+      </div>
 
       <AccountFormModal
         open={createOpen}
