@@ -2862,10 +2862,6 @@ label {
   align-content: start;
   min-height: calc(100vh - 3.5rem);
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg);
-  box-shadow: var(--shadow-soft);
 }
 
 .settings-hero {
