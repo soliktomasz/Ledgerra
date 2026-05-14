@@ -248,6 +248,24 @@ export const apiClient = {
       body: payload
     });
   },
+  updateCategory(token: string, category: Pick<Category, "id" | "name" | "kind" | "color" | "isSystem">) {
+    return request<Category>(`/api/categories/${category.id}`, {
+      method: "PUT",
+      token,
+      body: {
+        name: category.name,
+        kind: category.kind,
+        color: category.color,
+        isSystem: category.isSystem
+      }
+    });
+  },
+  deleteCategory(token: string, categoryId: string) {
+    return request<void>(`/api/categories/${categoryId}`, {
+      method: "DELETE",
+      token
+    });
+  },
 
   getSavingsGoals(token: string) {
     return request<SavingsGoal[]>("/api/savings-goals", { token });
