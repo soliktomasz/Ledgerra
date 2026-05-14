@@ -163,6 +163,142 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+export function SearchIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="11" cy="11" r="6" />
+      <path d="m16 16 4 4" />
+    </BaseIcon>
+  );
+}
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </BaseIcon>
+  );
+}
+
+export function SparklesIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 3 14 8l5 2-5 2-2 5-2-5-5-2 5-2Z" />
+      <path d="M5 15 6 18l3 1-3 1-1 3-1-3-3-1 3-1Z" />
+    </BaseIcon>
+  );
+}
+
+export function ArchiveIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M4 7h16" />
+      <path d="M6 7v12h12V7" />
+      <path d="M9 11h6" />
+      <path d="M8 4h8l2 3H6Z" />
+    </BaseIcon>
+  );
+}
+
+export function GripIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M9 6h.01" />
+      <path d="M15 6h.01" />
+      <path d="M9 12h.01" />
+      <path d="M15 12h.01" />
+      <path d="M9 18h.01" />
+      <path d="M15 18h.01" />
+    </BaseIcon>
+  );
+}
+
+export function BasketIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="m7 10 2-5" />
+      <path d="m17 10-2-5" />
+      <path d="M5 10h14l-1.4 8.2A2 2 0 0 1 15.6 20H8.4a2 2 0 0 1-2-1.8Z" />
+      <path d="M9 14h6" />
+    </BaseIcon>
+  );
+}
+
+export function UtensilsIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M6 3v8" />
+      <path d="M4 3v4" />
+      <path d="M8 3v4" />
+      <path d="M4 11h4" />
+      <path d="M6 11v10" />
+      <path d="M16 3c2 2 3 5 3 8h-4" />
+      <path d="M16 3v18" />
+    </BaseIcon>
+  );
+}
+
+export function TransitIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <rect x="5" y="4" width="14" height="13" rx="3" />
+      <path d="M8 17 6.5 20" />
+      <path d="M16 17l1.5 3" />
+      <path d="M8 8h8" />
+      <path d="M8 13h.01" />
+      <path d="M16 13h.01" />
+    </BaseIcon>
+  );
+}
+
+export function HomeIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="m4 11 8-7 8 7" />
+      <path d="M6 10v10h12V10" />
+      <path d="M10 20v-6h4v6" />
+    </BaseIcon>
+  );
+}
+
+export function BoltIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M13 2 5 14h6l-1 8 9-13h-6Z" />
+    </BaseIcon>
+  );
+}
+
+export function HeartIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M20 8.5c0 5-8 10-8 10s-8-5-8-10A4.5 4.5 0 0 1 12 5a4.5 4.5 0 0 1 8 3.5Z" />
+    </BaseIcon>
+  );
+}
+
+export function BriefcaseIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <rect x="4" y="7" width="16" height="12" rx="2" />
+      <path d="M9 7V5h6v2" />
+      <path d="M4 12h16" />
+    </BaseIcon>
+  );
+}
+
+export function CalendarIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <rect x="4" y="5" width="16" height="15" rx="2" />
+      <path d="M8 3v4" />
+      <path d="M16 3v4" />
+      <path d="M4 10h16" />
+    </BaseIcon>
+  );
+}
+
 export function AccountsIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>
