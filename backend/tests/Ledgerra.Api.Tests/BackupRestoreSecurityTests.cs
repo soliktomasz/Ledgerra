@@ -117,6 +117,40 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
     }
 
     [Fact]
+    public async Task Restore_RejectsTransactionReferencingForeignParentTransactionId()
+    {
+        using var client = _factory.CreateClient();
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth);
+
+        var accountId = Guid.NewGuid();
+        var categoryId = Guid.NewGuid();
+        var foreignParentId = Guid.NewGuid();
+
+        var archive = new
+        {
+            version = 2,
+            exportedAtUtc = "2025-01-01T00:00:00Z",
+            accounts = new[] { new { id = accountId, name = "My Account", type = "Checking", currencyCode = "USD", openingBalance = 0m, isActive = true } },
+            categories = new[] { new { id = categoryId, name = "Food", kind = "Expense", color = (string?)null } },
+            transactions = new[]
+            {
+                new
+                {
+                    id = Guid.NewGuid(), accountId, categoryId = (Guid?)categoryId,
+                    amount = 30m, type = "Expense", occurredOnUtc = "2025-01-20T00:00:00Z",
+                    note = (string?)null, transferGroupId = (Guid?)null, splitGroupId = (Guid?)null, parentTransactionId = (Guid?)foreignParentId
+                }
+            },
+            budgetPeriods = Array.Empty<object>()
+        };
+
+        var response = await client.PostAsJsonAsync("/api/backup/restore", archive);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Restore_AcceptsValidSelfContainedArchive()
     {
         using var client = _factory.CreateClient();
@@ -168,6 +202,13 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
             email = $"user-{Guid.NewGuid():N}@ledgerra.local",
             password = "P@ssw0rd123!"
         });
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new Xunit.Sdk.XunitException(
+                $"/api/auth/register failed with {(int)response.StatusCode}: {body}");
+        }
 
         var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
         return payload.GetProperty("accessToken").GetString()!;

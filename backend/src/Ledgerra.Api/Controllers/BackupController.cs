@@ -126,7 +126,7 @@ public sealed class BackupController : ControllerBase
     {
         var accountIds = new HashSet<Guid>(archive.Accounts.Select(a => a.Id));
         var categoryIds = new HashSet<Guid>(archive.Categories.Select(c => c.Id));
-        var budgetPeriodIds = new HashSet<Guid>(archive.BudgetPeriods.Select(bp => bp.Id));
+        var transactionIds = new HashSet<Guid>(archive.Transactions.Select(t => t.Id));
 
         foreach (var transaction in archive.Transactions)
         {
@@ -138,6 +138,11 @@ public sealed class BackupController : ControllerBase
             if (transaction.CategoryId.HasValue && !categoryIds.Contains(transaction.CategoryId.Value))
             {
                 return "Backup contains a transaction referencing a category not present in the archive.";
+            }
+
+            if (transaction.ParentTransactionId.HasValue && !transactionIds.Contains(transaction.ParentTransactionId.Value))
+            {
+                return "Backup contains a transaction referencing a parent transaction not present in the archive.";
             }
         }
 
