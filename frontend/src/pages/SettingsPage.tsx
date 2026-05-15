@@ -745,6 +745,9 @@ export function SettingsPage() {
                             {isLoadingOpenAiCompatibleModels ? t("settings.loadingModels") : t("settings.loadModels")}
                           </button>
                         </div>
+                        {!isOpenAiCompatibleConfigured ? (
+                          <p className="settings-model-helper">{t("settings.configureCompatibleProviderFirst")}</p>
+                        ) : null}
                       </div>
                       <button className="primary-button" type="submit">
                         {t("settings.saveAiSettings")}

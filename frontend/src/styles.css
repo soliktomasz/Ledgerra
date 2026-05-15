@@ -3475,6 +3475,13 @@ label {
   gap: 0.65rem;
 }
 
+.settings-model-helper {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 .settings-provider-list {
   display: grid;
   gap: 0.65rem;
@@ -4430,6 +4437,13 @@ label {
 .transaction-filter-chip.disabled {
   cursor: not-allowed;
   opacity: 0.48;
+}
+
+.transaction-filter-helper {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .transaction-filter-chip input {
