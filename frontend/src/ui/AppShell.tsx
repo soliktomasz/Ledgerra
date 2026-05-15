@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { AccountsIcon, BudgetsIcon, CategoriesIcon, DashboardIcon, GoalsIcon, ImportsIcon, ReportsIcon, SettingsIcon, TransactionsIcon } from "./icons";
 import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const { auth, logout } = useAuth();
   const { t } = useI18n();
   const { selectedMonth, setSelectedMonth, goToPreviousMonth, goToNextMonth, goToCurrentMonth } = useMonthSelection();
+  const isSettingsRoute = location.pathname.startsWith("/settings");
   const navItems = [
     { to: "/dashboard", label: t("nav.dashboard"), icon: DashboardIcon },
     { to: "/reports", label: t("nav.reports"), icon: ReportsIcon },
@@ -90,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main className="content">{children}</main>
+      <main className={isSettingsRoute ? "content content--settings" : "content"}>{children}</main>
 
       <nav className="mobile-nav" aria-label={t("appShell.navigation")} >
         {navItems.map((item) => (

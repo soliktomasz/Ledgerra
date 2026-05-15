@@ -441,6 +441,15 @@ label {
   padding: 1.75rem;
 }
 
+.content--settings {
+  max-width: none;
+  padding: 0;
+}
+
+.content--settings .settings-page {
+  min-height: 100vh;
+}
+
 .mobile-nav {
   display: none;
 }
