@@ -961,6 +961,9 @@ export function TransactionsPage() {
                 );
               })}
             </div>
+            {filterType === "Transfer" ? (
+              <p className="field-hint">{t("transactions.transferCategoryFilterHint")}</p>
+            ) : null}
           </div>
 
           <div className="transaction-filter-section">

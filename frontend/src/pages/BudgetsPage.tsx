@@ -526,7 +526,7 @@ export function BudgetsPage() {
 
         <div className="budget-hero-actions">
           <div className="budget-period-toggle" role="group" aria-label={t("appShell.month")}>
-            <button className="active" type="button" disabled>{t("appShell.month")}</button>
+            <span className="active" aria-current="true">{t("appShell.month")}</span>
           </div>
           <button className="budget-secondary-action" type="button" onClick={handleCopyPreviousMonth} disabled={isCopying}>
             <DuplicateIcon />

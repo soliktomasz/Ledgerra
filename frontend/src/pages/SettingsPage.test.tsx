@@ -213,6 +213,17 @@ describe("SettingsPage", () => {
     expect(screen.getByLabelText("OpenAI-compatible model")).toHaveValue("synthetic-finance-1");
   });
 
+  test("explains why OpenAI-compatible model loading is disabled before configuration", async () => {
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /^AI/ }));
+
+    expect(screen.getByRole("button", { name: "Load models" })).toBeDisabled();
+    expect(screen.getByText("Configure the compatible provider API key first.")).toBeInTheDocument();
+  });
+
   test("removes configured provider keys and disables missing provider removal", async () => {
     const user = userEvent.setup();
     mocks.removeAiProviderKey.mockResolvedValue(mocks.aiSettings);
