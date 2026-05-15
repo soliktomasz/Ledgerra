@@ -303,7 +303,9 @@ describe("TransactionsPage", () => {
     await user.click(screen.getByRole("button", { name: "Transfer" }));
 
     expect(screen.getByText("Transfers use linked account entries, so categories are not applied independently.")).toBeInTheDocument();
-    expect(screen.getByLabelText("Groceries")).toBeDisabled();
+    const categoryChips = within(screen.getByLabelText("Filter by category")).getAllByRole("checkbox");
+    expect(categoryChips.length).toBeGreaterThan(0);
+    categoryChips.forEach((chip) => expect(chip).toBeDisabled());
   });
 
   test("supports select-all bulk delete, category assignment, and account move", async () => {

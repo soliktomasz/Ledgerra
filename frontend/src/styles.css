@@ -1828,6 +1828,7 @@ label {
 }
 
 .budget-period-toggle button,
+.budget-period-toggle span,
 .budget-filter-tabs button,
 .budget-secondary-action,
 .budget-primary-action,
@@ -1840,6 +1841,7 @@ label {
 }
 
 .budget-period-toggle button,
+.budget-period-toggle span,
 .budget-filter-tabs button {
   display: grid;
   place-items: center;
@@ -1856,6 +1858,7 @@ label {
 }
 
 .budget-period-toggle button.active,
+.budget-period-toggle span.active,
 .budget-filter-tabs button.active {
   background: var(--surface);
   color: var(--text);
@@ -3475,7 +3478,7 @@ label {
   gap: 0.65rem;
 }
 
-.settings-model-helper {
+.field-hint {
   margin: 0.35rem 0 0;
   color: var(--muted);
   font-size: 0.82rem;
@@ -4439,12 +4442,6 @@ label {
   opacity: 0.48;
 }
 
-.transaction-filter-helper {
-  margin: 0.35rem 0 0;
-  color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
 
 .transaction-filter-chip input {
   position: absolute;

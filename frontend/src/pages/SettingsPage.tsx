@@ -746,7 +746,7 @@ export function SettingsPage() {
                           </button>
                         </div>
                         {!isOpenAiCompatibleConfigured ? (
-                          <p className="settings-model-helper">{t("settings.configureCompatibleProviderFirst")}</p>
+                          <p className="field-hint">{t("settings.configureCompatibleProviderFirst")}</p>
                         ) : null}
                       </div>
                       <button className="primary-button" type="submit">
