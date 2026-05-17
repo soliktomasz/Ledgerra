@@ -195,6 +195,50 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
         }
     }
 
+    [Fact]
+    public async Task ExportAndRestore_PreservesBudgetRolloverSetting()
+    {
+        using var client = _factory.CreateClient();
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth);
+
+        var categoryResponse = await client.PostAsJsonAsync("/api/categories", new
+        {
+            name = "Food",
+            kind = "Expense"
+        });
+        Assert.Equal(HttpStatusCode.Created, categoryResponse.StatusCode);
+        var categoryPayload = await categoryResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var categoryId = categoryPayload.GetProperty("id").GetGuid();
+
+        var budgetResponse = await client.PutAsJsonAsync("/api/budgets/2025/1", new
+        {
+            categoryLimits = new[]
+            {
+                new
+                {
+                    categoryId,
+                    plannedAmount = 200m,
+                    carryOverUnspent = true
+                }
+            }
+        });
+        Assert.Equal(HttpStatusCode.OK, budgetResponse.StatusCode);
+
+        var exportResponse = await client.GetAsync("/api/backup/export");
+        Assert.Equal(HttpStatusCode.OK, exportResponse.StatusCode);
+        var archive = await exportResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(archive.GetProperty("budgetPeriods")[0].GetProperty("categoryLimits")[0].GetProperty("carryOverUnspent").GetBoolean());
+
+        var restoreResponse = await client.PostAsJsonAsync("/api/backup/restore", archive);
+        Assert.Equal(HttpStatusCode.NoContent, restoreResponse.StatusCode);
+
+        var restoredBudgetResponse = await client.GetAsync("/api/budgets/2025/1");
+        Assert.Equal(HttpStatusCode.OK, restoredBudgetResponse.StatusCode);
+        var restoredBudget = await restoredBudgetResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(restoredBudget.GetProperty("categories")[0].GetProperty("carryOverUnspent").GetBoolean());
+    }
+
     private static async Task<string> RegisterAndAuthenticateAsync(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new

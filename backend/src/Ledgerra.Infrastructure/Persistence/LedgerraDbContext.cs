@@ -160,6 +160,7 @@ public sealed class LedgerraDbContext : DbContext
         {
             builder.HasKey(limit => limit.Id);
             builder.Property(limit => limit.PlannedAmount).HasPrecision(18, 2);
+            builder.Property(limit => limit.CarryOverUnspent).HasDefaultValue(false);
             builder.HasIndex(limit => new { limit.BudgetPeriodId, limit.CategoryId }).IsUnique();
             builder.HasOne(limit => limit.BudgetPeriod)
                 .WithMany(period => period.CategoryLimits)

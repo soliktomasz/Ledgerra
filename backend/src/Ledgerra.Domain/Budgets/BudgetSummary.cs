@@ -19,6 +19,12 @@ public sealed class BudgetCategorySummary
 
     public decimal Planned { get; init; }
 
+    public decimal CarryForward { get; init; }
+
+    public decimal Available { get; init; }
+
+    public bool CarryOverUnspent { get; init; }
+
     public decimal Spent { get; init; }
 
     public decimal Remaining { get; init; }

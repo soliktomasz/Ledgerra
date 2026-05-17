@@ -116,6 +116,9 @@ describe("DashboardPage", () => {
           categoryId: "category-1",
           categoryName: "Groceries",
           planned: 300,
+          carryForward: 0,
+          available: 300,
+          carryOverUnspent: false,
           spent: 0,
           remaining: 300
         }
@@ -217,6 +220,9 @@ describe("DashboardPage", () => {
           categoryId: "category-1",
           categoryName: "Groceries",
           planned: 300,
+          carryForward: 0,
+          available: 300,
+          carryOverUnspent: false,
           spent: 0,
           remaining: 300
         }
@@ -269,6 +275,9 @@ describe("DashboardPage", () => {
           categoryId: "category-1",
           categoryName: "Dining",
           planned: 500,
+          carryForward: 0,
+          available: 500,
+          carryOverUnspent: false,
           spent: 410,
           remaining: 90
         },
@@ -276,6 +285,9 @@ describe("DashboardPage", () => {
           categoryId: "category-3",
           categoryName: "Subscriptions",
           planned: 100,
+          carryForward: 0,
+          available: 100,
+          carryOverUnspent: false,
           spent: 105,
           remaining: -5
         }

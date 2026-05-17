@@ -51,6 +51,11 @@ public sealed class DashboardSummaryDataProvider : IDashboardSummaryDataProvider
             .SingleOrDefaultAsync(item => item.UserId == userId && item.Year == year && item.Month == month, cancellationToken);
     }
 
+    public async Task<IReadOnlyDictionary<Guid, decimal>> GetBudgetCarryForwardAsync(Guid userId, int year, int month, CancellationToken cancellationToken)
+    {
+        return await BuildCarryForwardMapAsync(userId, year, month, cancellationToken);
+    }
+
     public async Task<IReadOnlyDictionary<Guid, string>> GetCategoryNamesAsync(
         Guid userId,
         IReadOnlyCollection<Guid> categoryIds,
@@ -64,5 +69,24 @@ public sealed class DashboardSummaryDataProvider : IDashboardSummaryDataProvider
         return await _dbContext.Categories
             .Where(item => item.UserId == userId && categoryIds.Contains(item.Id))
             .ToDictionaryAsync(item => item.Id, item => item.Name, cancellationToken);
+    }
+
+    private async Task<Dictionary<Guid, decimal>> BuildCarryForwardMapAsync(Guid userId, int year, int month, CancellationToken cancellationToken)
+    {
+        var previousMonth = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(-1);
+        var previousPeriod = await GetBudgetPeriodAsync(userId, previousMonth.Year, previousMonth.Month, cancellationToken);
+
+        if (previousPeriod is null || previousPeriod.CategoryLimits.Count == 0)
+        {
+            return [];
+        }
+
+        var previousTransactions = await GetTransactionsForMonthAsync(userId, previousMonth.Year, previousMonth.Month, cancellationToken);
+        var previousCarryForward = await BuildCarryForwardMapAsync(userId, previousMonth.Year, previousMonth.Month, cancellationToken);
+        var previousSummary = BudgetSummaryCalculator.BuildMonthlySummary(previousPeriod, previousTransactions, previousCarryForward);
+
+        return previousSummary.Categories
+            .Where(item => item.CarryOverUnspent && item.Remaining > 0)
+            .ToDictionary(item => item.CategoryId, item => item.Remaining);
     }
 }

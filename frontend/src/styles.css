@@ -2288,6 +2288,22 @@ label {
   transform: translateY(-50%);
 }
 
+.budget-rollover-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+
+.budget-rollover-toggle input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+}
+
 .budget-side-stack {
   position: sticky;
   top: 0.85rem;
@@ -5085,6 +5101,10 @@ label {
   .budget-envelope-limit > span,
   .budget-limit-input-wrap input {
     text-align: left;
+  }
+
+  .budget-rollover-toggle {
+    justify-content: flex-start;
   }
 
   .content,

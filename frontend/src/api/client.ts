@@ -366,7 +366,7 @@ export const apiClient = {
     token: string,
     year: number,
     month: number,
-    categoryLimits: Array<{ categoryId: string; plannedAmount: number }>
+    categoryLimits: Array<{ categoryId: string; plannedAmount: number; carryOverUnspent: boolean }>
   ) {
     return request<BudgetSummary>(`/api/budgets/${year}/${month}`, {
       method: "PUT",

@@ -186,6 +186,7 @@ using (var scope = app.Services.CreateScope())
     await dbContext.Database.EnsureCreatedAsync();
     await CategorizationRuleSchemaInitializer.InitializeAsync(dbContext);
     await AccountSchemaInitializer.InitializeAsync(dbContext);
+    await BudgetSchemaInitializer.InitializeAsync(dbContext);
 }
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));

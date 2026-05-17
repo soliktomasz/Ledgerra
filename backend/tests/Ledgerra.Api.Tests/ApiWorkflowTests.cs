@@ -204,6 +204,69 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task BudgetRollover_CarriesUnspentAmountIntoBudgetAndDashboard()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var previousBudgetResponse = await client.PutAsJsonAsync("/api/budgets/2026/4", new
+        {
+            categoryLimits = new[]
+            {
+                new
+                {
+                    categoryId = groceriesCategoryId,
+                    plannedAmount = 500m,
+                    carryOverUnspent = true
+                }
+            }
+        });
+        Assert.Equal(HttpStatusCode.OK, previousBudgetResponse.StatusCode);
+
+        var expenseResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 180m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-05T08:00:00Z",
+            note = "Weekly groceries"
+        });
+        Assert.Equal(HttpStatusCode.Created, expenseResponse.StatusCode);
+
+        var currentBudgetResponse = await client.PutAsJsonAsync("/api/budgets/2026/5", new
+        {
+            categoryLimits = new[]
+            {
+                new
+                {
+                    categoryId = groceriesCategoryId,
+                    plannedAmount = 400m,
+                    carryOverUnspent = true
+                }
+            }
+        });
+        Assert.Equal(HttpStatusCode.OK, currentBudgetResponse.StatusCode);
+
+        var budgetPayload = await currentBudgetResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var categoryPayload = budgetPayload.GetProperty("categories")[0];
+        Assert.Equal(320m, categoryPayload.GetProperty("carryForward").GetDecimal());
+        Assert.Equal(720m, categoryPayload.GetProperty("available").GetDecimal());
+        Assert.Equal(720m, budgetPayload.GetProperty("totalRemaining").GetDecimal());
+
+        var dashboardResponse = await client.GetAsync("/api/dashboard/summary?month=2026-05");
+        Assert.Equal(HttpStatusCode.OK, dashboardResponse.StatusCode);
+
+        var dashboardPayload = await dashboardResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(720m, dashboardPayload.GetProperty("budgetRemaining").GetDecimal());
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanUpdateProfilePreferences()
     {
         using var client = _factory.CreateClient();
