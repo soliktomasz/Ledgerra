@@ -292,8 +292,6 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
         var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
         return payload.GetProperty("accessToken").GetString()!;
     }
-}
-
     [Fact]
     public async Task ExportAndRestore_PreservesSavingsGoalsAndAccountMetadata()
     {
@@ -309,7 +307,7 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
             openingBalance = 12m,
             institutionName = "Credit Union",
             accountNumberMasked = "****1234",
-            iconKind = "Wallet"
+            iconKind = "Cash"
         });
         Assert.Equal(HttpStatusCode.Created, accountResponse.StatusCode);
 
@@ -341,9 +339,11 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
         var archive = await exportResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal(3, archive.GetProperty("version").GetInt32());
         Assert.Equal("Credit Union", archive.GetProperty("accounts")[0].GetProperty("institutionName").GetString());
+        Assert.Equal("Cash", archive.GetProperty("accounts")[0].GetProperty("iconKind").GetString());
         Assert.Equal(goalId, archive.GetProperty("transactions")[0].GetProperty("savingsGoalId").GetGuid());
         Assert.Equal(goalId, archive.GetProperty("savingsGoals")[0].GetProperty("id").GetGuid());
 
         var restoreResponse = await client.PostAsJsonAsync("/api/backup/restore", archive);
         Assert.Equal(HttpStatusCode.NoContent, restoreResponse.StatusCode);
     }
+}
