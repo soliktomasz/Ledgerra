@@ -458,8 +458,8 @@ export function GoalsPage() {
                   </div>
 
                   <div className="goal-detail-actions">
-                    <button className="primary-button" type="button" onClick={() => navigate("/transactions?form=transfer")}>+ {t("goals.addDeposit")}</button>
-                    <button className="ghost-button" type="button"><CashFlowIcon /> {t("goals.autoTransfer")}</button>
+                    <button className="primary-button" type="button" onClick={() => navigate(`/transactions?form=transfer&savingsGoalId=${selectedGoal.id}`)}>+ {t("goals.addDeposit")}</button>
+                    <button className="ghost-button" type="button" onClick={() => navigate(`/transactions?form=transfer&savingsGoalId=${selectedGoal.id}`)}><CashFlowIcon /> {t("goals.autoTransfer")}</button>
                     <button className="ghost-button" type="button" onClick={openEditDialog}><EditIcon /> {t("goals.editGoal")}</button>
                     <p>{t("goals.projectedFinish")} <b>{getProjectedFinish(selectedGoal, selectedMonthlyPace, fullDateFormatter, t("goals.goalComplete"), t("goals.noPace"))}</b></p>
                   </div>

@@ -301,6 +301,7 @@ export const apiClient = {
       accountId: string;
       categoryId?: string;
       destinationAccountId?: string;
+      savingsGoalId?: string;
       amount: number;
       type: string;
       occurredOnUtc: string;
@@ -319,6 +320,7 @@ export const apiClient = {
     payload: {
       categoryId?: string;
       destinationAccountId?: string;
+      savingsGoalId?: string;
       amount: number;
       type: string;
       occurredOnUtc: string;

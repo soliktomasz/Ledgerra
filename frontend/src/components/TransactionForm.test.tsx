@@ -1,6 +1,15 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
+import { apiClient } from "../api/client";
 import { TransactionForm, toDateTimeLocal } from "./TransactionForm";
+
+vi.mock("../api/client", () => ({
+  apiClient: {
+    createTransaction: vi.fn(),
+    updateTransaction: vi.fn(),
+    createCategory: vi.fn()
+  }
+}));
 
 function formatLocalDateTime(value: Date) {
   const year = value.getFullYear();
@@ -40,5 +49,31 @@ describe("TransactionForm date values", () => {
     );
 
     expect(screen.getByLabelText("Date and time")).toHaveValue(formatLocalDateTime(now));
+  });
+
+  test("submits transfer with selected savings goal id", async () => {
+    vi.mocked(apiClient.createTransaction).mockResolvedValue({
+      id: "t1",
+      accountId: "a1",
+      amount: 20,
+      type: "TransferOut",
+      occurredOnUtc: new Date().toISOString()
+    });
+    render(
+      <TransactionForm
+        token="token"
+        accounts={[
+          { id: "a1", name: "Main", type: "Checking", currencyCode: "USD", openingBalance: 0, currentBalance: 0, isActive: true, iconKind: "Bank" },
+          { id: "a2", name: "Savings", type: "Savings", currencyCode: "USD", openingBalance: 0, currentBalance: 0, isActive: true, iconKind: "Piggy" }
+        ]}
+        categories={[]}
+        savingsGoals={[{ id: "g1", name: "Trip", targetAmount: 1000, savedAmount: 0, progressPercent: 0 }]}
+        mode="create"
+        initialValues={{ type: "Transfer", accountId: "a1", destinationAccountId: "a2", amount: "20", occurredOnUtc: "2026-05-10T12:00", savingsGoalId: "g1" }}
+        onSaved={() => undefined}
+      />
+    );
+    fireEvent.submit(screen.getByRole("button", { name: "Save transaction" }));
+    expect(apiClient.createTransaction).toHaveBeenCalledWith("token", expect.objectContaining({ savingsGoalId: "g1" }));
   });
 });
