@@ -150,6 +150,41 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+
+    [Fact]
+    public async Task Restore_RejectsTransactionReferencingForeignSavingsGoalId()
+    {
+        using var client = _factory.CreateClient();
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth);
+
+        var accountId = Guid.NewGuid();
+        var foreignSavingsGoalId = Guid.NewGuid();
+
+        var archive = new
+        {
+            version = 3,
+            exportedAtUtc = "2025-01-01T00:00:00Z",
+            accounts = new[] { new { id = accountId, name = "My Account", type = "Checking", currencyCode = "USD", openingBalance = 0m, isActive = true } },
+            categories = Array.Empty<object>(),
+            transactions = new[]
+            {
+                new
+                {
+                    id = Guid.NewGuid(), accountId, categoryId = (Guid?)null,
+                    amount = 50m, type = "Income", occurredOnUtc = "2025-02-01T00:00:00Z",
+                    note = (string?)null, transferGroupId = (Guid?)null, splitGroupId = (Guid?)null, parentTransactionId = (Guid?)null, savingsGoalId = (Guid?)foreignSavingsGoalId
+                }
+            },
+            budgetPeriods = Array.Empty<object>(),
+            savingsGoals = Array.Empty<object>()
+        };
+
+        var response = await client.PostAsJsonAsync("/api/backup/restore", archive);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     [Fact]
     public async Task Restore_AcceptsValidSelfContainedArchive()
     {
@@ -258,3 +293,57 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
         return payload.GetProperty("accessToken").GetString()!;
     }
 }
+
+    [Fact]
+    public async Task ExportAndRestore_PreservesSavingsGoalsAndAccountMetadata()
+    {
+        using var client = _factory.CreateClient();
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth);
+
+        var accountResponse = await client.PostAsJsonAsync("/api/accounts", new
+        {
+            name = "Primary",
+            type = "Checking",
+            currencyCode = "USD",
+            openingBalance = 12m,
+            institutionName = "Credit Union",
+            accountNumberMasked = "****1234",
+            iconKind = "Wallet"
+        });
+        Assert.Equal(HttpStatusCode.Created, accountResponse.StatusCode);
+
+        var goalResponse = await client.PostAsJsonAsync("/api/savings-goals", new
+        {
+            name = "Emergency",
+            targetAmount = 1000m,
+            deadlineUtc = "2026-12-31T00:00:00Z"
+        });
+        Assert.Equal(HttpStatusCode.Created, goalResponse.StatusCode);
+        var goalPayload = await goalResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var goalId = goalPayload.GetProperty("id").GetGuid();
+
+        var accountPayload = await accountResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var accountId = accountPayload.GetProperty("id").GetGuid();
+
+        var txResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId,
+            amount = 100m,
+            type = "Income",
+            occurredOnUtc = "2026-01-01T00:00:00Z",
+            savingsGoalId = goalId
+        });
+        Assert.Equal(HttpStatusCode.Created, txResponse.StatusCode);
+
+        var exportResponse = await client.GetAsync("/api/backup/export");
+        Assert.Equal(HttpStatusCode.OK, exportResponse.StatusCode);
+        var archive = await exportResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(3, archive.GetProperty("version").GetInt32());
+        Assert.Equal("Credit Union", archive.GetProperty("accounts")[0].GetProperty("institutionName").GetString());
+        Assert.Equal(goalId, archive.GetProperty("transactions")[0].GetProperty("savingsGoalId").GetGuid());
+        Assert.Equal(goalId, archive.GetProperty("savingsGoals")[0].GetProperty("id").GetGuid());
+
+        var restoreResponse = await client.PostAsJsonAsync("/api/backup/restore", archive);
+        Assert.Equal(HttpStatusCode.NoContent, restoreResponse.StatusCode);
+    }

@@ -202,6 +202,9 @@ export type BackupAccount = {
   currencyCode: string;
   openingBalance: number;
   isActive: boolean;
+  institutionName?: string | null;
+  accountNumberMasked?: string | null;
+  iconKind?: string;
 };
 
 export type BackupCategory = {
@@ -233,7 +236,15 @@ export type BackupArchive = {
     id: string;
     year: number;
     month: number;
-    categoryLimits: Array<{ id: string; categoryId: string; plannedAmount: number }>;
+    categoryLimits: Array<{ id: string; categoryId: string; plannedAmount: number; carryOverUnspent?: boolean }>;
+  }>;
+  savingsGoals?: Array<{
+    id: string;
+    name: string;
+    targetAmount: number;
+    deadlineUtc?: string | null;
+    createdAtUtc?: string | null;
+    updatedAtUtc?: string | null;
   }>;
 };
 
