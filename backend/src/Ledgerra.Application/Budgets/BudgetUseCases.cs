@@ -6,7 +6,7 @@ public sealed record GetBudgetSummaryQuery(Guid UserId, int Year, int Month);
 
 public sealed record UpdateBudgetCommand(Guid UserId, int Year, int Month, IReadOnlyList<BudgetCategoryLimitInput> CategoryLimits);
 
-public sealed record BudgetCategoryLimitInput(Guid CategoryId, decimal PlannedAmount);
+public sealed record BudgetCategoryLimitInput(Guid CategoryId, decimal PlannedAmount, bool CarryOverUnspent);
 
 public interface IBudgetSummaryStore
 {

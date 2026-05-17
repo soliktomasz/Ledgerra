@@ -18,7 +18,8 @@ public sealed class BudgetSummaryStore : IBudgetSummaryStore
     {
         var period = await GetOrCreateBudgetPeriodAsync(userId, year, month, cancellationToken);
         var transactions = await GetTransactionsForMonthAsync(userId, year, month, cancellationToken);
-        return BudgetSummaryCalculator.BuildMonthlySummary(period, transactions);
+        var carryForwardByCategory = await BuildCarryForwardMapAsync(userId, year, month, cancellationToken);
+        return BudgetSummaryCalculator.BuildMonthlySummary(period, transactions, carryForwardByCategory);
     }
 
     public async Task<bool> CategoriesExistAsync(Guid userId, IReadOnlyCollection<Guid> categoryIds, CancellationToken cancellationToken)
@@ -58,7 +59,8 @@ public sealed class BudgetSummaryStore : IBudgetSummaryStore
             Id = Guid.NewGuid(),
             BudgetPeriodId = period.Id,
             CategoryId = item.CategoryId,
-            PlannedAmount = item.PlannedAmount
+            PlannedAmount = item.PlannedAmount,
+            CarryOverUnspent = item.CarryOverUnspent
         }).ToList();
 
         _dbContext.BudgetCategoryLimits.AddRange(newLimits);
@@ -70,7 +72,8 @@ public sealed class BudgetSummaryStore : IBudgetSummaryStore
             .SingleAsync(item => item.Id == period.Id, cancellationToken);
 
         var transactions = await GetTransactionsForMonthAsync(userId, year, month, cancellationToken);
-        return BudgetSummaryCalculator.BuildMonthlySummary(refreshedPeriod, transactions);
+        var carryForwardByCategory = await BuildCarryForwardMapAsync(userId, year, month, cancellationToken);
+        return BudgetSummaryCalculator.BuildMonthlySummary(refreshedPeriod, transactions, carryForwardByCategory);
     }
 
     private async Task<BudgetPeriod> GetOrCreateBudgetPeriodAsync(Guid userId, int year, int month, CancellationToken cancellationToken)
@@ -98,6 +101,28 @@ public sealed class BudgetSummaryStore : IBudgetSummaryStore
         return period;
     }
 
+
+    private async Task<Dictionary<Guid, decimal>> BuildCarryForwardMapAsync(Guid userId, int year, int month, CancellationToken cancellationToken)
+    {
+        var previousMonth = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(-1);
+        var previousPeriod = await _dbContext.BudgetPeriods
+            .Include(item => item.CategoryLimits)
+            .ThenInclude(item => item.Category)
+            .SingleOrDefaultAsync(item => item.UserId == userId && item.Year == previousMonth.Year && item.Month == previousMonth.Month, cancellationToken);
+
+        if (previousPeriod is null || previousPeriod.CategoryLimits.Count == 0)
+        {
+            return [];
+        }
+
+        var previousTransactions = await GetTransactionsForMonthAsync(userId, previousMonth.Year, previousMonth.Month, cancellationToken);
+        var previousCarryForwards = await BuildCarryForwardMapAsync(userId, previousMonth.Year, previousMonth.Month, cancellationToken);
+        var previousSummary = BudgetSummaryCalculator.BuildMonthlySummary(previousPeriod, previousTransactions, previousCarryForwards);
+
+        return previousSummary.Categories
+            .Where(item => item.CarryOverUnspent && item.Remaining > 0)
+            .ToDictionary(item => item.CategoryId, item => item.Remaining);
+    }
     private async Task<List<Transaction>> GetTransactionsForMonthAsync(Guid userId, int year, int month, CancellationToken cancellationToken)
     {
         var monthStart = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);

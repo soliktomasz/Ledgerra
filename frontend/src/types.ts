@@ -104,6 +104,9 @@ export type BudgetCategory = {
   categoryId: string;
   categoryName: string;
   planned: number;
+  carryForward: number;
+  available: number;
+  carryOverUnspent: boolean;
   spent: number;
   remaining: number;
 };

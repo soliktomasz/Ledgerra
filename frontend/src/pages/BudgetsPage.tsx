@@ -19,6 +19,9 @@ type BudgetEnvelope = {
   groupId: BudgetGroupId;
   planned: number;
   spent: number;
+  carryForward: number;
+  available: number;
+  carryOverUnspent: boolean;
   remaining: number;
   operationCount: number;
   ratio: number;
@@ -211,8 +214,11 @@ function buildBudgetRows(
     const planned = Math.max(parseDraftAmount(draft.get(category.id), fallbackPlanned), 0);
     const spent = Math.max(budgetCategory?.spent ?? 0, 0);
     const operationCount = monthlyExpenseTransactions.filter((transaction) => transaction.categoryId === category.id).length;
-    const remaining = planned - spent;
-    const ratio = planned > 0 ? spent / planned : 0;
+    const carryForward = budgetCategory?.carryForward ?? 0;
+    const available = budgetCategory?.available ?? (planned + carryForward);
+    const carryOverUnspent = budgetCategory?.carryOverUnspent ?? false;
+    const remaining = available - spent;
+    const ratio = available > 0 ? spent / available : 0;
 
     return {
       categoryId: category.id,
@@ -221,10 +227,13 @@ function buildBudgetRows(
       groupId: classifyBudgetCategory(category.name, languageCode),
       planned,
       spent,
+      carryForward,
+      available,
+      carryOverUnspent,
       remaining,
       operationCount,
       ratio,
-      status: getBudgetStatus(planned, spent)
+      status: getBudgetStatus(available, spent)
     };
   });
 }
@@ -406,7 +415,7 @@ export function BudgetsPage() {
   );
   const timing = useMemo(() => getBudgetTiming(selectedYear, selectedMonthNumber), [selectedMonthNumber, selectedYear]);
   const monthLabel = formatMonthLabel(getMonthDate(selectedYear, selectedMonthNumber), languageCode);
-  const totalPlanned = budgetRows.reduce((sum, row) => sum + row.planned, 0);
+  const totalPlanned = budgetRows.reduce((sum, row) => sum + row.available, 0);
   const totalSpent = budgetRows.reduce((sum, row) => sum + row.spent, 0);
   const totalRemaining = totalPlanned - totalSpent;
   const spentRatio = totalPlanned > 0 ? totalSpent / totalPlanned : 0;
@@ -451,7 +460,8 @@ export function BudgetsPage() {
     const payload = expenseCategories
       .map((category) => ({
         categoryId: category.id,
-        plannedAmount: parseDraftAmount(draft.get(category.id), 0)
+        plannedAmount: parseDraftAmount(draft.get(category.id), 0),
+        carryOverUnspent: category.carryOverUnspent
       }))
       .filter((item) => item.plannedAmount > 0);
 
@@ -653,7 +663,7 @@ export function BudgetsPage() {
                                 <div style={{ width: progressWidth }} />
                               </div>
                               <div className="budget-envelope-meta">
-                                <span><b>{formatCurrency(row.spent, mainCurrencyCode)}</b> {t("common.of")} {formatCurrency(row.planned, mainCurrencyCode)}</span>
+                                <span><b>{formatCurrency(row.spent, mainCurrencyCode)}</b> {t("common.of")} {formatCurrency(row.available, mainCurrencyCode)}</span>
                                 <strong>
                                   {row.remaining < 0 ? copy.overBy : copy.remainingAmount} {formatCurrency(Math.abs(row.remaining), mainCurrencyCode)}
                                 </strong>
@@ -744,7 +754,7 @@ export function BudgetsPage() {
                     <strong>{row.categoryName}</strong>
                     <p>{row.operationCount > 0 ? copy.operation(row.operationCount) : copy.noOperations}</p>
                   </div>
-                  <b>{formatCurrency(row.planned, mainCurrencyCode)}</b>
+                  <b>{formatCurrency(row.planned, mainCurrencyCode)}</b>{row.carryForward > 0 ? ` (+${formatCurrency(row.carryForward, mainCurrencyCode)} rollover)` : ""}
                 </article>
               ))}
             </div>

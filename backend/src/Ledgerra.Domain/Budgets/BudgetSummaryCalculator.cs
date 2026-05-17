@@ -4,7 +4,7 @@ namespace Ledgerra.Domain.Budgets;
 
 public static class BudgetSummaryCalculator
 {
-    public static BudgetSummary BuildMonthlySummary(BudgetPeriod period, IEnumerable<Transaction> transactions)
+    public static BudgetSummary BuildMonthlySummary(BudgetPeriod period, IEnumerable<Transaction> transactions, IReadOnlyDictionary<Guid, decimal>? carryForwardByCategory = null)
     {
         var categorySummaries = period.CategoryLimits
             .Select(limit =>
@@ -18,25 +18,36 @@ public static class BudgetSummaryCalculator
                         transaction.OccurredOnUtc.Month == period.Month)
                     .Sum(transaction => transaction.Amount);
 
+                var carryForward = 0m;
+                if (limit.CarryOverUnspent && carryForwardByCategory is not null)
+                {
+                    carryForwardByCategory.TryGetValue(limit.CategoryId, out carryForward);
+                }
+
+                var available = limit.PlannedAmount + carryForward;
+
                 return new BudgetCategorySummary
                 {
                     CategoryId = limit.CategoryId,
                     CategoryName = limit.Category?.Name ?? "Uncategorized",
                     Planned = limit.PlannedAmount,
+                    CarryForward = carryForward,
+                    Available = available,
+                    CarryOverUnspent = limit.CarryOverUnspent,
                     Spent = spent,
-                    Remaining = limit.PlannedAmount - spent
+                    Remaining = available - spent
                 };
             })
             .ToList();
 
-        var totalPlanned = categorySummaries.Sum(item => item.Planned);
+        var totalAvailable = categorySummaries.Sum(item => item.Available);
         var totalSpent = categorySummaries.Sum(item => item.Spent);
 
         return new BudgetSummary
         {
-            TotalPlanned = totalPlanned,
+            TotalPlanned = totalAvailable,
             TotalSpent = totalSpent,
-            TotalRemaining = totalPlanned - totalSpent,
+            TotalRemaining = totalAvailable - totalSpent,
             Categories = categorySummaries
         };
     }

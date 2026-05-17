@@ -12,6 +12,8 @@ public sealed class BudgetCategoryLimit
 
     public decimal PlannedAmount { get; set; }
 
+    public bool CarryOverUnspent { get; set; }
+
     public BudgetPeriod? BudgetPeriod { get; set; }
 
     public Category? Category { get; set; }

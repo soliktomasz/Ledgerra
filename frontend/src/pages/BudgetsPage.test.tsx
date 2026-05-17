@@ -19,6 +19,9 @@ const mocks = vi.hoisted(() => ({
         categoryId: "category-1",
         categoryName: "Groceries",
         planned: 100,
+        carryForward: 0,
+        available: 100,
+        carryOverUnspent: false,
         spent: 25,
         remaining: 75
       }
@@ -72,7 +75,7 @@ describe("BudgetsPage", () => {
 
     await waitFor(() => {
       expect(mocks.updateBudget).toHaveBeenCalledWith("token", 2025, 2, [
-        { categoryId: "category-1", plannedAmount: 125 }
+        { categoryId: "category-1", plannedAmount: 125, carryOverUnspent: false }
       ]);
     });
   });

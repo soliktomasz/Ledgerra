@@ -14,4 +14,6 @@ public sealed class BudgetCategoryLimitRequest
 
     [Range(0d, 999999999d)]
     public decimal PlannedAmount { get; init; }
+
+    public bool CarryOverUnspent { get; init; }
 }

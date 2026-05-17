@@ -38,7 +38,7 @@ public sealed class BudgetsController : ControllerBase
                 userId,
                 year,
                 month,
-                request.CategoryLimits.Select(item => new BudgetCategoryLimitInput(item.CategoryId, item.PlannedAmount)).ToList()),
+                request.CategoryLimits.Select(item => new BudgetCategoryLimitInput(item.CategoryId, item.PlannedAmount, item.CarryOverUnspent)).ToList()),
             cancellationToken);
 
         if (result.HasValidationError)
