@@ -31,23 +31,31 @@ public sealed class BackupController : ControllerBase
             .ThenBy(x => x.Month)
             .ToListAsync(cancellationToken);
 
+        var savingsGoals = await _dbContext.SavingsGoals.Where(x => x.UserId == userId).OrderBy(x => x.CreatedAtUtc).ToListAsync(cancellationToken);
+
         return Ok(new BackupArchiveResponse(
-            2,
+            3,
             DateTimeOffset.UtcNow.ToString("O"),
-            accounts.Select(x => new BackupAccountResponse(x.Id, x.Name, x.Type.ToString(), x.CurrencyCode, x.OpeningBalance, x.IsActive)).ToList(),
+            accounts.Select(x => new BackupAccountResponse(x.Id, x.Name, x.Type.ToString(), x.CurrencyCode, x.OpeningBalance, x.IsActive, x.InstitutionName, x.AccountNumberMasked, x.IconKind.ToString())).ToList(),
             categories.Select(x => new BackupCategoryResponse(x.Id, x.Name, x.Kind.ToString(), x.Color)).ToList(),
-            transactions.Select(x => new BackupTransactionResponse(x.Id, x.AccountId, x.CategoryId, x.Amount, x.Type.ToString(), x.OccurredOnUtc.ToString("O"), x.Note, x.TransferGroupId, x.SplitGroupId, x.ParentTransactionId)).ToList(),
+            transactions.Select(x => new BackupTransactionResponse(x.Id, x.AccountId, x.CategoryId, x.Amount, x.Type.ToString(), x.OccurredOnUtc.ToString("O"), x.Note, x.TransferGroupId, x.SplitGroupId, x.ParentTransactionId, x.SavingsGoalId)).ToList(),
             budgetPeriods.Select(x => new BackupBudgetPeriodResponse(
                 x.Id,
                 x.Year,
                 x.Month,
-                x.CategoryLimits.Select(limit => new BackupBudgetCategoryLimitResponse(limit.Id, limit.CategoryId, limit.PlannedAmount, limit.CarryOverUnspent)).ToList())).ToList()));
+                x.CategoryLimits.Select(limit => new BackupBudgetCategoryLimitResponse(limit.Id, limit.CategoryId, limit.PlannedAmount, limit.CarryOverUnspent)).ToList())).ToList(),
+            savingsGoals.Select(x => new BackupSavingsGoalResponse(x.Id, x.Name, x.TargetAmount, x.DeadlineUtc?.ToString("O"), x.CreatedAtUtc.ToString("O"), x.UpdatedAtUtc.ToString("O"))).ToList()));
     }
 
     [HttpPost("restore")]
     public async Task<ActionResult> Restore([FromBody] BackupArchiveResponse archive, CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
+
+        if (archive.Version is < 2 or > 3)
+        {
+            return BadRequest(new ProblemDetails { Title = "Unsupported backup archive version." });
+        }
 
         var referenceError = ValidateArchiveReferences(archive);
         if (referenceError is not null)
@@ -62,6 +70,7 @@ public sealed class BackupController : ControllerBase
         _dbContext.Transactions.RemoveRange(_dbContext.Transactions.Where(x => x.UserId == userId));
         _dbContext.Categories.RemoveRange(_dbContext.Categories.Where(x => x.UserId == userId));
         _dbContext.Accounts.RemoveRange(_dbContext.Accounts.Where(x => x.UserId == userId));
+        _dbContext.SavingsGoals.RemoveRange(_dbContext.SavingsGoals.Where(x => x.UserId == userId));
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         var accounts = archive.Accounts.Select(x => new Ledgerra.Domain.Accounts.Account
@@ -72,7 +81,10 @@ public sealed class BackupController : ControllerBase
             Type = Enum.Parse<Ledgerra.Domain.Accounts.AccountType>(x.Type),
             CurrencyCode = x.CurrencyCode,
             OpeningBalance = x.OpeningBalance,
-            IsActive = x.IsActive
+            IsActive = x.IsActive,
+            InstitutionName = x.InstitutionName,
+            AccountNumberMasked = x.AccountNumberMasked,
+            IconKind = Enum.Parse<Ledgerra.Domain.Accounts.AccountIconKind>(x.IconKind)
         }).ToList();
         var categories = archive.Categories.Select(x => new Ledgerra.Domain.Categories.Category
         {
@@ -94,8 +106,20 @@ public sealed class BackupController : ControllerBase
             Note = x.Note,
             TransferGroupId = x.TransferGroupId,
             SplitGroupId = x.SplitGroupId,
-            ParentTransactionId = x.ParentTransactionId
+            ParentTransactionId = x.ParentTransactionId,
+            SavingsGoalId = x.SavingsGoalId
         }).ToList();
+        var savingsGoals = (archive.SavingsGoals ?? []).Select(x => new Ledgerra.Domain.Goals.SavingsGoal
+        {
+            Id = x.Id,
+            UserId = userId,
+            Name = x.Name,
+            TargetAmount = x.TargetAmount,
+            DeadlineUtc = string.IsNullOrWhiteSpace(x.DeadlineUtc) ? null : DateTime.Parse(x.DeadlineUtc),
+            CreatedAtUtc = string.IsNullOrWhiteSpace(x.CreatedAtUtc) ? DateTime.UtcNow : DateTime.Parse(x.CreatedAtUtc),
+            UpdatedAtUtc = string.IsNullOrWhiteSpace(x.UpdatedAtUtc) ? DateTime.UtcNow : DateTime.Parse(x.UpdatedAtUtc)
+        }).ToList();
+
         var periods = archive.BudgetPeriods.Select(x => new Ledgerra.Domain.Budgets.BudgetPeriod
         {
             Id = x.Id,
@@ -114,6 +138,7 @@ public sealed class BackupController : ControllerBase
 
         await _dbContext.Accounts.AddRangeAsync(accounts, cancellationToken);
         await _dbContext.Categories.AddRangeAsync(categories, cancellationToken);
+        await _dbContext.SavingsGoals.AddRangeAsync(savingsGoals, cancellationToken);
         await _dbContext.Transactions.AddRangeAsync(transactions, cancellationToken);
         await _dbContext.BudgetPeriods.AddRangeAsync(periods, cancellationToken);
         await _dbContext.BudgetCategoryLimits.AddRangeAsync(limits, cancellationToken);
@@ -128,6 +153,7 @@ public sealed class BackupController : ControllerBase
         var accountIds = new HashSet<Guid>(archive.Accounts.Select(a => a.Id));
         var categoryIds = new HashSet<Guid>(archive.Categories.Select(c => c.Id));
         var transactionIds = new HashSet<Guid>(archive.Transactions.Select(t => t.Id));
+        var savingsGoalIds = new HashSet<Guid>((archive.SavingsGoals ?? []).Select(goal => goal.Id));
 
         foreach (var transaction in archive.Transactions)
         {
@@ -144,6 +170,11 @@ public sealed class BackupController : ControllerBase
             if (transaction.ParentTransactionId.HasValue && !transactionIds.Contains(transaction.ParentTransactionId.Value))
             {
                 return "Backup contains a transaction referencing a parent transaction not present in the archive.";
+            }
+
+            if (transaction.SavingsGoalId.HasValue && !savingsGoalIds.Contains(transaction.SavingsGoalId.Value))
+            {
+                return "Backup contains a transaction referencing a savings goal not present in the archive.";
             }
         }
 
