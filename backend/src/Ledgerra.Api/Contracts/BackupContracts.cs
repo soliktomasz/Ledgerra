@@ -26,4 +26,4 @@ public sealed record BackupTransactionResponse(
 
 public sealed record BackupBudgetPeriodResponse(Guid Id, int Year, int Month, IReadOnlyList<BackupBudgetCategoryLimitResponse> CategoryLimits);
 
-public sealed record BackupBudgetCategoryLimitResponse(Guid Id, Guid CategoryId, decimal PlannedAmount);
+public sealed record BackupBudgetCategoryLimitResponse(Guid Id, Guid CategoryId, decimal PlannedAmount, bool CarryOverUnspent = false);

@@ -41,6 +41,8 @@ public interface IDashboardSummaryDataProvider
 
     Task<BudgetPeriod?> GetBudgetPeriodAsync(Guid userId, int year, int month, CancellationToken cancellationToken);
 
+    Task<IReadOnlyDictionary<Guid, decimal>> GetBudgetCarryForwardAsync(Guid userId, int year, int month, CancellationToken cancellationToken);
+
     Task<IReadOnlyDictionary<Guid, string>> GetCategoryNamesAsync(
         Guid userId,
         IReadOnlyCollection<Guid> categoryIds,
@@ -66,9 +68,12 @@ public sealed class GetDashboardSummaryQueryHandler
         var accounts = await _dataProvider.GetAccountsAsync(query.UserId, cancellationToken);
         var period = await _dataProvider.GetBudgetPeriodAsync(query.UserId, query.Year, query.Month, cancellationToken);
 
+        var budgetCarryForward = period is null
+            ? new Dictionary<Guid, decimal>()
+            : await _dataProvider.GetBudgetCarryForwardAsync(query.UserId, query.Year, query.Month, cancellationToken);
         var budgetRemaining = period is null
             ? 0m
-            : BudgetSummaryCalculator.BuildMonthlySummary(period, transactions).TotalRemaining;
+            : BudgetSummaryCalculator.BuildMonthlySummary(period, transactions, budgetCarryForward).TotalRemaining;
 
         var topCategoryIds = transactions
             .Where(IsCategoryExpense)

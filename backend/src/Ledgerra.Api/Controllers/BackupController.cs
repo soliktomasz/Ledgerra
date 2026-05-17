@@ -41,7 +41,7 @@ public sealed class BackupController : ControllerBase
                 x.Id,
                 x.Year,
                 x.Month,
-                x.CategoryLimits.Select(limit => new BackupBudgetCategoryLimitResponse(limit.Id, limit.CategoryId, limit.PlannedAmount)).ToList())).ToList()));
+                x.CategoryLimits.Select(limit => new BackupBudgetCategoryLimitResponse(limit.Id, limit.CategoryId, limit.PlannedAmount, limit.CarryOverUnspent)).ToList())).ToList()));
     }
 
     [HttpPost("restore")]
@@ -108,7 +108,8 @@ public sealed class BackupController : ControllerBase
             Id = limit.Id,
             BudgetPeriodId = x.Id,
             CategoryId = limit.CategoryId,
-            PlannedAmount = limit.PlannedAmount
+            PlannedAmount = limit.PlannedAmount,
+            CarryOverUnspent = limit.CarryOverUnspent
         })).ToList();
 
         await _dbContext.Accounts.AddRangeAsync(accounts, cancellationToken);

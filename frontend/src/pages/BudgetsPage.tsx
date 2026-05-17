@@ -153,6 +153,7 @@ function getBudgetCopy(t: ReturnType<typeof useI18n>["t"]) {
     noLimit: t("budgets.noLimit"),
     nearLimit: t("budgets.nearLimit"),
     monthlyLimit: t("budgets.monthlyLimit"),
+    carryOverUnspent: t("budgets.carryOverUnspent"),
     remainingAmount: t("budgets.remainingAmount"),
     overBy: t("budgets.overBy"),
     rhythm: t("budgets.rhythm"),
@@ -201,6 +202,7 @@ function buildBudgetRows(
   expenseCategories: Category[],
   budgetCategories: BudgetCategory[],
   draft: Map<string, string>,
+  carryOverDraft: Map<string, boolean>,
   transactions: Transaction[],
   selectedMonth: string,
   languageCode: string
@@ -214,9 +216,9 @@ function buildBudgetRows(
     const planned = Math.max(parseDraftAmount(draft.get(category.id), fallbackPlanned), 0);
     const spent = Math.max(budgetCategory?.spent ?? 0, 0);
     const operationCount = monthlyExpenseTransactions.filter((transaction) => transaction.categoryId === category.id).length;
-    const carryForward = budgetCategory?.carryForward ?? 0;
-    const available = budgetCategory?.available ?? (planned + carryForward);
-    const carryOverUnspent = budgetCategory?.carryOverUnspent ?? false;
+    const carryOverUnspent = carryOverDraft.get(category.id) ?? budgetCategory?.carryOverUnspent ?? false;
+    const carryForward = carryOverUnspent ? budgetCategory?.carryForward ?? 0 : 0;
+    const available = planned + carryForward;
     const remaining = available - spent;
     const ratio = available > 0 ? spent / available : 0;
 
@@ -397,8 +399,14 @@ export function BudgetsPage() {
     budget?.categories.forEach((category) => values.set(category.categoryId, String(category.planned)));
     return values;
   }, [budget]);
+  const initialCarryOverValues = useMemo(() => {
+    const values = new Map<string, boolean>();
+    budget?.categories.forEach((category) => values.set(category.categoryId, category.carryOverUnspent));
+    return values;
+  }, [budget]);
 
   const [draft, setDraft] = useState<Map<string, string>>(initialValues);
+  const [carryOverDraft, setCarryOverDraft] = useState<Map<string, boolean>>(initialCarryOverValues);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<BudgetFilter>("all");
   const [isCopying, setIsCopying] = useState(false);
@@ -409,9 +417,13 @@ export function BudgetsPage() {
     setDraft(initialValues);
   }, [initialValues]);
 
+  useEffect(() => {
+    setCarryOverDraft(initialCarryOverValues);
+  }, [initialCarryOverValues]);
+
   const budgetRows = useMemo(
-    () => buildBudgetRows(expenseCategories, budget?.categories ?? [], draft, transactions, selectedMonth, languageCode),
-    [budget?.categories, draft, expenseCategories, languageCode, selectedMonth, transactions]
+    () => buildBudgetRows(expenseCategories, budget?.categories ?? [], draft, carryOverDraft, transactions, selectedMonth, languageCode),
+    [budget?.categories, carryOverDraft, draft, expenseCategories, languageCode, selectedMonth, transactions]
   );
   const timing = useMemo(() => getBudgetTiming(selectedYear, selectedMonthNumber), [selectedMonthNumber, selectedYear]);
   const monthLabel = formatMonthLabel(getMonthDate(selectedYear, selectedMonthNumber), languageCode);
@@ -461,7 +473,7 @@ export function BudgetsPage() {
       .map((category) => ({
         categoryId: category.id,
         plannedAmount: parseDraftAmount(draft.get(category.id), 0),
-        carryOverUnspent: category.carryOverUnspent
+        carryOverUnspent: carryOverDraft.get(category.id) ?? false
       }))
       .filter((item) => item.plannedAmount > 0);
 
@@ -492,6 +504,7 @@ export function BudgetsPage() {
         next.set(category.categoryId, String(category.planned));
       });
       setDraft(next);
+      setCarryOverDraft(new Map(previousBudget.categories.map((category) => [category.categoryId, category.carryOverUnspent])));
     } catch (error) {
       console.error("Unable to copy previous budget", error);
       setErrorMessage(error instanceof Error ? error.message : t("budgets.copyPreviousError"));
@@ -686,6 +699,18 @@ export function BudgetsPage() {
                                 />
                                 <EditIcon aria-hidden="true" />
                               </div>
+                              <label className="budget-rollover-toggle">
+                                <input
+                                  type="checkbox"
+                                  checked={row.carryOverUnspent}
+                                  onChange={(event) => {
+                                    const next = new Map(carryOverDraft);
+                                    next.set(row.categoryId, event.target.checked);
+                                    setCarryOverDraft(next);
+                                  }}
+                                />
+                                <span>{copy.carryOverUnspent}</span>
+                              </label>
                             </div>
                           </article>
                         );
