@@ -217,6 +217,76 @@ h3 {
   margin-bottom: 34px;
 }
 
+.section-heading p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.screenshots-section {
+  background: #17211c;
+  color: #f8fbf6;
+}
+
+.screenshots-section .eyebrow {
+  color: #7bd8b4;
+}
+
+.screenshots-section .section-heading p:not(.eyebrow) {
+  color: rgba(248, 251, 246, 0.72);
+}
+
+.screenshot-feature,
+.screenshot-grid figure {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(248, 251, 246, 0.12);
+  border-radius: 8px;
+  background: #0f1715;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+}
+
+.screenshot-feature img,
+.screenshot-grid img {
+  display: block;
+  width: 100%;
+  background: #101816;
+  object-fit: cover;
+}
+
+.screenshot-feature img {
+  height: auto;
+}
+
+.screenshot-grid img {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+.screenshot-feature figcaption,
+.screenshot-grid figcaption {
+  display: grid;
+  gap: 6px;
+  padding: 18px 20px 20px;
+}
+
+.screenshot-feature strong,
+.screenshot-grid strong {
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.screenshot-feature span,
+.screenshot-grid span {
+  color: rgba(248, 251, 246, 0.7);
+}
+
+.screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -374,6 +444,10 @@ h3 {
 
   .feature-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .screenshot-grid {
+    grid-template-columns: 1fr;
   }
 
   .deploy-grid {
