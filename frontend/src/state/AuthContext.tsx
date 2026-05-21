@@ -31,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const raw = getAuthStorage().getItem(STORAGE_KEY);
-    window.localStorage.removeItem(STORAGE_KEY);
     if (!raw) {
       return;
     }
