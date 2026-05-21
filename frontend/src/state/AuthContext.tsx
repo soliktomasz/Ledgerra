@@ -14,7 +14,16 @@ const STORAGE_KEY = "ledgerra.auth";
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 function getAuthStorage() {
-  return window.sessionStorage;
+  return window.localStorage;
+}
+
+function isSessionValid(payload: AuthPayload): boolean {
+  const expiresAt = Date.parse(payload.expiresAtUtc);
+  if (Number.isNaN(expiresAt)) {
+    return false;
+  }
+
+  return expiresAt > Date.now();
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -28,7 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      setAuth(JSON.parse(raw) as AuthPayload);
+      const payload = JSON.parse(raw) as AuthPayload;
+      if (isSessionValid(payload)) {
+        setAuth(payload);
+      } else {
+        getAuthStorage().removeItem(STORAGE_KEY);
+      }
     } catch {
       getAuthStorage().removeItem(STORAGE_KEY);
     }
@@ -38,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const persist = (payload: AuthPayload | null) => {
     setAuth(payload);
-    if (payload) {
+    if (payload && isSessionValid(payload)) {
       getAuthStorage().setItem(STORAGE_KEY, JSON.stringify(payload));
     } else {
       getAuthStorage().removeItem(STORAGE_KEY);
