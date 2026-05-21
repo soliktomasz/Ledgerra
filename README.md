@@ -137,7 +137,7 @@ For local browser development, set:
 VITE_API_BASE_URL=http://localhost:5027
 ```
 
-If you do not set it, the frontend assumes same-origin `/api`, which is the production Docker behavior.
+If you do not set it, the frontend assumes same-origin and keeps the `/api` prefix from each request path, which is the production Docker behavior.
 
 ## Project Website
 

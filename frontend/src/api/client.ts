@@ -20,6 +20,21 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
+export function resolveApiUrl(baseUrl: string, path: string): string {
+  const normalizedBaseUrl = baseUrl.trim().replace(/\/+$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  if (!normalizedBaseUrl) {
+    return normalizedPath;
+  }
+
+  if (normalizedBaseUrl.endsWith("/api") && (normalizedPath === "/api" || normalizedPath.startsWith("/api/"))) {
+    return `${normalizedBaseUrl}${normalizedPath.slice(4)}`;
+  }
+
+  return `${normalizedBaseUrl}${normalizedPath}`;
+}
+
 type RequestOptions = {
   method?: string;
   body?: unknown;
@@ -35,7 +50,7 @@ function notifyUnauthorized() {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(resolveApiUrl(API_BASE_URL, path), {
     method: options.method ?? "GET",
     headers: {
       "Content-Type": "application/json",
