@@ -154,6 +154,7 @@ public sealed class ReportingApiTests : IClassFixture<LedgerraApiFactory>
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new
         {
+            nickname = $"user-{Guid.NewGuid():N}".Substring(0, 20),
             email = $"user-{Guid.NewGuid():N}@ledgerra.local",
             password = "P@ssw0rd123!"
         });

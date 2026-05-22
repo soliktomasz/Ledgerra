@@ -32,7 +32,18 @@ public sealed class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request, CancellationToken cancellationToken)
     {
+        var normalizedNickname = request.Nickname.Trim().ToLowerInvariant();
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var existingNickname = await _dbContext.Users.AnyAsync(user => user.Nickname == normalizedNickname, cancellationToken);
+        if (existingNickname)
+        {
+            return Conflict(new ProblemDetails
+            {
+                Title = "Nickname already taken",
+                Detail = "Please choose another nickname."
+            });
+        }
+
         var existingUser = await _dbContext.Users.AnyAsync(user => user.Email == normalizedEmail, cancellationToken);
         if (existingUser)
         {
@@ -46,6 +57,7 @@ public sealed class AuthController : ControllerBase
         var user = new AppUser
         {
             Id = Guid.NewGuid(),
+            Nickname = normalizedNickname,
             Email = normalizedEmail
         };
         user.PasswordHash = _passwordService.Hash(request.Password);
@@ -65,14 +77,14 @@ public sealed class AuthController : ControllerBase
         _dbContext.Categories.AddRange(DefaultCategorySeed.BuildForUser(user));
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return StatusCode(StatusCodes.Status201Created, new AuthResponse(user.Id, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc));
+        return StatusCode(StatusCodes.Status201Created, new AuthResponse(user.Id, user.Nickname, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc));
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-        var user = await _dbContext.Users.Include(item => item.RefreshTokens).SingleOrDefaultAsync(item => item.Email == normalizedEmail, cancellationToken);
+        var normalizedNickname = request.Nickname.Trim().ToLowerInvariant();
+        var user = await _dbContext.Users.Include(item => item.RefreshTokens).SingleOrDefaultAsync(item => item.Nickname == normalizedNickname, cancellationToken);
         if (user is null)
         {
             return Unauthorized();
@@ -117,6 +129,6 @@ public sealed class AuthController : ControllerBase
         });
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new AuthResponse(user.Id, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc);
+        return new AuthResponse(user.Id, user.Nickname, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc);
     }
 }

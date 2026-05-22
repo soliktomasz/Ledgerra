@@ -6,6 +6,7 @@ export function LoginPage() {
   const { login } = useAuth();
   const { t } = useI18n();
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [nickname, setNickname] = useState("owner");
   const [email, setEmail] = useState("owner@ledgerra.local");
   const [password, setPassword] = useState("P@ssw0rd123!");
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +18,7 @@ export function LoginPage() {
     setError(null);
 
     try {
-      await login(email, password, mode);
+      await login(nickname, password, mode, email);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : t("login.unableToSignIn"));
     } finally {
@@ -64,8 +65,15 @@ export function LoginPage() {
 
         <label>
           {t("login.email")}
-          <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required />
+          <input value={nickname} onChange={(event) => setNickname(event.target.value)} type="text" required />
         </label>
+
+        {mode === "register" ? (
+          <label>
+            Email
+            <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required />
+          </label>
+        ) : null}
 
         <label>
           {t("login.password")}
