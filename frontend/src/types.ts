@@ -1,5 +1,6 @@
 export type AuthPayload = {
   userId: string;
+  nickname: string;
   email: string;
   accessToken: string;
   refreshToken: string;

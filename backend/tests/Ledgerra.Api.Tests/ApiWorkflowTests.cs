@@ -22,6 +22,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
 
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
         {
+            nickname = "owner",
             email = "owner@ledgerra.local",
             password = "P@ssw0rd123!"
         });
@@ -40,7 +41,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
 
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new
         {
-            email = "owner@ledgerra.local",
+            nickname = "owner",
             password = "P@ssw0rd123!"
         });
 
@@ -1374,6 +1375,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new
         {
+            nickname = $"user-{Guid.NewGuid():N}".Substring(0, 20),
             email = $"user-{Guid.NewGuid():N}@ledgerra.local",
             password = "P@ssw0rd123!"
         });
