@@ -131,6 +131,21 @@ npm run build
 npm run dev
 ```
 
+### Browser smoke tests (Playwright)
+
+A deterministic smoke suite is available for core end-to-end workflows.
+Each test registers its own user/workspace so data stays isolated across scenarios.
+
+```bash
+cd frontend
+npm install
+npx playwright install --with-deps chromium
+E2E_BASE_URL=http://127.0.0.1:5173 E2E_API_BASE_URL=http://127.0.0.1:5027 npm run test:e2e
+```
+
+The suite stores failure artifacts (screenshots/videos/traces) and an HTML report in `frontend/playwright-report/`.
+
+
 For local browser development, set:
 
 ```bash
