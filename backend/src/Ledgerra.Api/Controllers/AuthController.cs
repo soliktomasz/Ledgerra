@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Ledgerra.Api.Contracts;
 using Ledgerra.Domain.Auth;
 using Ledgerra.Infrastructure.Authentication;
@@ -12,6 +13,8 @@ namespace Ledgerra.Api.Controllers;
 [Route("api/auth")]
 public sealed class AuthController : ControllerBase
 {
+    private static readonly EmailAddressAttribute EmailAddressValidator = new();
+
     private readonly LedgerraDbContext _dbContext;
     private readonly IPasswordService _passwordService;
     private readonly IJwtTokenService _jwtTokenService;
@@ -32,20 +35,28 @@ public sealed class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request, CancellationToken cancellationToken)
     {
-        var normalizedNickname = request.Nickname.Trim().ToLowerInvariant();
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-        var existingNickname = await _dbContext.Users.AnyAsync(user => user.Nickname == normalizedNickname, cancellationToken);
-        if (existingNickname)
+        var normalizedLogin = request.Login.Trim().ToLowerInvariant();
+        var normalizedEmail = request.Email?.Trim().ToLowerInvariant() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(normalizedEmail) && !EmailAddressValidator.IsValid(normalizedEmail))
+        {
+            return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                ["Email"] = ["The Email field is not a valid e-mail address."]
+            }));
+        }
+
+        var existingLogin = await _dbContext.Users.AnyAsync(user => user.Login == normalizedLogin, cancellationToken);
+        if (existingLogin)
         {
             return Conflict(new ProblemDetails
             {
-                Title = "Nickname already taken",
-                Detail = "Please choose another nickname."
+                Title = "Login already taken",
+                Detail = "Please choose another login."
             });
         }
 
-        var existingUser = await _dbContext.Users.AnyAsync(user => user.Email == normalizedEmail, cancellationToken);
-        if (existingUser)
+        if (!string.IsNullOrWhiteSpace(normalizedEmail) &&
+            await _dbContext.Users.AnyAsync(user => user.Email == normalizedEmail, cancellationToken))
         {
             return Conflict(new ProblemDetails
             {
@@ -57,7 +68,7 @@ public sealed class AuthController : ControllerBase
         var user = new AppUser
         {
             Id = Guid.NewGuid(),
-            Nickname = normalizedNickname,
+            Login = normalizedLogin,
             Email = normalizedEmail
         };
         user.PasswordHash = _passwordService.Hash(request.Password);
@@ -77,14 +88,14 @@ public sealed class AuthController : ControllerBase
         _dbContext.Categories.AddRange(DefaultCategorySeed.BuildForUser(user));
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return StatusCode(StatusCodes.Status201Created, new AuthResponse(user.Id, user.Nickname, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc));
+        return StatusCode(StatusCodes.Status201Created, new AuthResponse(user.Id, user.Login, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc));
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
-        var normalizedNickname = request.Nickname.Trim().ToLowerInvariant();
-        var user = await _dbContext.Users.Include(item => item.RefreshTokens).SingleOrDefaultAsync(item => item.Nickname == normalizedNickname, cancellationToken);
+        var normalizedLogin = request.Login.Trim().ToLowerInvariant();
+        var user = await _dbContext.Users.Include(item => item.RefreshTokens).SingleOrDefaultAsync(item => item.Login == normalizedLogin, cancellationToken);
         if (user is null)
         {
             return Unauthorized();
@@ -129,6 +140,6 @@ public sealed class AuthController : ControllerBase
         });
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new AuthResponse(user.Id, user.Nickname, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc);
+        return new AuthResponse(user.Id, user.Login, user.Email, issuedToken.AccessToken, issuedToken.RefreshToken, issuedToken.AccessTokenExpiresAtUtc);
     }
 }

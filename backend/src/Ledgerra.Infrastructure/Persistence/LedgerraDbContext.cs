@@ -50,9 +50,9 @@ public sealed class LedgerraDbContext : DbContext
         modelBuilder.Entity<AppUser>(builder =>
         {
             builder.HasKey(user => user.Id);
-            builder.HasIndex(user => user.Nickname).IsUnique();
-            builder.HasIndex(user => user.Email).IsUnique();
-            builder.Property(user => user.Nickname).HasMaxLength(32);
+            builder.HasIndex(user => user.Login).IsUnique();
+            builder.HasIndex(user => user.Email).IsUnique().HasFilter("\"Email\" <> ''");
+            builder.Property(user => user.Login).HasMaxLength(32);
             builder.Property(user => user.Email).HasMaxLength(320);
             builder.Property(user => user.PasswordHash).HasMaxLength(2048);
             builder.Property(user => user.PreferredCurrencyCode).HasMaxLength(3);

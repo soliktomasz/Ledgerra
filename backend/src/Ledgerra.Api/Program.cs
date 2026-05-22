@@ -184,6 +184,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<LedgerraDbContext>();
     await dbContext.Database.EnsureCreatedAsync();
+    await AuthSchemaInitializer.InitializeAsync(dbContext);
     await CategorizationRuleSchemaInitializer.InitializeAsync(dbContext);
     await AccountSchemaInitializer.InitializeAsync(dbContext);
     await BudgetSchemaInitializer.InitializeAsync(dbContext);

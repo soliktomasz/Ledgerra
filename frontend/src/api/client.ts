@@ -105,16 +105,16 @@ export const apiClient = {
       unauthorizedListeners.delete(listener);
     };
   },
-  register(nickname: string, email: string, password: string) {
+  register(login: string, password: string, email?: string) {
     return request<AuthPayload>("/api/auth/register", {
       method: "POST",
-      body: { nickname, email, password }
+      body: { login, password, ...(email ? { email } : {}) }
     });
   },
-  login(nickname: string, password: string) {
+  login(login: string, password: string) {
     return request<AuthPayload>("/api/auth/login", {
       method: "POST",
-      body: { nickname, password }
+      body: { login, password }
     });
   },
   getDashboard(token: string, month: string) {

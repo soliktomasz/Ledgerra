@@ -1,6 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { resolveApiUrl } from "./client";
+import { apiClient, resolveApiUrl } from "./client";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 describe("resolveApiUrl", () => {
   it("keeps same-origin api paths when no base url is configured", () => {
@@ -16,5 +21,31 @@ describe("resolveApiUrl", () => {
     expect(resolveApiUrl("https://ledgerra.example/api/", "/api/auth/login")).toBe(
       "https://ledgerra.example/api/auth/login"
     );
+  });
+});
+
+describe("apiClient", () => {
+  it("omits email from register requests when no email is provided", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 201,
+      json: async () => ({
+        userId: "user-1",
+        login: "owner",
+        email: "",
+        accessToken: "token",
+        refreshToken: "refresh",
+        expiresAtUtc: "2999-01-01T00:00:00Z"
+      })
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await apiClient.register("owner", "P@ssw0rd123!");
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(init?.body as string)).toEqual({
+      login: "owner",
+      password: "P@ssw0rd123!"
+    });
   });
 });

@@ -22,7 +22,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
 
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
         {
-            nickname = "owner",
+            login = "owner",
             email = "owner@ledgerra.local",
             password = "P@ssw0rd123!"
         });
@@ -41,7 +41,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
 
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new
         {
-            nickname = "owner",
+            login = "owner",
             password = "P@ssw0rd123!"
         });
 
@@ -61,6 +61,95 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
             var body = await refreshResponse.Content.ReadAsStringAsync();
             throw new Xunit.Sdk.XunitException($"Refresh failed with {(int)refreshResponse.StatusCode}: {body}");
         }
+    }
+
+    [Fact]
+    public async Task Register_DoesNotRequireEmail()
+    {
+        using var client = _factory.CreateClient();
+
+        var login = $"owner-{Guid.NewGuid():N}"[..32];
+        var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            login,
+            password = "P@ssw0rd123!"
+        });
+
+        if (registerResponse.StatusCode != HttpStatusCode.Created)
+        {
+            var body = await registerResponse.Content.ReadAsStringAsync();
+            throw new Xunit.Sdk.XunitException($"Expected 201 but got {(int)registerResponse.StatusCode}: {body}");
+        }
+
+        var registerPayload = await registerResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(login, registerPayload.GetProperty("login").GetString());
+        Assert.Equal(string.Empty, registerPayload.GetProperty("email").GetString());
+        Assert.False(string.IsNullOrWhiteSpace(registerPayload.GetProperty("accessToken").GetString()));
+    }
+
+    [Fact]
+    public async Task Register_RejectsLegacyNicknameField()
+    {
+        using var client = _factory.CreateClient();
+
+        var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            nickname = "legacy-owner",
+            password = "P@ssw0rd123!"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, registerResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Register_AllowsBlankEmail()
+    {
+        using var client = _factory.CreateClient();
+
+        var login = $"blank-{Guid.NewGuid():N}"[..32];
+        var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            login,
+            email = "",
+            password = "P@ssw0rd123!"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, registerResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Register_RejectsInvalidNonBlankEmail()
+    {
+        using var client = _factory.CreateClient();
+
+        var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            login = $"bad-email-{Guid.NewGuid():N}"[..32],
+            email = "not-an-email",
+            password = "P@ssw0rd123!"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, registerResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Register_AllowsMultipleUsersWithoutEmail()
+    {
+        using var client = _factory.CreateClient();
+
+        var firstResponse = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            login = $"first-{Guid.NewGuid():N}"[..32],
+            password = "P@ssw0rd123!"
+        });
+        var secondResponse = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            login = $"second-{Guid.NewGuid():N}"[..32],
+            password = "P@ssw0rd123!"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, firstResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, secondResponse.StatusCode);
     }
 
     [Fact]
@@ -1375,7 +1464,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new
         {
-            nickname = $"user-{Guid.NewGuid():N}".Substring(0, 20),
+            login = $"user-{Guid.NewGuid():N}".Substring(0, 20),
             email = $"user-{Guid.NewGuid():N}@ledgerra.local",
             password = "P@ssw0rd123!"
         });

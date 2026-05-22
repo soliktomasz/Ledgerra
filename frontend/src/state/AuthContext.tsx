@@ -6,7 +6,7 @@ import type { AuthPayload } from "../types";
 type AuthContextValue = {
   auth: AuthPayload | null;
   isAuthenticated: boolean;
-  login: (nickname: string, password: string, mode: "login" | "register", email?: string) => Promise<void>;
+  login: (login: string, password: string, mode: "login" | "register", email?: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -58,10 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = async (nickname: string, password: string, mode: "login" | "register", email?: string) => {
+  const login = async (login: string, password: string, mode: "login" | "register", email?: string) => {
     const payload = mode === "register"
-      ? await apiClient.register(nickname, email ?? "", password)
-      : await apiClient.login(nickname, password);
+      ? await apiClient.register(login, password, email)
+      : await apiClient.login(login, password);
 
     persist(payload);
   };
