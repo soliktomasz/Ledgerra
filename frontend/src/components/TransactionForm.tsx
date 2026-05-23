@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useI18n } from "../state/I18nContext";
-import type { Account, Category, Transaction } from "../types";
+import type { Account, Category, SavingsGoal, Transaction } from "../types";
 
 const transactionTypes = ["Expense", "Income", "Transfer"] as const;
 const createNewCategoryValue = "__create_new__";
@@ -17,12 +17,14 @@ export type TransactionFormValues = {
   amount: string;
   occurredOnUtc: string;
   note: string;
+  savingsGoalId: string;
 };
 
 type TransactionFormProps = {
   token: string;
   accounts: Account[];
   categories: Category[];
+  savingsGoals?: SavingsGoal[];
   mode: TransactionFormMode;
   transactionId?: string | null;
   initialValues?: Partial<TransactionFormValues>;
@@ -75,7 +77,8 @@ function buildDefaultValues(): TransactionFormValues {
     categoryId: "",
     amount: "0",
     occurredOnUtc: toLocalDateTimeInputValue(new Date()),
-    note: ""
+    note: "",
+    savingsGoalId: ""
   };
 }
 
@@ -87,6 +90,7 @@ export function TransactionForm({
   token,
   accounts,
   categories,
+  savingsGoals = [],
   mode,
   transactionId,
   initialValues,
@@ -158,6 +162,7 @@ export function TransactionForm({
       const payload = {
         categoryId: values.type === "Transfer" ? undefined : nextCategoryId,
         destinationAccountId: values.type === "Transfer" ? values.destinationAccountId : undefined,
+        savingsGoalId: values.type === "Transfer" ? values.savingsGoalId || undefined : undefined,
         amount: Number(values.amount),
         type: values.type,
         occurredOnUtc: new Date(values.occurredOnUtc).toISOString(),
@@ -222,19 +227,32 @@ export function TransactionForm({
       </label>
 
       {values.type === "Transfer" ? (
-        <label>
-          {t("transactionForm.destinationAccount")}
-          <select value={values.destinationAccountId} onChange={(event) => updateValue("destinationAccountId", event.target.value)} required>
-            <option value="">{t("transactionForm.selectDestination")}</option>
-            {accounts
-              .filter((account) => account.id !== values.accountId)
-              .map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
+        <>
+          <label>
+            {t("transactionForm.destinationAccount")}
+            <select value={values.destinationAccountId} onChange={(event) => updateValue("destinationAccountId", event.target.value)} required>
+              <option value="">{t("transactionForm.selectDestination")}</option>
+              {accounts
+                .filter((account) => account.id !== values.accountId)
+                .map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <label>
+            {t("transactionForm.savingsGoal")}
+            <select value={values.savingsGoalId} onChange={(event) => updateValue("savingsGoalId", event.target.value)}>
+              <option value="">{t("transactionForm.noSavingsGoal")}</option>
+              {savingsGoals.map((goal) => (
+                <option key={goal.id} value={goal.id}>
+                  {goal.name}
                 </option>
               ))}
-          </select>
-        </label>
+            </select>
+          </label>
+        </>
       ) : (
         <>
           <label>

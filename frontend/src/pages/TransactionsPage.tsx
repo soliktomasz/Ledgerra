@@ -4,7 +4,7 @@ import { TransactionForm, toDateTimeLocal, toFormType, type TransactionFormMode,
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
-import type { Transaction } from "../types";
+import type { SavingsGoal, Transaction } from "../types";
 import { AccountsIcon, BookmarkIcon, CategoryIcon, ChevronDownIcon, DownloadIcon, DuplicateIcon, EditIcon, TrashIcon } from "../ui/icons";
 import { PageHeader } from "../ui/PageHeader";
 import { formatCurrency, formatDate } from "../utils/format";
@@ -122,9 +122,11 @@ export function TransactionsPage() {
   );
   const initialFormFromQuery = liveQuery.get("form");
   const initialFormAccountId = liveQuery.get("accountId");
+  const initialFormSavingsGoalId = liveQuery.get("savingsGoalId");
   const [formValues, setFormValues] = useState<Partial<TransactionFormValues>>(() => ({
     ...(initialFormFromQuery === "transfer" ? { type: "Transfer" } : {}),
-    ...(initialFormAccountId ? { accountId: initialFormAccountId } : {})
+    ...(initialFormAccountId ? { accountId: initialFormAccountId } : {}),
+    ...(initialFormSavingsGoalId ? { savingsGoalId: initialFormSavingsGoalId } : {})
   }));
   const [filterAccountIds, setFilterAccountIds] = useState<string[]>(() => initialQuery.getAll("accountId"));
   const [filterCategoryIds, setFilterCategoryIds] = useState<string[]>(() => initialQuery.getAll("categoryId"));
@@ -144,10 +146,15 @@ export function TransactionsPage() {
   const [isApplyingBulkAction, setIsApplyingBulkAction] = useState(false);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
   const [isEntryOpen, setIsEntryOpen] = useState(initialFormFromQuery === "transfer");
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
 
   useEffect(() => {
     setLedgerTransactions(transactions);
   }, [transactions]);
+  useEffect(() => {
+    if (!auth?.accessToken) return;
+    void apiClient.getSavingsGoals(auth.accessToken).then(setSavingsGoals).catch(() => setSavingsGoals([]));
+  }, [auth?.accessToken]);
 
   const filterQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -444,7 +451,8 @@ export function TransactionsPage() {
       categoryId: transaction.categoryId ?? "",
       amount: String(transaction.amount),
       occurredOnUtc: toDateTimeLocal(transaction.occurredOnUtc),
-      note: transaction.note ?? ""
+      note: transaction.note ?? "",
+      savingsGoalId: transaction.savingsGoalId ?? ""
     });
     setStatusMessage("");
     setErrorMessage("");
@@ -465,7 +473,8 @@ export function TransactionsPage() {
         destinationAccountId: "",
         amount: String(transaction.amount),
         occurredOnUtc: toDateTimeLocal(transaction.occurredOnUtc),
-        note: transaction.note ?? ""
+        note: transaction.note ?? "",
+        savingsGoalId: transaction.savingsGoalId ?? ""
       });
       setErrorMessage("");
       setStatusMessage(t("transactions.chooseDestination"));
@@ -651,6 +660,7 @@ export function TransactionsPage() {
                   token={auth.accessToken}
                   accounts={accounts}
                   categories={categories}
+                  savingsGoals={savingsGoals}
                   mode={formMode}
                   transactionId={editingTransactionId}
                   initialValues={formValues}
@@ -851,6 +861,7 @@ export function TransactionsPage() {
                                     token={auth.accessToken}
                                     accounts={accounts}
                                     categories={categories}
+                                    savingsGoals={savingsGoals}
                                     mode="edit"
                                     transactionId={transaction.id}
                                     initialValues={formValues}
