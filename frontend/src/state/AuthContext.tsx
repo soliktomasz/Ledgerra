@@ -47,8 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  useEffect(() => apiClient.onUnauthorized(() => persist(null)), []);
-
   const persist = (payload: AuthPayload | null) => {
     setAuth(payload);
     if (payload && isSessionValid(payload)) {
@@ -57,6 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       getAuthStorage().removeItem(STORAGE_KEY);
     }
   };
+
+  useEffect(() => {
+    apiClient.setAuthHandlers(() => auth, persist);
+    return () => {
+      apiClient.setAuthHandlers(null, null);
+    };
+  }, [auth]);
+
+  useEffect(() => apiClient.onUnauthorized(() => persist(null)), []);
 
   const login = async (login: string, password: string, mode: "login" | "register", email?: string) => {
     const payload = mode === "register"
