@@ -195,6 +195,59 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task PersonalAccessToken_CanRunAgentImportWorkflow()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var accountId = await CreateAccountAsync(client, "Agent Checking", "Checking", 1000m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var createPatResponse = await client.PostAsJsonAsync("/api/settings/personal-access-tokens", new
+        {
+            name = "Agent import token"
+        });
+        Assert.Equal(HttpStatusCode.Created, createPatResponse.StatusCode);
+
+        var patPayload = await createPatResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var personalAccessToken = patPayload.GetProperty("plainTextToken").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(personalAccessToken));
+
+        using var patClient = _factory.CreateClient();
+        patClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personalAccessToken);
+
+        var accountsResponse = await patClient.GetAsync("/api/accounts");
+        Assert.Equal(HttpStatusCode.OK, accountsResponse.StatusCode);
+        var accountsPayload = await accountsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Contains(accountsPayload.EnumerateArray(), entry => entry.GetProperty("id").GetGuid() == accountId);
+
+        var commitResponse = await patClient.PostAsJsonAsync("/api/imports/monthly-report/commit", new
+        {
+            transactions = new[]
+            {
+                new
+                {
+                    sourceId = "agent-row-1",
+                    accountId,
+                    categoryId = groceriesCategoryId,
+                    amount = 23.40m,
+                    type = "Expense",
+                    occurredOnUtc = "2026-04-13T10:30:00Z",
+                    note = "Imported by agent"
+                }
+            }
+        });
+        Assert.Equal(HttpStatusCode.Created, commitResponse.StatusCode);
+
+        var transactionsResponse = await patClient.GetAsync($"/api/transactions?accountId={accountId}&from=2026-04-01&to=2026-04-30");
+        Assert.Equal(HttpStatusCode.OK, transactionsResponse.StatusCode);
+        var transactionsPayload = await transactionsResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Contains(transactionsPayload.EnumerateArray(), entry => entry.GetProperty("note").GetString() == "Imported by agent");
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanCreateAccountsCategoriesTransactionsBudgetsAndDashboard()
     {
         using var client = _factory.CreateClient();

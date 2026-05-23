@@ -154,6 +154,105 @@ VITE_API_BASE_URL=http://localhost:5027
 
 If you do not set it, the frontend assumes same-origin and keeps the `/api` prefix from each request path, which is the production Docker behavior.
 
+## API automation for AI agents (PAT + monthly report import)
+
+Ledgerra supports non-browser API automation through **personal access tokens (PATs)**.
+This is the recommended path for AI assistants (such as Codex) that import
+transactions from account reports.
+
+### 1) Create a personal access token
+
+1. Sign in as the target Ledgerra user.
+2. Open `Settings > Personal access tokens`.
+3. Create a token and copy it immediately (it is only shown once).
+
+Use it as a Bearer token in all API calls:
+
+```bash
+export LEDGERRA_BASE_URL="http://127.0.0.1:5027"
+export LEDGERRA_PAT="<paste-token-once>"
+```
+
+### 2) Lookup the destination account
+
+```bash
+curl -sS "$LEDGERRA_BASE_URL/api/accounts" \
+  -H "Authorization: Bearer $LEDGERRA_PAT" \
+  -H "Accept: application/json"
+```
+
+Pick the target `id` for the account that should receive imported transactions.
+
+### 3) Analyze a monthly report (review-first)
+
+`POST /api/imports/monthly-report/analyze` accepts `multipart/form-data` with:
+
+- `accountId` (required)
+- `month` (required, `YYYY-MM`)
+- `provider` (required; supported values: `OpenAi`, `Anthropic`, `OpenAiCompatible`)
+- `file` (required, CSV or PDF)
+
+Example:
+
+```bash
+curl -sS "$LEDGERRA_BASE_URL/api/imports/monthly-report/analyze" \
+  -H "Authorization: Bearer $LEDGERRA_PAT" \
+  -F "accountId=<account-guid>" \
+  -F "month=2026-04" \
+  -F "provider=OpenAi" \
+  -F "file=@./statement.csv;type=text/csv"
+```
+
+The analyze response includes enriched draft rows with signals for:
+
+- probable duplicates
+- confidence/validation warnings
+- selected-by-default hints
+
+### 4) Apply safety contract before commit
+
+Automation should only commit drafts that the user explicitly accepts:
+
+- **always analyze first** and inspect each draft
+- block or require explicit user confirmation for:
+  - likely duplicate rows
+  - low-confidence AI extraction/categorization
+  - rows with warnings or validation issues
+- keep `sourceId` stable/unique per analyzed row
+- only include user-approved rows in commit
+
+### 5) Commit approved drafts
+
+Send accepted rows to `POST /api/imports/monthly-report/commit`:
+
+```bash
+curl -sS "$LEDGERRA_BASE_URL/api/imports/monthly-report/commit" \
+  -H "Authorization: Bearer $LEDGERRA_PAT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transactions": [
+      {
+        "sourceId": "row-1",
+        "accountId": "<account-guid>",
+        "categoryId": "<category-guid>",
+        "amount": 42.17,
+        "type": "Expense",
+        "occurredOnUtc": "2026-04-10T12:00:00Z",
+        "note": "Imported: Market purchase"
+      }
+    ],
+    "acceptedDuplicateSourceIds": []
+  }'
+```
+
+### Error and safeguard behaviors to expect
+
+- `401 Unauthorized`: missing/invalid/revoked PAT.
+- `400 Bad Request`: malformed payload, empty/duplicate source ids,
+  invalid duplicate-accept lists, or validation failures.
+- `404 Not Found`: account/category identifiers not owned by the token user.
+- commit is all-or-nothing: invalid drafts do not partially save.
+
 ## Project Website
 
 The `site/` directory contains a static project website for GitHub Pages. It is
