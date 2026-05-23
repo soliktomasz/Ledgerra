@@ -3,17 +3,25 @@ using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Services.Ai;
 using Ledgerra.Application.Imports;
 using Ledgerra.Domain.Ai;
+using Microsoft.Extensions.Configuration;
 
 namespace Ledgerra.Api.Services.Imports;
 
-public sealed class MonthlyReportAnalysisJobStore
+public sealed class MonthlyReportAnalysisJobStore : IDisposable
 {
     private readonly ConcurrentDictionary<Guid, MonthlyReportAnalysisJob> _jobs = new();
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly TimeSpan _retentionPeriod;
+    private readonly int _maxJobs;
+    private readonly Timer _cleanupTimer;
 
-    public MonthlyReportAnalysisJobStore(IServiceScopeFactory scopeFactory)
+    public MonthlyReportAnalysisJobStore(IServiceScopeFactory scopeFactory, IConfiguration? configuration = null)
     {
         _scopeFactory = scopeFactory;
+        _retentionPeriod = TimeSpan.FromHours(configuration?.GetValue<double?>("MonthlyReportAnalysisJobs:RetentionHours") ?? 24);
+        _maxJobs = Math.Max(1, configuration?.GetValue<int?>("MonthlyReportAnalysisJobs:MaxJobs") ?? 500);
+        var cleanupInterval = TimeSpan.FromMinutes(configuration?.GetValue<double?>("MonthlyReportAnalysisJobs:CleanupIntervalMinutes") ?? 60);
+        _cleanupTimer = new Timer(_ => CleanupExpiredJobs(), null, cleanupInterval, cleanupInterval);
     }
 
     public MonthlyReportAnalysisJob Start(
@@ -38,7 +46,8 @@ public sealed class MonthlyReportAnalysisJobStore
             null,
             null,
             now,
-            now);
+            now,
+            null);
         _jobs[job.JobId] = job;
 
         _ = Task.Run(() => RunAsync(job.JobId, userId, accountId, month, provider, reportContent));
@@ -49,6 +58,11 @@ public sealed class MonthlyReportAnalysisJobStore
     public MonthlyReportAnalysisJob? Get(Guid userId, Guid jobId)
     {
         return _jobs.TryGetValue(jobId, out var job) && job.UserId == userId ? job : null;
+    }
+
+    public bool RemoveJob(Guid jobId)
+    {
+        return _jobs.TryRemove(jobId, out _);
     }
 
     public async Task<MonthlyReportAnalysisJob?> RetryParseAsync(Guid userId, Guid jobId, CancellationToken cancellationToken)
@@ -63,7 +77,8 @@ public sealed class MonthlyReportAnalysisJobStore
             Status = "running",
             StatusMessage = "Retrying saved AI output parse.",
             Error = null,
-            UpdatedAtUtc = DateTime.UtcNow
+            UpdatedAtUtc = DateTime.UtcNow,
+            CompletedAtUtc = null
         });
 
         try
@@ -108,6 +123,22 @@ public sealed class MonthlyReportAnalysisJobStore
                 UpdatedAtUtc = DateTime.UtcNow
             });
         }
+        catch (AiReportAnalysisParseException exception)
+        {
+            Update(jobId, current => current with
+            {
+                Status = "failed",
+                StatusMessage = "Saved AI output parse failed.",
+                Error = exception.Message,
+                RawAiOutput = exception.RawOutput,
+                GeneratedOutputCharacters = exception.RawOutput.Length,
+                Usage = exception.Usage is null
+                    ? current.Usage
+                    : new MonthlyReportAnalysisTokenUsageResponse(exception.Usage.PromptTokens, exception.Usage.CompletionTokens, exception.Usage.TotalTokens),
+                UpdatedAtUtc = DateTime.UtcNow,
+                CompletedAtUtc = DateTime.UtcNow
+            });
+        }
         catch (Exception exception) when (exception is InvalidOperationException or InvalidDataException)
         {
             Update(jobId, current => current with
@@ -115,7 +146,10 @@ public sealed class MonthlyReportAnalysisJobStore
                 Status = "failed",
                 StatusMessage = "Saved AI output parse failed.",
                 Error = exception.Message,
-                UpdatedAtUtc = DateTime.UtcNow
+                RawAiOutput = rawOutput,
+                GeneratedOutputCharacters = rawOutput.Length,
+                UpdatedAtUtc = DateTime.UtcNow,
+                CompletedAtUtc = DateTime.UtcNow
             });
         }
 
@@ -156,7 +190,8 @@ public sealed class MonthlyReportAnalysisJobStore
                     ? job.Usage
                     : new MonthlyReportAnalysisTokenUsageResponse(result.Usage.PromptTokens, result.Usage.CompletionTokens, result.Usage.TotalTokens),
                 Analysis = new MonthlyReportAnalysisResponse(result.Transactions.Select(MapDraft).ToList(), result.Warnings),
-                UpdatedAtUtc = DateTime.UtcNow
+                UpdatedAtUtc = DateTime.UtcNow,
+                CompletedAtUtc = DateTime.UtcNow
             });
         }
         catch (AiReportAnalysisParseException exception)
@@ -171,7 +206,8 @@ public sealed class MonthlyReportAnalysisJobStore
                 Usage = exception.Usage is null
                     ? job.Usage
                     : new MonthlyReportAnalysisTokenUsageResponse(exception.Usage.PromptTokens, exception.Usage.CompletionTokens, exception.Usage.TotalTokens),
-                UpdatedAtUtc = DateTime.UtcNow
+                UpdatedAtUtc = DateTime.UtcNow,
+                CompletedAtUtc = DateTime.UtcNow
             });
         }
         catch (Exception exception) when (exception is InvalidOperationException or InvalidDataException or TimeoutException)
@@ -181,7 +217,8 @@ public sealed class MonthlyReportAnalysisJobStore
                 Status = "failed",
                 StatusMessage = "Analysis failed.",
                 Error = exception.Message,
-                UpdatedAtUtc = DateTime.UtcNow
+                UpdatedAtUtc = DateTime.UtcNow,
+                CompletedAtUtc = DateTime.UtcNow
             });
         }
         catch
@@ -191,8 +228,42 @@ public sealed class MonthlyReportAnalysisJobStore
                 Status = "failed",
                 StatusMessage = "Analysis failed.",
                 Error = "Unable to analyze report.",
-                UpdatedAtUtc = DateTime.UtcNow
+                UpdatedAtUtc = DateTime.UtcNow,
+                CompletedAtUtc = DateTime.UtcNow
             });
+        }
+    }
+
+    public void Dispose()
+    {
+        _cleanupTimer.Dispose();
+    }
+
+    private void CleanupExpiredJobs()
+    {
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in _jobs)
+        {
+            var cutoff = entry.Value.CompletedAtUtc ?? entry.Value.CreatedAtUtc;
+            if (now - cutoff > _retentionPeriod)
+            {
+                RemoveJob(entry.Key);
+            }
+        }
+
+        var overflow = _jobs.Count - _maxJobs;
+        if (overflow <= 0)
+        {
+            return;
+        }
+
+        foreach (var entry in _jobs
+            .OrderBy(item => item.Value.CompletedAtUtc is null ? 1 : 0)
+            .ThenBy(item => item.Value.CompletedAtUtc ?? item.Value.CreatedAtUtc)
+            .Take(overflow))
+        {
+            RemoveJob(entry.Key);
         }
     }
 
@@ -236,7 +307,8 @@ public sealed record MonthlyReportAnalysisJob(
     string? Error,
     string? RawAiOutput,
     DateTime CreatedAtUtc,
-    DateTime UpdatedAtUtc)
+    DateTime UpdatedAtUtc,
+    DateTime? CompletedAtUtc)
 {
     public MonthlyReportAnalysisJobResponse ToResponse()
     {

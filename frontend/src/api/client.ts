@@ -42,6 +42,7 @@ type RequestOptions = {
   body?: unknown;
   token?: string | null;
   suppressNotification?: boolean;
+  parseResponse?: (response: Response) => Promise<unknown>;
 };
 
 type UnauthorizedListener = () => void;
@@ -58,13 +59,19 @@ function notifyUnauthorized() {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}, allowRefresh = true): Promise<T> {
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
+  const hasJsonBody = options.body !== undefined && options.body !== null && !isFormData;
   const response = await fetch(resolveApiUrl(API_BASE_URL, path), {
     method: options.method ?? "GET",
     headers: {
-      "Content-Type": "application/json",
+      ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
       ...(options.token ? { Authorization: `Bearer ${options.token}` } : {})
     },
-    body: options.body ? JSON.stringify(options.body) : undefined
+    body: options.body == null
+      ? undefined
+      : isFormData
+        ? options.body as FormData
+        : JSON.stringify(options.body)
   });
 
   if (!response.ok) {
@@ -87,6 +94,10 @@ async function request<T>(path: string, options: RequestOptions = {}, allowRefre
 
   if (response.status === 204) {
     return undefined as T;
+  }
+
+  if (options.parseResponse) {
+    return options.parseResponse(response) as Promise<T>;
   }
 
   return response.json() as Promise<T>;
@@ -153,19 +164,7 @@ function wait(ms: number) {
 }
 
 async function fetchMonthlyReportAnalysisJob(token: string, jobId: string): Promise<MonthlyReportAnalysisJob> {
-  const response = await fetch(resolveApiUrl(API_BASE_URL, `/api/imports/monthly-report/analyze/${jobId}`), {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      notifyUnauthorized();
-    }
-
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json() as Promise<MonthlyReportAnalysisJob>;
+  return request<MonthlyReportAnalysisJob>(`/api/imports/monthly-report/analyze/${jobId}`, { token });
 }
 
 async function waitForMonthlyReportAnalysisJob(
@@ -204,7 +203,13 @@ function readContentDispositionFilename(contentDisposition: string | null, fallb
 
   const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(contentDisposition);
   if (utf8Match?.[1]) {
-    return decodeURIComponent(utf8Match[1].replace(/^"|"$/g, ""));
+    const encodedFilename = utf8Match[1].replace(/^"|"$/g, "");
+    try {
+      return decodeURIComponent(encodedFilename);
+    } catch {
+      const filenameMatch = /filename="?([^";]+)"?/i.exec(contentDisposition);
+      return filenameMatch?.[1] || encodedFilename || fallback;
+    }
   }
 
   const filenameMatch = /filename="?([^";]+)"?/i.exec(contentDisposition);
@@ -480,61 +485,37 @@ export const apiClient = {
     body.append("provider", payload.provider);
     body.append("file", payload.file);
 
-    return fetch(resolveApiUrl(API_BASE_URL, "/api/imports/monthly-report/analyze"), {
+    return request<MonthlyReportAnalysisJob>("/api/imports/monthly-report/analyze", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      token,
       body
-    }).then(async (response) => {
-      if (!response.ok) {
-        if (response.status === 401) {
-          notifyUnauthorized();
-        }
-
-        throw new Error(await readErrorMessage(response));
-      }
-
-      return waitForMonthlyReportAnalysisJob(token, await response.json() as MonthlyReportAnalysisJob, onJobUpdate);
-    });
+    }).then((job) => waitForMonthlyReportAnalysisJob(token, job, onJobUpdate));
   },
 
   retryMonthlyReportAnalysisParse(token: string, jobId: string, onJobUpdate?: (job: MonthlyReportAnalysisJob) => void) {
-    return fetch(resolveApiUrl(API_BASE_URL, `/api/imports/monthly-report/analyze/${jobId}/retry-parse`), {
+    return request<MonthlyReportAnalysisJob>(`/api/imports/monthly-report/analyze/${jobId}/retry-parse`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(async (response) => {
-      if (!response.ok) {
-        if (response.status === 401) {
-          notifyUnauthorized();
-        }
-
-        throw new Error(await readErrorMessage(response));
+      token
+    }).then((job) => {
+      onJobUpdate?.(job);
+      if (job.status === "running") {
+        return null;
       }
 
-      const job = await response.json() as MonthlyReportAnalysisJob;
-      onJobUpdate?.(job);
       return readMonthlyReportAnalysisResult(job);
     });
   },
 
   downloadMonthlyReportAnalysisRawOutput(token: string, jobId: string) {
-    return fetch(resolveApiUrl(API_BASE_URL, `/api/imports/monthly-report/analyze/${jobId}/raw-output`), {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(async (response) => {
-      if (!response.ok) {
-        if (response.status === 401) {
-          notifyUnauthorized();
-        }
-
-        throw new Error(await readErrorMessage(response));
-      }
-
-      return {
+    return request<{ blob: Blob; filename: string }>(`/api/imports/monthly-report/analyze/${jobId}/raw-output`, {
+      token,
+      parseResponse: async (response) => ({
         blob: await response.blob(),
         filename: readContentDispositionFilename(
           response.headers.get("content-disposition"),
           `ledgerra-ai-output-${jobId}.json`
         )
-      };
+      })
     });
   },
 

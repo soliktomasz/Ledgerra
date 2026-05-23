@@ -185,7 +185,9 @@ export function ImportsPage() {
       : current);
     try {
       const analysis = await apiClient.retryMonthlyReportAnalysisParse(auth.accessToken, analysisJob.jobId, setAnalysisJob);
-      applyAnalysis(analysis);
+      if (analysis) {
+        applyAnalysis(analysis);
+      }
     } catch (exception) {
       setError(getErrorMessage(exception, t("imports.unableToAnalyze")));
     } finally {

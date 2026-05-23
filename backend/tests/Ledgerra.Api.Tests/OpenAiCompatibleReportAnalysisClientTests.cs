@@ -63,7 +63,37 @@ public sealed class OpenAiCompatibleReportAnalysisClientTests
         Assert.NotNull(result.Usage);
         Assert.Equal(20, result.Usage.TotalTokens);
         Assert.Contains(progress, item => item.GeneratedOutputCharacters > 0);
-        Assert.Contains(progress, item => item.Usage?.TotalTokens == 20);
+        Assert.Single(progress, item => item.Usage?.TotalTokens == 20);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_SkipsMalformedStreamingChunks()
+    {
+        using var handler = new CaptureRequestHandler(stream: """
+            data: {"choices":[{"delta":{"content":"{\"transactions\":[]"}}],"usage":null}
+            data: {malformed-json
+            data: {"choices":[{"delta":{"content":",\"warnings\":[]}"}}],"usage":null}
+            data: {"choices":[],"usage":{"prompt_tokens":12,"completion_tokens":8,"total_tokens":20}}
+            data: [DONE]
+
+            """);
+        using var httpClient = new HttpClient(handler);
+        var client = new OpenAiCompatibleReportAnalysisClient(httpClient);
+        var progress = new List<AiReportAnalysisProgress>();
+
+        var result = await client.AnalyzeAsync(new AiReportAnalysisRequest(
+            "test-key",
+            "https://93.184.216.34/v1",
+            "deepseek-chat",
+            "Date,Description,Amount\n2026-05-01,Coffee,-4.50",
+            "2026-05",
+            [new AiAccountContext(Guid.NewGuid(), "Checking", "USD")],
+            []), CancellationToken.None, new ImmediateProgress(progress.Add));
+
+        Assert.Empty(result.Transactions);
+        Assert.NotNull(result.Usage);
+        Assert.Equal(20, result.Usage.TotalTokens);
+        Assert.Single(progress, item => item.Usage?.TotalTokens == 20);
     }
 
     [Theory]
@@ -92,10 +122,12 @@ public sealed class OpenAiCompatibleReportAnalysisClientTests
     private sealed class CaptureRequestHandler : HttpMessageHandler
     {
         private readonly string? _streamedOutput;
+        private readonly string? _stream;
 
-        public CaptureRequestHandler(string? streamedOutput = null)
+        public CaptureRequestHandler(string? streamedOutput = null, string? stream = null)
         {
             _streamedOutput = streamedOutput;
+            _stream = stream;
         }
 
         public string? RequestBody { get; private set; }
@@ -108,7 +140,7 @@ public sealed class OpenAiCompatibleReportAnalysisClientTests
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(BuildStream(_streamedOutput ?? "{\"transactions\":[],\"warnings\":[]}"))
+                Content = new StringContent(_stream ?? BuildStream(_streamedOutput ?? "{\"transactions\":[],\"warnings\":[]}"))
             };
         }
 

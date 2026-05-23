@@ -204,6 +204,30 @@ describe("apiClient", () => {
     expect(onJobUpdate).toHaveBeenCalledWith(expect.objectContaining({ statusMessage: "Saved AI output parsed." }));
   });
 
+  it("does not treat a running retry-parse job as completed", async () => {
+    const onJobUpdate = vi.fn();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        jobId: "job-1",
+        status: "running",
+        statusMessage: "Retrying saved AI output parse.",
+        generatedOutputCharacters: 300,
+        usage: { promptTokens: 20, completionTokens: 40, totalTokens: 60 },
+        analysis: null,
+        error: null,
+        hasRawAiOutput: true,
+        createdAtUtc: "2026-05-23T00:00:00Z",
+        updatedAtUtc: "2026-05-23T00:00:01Z"
+      })
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiClient.retryMonthlyReportAnalysisParse("token", "job-1", onJobUpdate)).resolves.toBeNull();
+    expect(onJobUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: "running" }));
+  });
+
   it("downloads saved monthly report analysis raw output", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -224,5 +248,23 @@ describe("apiClient", () => {
       expect.stringContaining("/api/imports/monthly-report/analyze/job-1/raw-output"),
       expect.objectContaining({ headers: { Authorization: "Bearer token" } })
     );
+  });
+
+  it("falls back to a safe filename when content-disposition encoding is malformed", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (name: string) => name.toLowerCase() === "content-disposition"
+          ? "attachment; filename*=UTF-8''bad%ZZname.json; filename=\"fallback.json\""
+          : null
+      },
+      blob: async () => new Blob(['{"transactions":[]}'], { type: "application/json" })
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiClient.downloadMonthlyReportAnalysisRawOutput("token", "job-1")).resolves.toMatchObject({
+      filename: "fallback.json"
+    });
   });
 });

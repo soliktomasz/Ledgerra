@@ -4,16 +4,19 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Ledgerra.Domain.Ai;
+using Microsoft.Extensions.Logging;
 
 namespace Ledgerra.Api.Services.Ai;
 
 public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<OpenAiCompatibleReportAnalysisClient>? _logger;
 
-    public OpenAiCompatibleReportAnalysisClient(HttpClient httpClient)
+    public OpenAiCompatibleReportAnalysisClient(HttpClient httpClient, ILogger<OpenAiCompatibleReportAnalysisClient>? logger = null)
     {
         _httpClient = httpClient;
+        _logger = logger;
         _httpClient.Timeout = Timeout.InfiniteTimeSpan;
     }
 
@@ -102,7 +105,7 @@ public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClie
         return new Uri($"{baseUrl.Trim().TrimEnd('/')}/chat/completions", UriKind.Absolute);
     }
 
-    private static async Task<StreamingOutput> ReadStreamingOutputAsync(
+    private async Task<StreamingOutput> ReadStreamingOutputAsync(
         HttpResponseMessage response,
         IProgress<AiReportAnalysisProgress>? progress,
         CancellationToken cancellationToken)
@@ -126,25 +129,34 @@ public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClie
                 break;
             }
 
-            using var chunk = JsonDocument.Parse(payload);
-            usage = ExtractUsage(chunk.RootElement) ?? usage;
+            JsonDocument? chunk = null;
 
-            var contentDelta = ExtractDelta(chunk.RootElement, "content");
-            if (!string.IsNullOrEmpty(contentDelta))
+            try
             {
-                output.Append(contentDelta);
-                progress?.Report(new AiReportAnalysisProgress("AI provider is streaming JSON output.", output.Length, usage));
+                chunk = JsonDocument.Parse(payload);
+            }
+            catch (JsonException exception)
+            {
+                _logger?.LogWarning(exception, "Skipping malformed OpenAI-compatible SSE chunk. Payload: {Payload}. Error: {Error}", payload, exception.Message);
+                continue;
             }
 
-            var reasoningDelta = ExtractDelta(chunk.RootElement, "reasoning_content");
-            if (!string.IsNullOrEmpty(reasoningDelta))
+            using (chunk)
             {
-                progress?.Report(new AiReportAnalysisProgress("AI provider is reasoning.", output.Length, usage));
-            }
+                usage = ExtractUsage(chunk.RootElement) ?? usage;
 
-            if (usage is not null)
-            {
-                progress?.Report(new AiReportAnalysisProgress("AI provider reported token usage.", output.Length, usage));
+                var contentDelta = ExtractDelta(chunk.RootElement, "content");
+                if (!string.IsNullOrEmpty(contentDelta))
+                {
+                    output.Append(contentDelta);
+                    progress?.Report(new AiReportAnalysisProgress("AI provider is streaming JSON output.", output.Length, usage));
+                }
+
+                var reasoningDelta = ExtractDelta(chunk.RootElement, "reasoning_content");
+                if (!string.IsNullOrEmpty(reasoningDelta))
+                {
+                    progress?.Report(new AiReportAnalysisProgress("AI provider is reasoning.", output.Length, usage));
+                }
             }
         }
 
@@ -152,6 +164,11 @@ public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClie
         if (string.IsNullOrWhiteSpace(outputText))
         {
             throw new InvalidDataException("OpenAI-compatible response did not include streamed message content.");
+        }
+
+        if (usage is not null)
+        {
+            progress?.Report(new AiReportAnalysisProgress("AI provider reported token usage.", output.Length, usage));
         }
 
         return new StreamingOutput(outputText, usage);

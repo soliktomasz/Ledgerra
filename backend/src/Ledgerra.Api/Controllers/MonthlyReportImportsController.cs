@@ -57,12 +57,7 @@ public sealed class MonthlyReportImportsController : ControllerBase
         }
         catch (InvalidOperationException exception)
         {
-            return exception.Message == "AI report analysis returned a malformed transaction draft."
-                ? this.ValidationError(new Dictionary<string, string[]>
-                {
-                    ["analysis"] = [exception.Message]
-                })
-                : BadRequest(new ProblemDetails { Title = exception.Message });
+            return BadRequest(new ProblemDetails { Title = exception.Message });
         }
     }
 

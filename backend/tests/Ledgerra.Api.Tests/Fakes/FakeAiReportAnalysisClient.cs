@@ -27,6 +27,11 @@ public sealed class FakeAiReportAnalysisClient : IAiReportAnalysisClient
             throw new AiReportAnalysisParseException("Fake provider returned analysis JSON that could not be parsed.", rawOutput, new AiTokenUsage(120, 40, 160), new JsonException());
         }
 
+        if (request.ReportContent.Contains("parse-error-raw-invalid", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new AiReportAnalysisParseException("Fake provider returned analysis JSON that could not be parsed.", "{not-json", new AiTokenUsage(120, 40, 160), new JsonException());
+        }
+
         var categoryId = request.ReportContent.Split("category:", StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Trim();
         var sourceId = request.ReportContent.Contains("source:<blank>", StringComparison.OrdinalIgnoreCase)
             ? string.Empty
