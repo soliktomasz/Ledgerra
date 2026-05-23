@@ -427,6 +427,34 @@ export const apiClient = {
       return response.json() as Promise<MonthlyReportAnalysis>;
     });
   },
+
+  previewCsvBankImport(token: string, payload: { accountId: string; file: File; dateColumn: string; amountColumn: string; descriptionColumn?: string }) {
+    const body = new FormData();
+    body.append("accountId", payload.accountId);
+    body.append("file", payload.file);
+    body.append("dateColumn", payload.dateColumn);
+    body.append("amountColumn", payload.amountColumn);
+    if (payload.descriptionColumn) {
+      body.append("descriptionColumn", payload.descriptionColumn);
+    }
+
+    return fetch(resolveApiUrl(API_BASE_URL, "/api/imports/monthly-report/csv-preview"), {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body
+    }).then(async (response) => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          notifyUnauthorized();
+        }
+
+        throw new Error(await readErrorMessage(response));
+      }
+
+      return response.json() as Promise<MonthlyReportAnalysis>;
+    });
+  },
+
   commitMonthlyReportDrafts(token: string, transactions: MonthlyReportDraftTransaction[], acceptedDuplicateSourceIds: string[] = []) {
     return request<{ created: Transaction[] }>("/api/imports/monthly-report/commit", {
       method: "POST",

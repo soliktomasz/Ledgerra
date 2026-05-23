@@ -72,3 +72,21 @@ public sealed class CommitMonthlyReportDraftRequest : IValidatableObject
 }
 
 public sealed record CommitMonthlyReportDraftsResponse(IReadOnlyList<TransactionResponse> Created);
+
+public sealed class CsvImportPreviewRequest
+{
+    [Required]
+    public IFormFile File { get; init; } = null!;
+
+    [Required]
+    public Guid AccountId { get; init; }
+
+    [Required, MaxLength(120)]
+    public string DateColumn { get; init; } = string.Empty;
+
+    [Required, MaxLength(120)]
+    public string AmountColumn { get; init; } = string.Empty;
+
+    [MaxLength(120)]
+    public string? DescriptionColumn { get; init; }
+}

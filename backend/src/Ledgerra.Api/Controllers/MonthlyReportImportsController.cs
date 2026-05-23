@@ -17,15 +17,18 @@ public sealed class MonthlyReportImportsController : ControllerBase
     private readonly AnalyzeMonthlyReportCommandHandler _analyzeMonthlyReportCommandHandler;
     private readonly CommitMonthlyReportDraftsCommandHandler _commitMonthlyReportDraftsCommandHandler;
     private readonly IReportContentExtractor _reportContentExtractor;
+    private readonly CsvBankImportMapper _csvBankImportMapper;
 
     public MonthlyReportImportsController(
         AnalyzeMonthlyReportCommandHandler analyzeMonthlyReportCommandHandler,
         CommitMonthlyReportDraftsCommandHandler commitMonthlyReportDraftsCommandHandler,
-        IReportContentExtractor reportContentExtractor)
+        IReportContentExtractor reportContentExtractor,
+        CsvBankImportMapper csvBankImportMapper)
     {
         _analyzeMonthlyReportCommandHandler = analyzeMonthlyReportCommandHandler;
         _commitMonthlyReportDraftsCommandHandler = commitMonthlyReportDraftsCommandHandler;
         _reportContentExtractor = reportContentExtractor;
+        _csvBankImportMapper = csvBankImportMapper;
     }
 
     [HttpPost("analyze")]
@@ -66,6 +69,29 @@ public sealed class MonthlyReportImportsController : ControllerBase
                     ["analysis"] = [exception.Message]
                 })
                 : BadRequest(new ProblemDetails { Title = exception.Message });
+        }
+    }
+
+
+    [HttpPost("csv-preview")]
+    public async Task<ActionResult<MonthlyReportAnalysisResponse>> PreviewCsv(
+        [FromForm] CsvImportPreviewRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await _reportContentExtractor.ExtractAsync(request.File, cancellationToken);
+            var drafts = _csvBankImportMapper.Map(
+                report.Content,
+                request.AccountId,
+                request.DateColumn,
+                request.AmountColumn,
+                request.DescriptionColumn);
+            return Ok(new MonthlyReportAnalysisResponse(drafts.Select(MapDraft).ToList(), []));
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new ProblemDetails { Title = exception.Message });
         }
     }
 

@@ -17,6 +17,7 @@ vi.mock("../state/AuthContext", () => ({
 vi.mock("../api/client", () => ({
   apiClient: {
     analyzeMonthlyReport: mocks.analyzeMonthlyReport,
+    previewCsvBankImport: mocks.analyzeMonthlyReport,
     commitMonthlyReportDrafts: mocks.commitMonthlyReportDrafts,
     createImportRule: mocks.createImportRule
   }
@@ -65,7 +66,7 @@ describe("ImportsPage", () => {
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
-      target: { files: [new File(["a,b"], "report.csv", { type: "text/csv" })] }
+      target: { files: [new File(["report"], "report.pdf", { type: "application/pdf" })] }
     });
     fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
 
