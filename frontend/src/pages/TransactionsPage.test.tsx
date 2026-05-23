@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   deleteTransaction: vi.fn(),
   moveTransactionAccount: vi.fn(),
   getTransactions: vi.fn(),
+  getSavingsGoals: vi.fn(),
   refresh: vi.fn(),
   accounts: [
     { id: "account-1", name: "Checking", type: "Checking", currencyCode: "USD", openingBalance: 0, currentBalance: 0, isActive: true },
@@ -53,7 +54,8 @@ vi.mock("../api/client", () => ({
     updateTransaction: mocks.updateTransaction,
     deleteTransaction: mocks.deleteTransaction,
     moveTransactionAccount: mocks.moveTransactionAccount,
-    getTransactions: mocks.getTransactions
+    getTransactions: mocks.getTransactions,
+    getSavingsGoals: mocks.getSavingsGoals
   }
 }));
 
@@ -97,6 +99,7 @@ describe("TransactionsPage", () => {
         note: "Payroll"
       }
     ]);
+    mocks.getSavingsGoals.mockResolvedValue([]);
     mocks.createCategory.mockResolvedValue({
       id: "category-new",
       name: "Pets",
