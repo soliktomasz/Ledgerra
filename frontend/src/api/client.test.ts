@@ -48,4 +48,69 @@ describe("apiClient", () => {
       password: "P@ssw0rd123!"
     });
   });
+
+  it("refreshes once and retries concurrent unauthorized requests", async () => {
+    const persist = vi.fn();
+    apiClient.setAuthHandlers(
+      () => ({
+        userId: "user-1",
+        login: "owner",
+        email: "owner@test.local",
+        accessToken: "expired-token",
+        refreshToken: "refresh-token",
+        expiresAtUtc: "2999-01-01T00:00:00Z"
+      }),
+      persist
+    );
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 401, clone: () => ({ json: async () => ({ title: "expired" }) }), text: async () => "expired" })
+      .mockResolvedValueOnce({ ok: false, status: 401, clone: () => ({ json: async () => ({ title: "expired" }) }), text: async () => "expired" })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          userId: "user-1", login: "owner", email: "owner@test.local", accessToken: "fresh-token", refreshToken: "rotated", expiresAtUtc: "2999-01-02T00:00:00Z"
+        })
+      })
+      .mockResolvedValue({ ok: true, status: 200, json: async () => ({ value: 1 }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await Promise.all([
+      apiClient.getDashboard("expired-token", "2026-05"),
+      apiClient.getAccounts("expired-token")
+    ]);
+
+    const refreshCalls = fetchMock.mock.calls.filter((call) => (call[0] as string).includes("/api/auth/refresh"));
+    expect(refreshCalls).toHaveLength(1);
+    expect(persist).toHaveBeenCalledWith(expect.objectContaining({ accessToken: "fresh-token", refreshToken: "rotated" }));
+  });
+
+  it("notifies unauthorized and does not retry loop when refresh fails", async () => {
+    const persist = vi.fn();
+    const onUnauthorized = vi.fn();
+    apiClient.setAuthHandlers(
+      () => ({
+        userId: "user-1",
+        login: "owner",
+        email: "owner@test.local",
+        accessToken: "expired-token",
+        refreshToken: "refresh-token",
+        expiresAtUtc: "2999-01-01T00:00:00Z"
+      }),
+      persist
+    );
+    const unsubscribe = apiClient.onUnauthorized(onUnauthorized);
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 401, clone: () => ({ json: async () => ({ title: "expired" }) }), text: async () => "expired" })
+      .mockResolvedValueOnce({ ok: false, status: 401, clone: () => ({ json: async () => ({ title: "invalid refresh" }) }), text: async () => "invalid refresh" });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiClient.getAccounts("expired-token")).rejects.toThrow();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(persist).toHaveBeenCalledWith(null);
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+    unsubscribe();
+  });
 });

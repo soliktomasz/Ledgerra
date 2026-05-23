@@ -42,14 +42,19 @@ type RequestOptions = {
 };
 
 type UnauthorizedListener = () => void;
+type AuthResolver = () => AuthPayload | null;
+type AuthPersister = (payload: AuthPayload | null) => void;
 
 const unauthorizedListeners = new Set<UnauthorizedListener>();
+let resolveAuth: AuthResolver | null = null;
+let persistAuth: AuthPersister | null = null;
+let refreshInFlight: Promise<AuthPayload | null> | null = null;
 
 function notifyUnauthorized() {
   unauthorizedListeners.forEach((listener) => listener());
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T>(path: string, options: RequestOptions = {}, allowRefresh = true): Promise<T> {
   const response = await fetch(resolveApiUrl(API_BASE_URL, path), {
     method: options.method ?? "GET",
     headers: {
@@ -60,6 +65,16 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
 
   if (!response.ok) {
+    if (response.status === 401 && allowRefresh && options.token && resolveAuth && persistAuth) {
+      const currentAuth = resolveAuth();
+      if (currentAuth && currentAuth.accessToken === options.token) {
+        const refreshed = await refreshSession();
+        if (refreshed?.accessToken && refreshed.accessToken !== options.token) {
+          return request<T>(path, { ...options, token: refreshed.accessToken }, false);
+        }
+      }
+    }
+
     if (response.status === 401) {
       notifyUnauthorized();
     }
@@ -72,6 +87,37 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   return response.json() as Promise<T>;
+}
+
+async function refreshSession(): Promise<AuthPayload | null> {
+  if (!resolveAuth || !persistAuth) {
+    return null;
+  }
+
+  if (!refreshInFlight) {
+    const auth = resolveAuth();
+    if (!auth?.refreshToken) {
+      return null;
+    }
+
+    refreshInFlight = request<AuthPayload>("/api/auth/refresh", {
+      method: "POST",
+      body: { refreshToken: auth.refreshToken }
+    }, false)
+      .then((payload) => {
+        persistAuth?.(payload);
+        return payload;
+      })
+      .catch(() => {
+        persistAuth?.(null);
+        return null;
+      })
+      .finally(() => {
+        refreshInFlight = null;
+      });
+  }
+
+  return refreshInFlight;
 }
 
 async function readErrorMessage(response: Response): Promise<string> {
@@ -99,6 +145,10 @@ async function readErrorMessage(response: Response): Promise<string> {
 }
 
 export const apiClient = {
+  setAuthHandlers(nextResolveAuth: AuthResolver | null, nextPersistAuth: AuthPersister | null) {
+    resolveAuth = nextResolveAuth;
+    persistAuth = nextPersistAuth;
+  },
   onUnauthorized(listener: UnauthorizedListener) {
     unauthorizedListeners.add(listener);
     return () => {
@@ -115,6 +165,12 @@ export const apiClient = {
     return request<AuthPayload>("/api/auth/login", {
       method: "POST",
       body: { login, password }
+    });
+  },
+  refresh(refreshToken: string) {
+    return request<AuthPayload>("/api/auth/refresh", {
+      method: "POST",
+      body: { refreshToken }
     });
   },
   getDashboard(token: string, month: string) {
