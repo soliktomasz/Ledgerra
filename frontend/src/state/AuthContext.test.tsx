@@ -2,8 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider, useAuth } from "./AuthContext";
 
-const onUnauthorizedMock = vi.fn();
-const setAuthHandlersMock = vi.fn();
+const { onUnauthorizedMock, setAuthHandlersMock } = vi.hoisted(() => ({
+  onUnauthorizedMock: vi.fn(),
+  setAuthHandlersMock: vi.fn()
+}));
 
 vi.mock("../api/client", () => ({
   apiClient: {

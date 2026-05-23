@@ -39,6 +39,7 @@ type RequestOptions = {
   method?: string;
   body?: unknown;
   token?: string | null;
+  suppressNotification?: boolean;
 };
 
 type UnauthorizedListener = () => void;
@@ -75,7 +76,7 @@ async function request<T>(path: string, options: RequestOptions = {}, allowRefre
       }
     }
 
-    if (response.status === 401) {
+    if (response.status === 401 && !options.suppressNotification) {
       notifyUnauthorized();
     }
 
@@ -102,7 +103,8 @@ async function refreshSession(): Promise<AuthPayload | null> {
 
     refreshInFlight = request<AuthPayload>("/api/auth/refresh", {
       method: "POST",
-      body: { refreshToken: auth.refreshToken }
+      body: { refreshToken: auth.refreshToken },
+      suppressNotification: true
     }, false)
       .then((payload) => {
         persistAuth?.(payload);
