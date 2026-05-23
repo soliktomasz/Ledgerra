@@ -307,8 +307,11 @@ describe("ImportsPage", () => {
 
     await screen.findByText("90%");
 
-    fireEvent.change(screen.getByDisplayValue("2026-04-10"), { target: { value: "" } });
-    fireEvent.change(screen.getByDisplayValue("42.17"), { target: { value: "abc" } });
+    expect(screen.getByLabelText("Date for row-1")).toHaveValue("10-04-2026");
+    expect(screen.getByLabelText("Amount for row-1")).toHaveValue(42.17);
+
+    fireEvent.change(screen.getByLabelText("Date for row-1"), { target: { value: "11-04-2026" } });
+    fireEvent.change(screen.getByLabelText("Amount for row-1"), { target: { value: "abc" } });
     await user.click(screen.getByRole("button", { name: "Save selected drafts" }));
 
     await waitFor(() => {
@@ -317,7 +320,7 @@ describe("ImportsPage", () => {
 
     const [, submittedDrafts] = mocks.commitMonthlyReportDrafts.mock.calls[0];
     expect(Number.isFinite(submittedDrafts[0].amount)).toBe(true);
-    expect(submittedDrafts[0].occurredOnUtc).toBe("");
+    expect(submittedDrafts[0].occurredOnUtc).toBe("2026-04-11T00:00:00.000Z");
   });
 
   test("renders duplicate and rule metadata with duplicate rows unselected by default", async () => {

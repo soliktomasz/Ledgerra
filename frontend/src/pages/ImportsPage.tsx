@@ -36,6 +36,60 @@ function extractCsvHeaders(text: string) {
   return headerRow.split(",").map((value) => value.trim().replace(/^"|"$/g, "")).filter(Boolean);
 }
 
+function formatDraftDate(value: string) {
+  if (!value) {
+    return "";
+  }
+
+  const isoDate = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoDate) {
+    return `${isoDate[3]}-${isoDate[2]}-${isoDate[1]}`;
+  }
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value;
+  }
+
+  const day = String(parsedDate.getUTCDate()).padStart(2, "0");
+  const month = String(parsedDate.getUTCMonth() + 1).padStart(2, "0");
+  const year = parsedDate.getUTCFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+function parseDraftDateInput(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  const dayMonthYear = trimmed.match(/^(\d{2})[-/.](\d{2})[-/.](\d{4})$/);
+  if (dayMonthYear) {
+    const day = Number.parseInt(dayMonthYear[1], 10);
+    const month = Number.parseInt(dayMonthYear[2], 10);
+    const year = Number.parseInt(dayMonthYear[3], 10);
+    const parsedDate = new Date(Date.UTC(year, month - 1, day));
+
+    if (
+      parsedDate.getUTCFullYear() === year &&
+      parsedDate.getUTCMonth() === month - 1 &&
+      parsedDate.getUTCDate() === day
+    ) {
+      return parsedDate.toISOString();
+    }
+  }
+
+  const isoDate = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoDate) {
+    const parsedDate = new Date(`${trimmed}T00:00:00.000Z`);
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return parsedDate.toISOString();
+    }
+  }
+
+  return null;
+}
+
 export function ImportsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
@@ -53,6 +107,7 @@ export function ImportsPage() {
   const [amountColumn, setAmountColumn] = useState("");
   const [descriptionColumn, setDescriptionColumn] = useState("");
   const [drafts, setDrafts] = useState<MonthlyReportDraftTransaction[]>([]);
+  const [draftDateInputs, setDraftDateInputs] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [acceptedDuplicateSourceIds, setAcceptedDuplicateSourceIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +160,11 @@ export function ImportsPage() {
 
   const applyAnalysis = (analysis: MonthlyReportAnalysis) => {
     setDrafts(analysis.transactions);
+    setDraftDateInputs(
+      Object.fromEntries(
+        analysis.transactions.map((transaction) => [transaction.sourceId, formatDraftDate(transaction.occurredOnUtc)])
+      )
+    );
     setSelected(
       new Set(
         analysis.transactions
@@ -495,6 +555,7 @@ export function ImportsPage() {
             {visibleDrafts.map((draft) => (
               <article className="import-row" key={draft.sourceId}>
                 <input
+                  className="import-row-select"
                   aria-label={`Select ${draft.sourceId}`}
                   checked={selected.has(draft.sourceId)}
                   onChange={(event) => {
@@ -521,45 +582,61 @@ export function ImportsPage() {
                   }}
                   type="checkbox"
                 />
-                <input
-                  value={draft.occurredOnUtc.slice(0, 10)}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    if (!value) {
-                      updateDraft(draft.sourceId, { occurredOnUtc: "" });
-                      return;
-                    }
-
-                    const parsedDate = new Date(value);
-                    if (!Number.isNaN(parsedDate.getTime())) {
-                      updateDraft(draft.sourceId, { occurredOnUtc: parsedDate.toISOString() });
-                    }
-                  }}
-                  type="date"
-                />
-                <select value={draft.type} onChange={(event) => updateDraft(draft.sourceId, { type: event.target.value })}>
-                  <option value="Expense">{t("transactionType.Expense")}</option>
-                  <option value="Income">{t("transactionType.Income")}</option>
-                </select>
-                <select value={draft.categoryId ?? ""} onChange={(event) => updateDraft(draft.sourceId, { categoryId: event.target.value || null })}>
-                  <option value="">{t("imports.noCategory")}</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  value={draft.amount}
-                  onChange={(event) => {
-                    const parsedAmount = Number.parseFloat(event.target.value);
-                    updateDraft(draft.sourceId, { amount: Number.isFinite(parsedAmount) ? parsedAmount : 0 });
-                  }}
-                  type="number"
-                  step="0.01"
-                />
-                <input value={draft.note ?? ""} onChange={(event) => updateDraft(draft.sourceId, { note: event.target.value })} />
-                <strong>{Math.round(draft.confidence * 100)}%</strong>
+                <label className="import-field import-field-date">
+                  <span>{t("imports.draftDate")}</span>
+                  <input
+                    aria-label={`Date for ${draft.sourceId}`}
+                    inputMode="numeric"
+                    pattern="\d{2}-\d{2}-\d{4}"
+                    placeholder="dd-mm-yyyy"
+                    value={draftDateInputs[draft.sourceId] ?? formatDraftDate(draft.occurredOnUtc)}
+                    onChange={(event) => {
+                      const { value } = event.target;
+                      setDraftDateInputs((current) => ({ ...current, [draft.sourceId]: value }));
+                      const parsedDate = parseDraftDateInput(value);
+                      if (parsedDate !== null) {
+                        updateDraft(draft.sourceId, { occurredOnUtc: parsedDate });
+                      }
+                    }}
+                    type="text"
+                  />
+                </label>
+                <label className="import-field import-field-type">
+                  <span>{t("imports.draftType")}</span>
+                  <select aria-label={`Type for ${draft.sourceId}`} value={draft.type} onChange={(event) => updateDraft(draft.sourceId, { type: event.target.value })}>
+                    <option value="Expense">{t("transactionType.Expense")}</option>
+                    <option value="Income">{t("transactionType.Income")}</option>
+                  </select>
+                </label>
+                <label className="import-field import-field-category">
+                  <span>{t("imports.draftCategory")}</span>
+                  <select aria-label={`Category for ${draft.sourceId}`} value={draft.categoryId ?? ""} onChange={(event) => updateDraft(draft.sourceId, { categoryId: event.target.value || null })}>
+                    <option value="">{t("imports.noCategory")}</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="import-field import-field-amount">
+                  <span>{t("imports.draftAmount")}</span>
+                  <input
+                    aria-label={`Amount for ${draft.sourceId}`}
+                    value={draft.amount}
+                    onChange={(event) => {
+                      const parsedAmount = Number.parseFloat(event.target.value);
+                      updateDraft(draft.sourceId, { amount: Number.isFinite(parsedAmount) ? parsedAmount : 0 });
+                    }}
+                    type="number"
+                    step="0.01"
+                  />
+                </label>
+                <label className="import-field import-field-note">
+                  <span>{t("imports.draftNote")}</span>
+                  <input aria-label={`Description for ${draft.sourceId}`} value={draft.note ?? ""} onChange={(event) => updateDraft(draft.sourceId, { note: event.target.value })} />
+                </label>
+                <strong className="import-confidence">{Math.round(draft.confidence * 100)}%</strong>
                 <div className="import-review-flags">
                   {draft.appliedRuleName ? <span className="status-badge success">{draft.appliedRuleName}</span> : null}
                   {draft.isLikelyDuplicate ? <span className="status-badge danger">{t("imports.duplicateFlag")}</span> : null}

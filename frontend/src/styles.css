@@ -261,13 +261,18 @@ label {
 }
 
 .sidebar {
+  --sidebar-edge: 1.25rem;
+  --sidebar-item-inset: 1.75rem;
+  --sidebar-icon-size: 2rem;
+  --sidebar-content-gap: 1.15rem;
   position: sticky;
   top: 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   height: 100vh;
-  padding: 1.25rem;
+  overflow-y: auto;
+  padding: var(--sidebar-edge);
   background: var(--surface);
   border-right: 1px solid var(--border);
 }
@@ -312,7 +317,7 @@ label {
 }
 
 .nav-group-label {
-  padding: 0 0.35rem;
+  padding: 0 var(--sidebar-content-gap);
   color: var(--muted);
   font-size: 0.72rem;
   font-weight: 850;
@@ -322,11 +327,12 @@ label {
 
 .nav-link {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--sidebar-icon-size) minmax(0, 1fr);
   align-items: center;
-  gap: 0.72rem;
+  column-gap: var(--sidebar-content-gap);
   min-height: 2.62rem;
-  padding: 0.36rem 0.78rem 0.36rem 0.86rem;
+  padding: 0.36rem var(--sidebar-item-inset);
   border-radius: var(--radius-sm);
   color: var(--muted-strong);
   font-size: 0.94rem;
@@ -337,9 +343,8 @@ label {
 .nav-icon {
   display: grid;
   place-items: center;
-  flex: 0 0 2rem;
-  width: 2rem;
-  height: 2rem;
+  width: var(--sidebar-icon-size);
+  height: var(--sidebar-icon-size);
   border: 1px solid var(--border);
   border-radius: 0.7rem;
   background: var(--surface-muted);
@@ -379,7 +384,7 @@ label {
 .month-panel {
   display: grid;
   gap: 0.65rem;
-  padding: 0.85rem;
+  padding: 0.85rem var(--sidebar-item-inset);
   background: var(--surface-muted);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -412,7 +417,7 @@ label {
 }
 
 .account-panel {
-  padding: 0.85rem;
+  padding: 0.85rem var(--sidebar-item-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface-muted);
@@ -4686,28 +4691,100 @@ label {
 
 .import-table {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
 .import-row {
   display: grid;
-  grid-template-columns:
-    2rem minmax(7.25rem, 0.85fr) minmax(6rem, 0.7fr) minmax(8rem, 1fr)
-    minmax(6rem, 0.7fr) minmax(8rem, 1.1fr) 3.25rem minmax(8rem, 1fr);
-  gap: 0.55rem;
+  grid-template-columns: 2.25rem minmax(8.5rem, 0.85fr) minmax(7rem, 0.7fr) minmax(10rem, 1fr) minmax(7rem, 0.65fr) minmax(12rem, 1.2fr) 4.25rem;
+  grid-template-areas:
+    "select date type category amount note confidence"
+    ". flags flags flags flags flags flags";
+  gap: 0.7rem;
   align-items: center;
-  padding: 0.65rem;
+  padding: 0.85rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface-muted);
 }
 
-.import-row input[type="checkbox"] {
+.import-row-select {
+  grid-area: select;
+  justify-self: center;
   width: auto;
 }
 
+.import-field {
+  gap: 0.3rem;
+  min-width: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.import-field span {
+  color: var(--muted);
+}
+
+.import-field input,
+.import-field select {
+  min-height: 2.7rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface);
+  font-size: 0.94rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.import-field-date {
+  grid-area: date;
+}
+
+.import-field-type {
+  grid-area: type;
+}
+
+.import-field-category {
+  grid-area: category;
+}
+
+.import-field-amount {
+  grid-area: amount;
+}
+
+.import-field-amount input {
+  appearance: textfield;
+}
+
+.import-field-amount input::-webkit-outer-spin-button,
+.import-field-amount input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.import-field-note {
+  grid-area: note;
+}
+
+.import-confidence {
+  grid-area: confidence;
+  justify-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.7rem;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.95rem;
+}
+
 .import-review-flags {
+  grid-area: flags;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -4809,11 +4886,15 @@ label {
   }
 
   .import-row {
-    grid-template-columns: 2rem minmax(7.5rem, 1fr) minmax(6.5rem, 0.8fr) minmax(9rem, 1fr);
+    grid-template-columns: 2.25rem minmax(8rem, 1fr) minmax(7rem, 0.75fr) minmax(9rem, 1fr);
+    grid-template-areas:
+      "select date type category"
+      ". amount note confidence"
+      ". flags flags flags";
   }
 
   .import-review-flags {
-    grid-column: 2 / -1;
+    grid-column: auto;
   }
 }
 
@@ -4866,6 +4947,19 @@ label {
 
   .import-row {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "select"
+      "date"
+      "type"
+      "category"
+      "amount"
+      "note"
+      "confidence"
+      "flags";
+  }
+
+  .import-row-select {
+    justify-self: start;
   }
 
   .import-review-flags {
