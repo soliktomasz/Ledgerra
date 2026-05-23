@@ -1,24 +1,31 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Ledgerra.Domain.Ai;
+using Microsoft.Extensions.Logging;
 
 namespace Ledgerra.Api.Services.Ai;
 
 public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<OpenAiCompatibleReportAnalysisClient>? _logger;
 
-    public OpenAiCompatibleReportAnalysisClient(HttpClient httpClient)
+    public OpenAiCompatibleReportAnalysisClient(HttpClient httpClient, ILogger<OpenAiCompatibleReportAnalysisClient>? logger = null)
     {
         _httpClient = httpClient;
-        _httpClient.Timeout = TimeSpan.FromSeconds(60);
+        _logger = logger;
+        _httpClient.Timeout = Timeout.InfiniteTimeSpan;
     }
 
     public AiProvider Provider => AiProvider.OpenAiCompatible;
 
-    public async Task<AiReportAnalysisResult> AnalyzeAsync(AiReportAnalysisRequest request, CancellationToken cancellationToken)
+    public async Task<AiReportAnalysisResult> AnalyzeAsync(
+        AiReportAnalysisRequest request,
+        CancellationToken cancellationToken,
+        IProgress<AiReportAnalysisProgress>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(request.ProviderBaseUrl))
         {
@@ -46,15 +53,10 @@ public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClie
                 new { role = "system", content = "Extract reviewed transaction draft data from financial reports." },
                 new { role = "user", content = AiReportSchema.BuildPrompt(request) }
             },
-            response_format = new
+            stream = true,
+            stream_options = new
             {
-                type = "json_schema",
-                json_schema = new
-                {
-                    name = "ledgerra_monthly_report",
-                    strict = true,
-                    schema = AiReportSchema.CreateJsonSchema()
-                }
+                include_usage = true
             }
         });
 
@@ -71,28 +73,22 @@ public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClie
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new InvalidOperationException($"OpenAI-compatible analysis request failed with status {(int)response.StatusCode}.");
+            var providerMessage = await ExtractErrorMessageAsync(response, cancellationToken);
+            throw new InvalidOperationException(providerMessage is null
+                ? $"OpenAI-compatible analysis request failed with status {(int)response.StatusCode}."
+                : $"OpenAI-compatible analysis request failed with status {(int)response.StatusCode}: {providerMessage}");
         }
 
-        var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
-        var outputText = ExtractOutputText(json);
+        var streamed = await ReadStreamingOutputAsync(response, progress, cancellationToken);
 
-        try
-        {
-            return JsonSerializer.Deserialize<AiReportAnalysisResult>(outputText, JsonSerializerOptions.Web)
-                ?? new AiReportAnalysisResult([], ["OpenAI-compatible provider returned an empty analysis."]);
-        }
-        catch (JsonException exception)
-        {
-            throw new InvalidDataException("OpenAI-compatible provider returned analysis JSON that could not be parsed.", exception);
-        }
+        return AiReportAnalysisParser.Parse(streamed.OutputText, "OpenAI-compatible provider", streamed.Usage);
     }
 
     private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         try
         {
-            return await _httpClient.SendAsync(request, cancellationToken);
+            return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         }
         catch (TaskCanceledException exception) when (!cancellationToken.IsCancellationRequested)
         {
@@ -109,28 +105,130 @@ public sealed class OpenAiCompatibleReportAnalysisClient : IAiReportAnalysisClie
         return new Uri($"{baseUrl.Trim().TrimEnd('/')}/chat/completions", UriKind.Absolute);
     }
 
-    private static string ExtractOutputText(JsonElement json)
+    private async Task<StreamingOutput> ReadStreamingOutputAsync(
+        HttpResponseMessage response,
+        IProgress<AiReportAnalysisProgress>? progress,
+        CancellationToken cancellationToken)
     {
-        if (!json.TryGetProperty("choices", out var choices) || choices.ValueKind != JsonValueKind.Array)
-        {
-            throw new InvalidDataException("OpenAI-compatible response did not include choices.");
-        }
+        var output = new StringBuilder();
+        AiTokenUsage? usage = null;
 
-        foreach (var choice in choices.EnumerateArray())
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var reader = new StreamReader(stream);
+
+        while (await reader.ReadLineAsync(cancellationToken) is { } line)
         {
-            if (!choice.TryGetProperty("message", out var message) ||
-                !message.TryGetProperty("content", out var content))
+            if (string.IsNullOrWhiteSpace(line) || !line.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            var outputText = content.GetString();
-            if (!string.IsNullOrWhiteSpace(outputText))
+            var payload = line["data:".Length..].Trim();
+            if (payload == "[DONE]")
             {
-                return outputText;
+                break;
+            }
+
+            JsonDocument? chunk = null;
+
+            try
+            {
+                chunk = JsonDocument.Parse(payload);
+            }
+            catch (JsonException exception)
+            {
+                _logger?.LogWarning(exception, "Skipping malformed OpenAI-compatible SSE chunk. Payload: {Payload}. Error: {Error}", payload, exception.Message);
+                continue;
+            }
+
+            using (chunk)
+            {
+                usage = ExtractUsage(chunk.RootElement) ?? usage;
+
+                var contentDelta = ExtractDelta(chunk.RootElement, "content");
+                if (!string.IsNullOrEmpty(contentDelta))
+                {
+                    output.Append(contentDelta);
+                    progress?.Report(new AiReportAnalysisProgress("AI provider is streaming JSON output.", output.Length, usage));
+                }
+
+                var reasoningDelta = ExtractDelta(chunk.RootElement, "reasoning_content");
+                if (!string.IsNullOrEmpty(reasoningDelta))
+                {
+                    progress?.Report(new AiReportAnalysisProgress("AI provider is reasoning.", output.Length, usage));
+                }
             }
         }
 
-        throw new InvalidDataException("OpenAI-compatible response did not include message content.");
+        var outputText = output.ToString();
+        if (string.IsNullOrWhiteSpace(outputText))
+        {
+            throw new InvalidDataException("OpenAI-compatible response did not include streamed message content.");
+        }
+
+        if (usage is not null)
+        {
+            progress?.Report(new AiReportAnalysisProgress("AI provider reported token usage.", output.Length, usage));
+        }
+
+        return new StreamingOutput(outputText, usage);
     }
+
+    private static string? ExtractDelta(JsonElement json, string propertyName)
+    {
+        if (!json.TryGetProperty("choices", out var choices) || choices.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        foreach (var choice in choices.EnumerateArray())
+        {
+            if (choice.TryGetProperty("delta", out var delta) &&
+                delta.TryGetProperty(propertyName, out var property) &&
+                property.ValueKind == JsonValueKind.String)
+            {
+                return property.GetString();
+            }
+        }
+
+        return null;
+    }
+
+    private static AiTokenUsage? ExtractUsage(JsonElement json)
+    {
+        if (!json.TryGetProperty("usage", out var usage) || usage.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+        {
+            return null;
+        }
+
+        return new AiTokenUsage(
+            ReadInt(usage, "prompt_tokens"),
+            ReadInt(usage, "completion_tokens"),
+            ReadInt(usage, "total_tokens"));
+    }
+
+    private static int ReadInt(JsonElement json, string propertyName)
+    {
+        return json.TryGetProperty(propertyName, out var value) && value.TryGetInt32(out var parsed) ? parsed : 0;
+    }
+
+    private static async Task<string?> ExtractErrorMessageAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
+            if (json.TryGetProperty("error", out var error) &&
+                error.TryGetProperty("message", out var message))
+            {
+                return message.GetString();
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return null;
+    }
+
+    private sealed record StreamingOutput(string OutputText, AiTokenUsage? Usage);
 }

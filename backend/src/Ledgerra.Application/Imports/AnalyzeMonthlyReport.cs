@@ -7,7 +7,15 @@ public sealed record AnalyzeMonthlyReportCommand(
     Guid AccountId,
     string Month,
     AiProvider Provider,
-    string ReportContent);
+    string ReportContent,
+    IProgress<MonthlyReportAnalyzerProgress>? Progress = null);
+
+public sealed record MonthlyReportAnalyzerTokenUsage(int PromptTokens, int CompletionTokens, int TotalTokens);
+
+public sealed record MonthlyReportAnalyzerProgress(
+    string StatusMessage,
+    int? GeneratedOutputCharacters = null,
+    MonthlyReportAnalyzerTokenUsage? Usage = null);
 
 public sealed record AnalyzedMonthlyReportDraft(
     string SourceId,
@@ -28,7 +36,8 @@ public sealed record AnalyzedMonthlyReportDraft(
 
 public sealed record AnalyzeMonthlyReportResult(
     IReadOnlyList<AnalyzedMonthlyReportDraft> Transactions,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings,
+    MonthlyReportAnalyzerTokenUsage? Usage = null);
 
 public sealed record AiDraftAnalysisItem(
     string SourceId,
@@ -41,7 +50,10 @@ public sealed record AiDraftAnalysisItem(
     decimal Confidence,
     IReadOnlyList<string> Warnings);
 
-public sealed record AiDraftAnalysisResult(IReadOnlyList<AiDraftAnalysisItem> Transactions, IReadOnlyList<string> Warnings);
+public sealed record AiDraftAnalysisResult(
+    IReadOnlyList<AiDraftAnalysisItem> Transactions,
+    IReadOnlyList<string> Warnings,
+    MonthlyReportAnalyzerTokenUsage? Usage = null);
 
 public sealed record MonthlyReportReviewDraft(
     string SourceId,
@@ -68,7 +80,8 @@ public interface IMonthlyReportAnalyzer
         AiProvider provider,
         string month,
         string reportContent,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        IProgress<MonthlyReportAnalyzerProgress>? progress = null);
 }
 
 public interface IMonthlyReportRuleMatcher
@@ -111,8 +124,17 @@ public sealed class AnalyzeMonthlyReportCommandHandler
             command.Provider,
             command.Month,
             command.ReportContent,
-            cancellationToken);
+            cancellationToken,
+            command.Progress);
 
+        return await HandleAnalysisResultAsync(command, result, cancellationToken);
+    }
+
+    public async Task<AnalyzeMonthlyReportResult> HandleAnalysisResultAsync(
+        AnalyzeMonthlyReportCommand command,
+        AiDraftAnalysisResult result,
+        CancellationToken cancellationToken)
+    {
         var analyzedDrafts = new List<MonthlyReportReviewDraft>();
         var sourceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var parsedCommandAccountId = command.AccountId;
@@ -172,6 +194,7 @@ public sealed class AnalyzeMonthlyReportCommandHandler
                 draft.DuplicateTransactionId,
                 draft.DuplicateReason,
                 draft.IsSelectedByDefault)).ToList(),
-            result.Warnings);
+            result.Warnings,
+            result.Usage);
     }
 }

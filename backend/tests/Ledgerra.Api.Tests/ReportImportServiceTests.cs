@@ -24,6 +24,9 @@ public sealed class ReportImportServiceTests
         Assert.Contains("Determine each transaction date from report data per transaction", prompt, StringComparison.Ordinal);
         Assert.Contains("Do not force all rows into the selected month context", prompt, StringComparison.Ordinal);
         Assert.Contains("use it to resolve missing years or ambiguous dates", prompt, StringComparison.Ordinal);
+        Assert.Contains("The report can be in any language", prompt, StringComparison.Ordinal);
+        Assert.Contains("bank-name-2026-004-001", prompt, StringComparison.Ordinal);
+        Assert.DoesNotContain("erste-", prompt, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

@@ -15,6 +15,27 @@ public sealed record AiAccountContext(Guid Id, string Name, string CurrencyCode)
 
 public sealed record AiCategoryContext(Guid Id, string Name, string Kind);
 
+public sealed record AiTokenUsage(int PromptTokens, int CompletionTokens, int TotalTokens);
+
+public sealed record AiReportAnalysisProgress(
+    string StatusMessage,
+    int? GeneratedOutputCharacters = null,
+    AiTokenUsage? Usage = null);
+
+public sealed class AiReportAnalysisParseException : Exception
+{
+    public AiReportAnalysisParseException(string message, string rawOutput, AiTokenUsage? usage, Exception innerException)
+        : base(message, innerException)
+    {
+        RawOutput = rawOutput;
+        Usage = usage;
+    }
+
+    public string RawOutput { get; }
+
+    public AiTokenUsage? Usage { get; }
+}
+
 public sealed record AiDraftTransaction(
     string SourceId,
     string AccountId,
@@ -26,7 +47,10 @@ public sealed record AiDraftTransaction(
     decimal Confidence,
     IReadOnlyList<string> Warnings);
 
-public sealed record AiReportAnalysisResult(IReadOnlyList<AiDraftTransaction> Transactions, IReadOnlyList<string> Warnings)
+public sealed record AiReportAnalysisResult(
+    IReadOnlyList<AiDraftTransaction> Transactions,
+    IReadOnlyList<string> Warnings,
+    AiTokenUsage? Usage = null)
 {
     public static AiReportAnalysisResult Normalize(AiReportAnalysisResult result)
     {
@@ -49,7 +73,7 @@ public sealed record AiReportAnalysisResult(IReadOnlyList<AiDraftTransaction> Tr
             accepted.Add(transaction);
         }
 
-        return new AiReportAnalysisResult(accepted, warnings);
+        return new AiReportAnalysisResult(accepted, warnings, result.Usage);
     }
 
     private static bool IsSupportedType(string type)

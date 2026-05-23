@@ -7,6 +7,7 @@ import type {
   DashboardSummary,
   ImportRule,
   MonthlyReportAnalysis,
+  MonthlyReportAnalysisJob,
   MonthlyReportDraftTransaction,
   Profile,
   ReportingOverview,
@@ -19,6 +20,7 @@ import type {
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const ANALYSIS_JOB_POLL_INTERVAL_MS = 1500;
 
 export function resolveApiUrl(baseUrl: string, path: string): string {
   const normalizedBaseUrl = baseUrl.trim().replace(/\/+$/, "");
@@ -40,6 +42,7 @@ type RequestOptions = {
   body?: unknown;
   token?: string | null;
   suppressNotification?: boolean;
+  parseResponse?: (response: Response) => Promise<unknown>;
 };
 
 type UnauthorizedListener = () => void;
@@ -56,13 +59,19 @@ function notifyUnauthorized() {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}, allowRefresh = true): Promise<T> {
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
+  const hasJsonBody = options.body !== undefined && options.body !== null && !isFormData;
   const response = await fetch(resolveApiUrl(API_BASE_URL, path), {
     method: options.method ?? "GET",
     headers: {
-      "Content-Type": "application/json",
+      ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
       ...(options.token ? { Authorization: `Bearer ${options.token}` } : {})
     },
-    body: options.body ? JSON.stringify(options.body) : undefined
+    body: options.body == null
+      ? undefined
+      : isFormData
+        ? options.body as FormData
+        : JSON.stringify(options.body)
   });
 
   if (!response.ok) {
@@ -85,6 +94,10 @@ async function request<T>(path: string, options: RequestOptions = {}, allowRefre
 
   if (response.status === 204) {
     return undefined as T;
+  }
+
+  if (options.parseResponse) {
+    return options.parseResponse(response) as Promise<T>;
   }
 
   return response.json() as Promise<T>;
@@ -144,6 +157,63 @@ async function readErrorMessage(response: Response): Promise<string> {
     const text = await response.text();
     return text || fallback;
   }
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function fetchMonthlyReportAnalysisJob(token: string, jobId: string): Promise<MonthlyReportAnalysisJob> {
+  return request<MonthlyReportAnalysisJob>(`/api/imports/monthly-report/analyze/${jobId}`, { token });
+}
+
+async function waitForMonthlyReportAnalysisJob(
+  token: string,
+  initialJob: MonthlyReportAnalysisJob,
+  onJobUpdate?: (job: MonthlyReportAnalysisJob) => void
+): Promise<MonthlyReportAnalysis> {
+  let job = initialJob;
+  onJobUpdate?.(job);
+
+  while (job.status === "running") {
+    await wait(ANALYSIS_JOB_POLL_INTERVAL_MS);
+    job = await fetchMonthlyReportAnalysisJob(token, job.jobId);
+    onJobUpdate?.(job);
+  }
+
+  return readMonthlyReportAnalysisResult(job);
+}
+
+function readMonthlyReportAnalysisResult(job: MonthlyReportAnalysisJob): MonthlyReportAnalysis {
+  if (job.status === "failed") {
+    throw new Error(job.error || "AI analysis failed.");
+  }
+
+  if (!job.analysis) {
+    throw new Error("AI analysis finished without results.");
+  }
+
+  return job.analysis;
+}
+
+function readContentDispositionFilename(contentDisposition: string | null, fallback: string) {
+  if (!contentDisposition) {
+    return fallback;
+  }
+
+  const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(contentDisposition);
+  if (utf8Match?.[1]) {
+    const encodedFilename = utf8Match[1].replace(/^"|"$/g, "");
+    try {
+      return decodeURIComponent(encodedFilename);
+    } catch {
+      const filenameMatch = /filename="?([^";]+)"?/i.exec(contentDisposition);
+      return filenameMatch?.[1] || encodedFilename || fallback;
+    }
+  }
+
+  const filenameMatch = /filename="?([^";]+)"?/i.exec(contentDisposition);
+  return filenameMatch?.[1] || fallback;
 }
 
 export const apiClient = {
@@ -404,27 +474,48 @@ export const apiClient = {
       body: { destinationAccountId }
     });
   },
-  analyzeMonthlyReport(token: string, payload: { accountId: string; month: string; provider: string; file: File }) {
+  analyzeMonthlyReport(
+    token: string,
+    payload: { accountId: string; month: string; provider: string; file: File },
+    onJobUpdate?: (job: MonthlyReportAnalysisJob) => void
+  ) {
     const body = new FormData();
     body.append("accountId", payload.accountId);
     body.append("month", payload.month);
     body.append("provider", payload.provider);
     body.append("file", payload.file);
 
-    return fetch(`${API_BASE_URL}/api/imports/monthly-report/analyze`, {
+    return request<MonthlyReportAnalysisJob>("/api/imports/monthly-report/analyze", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      token,
       body
-    }).then(async (response) => {
-      if (!response.ok) {
-        if (response.status === 401) {
-          notifyUnauthorized();
-        }
+    }).then((job) => waitForMonthlyReportAnalysisJob(token, job, onJobUpdate));
+  },
 
-        throw new Error(await readErrorMessage(response));
+  retryMonthlyReportAnalysisParse(token: string, jobId: string, onJobUpdate?: (job: MonthlyReportAnalysisJob) => void) {
+    return request<MonthlyReportAnalysisJob>(`/api/imports/monthly-report/analyze/${jobId}/retry-parse`, {
+      method: "POST",
+      token
+    }).then((job) => {
+      onJobUpdate?.(job);
+      if (job.status === "running") {
+        return null;
       }
 
-      return response.json() as Promise<MonthlyReportAnalysis>;
+      return readMonthlyReportAnalysisResult(job);
+    });
+  },
+
+  downloadMonthlyReportAnalysisRawOutput(token: string, jobId: string) {
+    return request<{ blob: Blob; filename: string }>(`/api/imports/monthly-report/analyze/${jobId}/raw-output`, {
+      token,
+      parseResponse: async (response) => ({
+        blob: await response.blob(),
+        filename: readContentDispositionFilename(
+          response.headers.get("content-disposition"),
+          `ledgerra-ai-output-${jobId}.json`
+        )
+      })
     });
   },
 

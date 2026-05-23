@@ -28,7 +28,8 @@ public sealed class AiReportAnalysisService
         AiProvider provider,
         string month,
         ExtractedReport report,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IProgress<AiReportAnalysisProgress>? progress = null)
     {
         var credential = await _dbContext.AiProviderCredentials.SingleOrDefaultAsync(
             item => item.UserId == userId && item.Provider == provider,
@@ -60,10 +61,15 @@ public sealed class AiReportAnalysisService
                 [new AiAccountContext(account.Id, account.Name, account.CurrencyCode)],
                 categories.Select(item => new AiCategoryContext(item.Id, item.Name, item.Kind.ToString())).ToList());
 
-            var result = await _clientFactory.GetClient(provider).AnalyzeAsync(request, cancellationToken);
+            progress?.Report(new AiReportAnalysisProgress("Request sent to AI provider."));
+            var result = await _clientFactory.GetClient(provider).AnalyzeAsync(request, cancellationToken, progress);
             return AiReportAnalysisResult.Normalize(result);
         }
         catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (AiReportAnalysisParseException)
         {
             throw;
         }

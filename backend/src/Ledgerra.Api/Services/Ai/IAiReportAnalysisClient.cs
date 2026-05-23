@@ -6,5 +6,8 @@ public interface IAiReportAnalysisClient
 {
     AiProvider Provider { get; }
 
-    Task<AiReportAnalysisResult> AnalyzeAsync(AiReportAnalysisRequest request, CancellationToken cancellationToken);
+    Task<AiReportAnalysisResult> AnalyzeAsync(
+        AiReportAnalysisRequest request,
+        CancellationToken cancellationToken,
+        IProgress<AiReportAnalysisProgress>? progress = null);
 }

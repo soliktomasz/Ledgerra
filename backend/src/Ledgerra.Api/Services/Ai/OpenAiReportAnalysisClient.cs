@@ -20,7 +20,10 @@ public sealed class OpenAiReportAnalysisClient : IAiReportAnalysisClient
 
     public AiProvider Provider => AiProvider.OpenAi;
 
-    public async Task<AiReportAnalysisResult> AnalyzeAsync(AiReportAnalysisRequest request, CancellationToken cancellationToken)
+    public async Task<AiReportAnalysisResult> AnalyzeAsync(
+        AiReportAnalysisRequest request,
+        CancellationToken cancellationToken,
+        IProgress<AiReportAnalysisProgress>? progress = null)
     {
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, BuildEndpoint());
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.ProviderApiKey);
@@ -63,15 +66,7 @@ public sealed class OpenAiReportAnalysisClient : IAiReportAnalysisClient
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
         var outputText = ExtractOutputText(json);
 
-        try
-        {
-            return JsonSerializer.Deserialize<AiReportAnalysisResult>(outputText, JsonSerializerOptions.Web)
-                ?? new AiReportAnalysisResult([], ["OpenAI returned an empty analysis."]);
-        }
-        catch (JsonException exception)
-        {
-            throw new InvalidDataException("OpenAI returned analysis JSON that could not be parsed.", exception);
-        }
+        return AiReportAnalysisParser.Parse(outputText, "OpenAI");
     }
 
     private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
