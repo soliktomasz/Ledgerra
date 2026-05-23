@@ -18,6 +18,24 @@ function getErrorMessage(exception: unknown, fallback: string) {
   return exception instanceof Error ? exception.message : fallback;
 }
 
+function readFileText(file: File) {
+  if (typeof file.text === "function") {
+    return file.text();
+  }
+
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => reject(reader.error ?? new Error("Unable to read file."));
+    reader.readAsText(file);
+  });
+}
+
+function extractCsvHeaders(text: string) {
+  const headerRow = text.split(/\r?\n/).find((line) => line.trim().length > 0) ?? "";
+  return headerRow.split(",").map((value) => value.trim().replace(/^"|"$/g, "")).filter(Boolean);
+}
+
 export function ImportsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
@@ -60,9 +78,8 @@ export function ImportsPage() {
     setError(null);
 
     if (nextFile && nextFile.name.toLowerCase().endsWith(".csv")) {
-      const text = await nextFile.text();
-      const headerRow = text.split(/\r?\n/).find((line) => line.trim().length > 0) ?? "";
-      const headers = headerRow.split(",").map((value) => value.trim().replace(/^"|"$/g, "")).filter(Boolean);
+      const text = await readFileText(nextFile);
+      const headers = extractCsvHeaders(text);
       setCsvHeaders(headers);
       setDateColumn(headers.find((header) => /date/i.test(header)) ?? headers[0] ?? "");
       setAmountColumn(headers.find((header) => /amount|debit|credit/i.test(header)) ?? headers[1] ?? "");
@@ -76,18 +93,39 @@ export function ImportsPage() {
       return;
     }
 
-    if (file.name.toLowerCase().endsWith(".csv") && (!dateColumn || !amountColumn)) {
-      setError(t("imports.mapCsvColumns"));
-      setRuleMessage(null);
-      return;
-    }
-
     setError(null);
     setRuleMessage(null);
     setIsAnalyzing(true);
     try {
-      const analysis = file.name.toLowerCase().endsWith(".csv")
-        ? await apiClient.previewCsvBankImport(auth.accessToken, { accountId, file, dateColumn, amountColumn, descriptionColumn })
+      const isCsv = file.name.toLowerCase().endsWith(".csv");
+      let selectedDateColumn = dateColumn;
+      let selectedAmountColumn = amountColumn;
+      let selectedDescriptionColumn = descriptionColumn;
+
+      if (isCsv && (!selectedDateColumn || !selectedAmountColumn)) {
+        const headers = csvHeaders.length > 0 ? csvHeaders : extractCsvHeaders(await readFileText(file));
+        selectedDateColumn = selectedDateColumn || headers.find((header) => /date/i.test(header)) || headers[0] || "";
+        selectedAmountColumn = selectedAmountColumn || headers.find((header) => /amount|debit|credit/i.test(header)) || headers[1] || "";
+        selectedDescriptionColumn = selectedDescriptionColumn || headers.find((header) => /description|memo|note/i.test(header)) || "";
+        setCsvHeaders(headers);
+        setDateColumn(selectedDateColumn);
+        setAmountColumn(selectedAmountColumn);
+        setDescriptionColumn(selectedDescriptionColumn);
+
+        if (!selectedDateColumn || !selectedAmountColumn) {
+          setError(t("imports.mapCsvColumns"));
+          return;
+        }
+      }
+
+      const analysis = isCsv
+        ? await apiClient.previewCsvBankImport(auth.accessToken, {
+            accountId,
+            file,
+            dateColumn: selectedDateColumn,
+            amountColumn: selectedAmountColumn,
+            descriptionColumn: selectedDescriptionColumn
+          })
         : await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file });
       setDrafts(analysis.transactions);
       setSelected(
