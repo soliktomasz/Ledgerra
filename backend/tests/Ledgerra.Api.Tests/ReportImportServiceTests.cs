@@ -8,6 +8,25 @@ namespace Ledgerra.Api.Tests;
 public sealed class ReportImportServiceTests
 {
     [Fact]
+    public void AiReportSchema_PromptGuidesCrossMonthDateInferenceFromReport()
+    {
+        var request = new AiReportAnalysisRequest(
+            "test-key",
+            null,
+            "gpt-test",
+            "Statement period: 2026-06-06 to 2026-07-06",
+            "2026-07",
+            [new AiAccountContext(Guid.NewGuid(), "Checking", "USD")],
+            []);
+
+        var prompt = AiReportSchema.BuildPrompt(request);
+
+        Assert.Contains("Determine each transaction date from report data per transaction", prompt, StringComparison.Ordinal);
+        Assert.Contains("Do not force all rows into the selected month context", prompt, StringComparison.Ordinal);
+        Assert.Contains("use it to resolve missing years or ambiguous dates", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task CsvExtractor_ReadsCsvRowsIntoReportText()
     {
         var extractor = new CsvReportContentExtractor();
