@@ -5,6 +5,8 @@ import { ImportsPage } from "./ImportsPage";
 
 const mocks = vi.hoisted(() => ({
   analyzeMonthlyReport: vi.fn(),
+  retryMonthlyReportAnalysisParse: vi.fn(),
+  downloadMonthlyReportAnalysisRawOutput: vi.fn(),
   commitMonthlyReportDrafts: vi.fn(),
   createImportRule: vi.fn(),
   refresh: vi.fn()
@@ -17,6 +19,8 @@ vi.mock("../state/AuthContext", () => ({
 vi.mock("../api/client", () => ({
   apiClient: {
     analyzeMonthlyReport: mocks.analyzeMonthlyReport,
+    retryMonthlyReportAnalysisParse: mocks.retryMonthlyReportAnalysisParse,
+    downloadMonthlyReportAnalysisRawOutput: mocks.downloadMonthlyReportAnalysisRawOutput,
     previewCsvBankImport: mocks.analyzeMonthlyReport,
     commitMonthlyReportDrafts: mocks.commitMonthlyReportDrafts,
     createImportRule: mocks.createImportRule
@@ -74,6 +78,193 @@ describe("ImportsPage", () => {
     rejectAnalysis(new Error("Provider key is invalid"));
     expect(await screen.findByText("Provider key is invalid")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Analyze report" })).toBeEnabled();
+  });
+
+  test("shows elapsed waiting status while AI analysis is still running", async () => {
+    vi.useFakeTimers();
+    let restoredTimers = false;
+    try {
+      let rejectAnalysis: (error: Error) => void = () => undefined;
+      mocks.analyzeMonthlyReport.mockReturnValue(new Promise((_, reject) => {
+        rejectAnalysis = reject;
+      }));
+
+      render(<ImportsPage />);
+
+      fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+      fireEvent.change(screen.getByLabelText("Report file"), {
+        target: { files: [new File(["report"], "report.pdf", { type: "application/pdf" })] }
+      });
+      fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+      await vi.advanceTimersByTimeAsync(15_000);
+
+      expect(screen.getByText(/Still waiting for the AI provider/)).toBeInTheDocument();
+      expect(screen.getByText(/Elapsed: 15s/)).toBeInTheDocument();
+
+      rejectAnalysis(new Error("Provider timed out"));
+      vi.useRealTimers();
+      restoredTimers = true;
+      await screen.findByText("Provider timed out");
+    } finally {
+      if (!restoredTimers) {
+        vi.useRealTimers();
+      }
+    }
+  });
+
+  test("shows AI provider progress details while analysis is running", async () => {
+    vi.useFakeTimers();
+    let restoredTimers = false;
+    try {
+      let rejectAnalysis: (error: Error) => void = () => undefined;
+      mocks.analyzeMonthlyReport.mockImplementation((_token, _payload, onJobUpdate) => {
+        onJobUpdate?.({
+          jobId: "job-1",
+          status: "running",
+          statusMessage: "AI provider is streaming JSON output.",
+          generatedOutputCharacters: 128,
+          usage: { promptTokens: 100, completionTokens: 30, totalTokens: 130 },
+          analysis: null,
+          error: null,
+          createdAtUtc: "2026-05-23T00:00:00Z",
+          updatedAtUtc: "2026-05-23T00:00:01Z"
+        });
+        return new Promise((_, reject) => {
+          rejectAnalysis = reject;
+        });
+      });
+
+      render(<ImportsPage />);
+
+      fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+      fireEvent.change(screen.getByLabelText("Report file"), {
+        target: { files: [new File(["report"], "report.pdf", { type: "application/pdf" })] }
+      });
+      fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(screen.getByText(/AI provider is streaming JSON output/)).toBeInTheDocument();
+      expect(screen.getByText(/Generated output: 128 chars/)).toBeInTheDocument();
+      expect(screen.getByText(/Tokens: 130 total/)).toBeInTheDocument();
+
+      rejectAnalysis(new Error("Provider timed out"));
+      vi.useRealTimers();
+      restoredTimers = true;
+      await screen.findByText("Provider timed out");
+    } finally {
+      if (!restoredTimers) {
+        vi.useRealTimers();
+      }
+    }
+  });
+
+  test("retries saved AI output after a parse failure", async () => {
+    const user = userEvent.setup();
+    mocks.analyzeMonthlyReport.mockImplementation((_token, _payload, onJobUpdate) => {
+      onJobUpdate?.({
+        jobId: "job-1",
+        status: "failed",
+        statusMessage: "Analysis failed while parsing AI output.",
+        generatedOutputCharacters: 300,
+        usage: { promptTokens: 100, completionTokens: 80, totalTokens: 180 },
+        analysis: null,
+        error: "AI returned analysis JSON that could not be parsed.",
+        hasRawAiOutput: true,
+        createdAtUtc: "2026-05-23T00:00:00Z",
+        updatedAtUtc: "2026-05-23T00:00:01Z"
+      });
+      return Promise.reject(new Error("AI returned analysis JSON that could not be parsed."));
+    });
+    mocks.retryMonthlyReportAnalysisParse.mockResolvedValue({
+      warnings: [],
+      transactions: [
+        {
+          sourceId: "statement-2026-004-001",
+          accountId: "account-1",
+          categoryId: "category-1",
+          amount: 10,
+          type: "Expense",
+          occurredOnUtc: "2026-04-10T12:00:00Z",
+          note: "Recovered row",
+          confidence: 0.9,
+          warnings: [],
+          isLikelyDuplicate: false,
+          isSelectedByDefault: true
+        }
+      ]
+    });
+
+    render(<ImportsPage />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["report"], "report.pdf", { type: "application/pdf" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    expect(await screen.findByRole("button", { name: "Retry saved AI output" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Retry saved AI output" }));
+
+    expect(mocks.retryMonthlyReportAnalysisParse).toHaveBeenCalledWith("token", "job-1", expect.any(Function));
+    expect(await screen.findByDisplayValue("Recovered row")).toBeInTheDocument();
+  });
+
+  test("downloads saved AI output after a parse failure", async () => {
+    const user = userEvent.setup();
+    const click = vi.fn();
+    const appendChild = vi.spyOn(document.body, "appendChild");
+    const removeChild = vi.spyOn(document.body, "removeChild");
+    const originalCreateElement = document.createElement.bind(document);
+    const createElement = vi.spyOn(document, "createElement");
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:raw-output") });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
+    createElement.mockImplementation(((tagName: string, options?: ElementCreationOptions) => {
+      const element = originalCreateElement(tagName, options);
+      if (tagName.toLowerCase() === "a") {
+        Object.defineProperty(element, "click", { value: click });
+      }
+
+      return element;
+    }) as typeof document.createElement);
+    mocks.analyzeMonthlyReport.mockImplementation((_token, _payload, onJobUpdate) => {
+      onJobUpdate?.({
+        jobId: "job-1",
+        status: "failed",
+        statusMessage: "Analysis failed while parsing AI output.",
+        generatedOutputCharacters: 300,
+        usage: { promptTokens: 100, completionTokens: 80, totalTokens: 180 },
+        analysis: null,
+        error: "AI returned analysis JSON that could not be parsed.",
+        hasRawAiOutput: true,
+        createdAtUtc: "2026-05-23T00:00:00Z",
+        updatedAtUtc: "2026-05-23T00:00:01Z"
+      });
+      return Promise.reject(new Error("AI returned analysis JSON that could not be parsed."));
+    });
+    mocks.downloadMonthlyReportAnalysisRawOutput.mockResolvedValue({
+      blob: new Blob(['{"transactions":[]}'], { type: "application/json" }),
+      filename: "ledgerra-ai-output-job-1.json"
+    });
+
+    render(<ImportsPage />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["report"], "report.pdf", { type: "application/pdf" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    expect(await screen.findByRole("button", { name: "Download saved AI output" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Download saved AI output" }));
+
+    expect(mocks.downloadMonthlyReportAnalysisRawOutput).toHaveBeenCalledWith("token", "job-1");
+    expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+    expect(appendChild).toHaveBeenCalled();
+    expect(click).toHaveBeenCalled();
+    expect(removeChild).toHaveBeenCalled();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:raw-output");
   });
 
   test("keeps edited draft date and amount values safe before commit", async () => {

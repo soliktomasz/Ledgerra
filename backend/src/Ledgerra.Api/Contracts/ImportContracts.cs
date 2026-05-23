@@ -6,6 +6,20 @@ public sealed record MonthlyReportAnalysisResponse(
     IReadOnlyList<MonthlyReportDraftTransactionResponse> Transactions,
     IReadOnlyList<string> Warnings);
 
+public sealed record MonthlyReportAnalysisJobResponse(
+    Guid JobId,
+    string Status,
+    string? StatusMessage,
+    int? GeneratedOutputCharacters,
+    MonthlyReportAnalysisTokenUsageResponse? Usage,
+    MonthlyReportAnalysisResponse? Analysis,
+    string? Error,
+    bool HasRawAiOutput,
+    DateTime CreatedAtUtc,
+    DateTime UpdatedAtUtc);
+
+public sealed record MonthlyReportAnalysisTokenUsageResponse(int PromptTokens, int CompletionTokens, int TotalTokens);
+
 public sealed record MonthlyReportDraftTransactionResponse(
     string SourceId,
     Guid AccountId,

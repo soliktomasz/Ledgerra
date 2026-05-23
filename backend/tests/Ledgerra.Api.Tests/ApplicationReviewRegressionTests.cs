@@ -187,7 +187,8 @@ public sealed class ApplicationReviewRegressionTests
             AiProvider provider,
             string month,
             string reportContent,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            IProgress<MonthlyReportAnalyzerProgress>? progress = null)
         {
             return Task.FromResult(_result);
         }

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiClient, resolveApiUrl } from "./client";
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
@@ -112,5 +113,116 @@ describe("apiClient", () => {
     expect(persist).toHaveBeenCalledWith(null);
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
     unsubscribe();
+  });
+
+  it("submits monthly report analysis as a job and polls until completion", async () => {
+    vi.useFakeTimers();
+    const onJobUpdate = vi.fn();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 202,
+        json: async () => ({
+          jobId: "job-1",
+          status: "running",
+          statusMessage: "Queued for AI analysis.",
+          generatedOutputCharacters: null,
+          usage: null,
+          analysis: null,
+          error: null,
+          createdAtUtc: "2026-05-23T00:00:00Z",
+          updatedAtUtc: "2026-05-23T00:00:00Z"
+        })
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          jobId: "job-1",
+          status: "completed",
+          statusMessage: "Analysis completed.",
+          generatedOutputCharacters: 42,
+          usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+          analysis: {
+            transactions: [],
+            warnings: []
+          },
+          error: null,
+          createdAtUtc: "2026-05-23T00:00:00Z",
+          updatedAtUtc: "2026-05-23T00:00:01Z"
+        })
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const analysisPromise = apiClient.analyzeMonthlyReport("token", {
+      accountId: "account-1",
+      month: "2026-05",
+      provider: "OpenAiCompatible",
+      file: new File(["report"], "report.pdf", { type: "application/pdf" })
+    }, onJobUpdate);
+
+    await vi.advanceTimersByTimeAsync(1500);
+
+    await expect(analysisPromise).resolves.toEqual({ transactions: [], warnings: [] });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][0]).toContain("/api/imports/monthly-report/analyze/job-1");
+    expect(onJobUpdate).toHaveBeenCalledWith(expect.objectContaining({ statusMessage: "Queued for AI analysis." }));
+    expect(onJobUpdate).toHaveBeenCalledWith(expect.objectContaining({ generatedOutputCharacters: 42 }));
+  });
+
+  it("retries parsing saved monthly report analysis output", async () => {
+    const onJobUpdate = vi.fn();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        jobId: "job-1",
+        status: "completed",
+        statusMessage: "Saved AI output parsed.",
+        generatedOutputCharacters: 300,
+        usage: { promptTokens: 20, completionTokens: 40, totalTokens: 60 },
+        analysis: {
+          transactions: [],
+          warnings: ["Recovered from saved output."]
+        },
+        error: null,
+        hasRawAiOutput: true,
+        createdAtUtc: "2026-05-23T00:00:00Z",
+        updatedAtUtc: "2026-05-23T00:00:01Z"
+      })
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiClient.retryMonthlyReportAnalysisParse("token", "job-1", onJobUpdate)).resolves.toEqual({
+      transactions: [],
+      warnings: ["Recovered from saved output."]
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/api/imports/monthly-report/analyze/job-1/retry-parse"),
+      expect.objectContaining({ method: "POST", headers: { Authorization: "Bearer token" } })
+    );
+    expect(onJobUpdate).toHaveBeenCalledWith(expect.objectContaining({ statusMessage: "Saved AI output parsed." }));
+  });
+
+  it("downloads saved monthly report analysis raw output", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (name: string) => name.toLowerCase() === "content-disposition"
+          ? 'attachment; filename="ledgerra-ai-output-job-1.json"'
+          : null
+      },
+      blob: async () => new Blob(['{"transactions":[]}'], { type: "application/json" })
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiClient.downloadMonthlyReportAnalysisRawOutput("token", "job-1")).resolves.toMatchObject({
+      filename: "ledgerra-ai-output-job-1.json"
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/api/imports/monthly-report/analyze/job-1/raw-output"),
+      expect.objectContaining({ headers: { Authorization: "Bearer token" } })
+    );
   });
 });

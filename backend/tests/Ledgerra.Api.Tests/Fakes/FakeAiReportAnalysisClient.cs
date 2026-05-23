@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Ledgerra.Api.Services.Ai;
 using Ledgerra.Domain.Ai;
 
@@ -12,8 +13,20 @@ public sealed class FakeAiReportAnalysisClient : IAiReportAnalysisClient
 
     public AiProvider Provider { get; }
 
-    public Task<AiReportAnalysisResult> AnalyzeAsync(AiReportAnalysisRequest request, CancellationToken cancellationToken)
+    public Task<AiReportAnalysisResult> AnalyzeAsync(
+        AiReportAnalysisRequest request,
+        CancellationToken cancellationToken,
+        IProgress<AiReportAnalysisProgress>? progress = null)
     {
+        progress?.Report(new AiReportAnalysisProgress("Fake AI provider is generating drafts.", 32, new AiTokenUsage(120, 40, 160)));
+        if (request.ReportContent.Contains("parse-error-raw-valid", StringComparison.OrdinalIgnoreCase))
+        {
+            var rawOutput = $$"""
+                {"transactions":[{"sourceId":"statement-2026-004-001","accountId":"{{request.Accounts[0].Id}}","categoryId":null,"amount":42.17,"type":"Expense","occurredOnUtc":"2026-04-10T12:00:00Z","note":"Imported: Market","confidence":0.92,"warnings":[]}],"warnings":[]}
+                """;
+            throw new AiReportAnalysisParseException("Fake provider returned analysis JSON that could not be parsed.", rawOutput, new AiTokenUsage(120, 40, 160), new JsonException());
+        }
+
         var categoryId = request.ReportContent.Split("category:", StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Trim();
         var sourceId = request.ReportContent.Contains("source:<blank>", StringComparison.OrdinalIgnoreCase)
             ? string.Empty
@@ -51,7 +64,7 @@ public sealed class FakeAiReportAnalysisClient : IAiReportAnalysisClient
                 []));
         }
 
-        return Task.FromResult(new AiReportAnalysisResult(transactions, []));
+        return Task.FromResult(new AiReportAnalysisResult(transactions, [], new AiTokenUsage(120, 40, 160)));
     }
 
     private static string? ReadMarker(string content, string marker)

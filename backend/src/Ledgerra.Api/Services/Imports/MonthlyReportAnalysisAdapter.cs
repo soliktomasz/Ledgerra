@@ -19,15 +19,26 @@ public sealed class MonthlyReportAnalysisAdapter : IMonthlyReportAnalyzer
         AiProvider provider,
         string month,
         string reportContent,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IProgress<MonthlyReportAnalyzerProgress>? progress = null)
     {
+        IProgress<AiReportAnalysisProgress>? aiProgress = progress is null
+            ? null
+            : new Progress<AiReportAnalysisProgress>(item => progress.Report(new MonthlyReportAnalyzerProgress(
+                item.StatusMessage,
+                item.GeneratedOutputCharacters,
+                item.Usage is null
+                    ? null
+                    : new MonthlyReportAnalyzerTokenUsage(item.Usage.PromptTokens, item.Usage.CompletionTokens, item.Usage.TotalTokens))));
+
         var result = await _aiReportAnalysisService.AnalyzeAsync(
             userId,
             accountId,
             provider,
             month,
             new ExtractedReport(string.Empty, string.Empty, reportContent),
-            cancellationToken);
+            cancellationToken,
+            aiProgress);
 
         return new AiDraftAnalysisResult(
             result.Transactions.Select(item => new AiDraftAnalysisItem(
@@ -40,6 +51,9 @@ public sealed class MonthlyReportAnalysisAdapter : IMonthlyReportAnalyzer
                 item.Note,
                 item.Confidence,
                 item.Warnings)).ToList(),
-            result.Warnings);
+            result.Warnings,
+            result.Usage is null
+                ? null
+                : new MonthlyReportAnalyzerTokenUsage(result.Usage.PromptTokens, result.Usage.CompletionTokens, result.Usage.TotalTokens));
     }
 }

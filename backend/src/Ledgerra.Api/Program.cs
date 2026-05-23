@@ -39,6 +39,7 @@ builder.Services.AddScoped<AiReportAnalysisClientFactory>();
 builder.Services.AddScoped<AiReportAnalysisService>();
 builder.Services.AddScoped<IImportCategorizationRuleMatcher, ImportCategorizationRuleMatcher>();
 builder.Services.AddScoped<IImportDuplicateDetector, ImportDuplicateDetector>();
+builder.Services.AddSingleton<MonthlyReportAnalysisJobStore>();
 builder.Services.AddScoped<AnalyzeMonthlyReportCommandHandler>();
 builder.Services.AddScoped<GetDashboardSummaryQueryHandler>();
 builder.Services.AddScoped<GetReportingOverviewQueryHandler>();

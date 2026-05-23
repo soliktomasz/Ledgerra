@@ -16,7 +16,10 @@ public sealed class AnthropicReportAnalysisClient : IAiReportAnalysisClient
 
     public AiProvider Provider => AiProvider.Anthropic;
 
-    public async Task<AiReportAnalysisResult> AnalyzeAsync(AiReportAnalysisRequest request, CancellationToken cancellationToken)
+    public async Task<AiReportAnalysisResult> AnalyzeAsync(
+        AiReportAnalysisRequest request,
+        CancellationToken cancellationToken,
+        IProgress<AiReportAnalysisProgress>? progress = null)
     {
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://api.anthropic.com/v1/messages");
         httpRequest.Headers.Add("x-api-key", request.ProviderApiKey);
@@ -48,15 +51,7 @@ public sealed class AnthropicReportAnalysisClient : IAiReportAnalysisClient
             return new AiReportAnalysisResult([], ["Anthropic returned an empty analysis."]);
         }
 
-        try
-        {
-            return JsonSerializer.Deserialize<AiReportAnalysisResult>(outputText, JsonSerializerOptions.Web)
-                ?? new AiReportAnalysisResult([], ["Anthropic returned an empty analysis."]);
-        }
-        catch (JsonException)
-        {
-            return new AiReportAnalysisResult([], ["Anthropic returned an empty analysis."]);
-        }
+        return AiReportAnalysisParser.Parse(outputText, "Anthropic");
     }
 
     private static string? ExtractOutputText(JsonElement json)

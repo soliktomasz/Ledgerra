@@ -1256,10 +1256,12 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         form.Add(fileContent, "file", "statement.csv");
 
-        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var job = await AnalyzeMonthlyReportJobAsync(client, form);
+        Assert.Equal("completed", job.GetProperty("status").GetString());
+        Assert.Equal("Analysis completed.", job.GetProperty("statusMessage").GetString());
+        Assert.Equal(32, job.GetProperty("generatedOutputCharacters").GetInt32());
+        Assert.Equal(160, job.GetProperty("usage").GetProperty("totalTokens").GetInt32());
+        var payload = job.GetProperty("analysis");
         Assert.Equal(1, payload.GetProperty("transactions").GetArrayLength());
         Assert.Equal(checkingId, payload.GetProperty("transactions")[0].GetProperty("accountId").GetGuid());
         Assert.Equal(groceriesCategoryId, payload.GetProperty("transactions")[0].GetProperty("categoryId").GetGuid());
@@ -1285,9 +1287,10 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         form.Add(fileContent, "file", "statement.csv");
 
-        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+        var job = await AnalyzeMonthlyReportJobAsync(client, form);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("failed", job.GetProperty("status").GetString());
+        Assert.Contains("malformed transaction draft", job.GetProperty("error").GetString(), StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -1309,9 +1312,50 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         form.Add(fileContent, "file", "statement.csv");
 
-        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
+        var job = await AnalyzeMonthlyReportJobAsync(client, form);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("failed", job.GetProperty("status").GetString());
+        Assert.Contains("malformed transaction draft", job.GetProperty("error").GetString(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task MonthlyReportAnalyze_SavesRawAiOutputForRetryAfterParseFailure()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        await client.PutAsJsonAsync("/api/settings/ai/openai", new { apiKey = "sk-test-openai-secret-123456" });
+
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent(checkingId.ToString()), "accountId");
+        form.Add(new StringContent("2026-04"), "month");
+        form.Add(new StringContent("OpenAi"), "provider");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\nparse-error-raw-valid\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
+
+        var failedJob = await AnalyzeMonthlyReportJobAsync(client, form);
+
+        Assert.Equal("failed", failedJob.GetProperty("status").GetString());
+        Assert.True(failedJob.GetProperty("hasRawAiOutput").GetBoolean());
+
+        var downloadResponse = await client.GetAsync($"/api/imports/monthly-report/analyze/{failedJob.GetProperty("jobId").GetGuid()}/raw-output");
+
+        Assert.Equal(HttpStatusCode.OK, downloadResponse.StatusCode);
+        Assert.Equal("application/json; charset=utf-8", downloadResponse.Content.Headers.ContentType?.ToString());
+        Assert.Contains($"ledgerra-ai-output-{failedJob.GetProperty("jobId").GetGuid()}.json", downloadResponse.Content.Headers.ContentDisposition?.FileName);
+        Assert.Contains("statement-2026-004-001", await downloadResponse.Content.ReadAsStringAsync());
+
+        var retryResponse = await client.PostAsync($"/api/imports/monthly-report/analyze/{failedJob.GetProperty("jobId").GetGuid()}/retry-parse", null);
+
+        Assert.Equal(HttpStatusCode.OK, retryResponse.StatusCode);
+        var retriedJob = await retryResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("completed", retriedJob.GetProperty("status").GetString());
+        Assert.Equal(1, retriedJob.GetProperty("analysis").GetProperty("transactions").GetArrayLength());
+        Assert.Equal(160, retriedJob.GetProperty("usage").GetProperty("totalTokens").GetInt32());
     }
 
     [Fact]
@@ -1348,10 +1392,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         form.Add(fileContent, "file", "statement.csv");
 
-        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var payload = await AnalyzeMonthlyReportAsync(client, form);
         var draft = payload.GetProperty("transactions")[0];
         Assert.Equal(groceriesCategoryId, draft.GetProperty("categoryId").GetGuid());
         Assert.Equal("Expense", draft.GetProperty("type").GetString());
@@ -1393,10 +1434,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         form.Add(fileContent, "file", "statement.csv");
 
-        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var payload = await AnalyzeMonthlyReportAsync(client, form);
         var draft = payload.GetProperty("transactions")[0];
         Assert.True(draft.GetProperty("isLikelyDuplicate").GetBoolean());
         Assert.Equal(existingId, draft.GetProperty("duplicateTransactionId").GetGuid());
@@ -1434,10 +1472,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         form.Add(fileContent, "file", "statement.csv");
 
-        var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var payload = await AnalyzeMonthlyReportAsync(client, form);
         var draft = payload.GetProperty("transactions")[0];
         Assert.False(draft.GetProperty("isLikelyDuplicate").GetBoolean());
         Assert.True(draft.GetProperty("isSelectedByDefault").GetBoolean());
@@ -1506,11 +1541,46 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         form.Add(new StringContent(checkingId.ToString()), "accountId");
         form.Add(new StringContent("2026-04"), "month");
         form.Add(new StringContent("Anthropic"), "provider");
-        form.Add(new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\n")), "file", "statement.csv");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("Date,Description,Amount\n2026-04-10,Market,-42.17\n"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        form.Add(fileContent, "file", "statement.csv");
 
+        var job = await AnalyzeMonthlyReportJobAsync(client, form);
+
+        Assert.Equal("failed", job.GetProperty("status").GetString());
+        Assert.Contains("not configured", job.GetProperty("error").GetString(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static async Task<JsonElement> AnalyzeMonthlyReportAsync(HttpClient client, MultipartFormDataContent form)
+    {
+        var job = await AnalyzeMonthlyReportJobAsync(client, form);
+        Assert.Equal("completed", job.GetProperty("status").GetString());
+        return job.GetProperty("analysis").Clone();
+    }
+
+    private static async Task<JsonElement> AnalyzeMonthlyReportJobAsync(HttpClient client, MultipartFormDataContent form)
+    {
         var response = await client.PostAsync("/api/imports/monthly-report/analyze", form);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var jobId = payload.GetProperty("jobId").GetGuid();
+
+        for (var attempt = 0; attempt < 40; attempt++)
+        {
+            var jobResponse = await client.GetAsync($"/api/imports/monthly-report/analyze/{jobId}");
+            Assert.Equal(HttpStatusCode.OK, jobResponse.StatusCode);
+            var job = await jobResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var status = job.GetProperty("status").GetString();
+            if (status is "completed" or "failed")
+            {
+                return job.Clone();
+            }
+
+            await Task.Delay(50);
+        }
+
+        throw new Xunit.Sdk.XunitException("Monthly report analysis job did not finish.");
     }
 
     private static async Task<AuthResult> RegisterAndAuthenticateAsync(HttpClient client)

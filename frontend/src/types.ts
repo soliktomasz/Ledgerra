@@ -87,6 +87,23 @@ export type MonthlyReportAnalysis = {
   warnings: string[];
 };
 
+export type MonthlyReportAnalysisJob = {
+  jobId: string;
+  status: "running" | "completed" | "failed";
+  statusMessage?: string | null;
+  generatedOutputCharacters?: number | null;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  } | null;
+  analysis?: MonthlyReportAnalysis | null;
+  error?: string | null;
+  hasRawAiOutput?: boolean;
+  createdAtUtc: string;
+  updatedAtUtc: string;
+};
+
 export type ImportRule = {
   id: string;
   name: string;

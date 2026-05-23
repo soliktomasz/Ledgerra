@@ -3,7 +3,7 @@ import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
-import type { MonthlyReportDraftTransaction } from "../types";
+import type { MonthlyReportAnalysis, MonthlyReportAnalysisJob, MonthlyReportDraftTransaction } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 
@@ -58,6 +58,8 @@ export function ImportsPage() {
   const [error, setError] = useState<string | null>(null);
   const [ruleMessage, setRuleMessage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisElapsedSeconds, setAnalysisElapsedSeconds] = useState(0);
+  const [analysisJob, setAnalysisJob] = useState<MonthlyReportAnalysisJob | null>(null);
   const [isCommitting, setIsCommitting] = useState(false);
   const [rememberingRuleSourceId, setRememberingRuleSourceId] = useState<string | null>(null);
   const [isRememberingSelectedRules, setIsRememberingSelectedRules] = useState(false);
@@ -67,6 +69,20 @@ export function ImportsPage() {
   useEffect(() => {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
   }, [aiSettings?.defaultProvider]);
+
+  useEffect(() => {
+    if (!isAnalyzing) {
+      setAnalysisElapsedSeconds(0);
+      return;
+    }
+
+    setAnalysisElapsedSeconds(0);
+    const timerId = window.setInterval(() => {
+      setAnalysisElapsedSeconds((current) => current + 1);
+    }, 1000);
+
+    return () => window.clearInterval(timerId);
+  }, [isAnalyzing]);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const nextFile = event.target.files?.[0] ?? null;
@@ -87,6 +103,26 @@ export function ImportsPage() {
     }
   };
 
+  const applyAnalysis = (analysis: MonthlyReportAnalysis) => {
+    setDrafts(analysis.transactions);
+    setSelected(
+      new Set(
+        analysis.transactions
+          .filter((transaction) => transaction.isSelectedByDefault ?? !transaction.isLikelyDuplicate)
+          .map((transaction) => transaction.sourceId)
+      )
+    );
+    setAcceptedDuplicateSourceIds(
+      new Set(
+        analysis.transactions
+          .filter((transaction) => transaction.isLikelyDuplicate && transaction.isSelectedByDefault)
+          .map((transaction) => transaction.sourceId)
+      )
+    );
+    setHideDuplicates(false);
+    setBulkCategoryId("");
+  };
+
   const handleAnalyze = async (event: FormEvent) => {
     event.preventDefault();
     if (!auth?.accessToken || !accountId || !file) {
@@ -95,6 +131,7 @@ export function ImportsPage() {
 
     setError(null);
     setRuleMessage(null);
+    setAnalysisJob(null);
     setIsAnalyzing(true);
     try {
       const isCsv = file.name.toLowerCase().endsWith(".csv");
@@ -126,30 +163,76 @@ export function ImportsPage() {
             amountColumn: selectedAmountColumn,
             descriptionColumn: selectedDescriptionColumn
           })
-        : await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file });
-      setDrafts(analysis.transactions);
-      setSelected(
-        new Set(
-          analysis.transactions
-            .filter((transaction) => transaction.isSelectedByDefault ?? !transaction.isLikelyDuplicate)
-            .map((transaction) => transaction.sourceId)
-        )
-      );
-      setAcceptedDuplicateSourceIds(
-        new Set(
-          analysis.transactions
-            .filter((transaction) => transaction.isLikelyDuplicate && transaction.isSelectedByDefault)
-            .map((transaction) => transaction.sourceId)
-        )
-      );
-      setHideDuplicates(false);
-      setBulkCategoryId("");
+        : await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file }, setAnalysisJob);
+      applyAnalysis(analysis);
     } catch (exception) {
       setError(getErrorMessage(exception, t("imports.unableToAnalyze")));
     } finally {
       setIsAnalyzing(false);
     }
   };
+
+  const handleRetrySavedAnalysis = async () => {
+    if (!auth?.accessToken || !analysisJob?.jobId) {
+      return;
+    }
+
+    setError(null);
+    setRuleMessage(null);
+    setIsAnalyzing(true);
+    setAnalysisJob((current) => current
+      ? { ...current, status: "running", statusMessage: t("imports.retryingSavedAnalysis"), error: null }
+      : current);
+    try {
+      const analysis = await apiClient.retryMonthlyReportAnalysisParse(auth.accessToken, analysisJob.jobId, setAnalysisJob);
+      applyAnalysis(analysis);
+    } catch (exception) {
+      setError(getErrorMessage(exception, t("imports.unableToAnalyze")));
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleDownloadSavedAnalysis = async () => {
+    if (!auth?.accessToken || !analysisJob?.jobId) {
+      return;
+    }
+
+    setError(null);
+    setRuleMessage(null);
+    try {
+      const { blob, filename } = await apiClient.downloadMonthlyReportAnalysisRawOutput(auth.accessToken, analysisJob.jobId);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (exception) {
+      setError(getErrorMessage(exception, t("imports.unableToDownloadSavedAnalysis")));
+    }
+  };
+
+  const analysisProgressDetails = analysisJob
+    ? [
+        analysisJob.statusMessage,
+        typeof analysisJob.generatedOutputCharacters === "number"
+          ? t("imports.analysisGenerated", { count: analysisJob.generatedOutputCharacters })
+          : null,
+        analysisJob.usage
+          ? t("imports.analysisTokens", {
+              total: analysisJob.usage.totalTokens,
+              prompt: analysisJob.usage.promptTokens,
+              completion: analysisJob.usage.completionTokens
+            })
+          : null
+      ].filter(Boolean).join(" ")
+    : null;
+  const shouldShowAnalysisStatus = isAnalyzing
+    ? analysisElapsedSeconds >= 10 || Boolean(analysisProgressDetails)
+    : Boolean(analysisJob?.usage);
 
   const updateDraft = (sourceId: string, updates: Partial<MonthlyReportDraftTransaction>) => {
     setDrafts((current) => current.map((draft) => (draft.sourceId === sourceId ? { ...draft, ...updates } : draft)));
@@ -339,6 +422,25 @@ export function ImportsPage() {
           <button className="primary-button" type="submit" disabled={isAnalyzing}>
             {isAnalyzing ? t("imports.analyzing") : t("imports.analyzeReport")}
           </button>
+          {shouldShowAnalysisStatus ? (
+            <p className="form-helper" role="status">
+              {isAnalyzing && analysisProgressDetails
+                ? t("imports.analysisProgress", { elapsed: analysisElapsedSeconds, details: analysisProgressDetails })
+                : analysisProgressDetails
+                  ? analysisProgressDetails
+                : t("imports.analysisStillRunning", { elapsed: analysisElapsedSeconds })}
+            </p>
+          ) : null}
+          {!isAnalyzing && analysisJob?.status === "failed" && analysisJob.hasRawAiOutput ? (
+            <div className="form-actions">
+              <button className="ghost-button compact-button" type="button" onClick={() => void handleRetrySavedAnalysis()}>
+                {t("imports.retrySavedAnalysis")}
+              </button>
+              <button className="ghost-button compact-button" type="button" onClick={() => void handleDownloadSavedAnalysis()}>
+                {t("imports.downloadSavedAnalysis")}
+              </button>
+            </div>
+          ) : null}
         </form>
       </SectionCard>
 

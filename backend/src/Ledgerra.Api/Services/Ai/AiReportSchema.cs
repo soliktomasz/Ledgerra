@@ -46,11 +46,15 @@ public static class AiReportSchema
         return $"""
         You are parsing a financial account report for Ledgerra.
         Return JSON only, matching the provided schema.
+        Do not wrap the JSON in Markdown fences. Do not include explanations, comments, or any text before or after the JSON object.
         Selected month context: {request.Month}
         Accounts: {JsonSerializer.Serialize(request.Accounts)}
         Categories: {JsonSerializer.Serialize(request.Categories)}
         Rules:
+        - The report can be in any language. Infer table meanings from layout and labels such as booking/posting date, operation/transaction date, description, inflow/credit, outflow/debit, and balance.
         - Use only accountId and categoryId values from the supplied context.
+        - Use the exact JSON shape defined in the schema: root object with transactions array and warnings array; each transaction must include sourceId, accountId, categoryId, amount, type, occurredOnUtc, note, confidence, and warnings.
+        - Use stable sourceId values based on the detected institution/source name, statement number or statement period, and row sequence, for example bank-name-2026-004-001. Do not hard-code any bank name; derive a lowercase ASCII slug from the report, and use "statement" if the institution cannot be identified.
         - Amounts must be positive numbers.
         - Spending is Expense. Deposits are Income.
         - Use UTC ISO-8601 dates.

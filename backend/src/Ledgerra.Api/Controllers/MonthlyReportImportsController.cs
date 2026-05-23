@@ -1,3 +1,4 @@
+using System.Text;
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
 using Ledgerra.Application.Imports;
@@ -14,25 +15,25 @@ namespace Ledgerra.Api.Controllers;
 [Route("api/imports/monthly-report")]
 public sealed class MonthlyReportImportsController : ControllerBase
 {
-    private readonly AnalyzeMonthlyReportCommandHandler _analyzeMonthlyReportCommandHandler;
+    private readonly MonthlyReportAnalysisJobStore _analysisJobStore;
     private readonly CommitMonthlyReportDraftsCommandHandler _commitMonthlyReportDraftsCommandHandler;
     private readonly IReportContentExtractor _reportContentExtractor;
     private readonly CsvBankImportMapper _csvBankImportMapper;
 
     public MonthlyReportImportsController(
-        AnalyzeMonthlyReportCommandHandler analyzeMonthlyReportCommandHandler,
+        MonthlyReportAnalysisJobStore analysisJobStore,
         CommitMonthlyReportDraftsCommandHandler commitMonthlyReportDraftsCommandHandler,
         IReportContentExtractor reportContentExtractor,
         CsvBankImportMapper csvBankImportMapper)
     {
-        _analyzeMonthlyReportCommandHandler = analyzeMonthlyReportCommandHandler;
+        _analysisJobStore = analysisJobStore;
         _commitMonthlyReportDraftsCommandHandler = commitMonthlyReportDraftsCommandHandler;
         _reportContentExtractor = reportContentExtractor;
         _csvBankImportMapper = csvBankImportMapper;
     }
 
     [HttpPost("analyze")]
-    public async Task<ActionResult<MonthlyReportAnalysisResponse>> Analyze(
+    public async Task<ActionResult<MonthlyReportAnalysisJobResponse>> Analyze(
         [FromForm] Guid accountId,
         [FromForm] string month,
         [FromForm] string provider,
@@ -50,16 +51,9 @@ public sealed class MonthlyReportImportsController : ControllerBase
         try
         {
             var report = await _reportContentExtractor.ExtractAsync(file, cancellationToken);
-            var result = await _analyzeMonthlyReportCommandHandler.HandleAsync(
-                new AnalyzeMonthlyReportCommand(
-                    User.GetRequiredUserId(),
-                    accountId,
-                    month,
-                    parsedProvider,
-                    report.Content),
-                cancellationToken);
+            var job = _analysisJobStore.Start(User.GetRequiredUserId(), accountId, month, parsedProvider, report.Content);
 
-            return Ok(new MonthlyReportAnalysisResponse(result.Transactions.Select(MapDraft).ToList(), result.Warnings));
+            return AcceptedAtAction(nameof(GetAnalysisJob), new { jobId = job.JobId }, job.ToResponse());
         }
         catch (InvalidOperationException exception)
         {
@@ -72,6 +66,34 @@ public sealed class MonthlyReportImportsController : ControllerBase
         }
     }
 
+    [HttpGet("analyze/{jobId:guid}")]
+    public ActionResult<MonthlyReportAnalysisJobResponse> GetAnalysisJob(Guid jobId)
+    {
+        var job = _analysisJobStore.Get(User.GetRequiredUserId(), jobId);
+        return job is null ? NotFound(new ProblemDetails { Title = "Analysis job not found." }) : Ok(job.ToResponse());
+    }
+
+    [HttpPost("analyze/{jobId:guid}/retry-parse")]
+    public async Task<ActionResult<MonthlyReportAnalysisJobResponse>> RetryParseAnalysisJob(Guid jobId, CancellationToken cancellationToken)
+    {
+        var job = await _analysisJobStore.RetryParseAsync(User.GetRequiredUserId(), jobId, cancellationToken);
+        return job is null ? NotFound(new ProblemDetails { Title = "Analysis job with saved AI output not found." }) : Ok(job.ToResponse());
+    }
+
+    [HttpGet("analyze/{jobId:guid}/raw-output")]
+    public IActionResult DownloadRawAnalysisOutput(Guid jobId)
+    {
+        var job = _analysisJobStore.Get(User.GetRequiredUserId(), jobId);
+        if (job is not { RawAiOutput: { Length: > 0 } rawOutput })
+        {
+            return NotFound(new ProblemDetails { Title = "Analysis job with saved AI output not found." });
+        }
+
+        return File(
+            Encoding.UTF8.GetBytes(rawOutput),
+            "application/json; charset=utf-8",
+            $"ledgerra-ai-output-{jobId}.json");
+    }
 
     [HttpPost("csv-preview")]
     public async Task<ActionResult<MonthlyReportAnalysisResponse>> PreviewCsv(
