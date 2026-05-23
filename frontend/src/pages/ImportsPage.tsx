@@ -30,6 +30,10 @@ export function ImportsPage() {
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [provider, setProvider] = useState("OpenAi");
   const [file, setFile] = useState<File | null>(null);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [dateColumn, setDateColumn] = useState("");
+  const [amountColumn, setAmountColumn] = useState("");
+  const [descriptionColumn, setDescriptionColumn] = useState("");
   const [drafts, setDrafts] = useState<MonthlyReportDraftTransaction[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [acceptedDuplicateSourceIds, setAcceptedDuplicateSourceIds] = useState<Set<string>>(new Set());
@@ -46,13 +50,29 @@ export function ImportsPage() {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
   }, [aiSettings?.defaultProvider]);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFile(event.target.files?.[0] ?? null);
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const nextFile = event.target.files?.[0] ?? null;
+    setFile(nextFile);
+    setCsvHeaders([]);
+    setDateColumn("");
+    setAmountColumn("");
+    setDescriptionColumn("");
+
+    if (nextFile && nextFile.name.toLowerCase().endsWith(".csv")) {
+      const text = await nextFile.text();
+      const headerRow = text.split(/?
+/).find((line) => line.trim().length > 0) ?? "";
+      const headers = headerRow.split(",").map((value) => value.trim().replace(/^"|"$/g, "")).filter(Boolean);
+      setCsvHeaders(headers);
+      setDateColumn(headers.find((header) => /date/i.test(header)) ?? headers[0] ?? "");
+      setAmountColumn(headers.find((header) => /amount|debit|credit/i.test(header)) ?? headers[1] ?? "");
+      setDescriptionColumn(headers.find((header) => /description|memo|note/i.test(header)) ?? "");
+    }
   };
 
   const handleAnalyze = async (event: FormEvent) => {
     event.preventDefault();
-    if (!auth?.accessToken || !accountId || !file) {
+    if (!auth?.accessToken || !accountId || !file || (file.name.toLowerCase().endsWith(".csv") && (!dateColumn || !amountColumn))) {
       return;
     }
 
@@ -60,7 +80,9 @@ export function ImportsPage() {
     setRuleMessage(null);
     setIsAnalyzing(true);
     try {
-      const analysis = await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file });
+      const analysis = file.name.toLowerCase().endsWith(".csv")
+        ? await apiClient.previewCsvBankImport(auth.accessToken, { accountId, file, dateColumn, amountColumn, descriptionColumn })
+        : await apiClient.analyzeMonthlyReport(auth.accessToken, { accountId, month, provider, file });
       setDrafts(analysis.transactions);
       setSelected(
         new Set(
@@ -245,6 +267,31 @@ export function ImportsPage() {
             {t("imports.reportFile")}
             <input accept=".pdf,.csv,application/pdf,text/csv" onChange={handleFileChange} type="file" required disabled={isAnalyzing} />
           </label>
+
+          {csvHeaders.length > 0 ? (
+            <>
+              <label>
+                Date column
+                <select value={dateColumn} onChange={(event) => setDateColumn(event.target.value)} required disabled={isAnalyzing}>
+                  {csvHeaders.map((header) => <option key={`date-${header}`} value={header}>{header}</option>)}
+                </select>
+              </label>
+              <label>
+                Amount column
+                <select value={amountColumn} onChange={(event) => setAmountColumn(event.target.value)} required disabled={isAnalyzing}>
+                  {csvHeaders.map((header) => <option key={`amount-${header}`} value={header}>{header}</option>)}
+                </select>
+              </label>
+              <label>
+                Description column
+                <select value={descriptionColumn} onChange={(event) => setDescriptionColumn(event.target.value)} disabled={isAnalyzing}>
+                  <option value="">(none)</option>
+                  {csvHeaders.map((header) => <option key={`description-${header}`} value={header}>{header}</option>)}
+                </select>
+              </label>
+            </>
+          ) : null}
+
           <button className="primary-button" type="submit" disabled={isAnalyzing}>
             {isAnalyzing ? t("imports.analyzing") : t("imports.analyzeReport")}
           </button>
