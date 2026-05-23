@@ -12,6 +12,7 @@ import { GoalsPage } from "./pages/GoalsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { TransactionsPage } from "./pages/TransactionsPage";
+import { ImportAnalysisProvider } from "./state/ImportAnalysisContext";
 import { I18nProvider } from "./state/I18nContext";
 
 const ReportsPage = lazy(async () => {
@@ -22,23 +23,25 @@ const ReportsPage = lazy(async () => {
 function ProtectedRoutes() {
   return (
     <MonthProvider>
-      <AppShell>
-        <Suspense fallback={<div className="page-stack"><p>Loading...</p></div>}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/transactions" element={<TransactionsPage />} />
-            <Route path="/imports" element={<ImportsPage />} />
-            <Route path="/accounts" element={<AccountsPage />} />
-            <Route path="/accounts/:accountId" element={<AccountsPage />} />
-            <Route path="/budgets" element={<BudgetsPage />} />
-            <Route path="/goals" element={<GoalsPage />} />
-            <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Routes>
-        </Suspense>
-      </AppShell>
+      <ImportAnalysisProvider>
+        <AppShell>
+          <Suspense fallback={<div className="page-stack"><p>Loading...</p></div>}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/imports" element={<ImportsPage />} />
+              <Route path="/accounts" element={<AccountsPage />} />
+              <Route path="/accounts/:accountId" element={<AccountsPage />} />
+              <Route path="/budgets" element={<BudgetsPage />} />
+              <Route path="/goals" element={<GoalsPage />} />
+              <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Routes>
+          </Suspense>
+        </AppShell>
+      </ImportAnalysisProvider>
     </MonthProvider>
   );
 }

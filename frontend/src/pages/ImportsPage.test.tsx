@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { ImportAnalysisProvider } from "../state/ImportAnalysisContext";
 import { ImportsPage } from "./ImportsPage";
 
 const mocks = vi.hoisted(() => ({
@@ -46,6 +48,14 @@ vi.mock("../hooks/useLedgerraData", () => ({
   })
 }));
 
+function renderImportsPage() {
+  return render(
+    <ImportAnalysisProvider>
+      <ImportsPage />
+    </ImportAnalysisProvider>
+  );
+}
+
 describe("ImportsPage", () => {
   beforeEach(() => {
     cleanup();
@@ -53,7 +63,7 @@ describe("ImportsPage", () => {
   });
 
   test("renders monthly report import controls", () => {
-    render(<ImportsPage />);
+    renderImportsPage();
 
     expect(screen.getByText("Monthly report import")).toBeInTheDocument();
     expect(screen.getByLabelText("Account")).toBeInTheDocument();
@@ -66,7 +76,7 @@ describe("ImportsPage", () => {
       rejectAnalysis = reject;
     }));
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -89,7 +99,7 @@ describe("ImportsPage", () => {
         rejectAnalysis = reject;
       }));
 
-      render(<ImportsPage />);
+      renderImportsPage();
 
       fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
       fireEvent.change(screen.getByLabelText("Report file"), {
@@ -135,7 +145,7 @@ describe("ImportsPage", () => {
         });
       });
 
-      render(<ImportsPage />);
+      renderImportsPage();
 
       fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
       fireEvent.change(screen.getByLabelText("Report file"), {
@@ -158,6 +168,92 @@ describe("ImportsPage", () => {
         vi.useRealTimers();
       }
     }
+  });
+
+  test("keeps AI analysis status and completed drafts visible across view changes", async () => {
+    const user = userEvent.setup();
+    let resolveAnalysis: (analysis: {
+      warnings: string[];
+      transactions: Array<{
+        sourceId: string;
+        accountId: string;
+        categoryId: string;
+        amount: number;
+        type: string;
+        occurredOnUtc: string;
+        note: string;
+        confidence: number;
+        warnings: string[];
+        isSelectedByDefault: boolean;
+      }>;
+    }) => void = () => undefined;
+    mocks.analyzeMonthlyReport.mockImplementation((_token, _payload, onJobUpdate) => {
+      onJobUpdate?.({
+        jobId: "job-1",
+        status: "running",
+        statusMessage: "AI provider is streaming JSON output.",
+        generatedOutputCharacters: 128,
+        usage: null,
+        analysis: null,
+        error: null,
+        createdAtUtc: "2026-05-23T00:00:00Z",
+        updatedAtUtc: "2026-05-23T00:00:01Z"
+      });
+
+      return new Promise((resolve) => {
+        resolveAnalysis = resolve;
+      });
+    });
+
+    function Harness() {
+      const [showImports, setShowImports] = useState(true);
+
+      return (
+        <ImportAnalysisProvider>
+          <button type="button" onClick={() => setShowImports((current) => !current)}>
+            Change view
+          </button>
+          {showImports ? <ImportsPage /> : <div>Dashboard view</div>}
+        </ImportAnalysisProvider>
+      );
+    }
+
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
+    fireEvent.change(screen.getByLabelText("Report file"), {
+      target: { files: [new File(["report"], "report.pdf", { type: "application/pdf" })] }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
+
+    expect(await screen.findByText(/AI provider is streaming JSON output/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Change view" }));
+    expect(screen.getByText("Dashboard view")).toBeInTheDocument();
+
+    resolveAnalysis({
+      warnings: [],
+      transactions: [
+        {
+          sourceId: "row-1",
+          accountId: "account-1",
+          categoryId: "category-1",
+          amount: 42.17,
+          type: "Expense",
+          occurredOnUtc: "2026-04-10T12:00:00Z",
+          note: "Market",
+          confidence: 0.9,
+          warnings: [],
+          isSelectedByDefault: true
+        }
+      ]
+    });
+
+    await user.click(screen.getByRole("button", { name: "Change view" }));
+
+    expect(await screen.findByText(/AI provider is streaming JSON output/)).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("Market")).toBeInTheDocument();
+    expect(screen.getByLabelText("Select row-1")).toBeChecked();
   });
 
   test("retries saved AI output after a parse failure", async () => {
@@ -196,7 +292,7 @@ describe("ImportsPage", () => {
       ]
     });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -251,7 +347,7 @@ describe("ImportsPage", () => {
         filename: "ledgerra-ai-output-job-1.json"
       });
 
-      render(<ImportsPage />);
+      renderImportsPage();
 
       fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
       fireEvent.change(screen.getByLabelText("Report file"), {
@@ -297,7 +393,7 @@ describe("ImportsPage", () => {
     });
     mocks.commitMonthlyReportDrafts.mockResolvedValue({ created: [] });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -347,7 +443,7 @@ describe("ImportsPage", () => {
       ]
     });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -386,7 +482,7 @@ describe("ImportsPage", () => {
     });
     mocks.commitMonthlyReportDrafts.mockResolvedValue({ created: [] });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -427,7 +523,7 @@ describe("ImportsPage", () => {
     });
     mocks.commitMonthlyReportDrafts.mockResolvedValue({ created: [] });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -467,7 +563,7 @@ describe("ImportsPage", () => {
       ]
     });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -502,7 +598,7 @@ describe("ImportsPage", () => {
     });
     mocks.commitMonthlyReportDrafts.mockRejectedValue(new Error("Draft row-1 appears to duplicate an existing transaction."));
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -537,7 +633,7 @@ describe("ImportsPage", () => {
     });
     mocks.createImportRule.mockResolvedValue({ id: "rule-1" });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -581,7 +677,7 @@ describe("ImportsPage", () => {
     });
     mocks.createImportRule.mockRejectedValue(new Error("Rule name already exists."));
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -630,7 +726,7 @@ describe("ImportsPage", () => {
     });
     mocks.commitMonthlyReportDrafts.mockResolvedValue({ created: [] });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {
@@ -680,7 +776,7 @@ describe("ImportsPage", () => {
     });
     mocks.createImportRule.mockResolvedValue({ id: "rule-1" });
 
-    render(<ImportsPage />);
+    renderImportsPage();
 
     fireEvent.change(screen.getByLabelText("Account"), { target: { value: "account-1" } });
     fireEvent.change(screen.getByLabelText("Report file"), {

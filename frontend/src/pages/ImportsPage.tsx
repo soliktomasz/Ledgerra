@@ -1,9 +1,10 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
-import type { MonthlyReportAnalysis, MonthlyReportAnalysisJob, MonthlyReportDraftTransaction } from "../types";
+import { useImportAnalysis } from "../state/ImportAnalysisContext";
+import type { MonthlyReportDraftTransaction } from "../types";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 
@@ -98,46 +99,57 @@ export function ImportsPage() {
     categories: true,
     aiSettings: true
   });
-  const [accountId, setAccountId] = useState("");
-  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
-  const [provider, setProvider] = useState("OpenAi");
-  const [file, setFile] = useState<File | null>(null);
-  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [dateColumn, setDateColumn] = useState("");
-  const [amountColumn, setAmountColumn] = useState("");
-  const [descriptionColumn, setDescriptionColumn] = useState("");
-  const [drafts, setDrafts] = useState<MonthlyReportDraftTransaction[]>([]);
-  const [draftDateInputs, setDraftDateInputs] = useState<Record<string, string>>({});
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [acceptedDuplicateSourceIds, setAcceptedDuplicateSourceIds] = useState<Set<string>>(new Set());
-  const [error, setError] = useState<string | null>(null);
-  const [ruleMessage, setRuleMessage] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisElapsedSeconds, setAnalysisElapsedSeconds] = useState(0);
-  const [analysisJob, setAnalysisJob] = useState<MonthlyReportAnalysisJob | null>(null);
-  const [isCommitting, setIsCommitting] = useState(false);
-  const [rememberingRuleSourceId, setRememberingRuleSourceId] = useState<string | null>(null);
-  const [isRememberingSelectedRules, setIsRememberingSelectedRules] = useState(false);
-  const [hideDuplicates, setHideDuplicates] = useState(false);
-  const [bulkCategoryId, setBulkCategoryId] = useState("");
+  const {
+    accountId,
+    setAccountId,
+    month,
+    setMonth,
+    provider,
+    setProvider,
+    file,
+    setFile,
+    csvHeaders,
+    setCsvHeaders,
+    dateColumn,
+    setDateColumn,
+    amountColumn,
+    setAmountColumn,
+    descriptionColumn,
+    setDescriptionColumn,
+    drafts,
+    setDrafts,
+    draftDateInputs,
+    setDraftDateInputs,
+    selected,
+    setSelected,
+    acceptedDuplicateSourceIds,
+    setAcceptedDuplicateSourceIds,
+    error,
+    setError,
+    ruleMessage,
+    setRuleMessage,
+    isAnalyzing,
+    setIsAnalyzing,
+    analysisElapsedSeconds,
+    analysisJob,
+    setAnalysisJob,
+    isCommitting,
+    setIsCommitting,
+    rememberingRuleSourceId,
+    setRememberingRuleSourceId,
+    isRememberingSelectedRules,
+    setIsRememberingSelectedRules,
+    hideDuplicates,
+    setHideDuplicates,
+    bulkCategoryId,
+    setBulkCategoryId,
+    applyAnalysis,
+    clearReviewSession
+  } = useImportAnalysis();
 
   useEffect(() => {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
   }, [aiSettings?.defaultProvider]);
-
-  useEffect(() => {
-    if (!isAnalyzing) {
-      setAnalysisElapsedSeconds(0);
-      return;
-    }
-
-    setAnalysisElapsedSeconds(0);
-    const timerId = window.setInterval(() => {
-      setAnalysisElapsedSeconds((current) => current + 1);
-    }, 1000);
-
-    return () => window.clearInterval(timerId);
-  }, [isAnalyzing]);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const nextFile = event.target.files?.[0] ?? null;
@@ -156,31 +168,6 @@ export function ImportsPage() {
       setAmountColumn(headers.find((header) => /amount|debit|credit/i.test(header)) ?? headers[1] ?? "");
       setDescriptionColumn(headers.find((header) => /description|memo|note/i.test(header)) ?? "");
     }
-  };
-
-  const applyAnalysis = (analysis: MonthlyReportAnalysis) => {
-    setDrafts(analysis.transactions);
-    setDraftDateInputs(
-      Object.fromEntries(
-        analysis.transactions.map((transaction) => [transaction.sourceId, formatDraftDate(transaction.occurredOnUtc)])
-      )
-    );
-    setSelected(
-      new Set(
-        analysis.transactions
-          .filter((transaction) => transaction.isSelectedByDefault ?? !transaction.isLikelyDuplicate)
-          .map((transaction) => transaction.sourceId)
-      )
-    );
-    setAcceptedDuplicateSourceIds(
-      new Set(
-        analysis.transactions
-          .filter((transaction) => transaction.isLikelyDuplicate && transaction.isSelectedByDefault)
-          .map((transaction) => transaction.sourceId)
-      )
-    );
-    setHideDuplicates(false);
-    setBulkCategoryId("");
   };
 
   const handleAnalyze = async (event: FormEvent) => {
@@ -294,7 +281,7 @@ export function ImportsPage() {
     : null;
   const shouldShowAnalysisStatus = isAnalyzing
     ? analysisElapsedSeconds >= 10 || Boolean(analysisProgressDetails)
-    : Boolean(analysisJob?.usage);
+    : Boolean(analysisJob && (analysisProgressDetails || drafts.length > 0));
 
   const updateDraft = (sourceId: string, updates: Partial<MonthlyReportDraftTransaction>) => {
     setDrafts((current) => current.map((draft) => (draft.sourceId === sourceId ? { ...draft, ...updates } : draft)));
@@ -407,9 +394,7 @@ export function ImportsPage() {
         drafts.filter((draft) => selected.has(draft.sourceId)),
         Array.from(acceptedDuplicateSourceIds)
       );
-      setDrafts([]);
-      setSelected(new Set());
-      setAcceptedDuplicateSourceIds(new Set());
+      clearReviewSession();
       await refresh();
     } catch (exception) {
       setError(getErrorMessage(exception, t("imports.unableToSaveSelectedDrafts")));
