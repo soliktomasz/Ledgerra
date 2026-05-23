@@ -75,17 +75,18 @@ public sealed class MonthlyReportImportsController : ControllerBase
 
     [HttpPost("csv-preview")]
     public async Task<ActionResult<MonthlyReportAnalysisResponse>> PreviewCsv(
-        [FromForm] IFormFile file,
-        [FromForm] Guid accountId,
-        [FromForm] string dateColumn,
-        [FromForm] string amountColumn,
-        [FromForm] string? descriptionColumn,
+        [FromForm] CsvImportPreviewRequest request,
         CancellationToken cancellationToken)
     {
         try
         {
-            var report = await _reportContentExtractor.ExtractAsync(file, cancellationToken);
-            var drafts = _csvBankImportMapper.Map(report.Content, accountId, dateColumn, amountColumn, descriptionColumn);
+            var report = await _reportContentExtractor.ExtractAsync(request.File, cancellationToken);
+            var drafts = _csvBankImportMapper.Map(
+                report.Content,
+                request.AccountId,
+                request.DateColumn,
+                request.AmountColumn,
+                request.DescriptionColumn);
             return Ok(new MonthlyReportAnalysisResponse(drafts.Select(MapDraft).ToList(), []));
         }
         catch (InvalidOperationException exception)

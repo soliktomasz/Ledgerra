@@ -57,11 +57,11 @@ export function ImportsPage() {
     setDateColumn("");
     setAmountColumn("");
     setDescriptionColumn("");
+    setError(null);
 
     if (nextFile && nextFile.name.toLowerCase().endsWith(".csv")) {
       const text = await nextFile.text();
-      const headerRow = text.split(/?
-/).find((line) => line.trim().length > 0) ?? "";
+      const headerRow = text.split(/\r?\n/).find((line) => line.trim().length > 0) ?? "";
       const headers = headerRow.split(",").map((value) => value.trim().replace(/^"|"$/g, "")).filter(Boolean);
       setCsvHeaders(headers);
       setDateColumn(headers.find((header) => /date/i.test(header)) ?? headers[0] ?? "");
@@ -72,7 +72,13 @@ export function ImportsPage() {
 
   const handleAnalyze = async (event: FormEvent) => {
     event.preventDefault();
-    if (!auth?.accessToken || !accountId || !file || (file.name.toLowerCase().endsWith(".csv") && (!dateColumn || !amountColumn))) {
+    if (!auth?.accessToken || !accountId || !file) {
+      return;
+    }
+
+    if (file.name.toLowerCase().endsWith(".csv") && (!dateColumn || !amountColumn)) {
+      setError(t("imports.mapCsvColumns"));
+      setRuleMessage(null);
       return;
     }
 
@@ -271,20 +277,20 @@ export function ImportsPage() {
           {csvHeaders.length > 0 ? (
             <>
               <label>
-                Date column
-                <select value={dateColumn} onChange={(event) => setDateColumn(event.target.value)} required disabled={isAnalyzing}>
+                {t("imports.dateColumn")}
+                <select value={dateColumn} onChange={(event) => { setDateColumn(event.target.value); setError(null); }} required disabled={isAnalyzing}>
                   {csvHeaders.map((header) => <option key={`date-${header}`} value={header}>{header}</option>)}
                 </select>
               </label>
               <label>
-                Amount column
-                <select value={amountColumn} onChange={(event) => setAmountColumn(event.target.value)} required disabled={isAnalyzing}>
+                {t("imports.amountColumn")}
+                <select value={amountColumn} onChange={(event) => { setAmountColumn(event.target.value); setError(null); }} required disabled={isAnalyzing}>
                   {csvHeaders.map((header) => <option key={`amount-${header}`} value={header}>{header}</option>)}
                 </select>
               </label>
               <label>
-                Description column
-                <select value={descriptionColumn} onChange={(event) => setDescriptionColumn(event.target.value)} disabled={isAnalyzing}>
+                {t("imports.descriptionColumn")}
+                <select value={descriptionColumn} onChange={(event) => { setDescriptionColumn(event.target.value); setError(null); }} disabled={isAnalyzing}>
                   <option value="">(none)</option>
                   {csvHeaders.map((header) => <option key={`description-${header}`} value={header}>{header}</option>)}
                 </select>

@@ -13,7 +13,7 @@ public sealed class CsvBankImportMapper
             throw new InvalidOperationException("CSV import must include a header row and at least one data row.");
         }
 
-        var headers = rows[0].Select(static value => value.Trim()).ToList();
+        var headers = rows[0].Select(static value => value.TrimStart('\uFEFF').Trim()).ToList();
         var dateIndex = FindHeaderIndex(headers, dateColumn, nameof(dateColumn));
         var amountIndex = FindHeaderIndex(headers, amountColumn, nameof(amountColumn));
         var descriptionIndex = string.IsNullOrWhiteSpace(descriptionColumn) ? -1 : FindHeaderIndex(headers, descriptionColumn, nameof(descriptionColumn));

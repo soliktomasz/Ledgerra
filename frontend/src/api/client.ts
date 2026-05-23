@@ -438,7 +438,7 @@ export const apiClient = {
       body.append("descriptionColumn", payload.descriptionColumn);
     }
 
-    return fetch(`${API_BASE_URL}/api/imports/monthly-report/csv-preview`, {
+    return fetch(resolveApiUrl(API_BASE_URL, "/api/imports/monthly-report/csv-preview"), {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body

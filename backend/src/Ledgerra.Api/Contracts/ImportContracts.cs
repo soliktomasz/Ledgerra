@@ -76,6 +76,9 @@ public sealed record CommitMonthlyReportDraftsResponse(IReadOnlyList<Transaction
 public sealed class CsvImportPreviewRequest
 {
     [Required]
+    public IFormFile File { get; init; } = null!;
+
+    [Required]
     public Guid AccountId { get; init; }
 
     [Required, MaxLength(120)]
