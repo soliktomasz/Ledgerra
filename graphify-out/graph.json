@@ -5409,7 +5409,7 @@
       "source_file": "frontend/src/main.tsx",
       "source_location": "L1",
       "id": "frontend_src_main_tsx",
-      "community": 22,
+      "community": 13,
       "norm_label": "main.tsx"
     },
     {
@@ -5427,7 +5427,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L1",
       "id": "src_types_authpayload",
-      "community": 21,
+      "community": 13,
       "norm_label": "authpayload"
     },
     {
@@ -5436,7 +5436,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L10",
       "id": "src_types_accounticonkind",
-      "community": 0,
+      "community": 11,
       "norm_label": "accounticonkind"
     },
     {
@@ -5445,7 +5445,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L12",
       "id": "src_types_account",
-      "community": 21,
+      "community": 11,
       "norm_label": "account"
     },
     {
@@ -5481,7 +5481,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L47",
       "id": "src_types_category",
-      "community": 21,
+      "community": 37,
       "norm_label": "category"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L55",
       "id": "src_types_transaction",
-      "community": 0,
+      "community": 130,
       "norm_label": "transaction"
     },
     {
@@ -5499,7 +5499,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L67",
       "id": "src_types_monthlyreportdrafttransaction",
-      "community": 21,
+      "community": 34,
       "norm_label": "monthlyreportdrafttransaction"
     },
     {
@@ -5508,7 +5508,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L85",
       "id": "src_types_monthlyreportanalysis",
-      "community": 21,
+      "community": 34,
       "norm_label": "monthlyreportanalysis"
     },
     {
@@ -5517,7 +5517,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L90",
       "id": "src_types_monthlyreportanalysisjob",
-      "community": 21,
+      "community": 34,
       "norm_label": "monthlyreportanalysisjob"
     },
     {
@@ -5571,7 +5571,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L174",
       "id": "src_types_reportingrangepreset",
-      "community": 14,
+      "community": 22,
       "norm_label": "reportingrangepreset"
     },
     {
@@ -5625,7 +5625,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L270",
       "id": "src_types_personalaccesstoken",
-      "community": 129,
+      "community": 22,
       "norm_label": "personalaccesstoken"
     },
     {
@@ -5688,7 +5688,7 @@
       "source_file": "frontend/src/ui/SectionCard.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_sectioncard_tsx",
-      "community": 28,
+      "community": 22,
       "norm_label": "sectioncard.tsx"
     },
     {
@@ -5697,7 +5697,7 @@
       "source_file": "frontend/src/ui/SectionCard.tsx",
       "source_location": "L3",
       "id": "ui_sectioncard_sectioncard",
-      "community": 28,
+      "community": 22,
       "norm_label": "sectioncard()"
     },
     {
@@ -5706,7 +5706,7 @@
       "source_file": "frontend/src/ui/MetricCard.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_metriccard_tsx",
-      "community": 14,
+      "community": 28,
       "norm_label": "metriccard.tsx"
     },
     {
@@ -5715,7 +5715,7 @@
       "source_file": "frontend/src/ui/MetricCard.tsx",
       "source_location": "L3",
       "id": "ui_metriccard_metriccard",
-      "community": 14,
+      "community": 28,
       "norm_label": "metriccard()"
     },
     {
@@ -5724,7 +5724,7 @@
       "source_file": "frontend/src/ui/AppShell.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_appshell_test_tsx",
-      "community": 13,
+      "community": 20,
       "norm_label": "appshell.test.tsx"
     },
     {
@@ -5760,7 +5760,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L20",
       "id": "ui_icons_trendicon",
-      "community": 14,
+      "community": 22,
       "norm_label": "trendicon()"
     },
     {
@@ -5769,7 +5769,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L30",
       "id": "ui_icons_incomeicon",
-      "community": 14,
+      "community": 22,
       "norm_label": "incomeicon()"
     },
     {
@@ -5778,7 +5778,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L40",
       "id": "ui_icons_expenseicon",
-      "community": 14,
+      "community": 22,
       "norm_label": "expenseicon()"
     },
     {
@@ -5787,7 +5787,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L50",
       "id": "ui_icons_cashflowicon",
-      "community": 129,
+      "community": 22,
       "norm_label": "cashflowicon()"
     },
     {
@@ -5796,7 +5796,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L61",
       "id": "ui_icons_categoryicon",
-      "community": 14,
+      "community": 22,
       "norm_label": "categoryicon()"
     },
     {
@@ -5841,7 +5841,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L110",
       "id": "ui_icons_downloadicon",
-      "community": 20,
+      "community": 37,
       "norm_label": "downloadicon()"
     },
     {
@@ -5877,7 +5877,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L146",
       "id": "ui_icons_trashicon",
-      "community": 20,
+      "community": 37,
       "norm_label": "trashicon()"
     },
     {
@@ -5886,7 +5886,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L158",
       "id": "ui_icons_chevrondownicon",
-      "community": 20,
+      "community": 37,
       "norm_label": "chevrondownicon()"
     },
     {
@@ -6057,7 +6057,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L357",
       "id": "ui_icons_networthicon",
-      "community": 14,
+      "community": 22,
       "norm_label": "networthicon()"
     },
     {
@@ -6246,7 +6246,7 @@
       "source_file": "frontend/src/utils/format.test.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_format_test_ts",
-      "community": 0,
+      "community": 130,
       "norm_label": "format.test.ts"
     },
     {
@@ -6255,7 +6255,7 @@
       "source_file": "frontend/src/utils/format.test.ts",
       "source_location": "L10",
       "id": "utils_format_test_formatted",
-      "community": 0,
+      "community": 130,
       "norm_label": "formatted"
     },
     {
@@ -6309,7 +6309,7 @@
       "source_file": "frontend/src/utils/language.ts",
       "source_location": "L58",
       "id": "utils_language_getlocaleforlanguagecode",
-      "community": 0,
+      "community": 129,
       "norm_label": "getlocaleforlanguagecode()"
     },
     {
@@ -6426,7 +6426,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_format_ts",
-      "community": 0,
+      "community": 130,
       "norm_label": "format.ts"
     },
     {
@@ -6435,7 +6435,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L5",
       "id": "utils_format_setformattinglanguagecode",
-      "community": 129,
+      "community": 130,
       "norm_label": "setformattinglanguagecode()"
     },
     {
@@ -6444,7 +6444,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L9",
       "id": "utils_format_formatcurrency",
-      "community": 0,
+      "community": 130,
       "norm_label": "formatcurrency()"
     },
     {
@@ -6453,7 +6453,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L17",
       "id": "utils_format_formatdate",
-      "community": 0,
+      "community": 130,
       "norm_label": "formatdate()"
     },
     {
@@ -6480,7 +6480,7 @@
       "source_file": "frontend/src/utils/accounts.ts",
       "source_location": "L12",
       "id": "utils_accounts_accounticonclass",
-      "community": 0,
+      "community": 130,
       "norm_label": "accounticonclass()"
     },
     {
@@ -6624,7 +6624,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_state_authcontext_test_tsx",
-      "community": 22,
+      "community": 13,
       "norm_label": "authcontext.test.tsx"
     },
     {
@@ -6633,7 +6633,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L5",
       "id": "state_authcontext_test_onunauthorizedmock_setauthhandlersmock",
-      "community": 22,
+      "community": 13,
       "norm_label": "{ onunauthorizedmock, setauthhandlersmock }"
     },
     {
@@ -6642,7 +6642,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L22",
       "id": "state_authcontext_test_authprobe",
-      "community": 22,
+      "community": 13,
       "norm_label": "authprobe()"
     },
     {
@@ -6651,7 +6651,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L114",
       "id": "state_authcontext_test_persist",
-      "community": 22,
+      "community": 13,
       "norm_label": "persist"
     },
     {
@@ -6660,7 +6660,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L1",
       "id": "frontend_src_state_importanalysiscontext_tsx",
-      "community": 21,
+      "community": 34,
       "norm_label": "importanalysiscontext.tsx"
     },
     {
@@ -6669,7 +6669,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L5",
       "id": "state_importanalysiscontext_importanalysiscontextvalue",
-      "community": 21,
+      "community": 34,
       "norm_label": "importanalysiscontextvalue"
     },
     {
@@ -6678,7 +6678,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L53",
       "id": "state_importanalysiscontext_importanalysiscontext",
-      "community": 21,
+      "community": 34,
       "norm_label": "importanalysiscontext"
     },
     {
@@ -6687,7 +6687,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L55",
       "id": "state_importanalysiscontext_formatdraftdate",
-      "community": 21,
+      "community": 34,
       "norm_label": "formatdraftdate()"
     },
     {
@@ -6696,7 +6696,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L76",
       "id": "state_importanalysiscontext_importanalysisprovider",
-      "community": 21,
+      "community": 34,
       "norm_label": "importanalysisprovider()"
     },
     {
@@ -6705,7 +6705,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L204",
       "id": "state_importanalysiscontext_useimportanalysis",
-      "community": 21,
+      "community": 34,
       "norm_label": "useimportanalysis()"
     },
     {
@@ -7083,7 +7083,7 @@
       "source_file": "frontend/src/state/ThemeContext.tsx",
       "source_location": "L208",
       "id": "state_themecontext_themeprovider",
-      "community": 22,
+      "community": 3,
       "norm_label": "themeprovider()"
     },
     {
@@ -7092,7 +7092,7 @@
       "source_file": "frontend/src/state/ThemeContext.tsx",
       "source_location": "L276",
       "id": "state_themecontext_usetheme",
-      "community": 129,
+      "community": 3,
       "norm_label": "usetheme()"
     },
     {
@@ -7101,7 +7101,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L1",
       "id": "frontend_src_state_authcontext_tsx",
-      "community": 22,
+      "community": 13,
       "norm_label": "authcontext.tsx"
     },
     {
@@ -7110,7 +7110,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L6",
       "id": "state_authcontext_authcontextvalue",
-      "community": 22,
+      "community": 13,
       "norm_label": "authcontextvalue"
     },
     {
@@ -7119,7 +7119,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L15",
       "id": "state_authcontext_authcontext",
-      "community": 22,
+      "community": 13,
       "norm_label": "authcontext"
     },
     {
@@ -7128,7 +7128,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L17",
       "id": "state_authcontext_getauthstorage",
-      "community": 22,
+      "community": 13,
       "norm_label": "getauthstorage()"
     },
     {
@@ -7137,7 +7137,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L21",
       "id": "state_authcontext_issessionvalid",
-      "community": 22,
+      "community": 13,
       "norm_label": "issessionvalid()"
     },
     {
@@ -7146,7 +7146,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L30",
       "id": "state_authcontext_authprovider",
-      "community": 22,
+      "community": 13,
       "norm_label": "authprovider()"
     },
     {
@@ -7371,7 +7371,7 @@
       "source_file": "frontend/src/components/AccountFormModal.tsx",
       "source_location": "L8",
       "id": "components_accountformmodal_accountformmodal",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountformmodal()"
     },
     {
@@ -7380,7 +7380,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountbalancechart_tsx",
-      "community": 0,
+      "community": 130,
       "norm_label": "accountbalancechart.tsx"
     },
     {
@@ -7389,7 +7389,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L8",
       "id": "components_accountbalancechart_balancerange",
-      "community": 0,
+      "community": 130,
       "norm_label": "balancerange"
     },
     {
@@ -7398,7 +7398,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L10",
       "id": "components_accountbalancechart_range_days",
-      "community": 0,
+      "community": 130,
       "norm_label": "range_days"
     },
     {
@@ -7407,7 +7407,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L17",
       "id": "components_accountbalancechart_accountbalancechart",
-      "community": 0,
+      "community": 130,
       "norm_label": "accountbalancechart()"
     },
     {
@@ -7416,7 +7416,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L87",
       "id": "components_accountbalancechart_labelfor",
-      "community": 0,
+      "community": 130,
       "norm_label": "labelfor()"
     },
     {
@@ -7425,7 +7425,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountdetailcolumn_tsx",
-      "community": 0,
+      "community": 130,
       "norm_label": "accountdetailcolumn.tsx"
     },
     {
@@ -7434,7 +7434,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L8",
       "id": "components_accountdetailcolumn_translator",
-      "community": 0,
+      "community": 130,
       "norm_label": "translator"
     },
     {
@@ -7443,7 +7443,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L10",
       "id": "components_accountdetailcolumn_accountdetailcolumn",
-      "community": 0,
+      "community": 130,
       "norm_label": "accountdetailcolumn()"
     },
     {
@@ -7452,7 +7452,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L122",
       "id": "components_accountdetailcolumn_kpicard",
-      "community": 0,
+      "community": 130,
       "norm_label": "kpicard()"
     },
     {
@@ -7461,7 +7461,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L137",
       "id": "components_accountdetailcolumn_formatsigned",
-      "community": 0,
+      "community": 130,
       "norm_label": "formatsigned()"
     },
     {
@@ -7470,7 +7470,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L143",
       "id": "components_accountdetailcolumn_countinmonth",
-      "community": 0,
+      "community": 130,
       "norm_label": "countinmonth()"
     },
     {
@@ -7479,7 +7479,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L147",
       "id": "components_accountdetailcolumn_formatmonthlabel",
-      "community": 0,
+      "community": 130,
       "norm_label": "formatmonthlabel()"
     },
     {
@@ -7488,7 +7488,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L154",
       "id": "components_accountdetailcolumn_breadcrumbfortype",
-      "community": 0,
+      "community": 130,
       "norm_label": "breadcrumbfortype()"
     },
     {
@@ -7515,7 +7515,7 @@
       "source_file": "frontend/src/components/AccountListColumn.tsx",
       "source_location": "L24",
       "id": "components_accountlistcolumn_accountlistcolumn",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountlistcolumn()"
     },
     {
@@ -7560,7 +7560,7 @@
       "source_file": "frontend/src/hooks/useReportingOverview.ts",
       "source_location": "L7",
       "id": "hooks_usereportingoverview_usereportingoverview",
-      "community": 13,
+      "community": 22,
       "norm_label": "usereportingoverview()"
     },
     {
@@ -7569,7 +7569,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_hooks_useledgerradata_test_tsx",
-      "community": 13,
+      "community": 21,
       "norm_label": "useledgerradata.test.tsx"
     },
     {
@@ -7578,7 +7578,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L5",
       "id": "hooks_useledgerradata_test_mocks",
-      "community": 13,
+      "community": 21,
       "norm_label": "mocks"
     },
     {
@@ -7587,7 +7587,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L70",
       "id": "hooks_useledgerradata_test_result",
-      "community": 13,
+      "community": 21,
       "norm_label": "{ result }"
     },
     {
@@ -7596,7 +7596,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L1",
       "id": "frontend_src_api_client_ts",
-      "community": 21,
+      "community": 61,
       "norm_label": "client.ts"
     },
     {
@@ -7605,7 +7605,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L25",
       "id": "api_client_resolveapiurl",
-      "community": 21,
+      "community": 61,
       "norm_label": "resolveapiurl()"
     },
     {
@@ -7614,7 +7614,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L40",
       "id": "api_client_requestoptions",
-      "community": 21,
+      "community": 61,
       "norm_label": "requestoptions"
     },
     {
@@ -7623,7 +7623,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L48",
       "id": "api_client_unauthorizedlistener",
-      "community": 21,
+      "community": 61,
       "norm_label": "unauthorizedlistener"
     },
     {
@@ -7632,7 +7632,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L49",
       "id": "api_client_authresolver",
-      "community": 21,
+      "community": 61,
       "norm_label": "authresolver"
     },
     {
@@ -7641,7 +7641,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L50",
       "id": "api_client_authpersister",
-      "community": 21,
+      "community": 61,
       "norm_label": "authpersister"
     },
     {
@@ -7650,7 +7650,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L52",
       "id": "api_client_unauthorizedlisteners",
-      "community": 21,
+      "community": 61,
       "norm_label": "unauthorizedlisteners"
     },
     {
@@ -7659,7 +7659,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L57",
       "id": "api_client_notifyunauthorized",
-      "community": 21,
+      "community": 61,
       "norm_label": "notifyunauthorized()"
     },
     {
@@ -7668,7 +7668,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L61",
       "id": "api_client_request",
-      "community": 21,
+      "community": 61,
       "norm_label": "request()"
     },
     {
@@ -7677,7 +7677,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L106",
       "id": "api_client_refreshsession",
-      "community": 21,
+      "community": 61,
       "norm_label": "refreshsession()"
     },
     {
@@ -7686,7 +7686,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L138",
       "id": "api_client_readerrormessage",
-      "community": 21,
+      "community": 61,
       "norm_label": "readerrormessage()"
     },
     {
@@ -7695,7 +7695,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L162",
       "id": "api_client_wait",
-      "community": 21,
+      "community": 61,
       "norm_label": "wait()"
     },
     {
@@ -7704,7 +7704,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L166",
       "id": "api_client_fetchmonthlyreportanalysisjob",
-      "community": 21,
+      "community": 61,
       "norm_label": "fetchmonthlyreportanalysisjob()"
     },
     {
@@ -7713,7 +7713,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L170",
       "id": "api_client_waitformonthlyreportanalysisjob",
-      "community": 21,
+      "community": 61,
       "norm_label": "waitformonthlyreportanalysisjob()"
     },
     {
@@ -7722,7 +7722,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L187",
       "id": "api_client_readmonthlyreportanalysisresult",
-      "community": 21,
+      "community": 61,
       "norm_label": "readmonthlyreportanalysisresult()"
     },
     {
@@ -7731,7 +7731,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L199",
       "id": "api_client_readcontentdispositionfilename",
-      "community": 21,
+      "community": 61,
       "norm_label": "readcontentdispositionfilename()"
     },
     {
@@ -7740,7 +7740,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L219",
       "id": "api_client_apiclient",
-      "community": 22,
+      "community": 37,
       "norm_label": "apiclient"
     },
     {
@@ -7749,7 +7749,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L1",
       "id": "frontend_src_api_client_test_ts",
-      "community": 21,
+      "community": 61,
       "norm_label": "client.test.ts"
     },
     {
@@ -7758,7 +7758,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L31",
       "id": "api_client_test_fetchmock",
-      "community": 21,
+      "community": 61,
       "norm_label": "fetchmock"
     },
     {
@@ -7767,7 +7767,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L55",
       "id": "api_client_test_persist",
-      "community": 21,
+      "community": 61,
       "norm_label": "persist"
     },
     {
@@ -7776,7 +7776,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L86",
       "id": "api_client_test_refreshcalls",
-      "community": 21,
+      "community": 61,
       "norm_label": "refreshcalls"
     },
     {
@@ -7785,7 +7785,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L93",
       "id": "api_client_test_onunauthorized",
-      "community": 21,
+      "community": 61,
       "norm_label": "onunauthorized"
     },
     {
@@ -7794,7 +7794,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L105",
       "id": "api_client_test_unsubscribe",
-      "community": 21,
+      "community": 61,
       "norm_label": "unsubscribe"
     },
     {
@@ -7803,7 +7803,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L175",
       "id": "api_client_test_onjobupdate",
-      "community": 21,
+      "community": 61,
       "norm_label": "onjobupdate"
     },
     {
@@ -7812,7 +7812,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L212",
       "id": "api_client_test_analysispromise",
-      "community": 21,
+      "community": 61,
       "norm_label": "analysispromise"
     },
     {
@@ -8109,7 +8109,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_accountspage_tsx",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountspage.tsx"
     },
     {
@@ -8118,7 +8118,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L13",
       "id": "pages_accountspage_defaultformvalues",
-      "community": 13,
+      "community": 11,
       "norm_label": "defaultformvalues()"
     },
     {
@@ -8127,7 +8127,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L25",
       "id": "pages_accountspage_accounttoformvalues",
-      "community": 13,
+      "community": 11,
       "norm_label": "accounttoformvalues()"
     },
     {
@@ -8262,7 +8262,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L257",
       "id": "pages_categoriespage_iscategorycopykey",
-      "community": 6,
+      "community": 156,
       "norm_label": "iscategorycopykey()"
     },
     {
@@ -8271,7 +8271,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L261",
       "id": "pages_categoriespage_getcategorypagecopy",
-      "community": 6,
+      "community": 156,
       "norm_label": "getcategorypagecopy()"
     },
     {
@@ -8280,7 +8280,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L266",
       "id": "pages_categoriespage_usemediaquery",
-      "community": 6,
+      "community": 156,
       "norm_label": "usemediaquery()"
     },
     {
@@ -8289,7 +8289,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L293",
       "id": "pages_categoriespage_getcategorykindlabel",
-      "community": 6,
+      "community": 156,
       "norm_label": "getcategorykindlabel()"
     },
     {
@@ -8298,7 +8298,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L304",
       "id": "pages_categoriespage_normalizesearchtext",
-      "community": 6,
+      "community": 156,
       "norm_label": "normalizesearchtext()"
     },
     {
@@ -8361,7 +8361,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L357",
       "id": "pages_categoriespage_getcategorygroup",
-      "community": 6,
+      "community": 156,
       "norm_label": "getcategorygroup()"
     },
     {
@@ -8370,7 +8370,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L409",
       "id": "pages_categoriespage_getdefaultcategoryicon",
-      "community": 6,
+      "community": 156,
       "norm_label": "getdefaultcategoryicon()"
     },
     {
@@ -8379,7 +8379,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L443",
       "id": "pages_categoriespage_geticonbykey",
-      "community": 6,
+      "community": 156,
       "norm_label": "geticonbykey()"
     },
     {
@@ -8433,7 +8433,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L512",
       "id": "pages_categoriespage_findsimilarcategorypair",
-      "community": 6,
+      "community": 156,
       "norm_label": "findsimilarcategorypair()"
     },
     {
@@ -8442,7 +8442,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L538",
       "id": "pages_categoriespage_categoriespage",
-      "community": 6,
+      "community": 156,
       "norm_label": "categoriespage()"
     },
     {
@@ -8487,7 +8487,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_settingspage_tsx",
-      "community": 129,
+      "community": 22,
       "norm_label": "settingspage.tsx"
     },
     {
@@ -8496,7 +8496,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L13",
       "id": "pages_settingspage_settingssection",
-      "community": 129,
+      "community": 22,
       "norm_label": "settingssection"
     },
     {
@@ -8505,7 +8505,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L14",
       "id": "pages_settingspage_densitypreference",
-      "community": 129,
+      "community": 22,
       "norm_label": "densitypreference"
     },
     {
@@ -8514,7 +8514,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L20",
       "id": "pages_settingspage_geterrormessage",
-      "community": 129,
+      "community": 22,
       "norm_label": "geterrormessage()"
     },
     {
@@ -8523,7 +8523,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L24",
       "id": "pages_settingspage_resolveinitialdensitypreference",
-      "community": 129,
+      "community": 22,
       "norm_label": "resolveinitialdensitypreference()"
     },
     {
@@ -8532,7 +8532,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L35",
       "id": "pages_settingspage_resolveinitialbooleanpreference",
-      "community": 129,
+      "community": 22,
       "norm_label": "resolveinitialbooleanpreference()"
     },
     {
@@ -8550,7 +8550,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_reportspage_tsx",
-      "community": 14,
+      "community": 22,
       "norm_label": "reportspage.tsx"
     },
     {
@@ -8559,7 +8559,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L12",
       "id": "pages_reportspage_rangepresets",
-      "community": 14,
+      "community": 22,
       "norm_label": "rangepresets"
     },
     {
@@ -8568,7 +8568,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L14",
       "id": "pages_reportspage_reportspage",
-      "community": 13,
+      "community": 22,
       "norm_label": "reportspage()"
     },
     {
@@ -8784,7 +8784,7 @@
       "source_file": "frontend/src/pages/BudgetsPage.tsx",
       "source_location": "L382",
       "id": "pages_budgetspage_budgetspage",
-      "community": 8,
+      "community": 13,
       "norm_label": "budgetspage()"
     },
     {
@@ -8865,7 +8865,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_transactionspage_test_tsx",
-      "community": 37,
+      "community": 188,
       "norm_label": "transactionspage.test.tsx"
     },
     {
@@ -8874,7 +8874,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.test.tsx",
       "source_location": "L6",
       "id": "pages_transactionspage_test_mocks",
-      "community": 37,
+      "community": 188,
       "norm_label": "mocks"
     },
     {
@@ -8883,7 +8883,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.test.tsx",
       "source_location": "L121",
       "id": "pages_transactionspage_test_user",
-      "community": 37,
+      "community": 188,
       "norm_label": "user"
     },
     {
@@ -8892,7 +8892,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.test.tsx",
       "source_location": "L236",
       "id": "pages_transactionspage_test_row",
-      "community": 37,
+      "community": 188,
       "norm_label": "row"
     },
     {
@@ -8901,7 +8901,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.test.tsx",
       "source_location": "L309",
       "id": "pages_transactionspage_test_categorychips",
-      "community": 37,
+      "community": 188,
       "norm_label": "categorychips"
     },
     {
@@ -8910,7 +8910,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.test.tsx",
       "source_location": "L388",
       "id": "pages_transactionspage_test_appendspy",
-      "community": 37,
+      "community": 188,
       "norm_label": "appendspy"
     },
     {
@@ -8919,7 +8919,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.test.tsx",
       "source_location": "L389",
       "id": "pages_transactionspage_test_clickspy",
-      "community": 37,
+      "community": 188,
       "norm_label": "clickspy"
     },
     {
@@ -9324,7 +9324,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_importspage_tsx",
-      "community": 28,
+      "community": 34,
       "norm_label": "importspage.tsx"
     },
     {
@@ -9333,7 +9333,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L14",
       "id": "pages_importspage_truncatetext",
-      "community": 28,
+      "community": 34,
       "norm_label": "truncatetext()"
     },
     {
@@ -9342,7 +9342,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L18",
       "id": "pages_importspage_geterrormessage",
-      "community": 28,
+      "community": 34,
       "norm_label": "geterrormessage()"
     },
     {
@@ -9351,7 +9351,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L22",
       "id": "pages_importspage_readfiletext",
-      "community": 28,
+      "community": 34,
       "norm_label": "readfiletext()"
     },
     {
@@ -9360,7 +9360,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L35",
       "id": "pages_importspage_extractcsvheaders",
-      "community": 28,
+      "community": 34,
       "norm_label": "extractcsvheaders()"
     },
     {
@@ -9369,7 +9369,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L40",
       "id": "pages_importspage_formatdraftdate",
-      "community": 28,
+      "community": 34,
       "norm_label": "formatdraftdate()"
     },
     {
@@ -9378,7 +9378,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L61",
       "id": "pages_importspage_parsedraftdateinput",
-      "community": 28,
+      "community": 34,
       "norm_label": "parsedraftdateinput()"
     },
     {
@@ -10066,6 +10066,78 @@
       "norm_label": ".replacewithtransferasync()"
     },
     {
+      "label": "ImportCategorizationRuleMatcherTests.cs",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L1",
+      "id": "backend_tests_ledgerra_api_tests_importcategorizationrulematchertests_cs",
+      "community": 187,
+      "norm_label": "importcategorizationrulematchertests.cs"
+    },
+    {
+      "label": "ImportCategorizationRuleMatcherTests",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L9",
+      "id": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "community": 187,
+      "norm_label": "importcategorizationrulematchertests"
+    },
+    {
+      "label": ".ApplyAsync_UsesPriorityAndSkipsInactiveRules()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L11",
+      "id": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_usespriorityandskipsinactiverules",
+      "community": 187,
+      "norm_label": ".applyasync_usespriorityandskipsinactiverules()"
+    },
+    {
+      "label": ".ApplyAsync_MatchesExtendedOperators()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L32",
+      "id": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_matchesextendedoperators",
+      "community": 187,
+      "norm_label": ".applyasync_matchesextendedoperators()"
+    },
+    {
+      "label": ".ApplyAsync_TreatsInvalidRegexRuleAsNonMatch()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L51",
+      "id": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_treatsinvalidregexruleasnonmatch",
+      "community": 187,
+      "norm_label": ".applyasync_treatsinvalidregexruleasnonmatch()"
+    },
+    {
+      "label": ".CreateDb()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L67",
+      "id": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_createdb",
+      "community": 187,
+      "norm_label": ".createdb()"
+    },
+    {
+      "label": ".Rule()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L75",
+      "id": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_rule",
+      "community": 187,
+      "norm_label": ".rule()"
+    },
+    {
+      "label": ".Draft()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L92",
+      "id": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_draft",
+      "community": 187,
+      "norm_label": ".draft()"
+    },
+    {
       "label": "AuthSchemaInitializerTests.cs",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/AuthSchemaInitializerTests.cs",
@@ -10636,7 +10708,7 @@
       "label": ".Categories_DeleteReturnsBadRequestWhenImportRulesUseCategory()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1083",
+      "source_location": "L1115",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_categories_deletereturnsbadrequestwhenimportrulesusecategory",
       "community": 126,
       "norm_label": ".categories_deletereturnsbadrequestwhenimportrulesusecategory()"
@@ -10645,7 +10717,7 @@
       "label": ".AuthenticatedUser_CanCommitReviewedMonthlyReportDrafts()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1113",
+      "source_location": "L1145",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_authenticateduser_cancommitreviewedmonthlyreportdrafts",
       "community": 126,
       "norm_label": ".authenticateduser_cancommitreviewedmonthlyreportdrafts()"
@@ -10654,7 +10726,7 @@
       "label": ".MonthlyReportCommit_RejectsInvalidDraftWithoutPartialSave()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1151",
+      "source_location": "L1183",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportcommit_rejectsinvaliddraftwithoutpartialsave",
       "community": 126,
       "norm_label": ".monthlyreportcommit_rejectsinvaliddraftwithoutpartialsave()"
@@ -10663,7 +10735,7 @@
       "label": ".MonthlyReportCommit_RejectsEmptyAccountAndDefaultDateBeforeProcessing()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1196",
+      "source_location": "L1228",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportcommit_rejectsemptyaccountanddefaultdatebeforeprocessing",
       "community": 126,
       "norm_label": ".monthlyreportcommit_rejectsemptyaccountanddefaultdatebeforeprocessing()"
@@ -10672,7 +10744,7 @@
       "label": ".MonthlyReportCommit_RejectsMissingOrDuplicateSourceIdsBeforeDuplicateAcceptance()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1223",
+      "source_location": "L1255",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportcommit_rejectsmissingorduplicatesourceidsbeforeduplicateacceptance",
       "community": 126,
       "norm_label": ".monthlyreportcommit_rejectsmissingorduplicatesourceidsbeforeduplicateacceptance()"
@@ -10681,7 +10753,7 @@
       "label": ".MonthlyReportCommit_RejectsMissingOrDuplicateAcceptedDuplicateSourceIds()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1292",
+      "source_location": "L1324",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportcommit_rejectsmissingorduplicateacceptedduplicatesourceids",
       "community": 126,
       "norm_label": ".monthlyreportcommit_rejectsmissingorduplicateacceptedduplicatesourceids()"
@@ -10690,7 +10762,7 @@
       "label": ".AuthenticatedUser_CanAnalyzeCsvMonthlyReportIntoDrafts()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1348",
+      "source_location": "L1380",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_authenticateduser_cananalyzecsvmonthlyreportintodrafts",
       "community": 126,
       "norm_label": ".authenticateduser_cananalyzecsvmonthlyreportintodrafts()"
@@ -10699,7 +10771,7 @@
       "label": ".MonthlyReportAnalyze_RejectsBlankSourceIds()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1383",
+      "source_location": "L1415",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_rejectsblanksourceids",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_rejectsblanksourceids()"
@@ -10708,7 +10780,7 @@
       "label": ".MonthlyReportAnalyze_RejectsDuplicateSourceIds()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1408",
+      "source_location": "L1440",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_rejectsduplicatesourceids",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_rejectsduplicatesourceids()"
@@ -10717,7 +10789,7 @@
       "label": ".MonthlyReportAnalyze_SavesRawAiOutputForRetryAfterParseFailure()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1433",
+      "source_location": "L1465",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_savesrawaioutputforretryafterparsefailure",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_savesrawaioutputforretryafterparsefailure()"
@@ -10726,7 +10798,7 @@
       "label": ".MonthlyReportAnalyze_RetryParseKeepsFailureStateForInvalidSavedAiOutput()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1473",
+      "source_location": "L1505",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_retryparsekeepsfailurestateforinvalidsavedaioutput",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_retryparsekeepsfailurestateforinvalidsavedaioutput()"
@@ -10735,7 +10807,7 @@
       "label": ".MonthlyReportAnalyze_AppliesActiveImportRuleMetadata()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1508",
+      "source_location": "L1540",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_appliesactiveimportrulemetadata",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_appliesactiveimportrulemetadata()"
@@ -10744,7 +10816,7 @@
       "label": ".MonthlyReportAnalyze_MarksLikelyDuplicatesUnselectedByDefault()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1552",
+      "source_location": "L1584",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_markslikelyduplicatesunselectedbydefault",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_markslikelyduplicatesunselectedbydefault()"
@@ -10753,7 +10825,7 @@
       "label": ".MonthlyReportAnalyze_DoesNotMarkDuplicateWhenOnlyOneNoteIsBlank()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1592",
+      "source_location": "L1624",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_doesnotmarkduplicatewhenonlyonenoteisblank",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_doesnotmarkduplicatewhenonlyonenoteisblank()"
@@ -10762,7 +10834,7 @@
       "label": ".MonthlyReportCommit_RejectsUnacceptedDuplicateAndAcceptsExplicitDuplicate()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1628",
+      "source_location": "L1660",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportcommit_rejectsunacceptedduplicateandacceptsexplicitduplicate",
       "community": 126,
       "norm_label": ".monthlyreportcommit_rejectsunacceptedduplicateandacceptsexplicitduplicate()"
@@ -10771,7 +10843,7 @@
       "label": ".MonthlyReportAnalyze_RequiresConfiguredProviderKey()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1677",
+      "source_location": "L1709",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_monthlyreportanalyze_requiresconfiguredproviderkey",
       "community": 126,
       "norm_label": ".monthlyreportanalyze_requiresconfiguredproviderkey()"
@@ -10780,7 +10852,7 @@
       "label": ".AnalyzeMonthlyReportAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1701",
+      "source_location": "L1733",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_analyzemonthlyreportasync",
       "community": 126,
       "norm_label": ".analyzemonthlyreportasync()"
@@ -10789,7 +10861,7 @@
       "label": ".AnalyzeMonthlyReportJobAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1708",
+      "source_location": "L1740",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_analyzemonthlyreportjobasync",
       "community": 126,
       "norm_label": ".analyzemonthlyreportjobasync()"
@@ -10798,7 +10870,7 @@
       "label": ".RegisterAndAuthenticateAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1735",
+      "source_location": "L1767",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_registerandauthenticateasync",
       "community": 126,
       "norm_label": ".registerandauthenticateasync()"
@@ -10807,7 +10879,7 @@
       "label": ".CreateAccountAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1757",
+      "source_location": "L1789",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_createaccountasync",
       "community": 126,
       "norm_label": ".createaccountasync()"
@@ -10816,7 +10888,7 @@
       "label": ".CreateCategoryAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
-      "source_location": "L1771",
+      "source_location": "L1803",
       "id": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_createcategoryasync",
       "community": 126,
       "norm_label": ".createcategoryasync()"
@@ -12922,7 +12994,7 @@
       "label": ".TryParseSupportedMatchField()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/ImportRulesController.cs",
-      "source_location": "L204",
+      "source_location": "L209",
       "id": "controllers_importrulescontroller_importrulescontroller_tryparsesupportedmatchfield",
       "community": 33,
       "norm_label": ".tryparsesupportedmatchfield()"
@@ -12931,16 +13003,25 @@
       "label": ".TryParseSupportedMatchOperator()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/ImportRulesController.cs",
-      "source_location": "L216",
+      "source_location": "L215",
       "id": "controllers_importrulescontroller_importrulescontroller_tryparsesupportedmatchoperator",
       "community": 33,
       "norm_label": ".tryparsesupportedmatchoperator()"
     },
     {
+      "label": ".IsSupportedOperatorForField()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Controllers/ImportRulesController.cs",
+      "source_location": "L221",
+      "id": "controllers_importrulescontroller_importrulescontroller_issupportedoperatorforfield",
+      "community": 33,
+      "norm_label": ".issupportedoperatorforfield()"
+    },
+    {
       "label": ".MapRule()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/ImportRulesController.cs",
-      "source_location": "L228",
+      "source_location": "L235",
       "id": "controllers_importrulescontroller_importrulescontroller_maprule",
       "community": 33,
       "norm_label": ".maprule()"
@@ -13687,7 +13768,7 @@
       "label": "ImportCategorizationRuleMatcher",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
-      "source_location": "L7",
+      "source_location": "L10",
       "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
       "community": 47,
       "norm_label": "importcategorizationrulematcher"
@@ -13705,7 +13786,7 @@
       "label": "LedgerraDbContext",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
-      "source_location": "L9",
+      "source_location": "L12",
       "id": "backend_src_ledgerra_api_services_imports_importcategorizationrulematcher_cs_ledgerradbcontext",
       "community": 47,
       "norm_label": "ledgerradbcontext"
@@ -13714,7 +13795,7 @@
       "label": ".ApplyAsync()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
-      "source_location": "L16",
+      "source_location": "L19",
       "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_applyasync",
       "community": 47,
       "norm_label": ".applyasync()"
@@ -13723,7 +13804,7 @@
       "label": ".ApplyFirstMatchingRule()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
-      "source_location": "L35",
+      "source_location": "L38",
       "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_applyfirstmatchingrule",
       "community": 47,
       "norm_label": ".applyfirstmatchingrule()"
@@ -13732,10 +13813,109 @@
       "label": ".Matches()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
-      "source_location": "L52",
+      "source_location": "L55",
       "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches",
       "community": 47,
       "norm_label": ".matches()"
+    },
+    {
+      "label": ".MatchText()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L69",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchtext",
+      "community": 47,
+      "norm_label": ".matchtext()"
+    },
+    {
+      "label": ".TryMatchRegex()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L84",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_trymatchregex",
+      "community": 47,
+      "norm_label": ".trymatchregex()"
+    },
+    {
+      "label": ".MatchType()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L100",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchtype",
+      "community": 47,
+      "norm_label": ".matchtype()"
+    },
+    {
+      "label": ".MatchNumeric()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L112",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchnumeric",
+      "community": 47,
+      "norm_label": ".matchnumeric()"
+    },
+    {
+      "label": ".CompareDecimal()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L121",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_comparedecimal",
+      "community": 47,
+      "norm_label": ".comparedecimal()"
+    },
+    {
+      "label": ".MatchGuid()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L130",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchguid",
+      "community": 47,
+      "norm_label": ".matchguid()"
+    },
+    {
+      "label": ".MatchDate()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L141",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchdate",
+      "community": 47,
+      "norm_label": ".matchdate()"
+    },
+    {
+      "label": ".CompareDate()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L150",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_comparedate",
+      "community": 47,
+      "norm_label": ".comparedate()"
+    },
+    {
+      "label": ".MatchMonth()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L159",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchmonth",
+      "community": 47,
+      "norm_label": ".matchmonth()"
+    },
+    {
+      "label": ".TryParseDecimalPair()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L170",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_tryparsedecimalpair",
+      "community": 47,
+      "norm_label": ".tryparsedecimalpair()"
+    },
+    {
+      "label": ".TryParseDatePair()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L186",
+      "id": "imports_importcategorizationrulematcher_importcategorizationrulematcher_tryparsedatepair",
+      "community": 47,
+      "norm_label": ".tryparsedatepair()"
     },
     {
       "label": "MonthlyReportAnalysisAdapter.cs",
@@ -36531,9 +36711,9 @@
       "source_file": "frontend/src/pages/SettingsPage.test.tsx",
       "source_location": "L508",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_settingspage_test_tsx",
-      "target": "pages_settingspage_test_resolveclearaccountdata",
-      "confidence_score": 1.0
+      "target": "pages_settingspage_test_resolveclearaccountdata"
     },
     {
       "relation": "contains",
@@ -36541,9 +36721,9 @@
       "source_file": "frontend/src/pages/SettingsPage.test.tsx",
       "source_location": "L516",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_settingspage_test_tsx",
-      "target": "pages_settingspage_test_clearbutton",
-      "confidence_score": 1.0
+      "target": "pages_settingspage_test_clearbutton"
     },
     {
       "relation": "contains",
@@ -36551,9 +36731,9 @@
       "source_file": "frontend/src/pages/SettingsPage.test.tsx",
       "source_location": "L517",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_settingspage_test_tsx",
-      "target": "pages_settingspage_test_deletebutton",
-      "confidence_score": 1.0
+      "target": "pages_settingspage_test_deletebutton"
     },
     {
       "relation": "imports_from",
@@ -37705,6 +37885,175 @@
       "confidence_score": 1.0,
       "source": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore",
       "target": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_replacewithtransferasync"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "backend_tests_ledgerra_api_tests_importcategorizationrulematchertests_cs",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_usespriorityandskipsinactiverules",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_matchesextendedoperators",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_treatsinvalidregexruleasnonmatch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_createdb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_rule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_draft",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_usespriorityandskipsinactiverules",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_createdb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_usespriorityandskipsinactiverules",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_rule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_usespriorityandskipsinactiverules",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_draft",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_matchesextendedoperators",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_createdb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_matchesextendedoperators",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_rule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_matchesextendedoperators",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_draft",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_treatsinvalidregexruleasnonmatch",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_createdb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_treatsinvalidregexruleasnonmatch",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_rule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ImportCategorizationRuleMatcherTests.cs",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_applyasync_treatsinvalidregexruleasnonmatch",
+      "target": "ledgerra_api_tests_importcategorizationrulematchertests_importcategorizationrulematchertests_draft",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -41666,6 +42015,16 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/src/Ledgerra.Api/Controllers/ImportRulesController.cs",
+      "source_location": "L221",
+      "weight": 1.0,
+      "source": "controllers_importrulescontroller_importrulescontroller",
+      "target": "controllers_importrulescontroller_importrulescontroller_issupportedoperatorforfield",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Controllers/ImportRulesController.cs",
       "source_location": "L228",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -41794,6 +42153,17 @@
       "target": "controllers_importrulescontroller_importrulescontroller_tryparsesupportedmatchoperator"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Controllers/ImportRulesController.cs",
+      "source_location": "L168",
+      "weight": 1.0,
+      "source": "controllers_importrulescontroller_importrulescontroller_validaterequestasync",
+      "target": "controllers_importrulescontroller_importrulescontroller_issupportedoperatorforfield",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
@@ -41893,9 +42263,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller_deleteaccount",
-      "target": "controllers_settingscontroller_settingscontroller_clearaccountdata",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_clearaccountdata"
     },
     {
       "relation": "calls",
@@ -43045,6 +43415,116 @@
       "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches"
     },
     {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchtext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_trymatchregex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L100",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchtype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L112",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchnumeric",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L121",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_comparedecimal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L130",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchguid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L141",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_comparedate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L159",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchmonth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L170",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_tryparsedecimalpair",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L186",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_tryparsedatepair",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -43065,6 +43545,127 @@
       "confidence_score": 1.0,
       "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_applyfirstmatchingrule",
       "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchtext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchtype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchnumeric",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchguid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matches",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchmonth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchtext",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_trymatchregex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L116",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchnumeric",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_tryparsedecimalpair",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchnumeric",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_comparedecimal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L145",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchdate",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_tryparsedatepair",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Services/Imports/ImportCategorizationRuleMatcher.cs",
+      "source_location": "L146",
+      "weight": 1.0,
+      "source": "imports_importcategorizationrulematcher_importcategorizationrulematcher_matchdate",
+      "target": "imports_importcategorizationrulematcher_importcategorizationrulematcher_comparedate",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -51972,5 +52573,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5ef7630694080cc77f5d15303c3b8c8e3fbc412a"
+  "built_at_commit": "a09c4318290b7b3fc6d488da925aae619417cc39"
 }
