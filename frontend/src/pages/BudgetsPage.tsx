@@ -427,6 +427,7 @@ export function BudgetsPage() {
   );
   const timing = useMemo(() => getBudgetTiming(selectedYear, selectedMonthNumber), [selectedMonthNumber, selectedYear]);
   const monthLabel = formatMonthLabel(getMonthDate(selectedYear, selectedMonthNumber), languageCode);
+  const monthRangeParams = `from=${selectedMonth}-01&to=${selectedMonth}-31`;
   const totalPlanned = budgetRows.reduce((sum, row) => sum + row.available, 0);
   const totalSpent = budgetRows.reduce((sum, row) => sum + row.spent, 0);
   const totalRemaining = totalPlanned - totalSpent;
@@ -667,7 +668,7 @@ export function BudgetsPage() {
                             </div>
                             <div className="budget-envelope-main">
                               <div className="budget-envelope-titleline">
-                                <strong>{row.categoryName}</strong>
+                                <a href={`/transactions?type=Expense&categoryId=${row.categoryId}&${monthRangeParams}`}><strong>{row.categoryName}</strong></a>
                                 <span>· {row.operationCount > 0 ? copy.operation(row.operationCount) : copy.noOperations}</span>
                                 <em>{statusLabel}</em>
                               </div>
@@ -776,7 +777,7 @@ export function BudgetsPage() {
                 <article key={`recurring-${row.categoryId}`}>
                   <span style={{ background: row.color }} />
                   <div>
-                    <strong>{row.categoryName}</strong>
+                    <a href={`/transactions?type=Expense&categoryId=${row.categoryId}&${monthRangeParams}`}><strong>{row.categoryName}</strong></a>
                     <p>{row.operationCount > 0 ? copy.operation(row.operationCount) : copy.noOperations}</p>
                   </div>
                   <b>{formatCurrency(row.planned, mainCurrencyCode)}</b>{row.carryForward > 0 ? ` (+${formatCurrency(row.carryForward, mainCurrencyCode)} rollover)` : ""}

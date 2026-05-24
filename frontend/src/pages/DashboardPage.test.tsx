@@ -466,7 +466,28 @@ describe("DashboardPage", () => {
     expect(localStorage.getItem("ledgerra:dashboard-widget-customization-closed:owner@ledgerra.local")).toBe("false");
   });
 
-  test("opens quick transaction dialog and saves a transaction from the dashboard", async () => {
+  
+  test("builds month-scoped drilldown links for top categories and accounts", () => {
+    mocks.data.dashboard = {
+      income: 4000,
+      expenses: 540,
+      net: 3460,
+      budgetRemaining: 260,
+      topCategories: [{ categoryId: "category-1", categoryName: "Groceries", amount: 100 }],
+      accounts: [{ accountId: "account-1", name: "Main checking", balance: 900 }],
+      trends: {
+        spendingDeltaAmount: 60,
+        spendingDeltaPercent: 12.5,
+        spendingSparkline: []
+      }
+    } as DashboardSummary;
+
+    render(<MemoryRouter><DashboardPage /></MemoryRouter>);
+
+    expect(screen.getByRole("link", { name: "Groceries" })).toHaveAttribute("href", "/transactions?type=Expense&categoryId=category-1&from=2026-05-01&to=2026-05-31");
+    expect(screen.getByRole("link", { name: "Main checking" })).toHaveAttribute("href", "/transactions?accountId=account-1&from=2026-05-01&to=2026-05-31");
+  });
+test("opens quick transaction dialog and saves a transaction from the dashboard", async () => {
     const user = userEvent.setup();
     mocks.data.accounts = [
       {

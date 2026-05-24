@@ -110,7 +110,13 @@ describe("ReportsPage", () => {
     expect(mocks.state.setRangePreset).toHaveBeenCalledWith("3M");
   });
 
-  test("shows mixed-currency warnings and empty chart states", () => {
+  
+  test("adds transaction drilldown links for category breakdown rows", () => {
+    render(<MemoryRouter><ReportsPage /></MemoryRouter>);
+
+    expect(screen.getByRole("link", { name: "Groceries" })).toHaveAttribute("href", "/transactions?type=Expense&categoryId=category-1");
+  });
+test("shows mixed-currency warnings and empty chart states", () => {
     mocks.state.overview = {
       ...overview,
       monthlySpendingTrend: [],

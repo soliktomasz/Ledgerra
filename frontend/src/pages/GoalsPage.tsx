@@ -516,7 +516,7 @@ export function GoalsPage() {
                         <article key={transaction.id}>
                           <span>↓</span>
                           <div>
-                            <strong>+ {formatCurrency(Math.abs(transaction.amount), currencyCode)}</strong>
+                            <a href={`/transactions?type=TransferOut&savingsGoalId=${selectedGoal.id}&from=${transaction.occurredOnUtc.slice(0, 10)}&to=${transaction.occurredOnUtc.slice(0, 10)}`}><strong>+ {formatCurrency(Math.abs(transaction.amount), currencyCode)}</strong></a>
                             <p>{fullDateFormatter.format(new Date(transaction.occurredOnUtc))}</p>
                           </div>
                         </article>

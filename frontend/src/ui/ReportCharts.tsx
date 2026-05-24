@@ -246,7 +246,7 @@ export function CategoryBreakdownChart({
       <div className="chart-summary-list">
         {rows.map((row) => (
           <div className="chart-summary-item" key={row.categoryId}>
-            <strong>{row.categoryName}</strong>
+            <a href={`/transactions?type=Expense&categoryId=${row.categoryId}`}><strong>{row.categoryName}</strong></a>
             <span>{formatCurrency(row.amount, currencyCode)} · {row.percentage}%</span>
           </div>
         ))}
