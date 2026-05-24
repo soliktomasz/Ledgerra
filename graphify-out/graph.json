@@ -5373,7 +5373,7 @@
       "source_file": "frontend/src/main.tsx",
       "source_location": "L1",
       "id": "frontend_src_main_tsx",
-      "community": 37,
+      "community": 21,
       "norm_label": "main.tsx"
     },
     {
@@ -5391,7 +5391,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L1",
       "id": "src_types_authpayload",
-      "community": 37,
+      "community": 21,
       "norm_label": "authpayload"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L10",
       "id": "src_types_accounticonkind",
-      "community": 13,
+      "community": 11,
       "norm_label": "accounticonkind"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L107",
       "id": "src_types_importrule",
-      "community": 3,
+      "community": 13,
       "norm_label": "importrule"
     },
     {
@@ -5499,7 +5499,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L121",
       "id": "src_types_budgetcategory",
-      "community": 13,
+      "community": 8,
       "norm_label": "budgetcategory"
     },
     {
@@ -5535,7 +5535,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L174",
       "id": "src_types_reportingrangepreset",
-      "community": 14,
+      "community": 28,
       "norm_label": "reportingrangepreset"
     },
     {
@@ -5544,7 +5544,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L176",
       "id": "src_types_reportingoverview",
-      "community": 14,
+      "community": 28,
       "norm_label": "reportingoverview"
     },
     {
@@ -5580,7 +5580,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L247",
       "id": "src_types_backuparchive",
-      "community": 13,
+      "community": 21,
       "norm_label": "backuparchive"
     },
     {
@@ -5634,7 +5634,7 @@
       "source_file": "frontend/src/ui/AppShell.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_appshell_tsx",
-      "community": 11,
+      "community": 6,
       "norm_label": "appshell.tsx"
     },
     {
@@ -5688,7 +5688,7 @@
       "source_file": "frontend/src/ui/AppShell.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_appshell_test_tsx",
-      "community": 11,
+      "community": 6,
       "norm_label": "appshell.test.tsx"
     },
     {
@@ -5697,7 +5697,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_icons_tsx",
-      "community": 11,
+      "community": 6,
       "norm_label": "icons.tsx"
     },
     {
@@ -5706,7 +5706,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L3",
       "id": "ui_icons_iconprops",
-      "community": 11,
+      "community": 6,
       "norm_label": "iconprops"
     },
     {
@@ -5715,7 +5715,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L5",
       "id": "ui_icons_baseicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "baseicon()"
     },
     {
@@ -5724,7 +5724,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L20",
       "id": "ui_icons_trendicon",
-      "community": 9,
+      "community": 28,
       "norm_label": "trendicon()"
     },
     {
@@ -5733,7 +5733,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L30",
       "id": "ui_icons_incomeicon",
-      "community": 14,
+      "community": 28,
       "norm_label": "incomeicon()"
     },
     {
@@ -5742,7 +5742,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L40",
       "id": "ui_icons_expenseicon",
-      "community": 14,
+      "community": 28,
       "norm_label": "expenseicon()"
     },
     {
@@ -5751,7 +5751,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L50",
       "id": "ui_icons_cashflowicon",
-      "community": 14,
+      "community": 3,
       "norm_label": "cashflowicon()"
     },
     {
@@ -5769,7 +5769,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L72",
       "id": "ui_icons_dashboardicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "dashboardicon()"
     },
     {
@@ -5778,7 +5778,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L83",
       "id": "ui_icons_reportsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "reportsicon()"
     },
     {
@@ -5787,7 +5787,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L87",
       "id": "ui_icons_transactionsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "transactionsicon()"
     },
     {
@@ -5796,7 +5796,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L100",
       "id": "ui_icons_importsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "importsicon()"
     },
     {
@@ -5859,7 +5859,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L166",
       "id": "ui_icons_searchicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "searchicon()"
     },
     {
@@ -5868,7 +5868,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L175",
       "id": "ui_icons_plusicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "plusicon()"
     },
     {
@@ -5877,7 +5877,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L184",
       "id": "ui_icons_sparklesicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "sparklesicon()"
     },
     {
@@ -5886,7 +5886,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L193",
       "id": "ui_icons_archiveicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "archiveicon()"
     },
     {
@@ -5895,7 +5895,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L204",
       "id": "ui_icons_gripicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "gripicon()"
     },
     {
@@ -5904,7 +5904,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L217",
       "id": "ui_icons_basketicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "basketicon()"
     },
     {
@@ -5913,7 +5913,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L228",
       "id": "ui_icons_utensilsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "utensilsicon()"
     },
     {
@@ -5922,7 +5922,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L242",
       "id": "ui_icons_transiticon",
-      "community": 11,
+      "community": 6,
       "norm_label": "transiticon()"
     },
     {
@@ -5931,7 +5931,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L255",
       "id": "ui_icons_homeicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "homeicon()"
     },
     {
@@ -5940,7 +5940,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L265",
       "id": "ui_icons_bolticon",
-      "community": 11,
+      "community": 6,
       "norm_label": "bolticon()"
     },
     {
@@ -5949,7 +5949,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L273",
       "id": "ui_icons_hearticon",
-      "community": 11,
+      "community": 6,
       "norm_label": "hearticon()"
     },
     {
@@ -5958,7 +5958,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L281",
       "id": "ui_icons_briefcaseicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "briefcaseicon()"
     },
     {
@@ -5967,7 +5967,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L291",
       "id": "ui_icons_calendaricon",
-      "community": 11,
+      "community": 6,
       "norm_label": "calendaricon()"
     },
     {
@@ -5976,7 +5976,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L302",
       "id": "ui_icons_accountsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "accountsicon()"
     },
     {
@@ -5985,7 +5985,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L312",
       "id": "ui_icons_budgetsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "budgetsicon()"
     },
     {
@@ -5994,7 +5994,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L324",
       "id": "ui_icons_goalsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "goalsicon()"
     },
     {
@@ -6003,7 +6003,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L337",
       "id": "ui_icons_categoriesicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "categoriesicon()"
     },
     {
@@ -6012,7 +6012,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L341",
       "id": "ui_icons_settingsicon",
-      "community": 11,
+      "community": 6,
       "norm_label": "settingsicon()"
     },
     {
@@ -6021,7 +6021,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L357",
       "id": "ui_icons_networthicon",
-      "community": 14,
+      "community": 28,
       "norm_label": "networthicon()"
     },
     {
@@ -6156,7 +6156,7 @@
       "source_file": "frontend/src/ui/EmptyState.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_emptystate_tsx",
-      "community": 28,
+      "community": 14,
       "norm_label": "emptystate.tsx"
     },
     {
@@ -6165,7 +6165,7 @@
       "source_file": "frontend/src/ui/EmptyState.tsx",
       "source_location": "L1",
       "id": "ui_emptystate_emptystate",
-      "community": 28,
+      "community": 14,
       "norm_label": "emptystate()"
     },
     {
@@ -6183,7 +6183,7 @@
       "source_file": "frontend/src/utils/currency.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_currency_ts",
-      "community": 3,
+      "community": 11,
       "norm_label": "currency.ts"
     },
     {
@@ -6192,7 +6192,7 @@
       "source_file": "frontend/src/utils/currency.ts",
       "source_location": "L1",
       "id": "utils_currency_supportedcurrencies",
-      "community": 3,
+      "community": 11,
       "norm_label": "supportedcurrencies"
     },
     {
@@ -6201,7 +6201,7 @@
       "source_file": "frontend/src/utils/currency.ts",
       "source_location": "L12",
       "id": "utils_currency_normalizecurrencycode",
-      "community": 3,
+      "community": 11,
       "norm_label": "normalizecurrencycode()"
     },
     {
@@ -6210,7 +6210,7 @@
       "source_file": "frontend/src/utils/format.test.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_format_test_ts",
-      "community": 133,
+      "community": 130,
       "norm_label": "format.test.ts"
     },
     {
@@ -6219,7 +6219,7 @@
       "source_file": "frontend/src/utils/format.test.ts",
       "source_location": "L10",
       "id": "utils_format_test_formatted",
-      "community": 133,
+      "community": 130,
       "norm_label": "formatted"
     },
     {
@@ -6273,7 +6273,7 @@
       "source_file": "frontend/src/utils/language.ts",
       "source_location": "L58",
       "id": "utils_language_getlocaleforlanguagecode",
-      "community": 133,
+      "community": 130,
       "norm_label": "getlocaleforlanguagecode()"
     },
     {
@@ -6282,7 +6282,7 @@
       "source_file": "frontend/src/utils/currency.test.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_currency_test_ts",
-      "community": 3,
+      "community": 11,
       "norm_label": "currency.test.ts"
     },
     {
@@ -6390,7 +6390,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_format_ts",
-      "community": 133,
+      "community": 130,
       "norm_label": "format.ts"
     },
     {
@@ -6399,7 +6399,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L5",
       "id": "utils_format_setformattinglanguagecode",
-      "community": 133,
+      "community": 129,
       "norm_label": "setformattinglanguagecode()"
     },
     {
@@ -6408,7 +6408,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L9",
       "id": "utils_format_formatcurrency",
-      "community": 133,
+      "community": 130,
       "norm_label": "formatcurrency()"
     },
     {
@@ -6417,7 +6417,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L17",
       "id": "utils_format_formatdate",
-      "community": 133,
+      "community": 130,
       "norm_label": "formatdate()"
     },
     {
@@ -6588,7 +6588,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_state_authcontext_test_tsx",
-      "community": 37,
+      "community": 21,
       "norm_label": "authcontext.test.tsx"
     },
     {
@@ -6597,7 +6597,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L5",
       "id": "state_authcontext_test_onunauthorizedmock_setauthhandlersmock",
-      "community": 37,
+      "community": 21,
       "norm_label": "{ onunauthorizedmock, setauthhandlersmock }"
     },
     {
@@ -6606,7 +6606,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L22",
       "id": "state_authcontext_test_authprobe",
-      "community": 37,
+      "community": 21,
       "norm_label": "authprobe()"
     },
     {
@@ -6615,7 +6615,7 @@
       "source_file": "frontend/src/state/AuthContext.test.tsx",
       "source_location": "L114",
       "id": "state_authcontext_test_persist",
-      "community": 37,
+      "community": 21,
       "norm_label": "persist"
     },
     {
@@ -7047,7 +7047,7 @@
       "source_file": "frontend/src/state/ThemeContext.tsx",
       "source_location": "L208",
       "id": "state_themecontext_themeprovider",
-      "community": 37,
+      "community": 21,
       "norm_label": "themeprovider()"
     },
     {
@@ -7065,7 +7065,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L1",
       "id": "frontend_src_state_authcontext_tsx",
-      "community": 37,
+      "community": 21,
       "norm_label": "authcontext.tsx"
     },
     {
@@ -7074,7 +7074,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L6",
       "id": "state_authcontext_authcontextvalue",
-      "community": 37,
+      "community": 21,
       "norm_label": "authcontextvalue"
     },
     {
@@ -7083,7 +7083,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L15",
       "id": "state_authcontext_authcontext",
-      "community": 37,
+      "community": 21,
       "norm_label": "authcontext"
     },
     {
@@ -7092,7 +7092,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L17",
       "id": "state_authcontext_getauthstorage",
-      "community": 37,
+      "community": 21,
       "norm_label": "getauthstorage()"
     },
     {
@@ -7101,7 +7101,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L21",
       "id": "state_authcontext_issessionvalid",
-      "community": 37,
+      "community": 21,
       "norm_label": "issessionvalid()"
     },
     {
@@ -7110,7 +7110,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L30",
       "id": "state_authcontext_authprovider",
-      "community": 37,
+      "community": 21,
       "norm_label": "authprovider()"
     },
     {
@@ -7236,7 +7236,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountform_tsx",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountform.tsx"
     },
     {
@@ -7245,7 +7245,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L6",
       "id": "components_accountform_accounttypes",
-      "community": 13,
+      "community": 11,
       "norm_label": "accounttypes"
     },
     {
@@ -7254,7 +7254,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L7",
       "id": "components_accountform_accounticonkinds",
-      "community": 13,
+      "community": 11,
       "norm_label": "accounticonkinds"
     },
     {
@@ -7263,7 +7263,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L9",
       "id": "components_accountform_accountformvalues",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountformvalues"
     },
     {
@@ -7272,7 +7272,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L20",
       "id": "components_accountform_accountformprops",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountformprops"
     },
     {
@@ -7281,7 +7281,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L30",
       "id": "components_accountform_getaccounttypelabel",
-      "community": 13,
+      "community": 11,
       "norm_label": "getaccounttypelabel()"
     },
     {
@@ -7290,7 +7290,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L49",
       "id": "components_accountform_accountform",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountform()"
     },
     {
@@ -7326,7 +7326,7 @@
       "source_file": "frontend/src/components/AccountFormModal.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountformmodal_tsx",
-      "community": 13,
+      "community": 11,
       "norm_label": "accountformmodal.tsx"
     },
     {
@@ -7335,7 +7335,7 @@
       "source_file": "frontend/src/components/AccountFormModal.tsx",
       "source_location": "L8",
       "id": "components_accountformmodal_accountformmodal",
-      "community": 13,
+      "community": 22,
       "norm_label": "accountformmodal()"
     },
     {
@@ -7479,7 +7479,7 @@
       "source_file": "frontend/src/components/AccountListColumn.tsx",
       "source_location": "L24",
       "id": "components_accountlistcolumn_accountlistcolumn",
-      "community": 0,
+      "community": 22,
       "norm_label": "accountlistcolumn()"
     },
     {
@@ -7515,7 +7515,7 @@
       "source_file": "frontend/src/hooks/useReportingOverview.ts",
       "source_location": "L1",
       "id": "frontend_src_hooks_usereportingoverview_ts",
-      "community": 14,
+      "community": 28,
       "norm_label": "usereportingoverview.ts"
     },
     {
@@ -7524,7 +7524,7 @@
       "source_file": "frontend/src/hooks/useReportingOverview.ts",
       "source_location": "L7",
       "id": "hooks_usereportingoverview_usereportingoverview",
-      "community": 22,
+      "community": 28,
       "norm_label": "usereportingoverview()"
     },
     {
@@ -7533,7 +7533,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_hooks_useledgerradata_test_tsx",
-      "community": 185,
+      "community": 13,
       "norm_label": "useledgerradata.test.tsx"
     },
     {
@@ -7542,7 +7542,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L5",
       "id": "hooks_useledgerradata_test_mocks",
-      "community": 185,
+      "community": 13,
       "norm_label": "mocks"
     },
     {
@@ -7551,7 +7551,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L70",
       "id": "hooks_useledgerradata_test_result",
-      "community": 185,
+      "community": 13,
       "norm_label": "{ result }"
     },
     {
@@ -7704,7 +7704,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L219",
       "id": "api_client_apiclient",
-      "community": 37,
+      "community": 21,
       "norm_label": "apiclient"
     },
     {
@@ -8028,7 +8028,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_categoriespage_test_tsx",
-      "community": 61,
+      "community": 22,
       "norm_label": "categoriespage.test.tsx"
     },
     {
@@ -8037,7 +8037,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.test.tsx",
       "source_location": "L6",
       "id": "pages_categoriespage_test_mocks",
-      "community": 61,
+      "community": 22,
       "norm_label": "mocks"
     },
     {
@@ -8046,7 +8046,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.test.tsx",
       "source_location": "L17",
       "id": "pages_categoriespage_test_translations",
-      "community": 61,
+      "community": 22,
       "norm_label": "translations"
     },
     {
@@ -8055,7 +8055,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.test.tsx",
       "source_location": "L26",
       "id": "pages_categoriespage_test_readblobtext",
-      "community": 61,
+      "community": 22,
       "norm_label": "readblobtext()"
     },
     {
@@ -8064,7 +8064,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.test.tsx",
       "source_location": "L122",
       "id": "pages_categoriespage_test_user",
-      "community": 61,
+      "community": 22,
       "norm_label": "user"
     },
     {
@@ -8073,7 +8073,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_accountspage_tsx",
-      "community": 13,
+      "community": 22,
       "norm_label": "accountspage.tsx"
     },
     {
@@ -8082,7 +8082,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L13",
       "id": "pages_accountspage_defaultformvalues",
-      "community": 13,
+      "community": 22,
       "norm_label": "defaultformvalues()"
     },
     {
@@ -8091,7 +8091,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L25",
       "id": "pages_accountspage_accounttoformvalues",
-      "community": 13,
+      "community": 22,
       "norm_label": "accounttoformvalues()"
     },
     {
@@ -8505,7 +8505,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_reportspage_tsx",
-      "community": 14,
+      "community": 28,
       "norm_label": "reportspage.tsx"
     },
     {
@@ -8514,7 +8514,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L12",
       "id": "pages_reportspage_rangepresets",
-      "community": 14,
+      "community": 28,
       "norm_label": "rangepresets"
     },
     {
@@ -8523,7 +8523,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L14",
       "id": "pages_reportspage_reportspage",
-      "community": 22,
+      "community": 28,
       "norm_label": "reportspage()"
     },
     {
@@ -9009,7 +9009,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_reportspage_test_tsx",
-      "community": 14,
+      "community": 28,
       "norm_label": "reportspage.test.tsx"
     },
     {
@@ -9018,7 +9018,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L8",
       "id": "pages_reportspage_test_overview",
-      "community": 14,
+      "community": 28,
       "norm_label": "overview"
     },
     {
@@ -9027,7 +9027,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L42",
       "id": "pages_reportspage_test_mocks",
-      "community": 14,
+      "community": 28,
       "norm_label": "mocks"
     },
     {
@@ -9036,7 +9036,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L100",
       "id": "pages_reportspage_test_user",
-      "community": 14,
+      "community": 28,
       "norm_label": "user"
     },
     {
@@ -9045,7 +9045,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L117",
       "id": "pages_reportspage_test_link",
-      "community": 14,
+      "community": 28,
       "norm_label": "link"
     },
     {
@@ -9054,7 +9054,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L118",
       "id": "pages_reportspage_test_url",
-      "community": 14,
+      "community": 28,
       "norm_label": "url"
     },
     {
@@ -9337,10 +9337,19 @@
       "norm_label": "transactionsresponsivestyles.test.ts"
     },
     {
+      "label": "baseDir",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/TransactionsResponsiveStyles.test.ts",
+      "source_location": "L6",
+      "id": "pages_transactionsresponsivestyles_test_basedir",
+      "community": 186,
+      "norm_label": "basedir"
+    },
+    {
       "label": "styles",
       "file_type": "code",
       "source_file": "frontend/src/pages/TransactionsResponsiveStyles.test.ts",
-      "source_location": "L7",
+      "source_location": "L10",
       "id": "pages_transactionsresponsivestyles_test_styles",
       "community": 186,
       "norm_label": "styles"
@@ -9729,7 +9738,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L1",
       "id": "backend_tests_ledgerra_api_tests_applicationreviewregressiontests_cs",
-      "community": 148,
+      "community": 140,
       "norm_label": "applicationreviewregressiontests.cs"
     },
     {
@@ -9738,7 +9747,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L10",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests",
-      "community": 162,
+      "community": 140,
       "norm_label": "applicationreviewregressiontests"
     },
     {
@@ -9747,7 +9756,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L12",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_updatebudget_rejectsinvalidperiodbeforecheckingcategories",
-      "community": 162,
+      "community": 140,
       "norm_label": ".updatebudget_rejectsinvalidperiodbeforecheckingcategories()"
     },
     {
@@ -9756,7 +9765,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L27",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_analyzemonthlyreport_rejectsaiaccountidthatdoesnotmatchcommandscope",
-      "community": 162,
+      "community": 140,
       "norm_label": ".analyzemonthlyreport_rejectsaiaccountidthatdoesnotmatchcommandscope()"
     },
     {
@@ -9765,7 +9774,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L61",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_createtransaction_rejectsnonpositiveamount",
-      "community": 162,
+      "community": 140,
       "norm_label": ".createtransaction_rejectsnonpositiveamount()"
     },
     {
@@ -9774,7 +9783,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L88",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_createtransaction_rejectsnonutcoccurredon",
-      "community": 162,
+      "community": 140,
       "norm_label": ".createtransaction_rejectsnonutcoccurredon()"
     },
     {
@@ -9783,7 +9792,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L115",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_updatetransaction_validatesreplacementbeforedeletingexistingtransaction",
-      "community": 162,
+      "community": 140,
       "norm_label": ".updatetransaction_validatesreplacementbeforedeletingexistingtransaction()"
     },
     {
@@ -9792,7 +9801,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L154",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore",
-      "community": 175,
+      "community": 18,
       "norm_label": "recordingbudgetsummarystore"
     },
     {
@@ -9801,7 +9810,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L158",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore_getsummaryasync",
-      "community": 175,
+      "community": 18,
       "norm_label": ".getsummaryasync()"
     },
     {
@@ -9810,7 +9819,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L163",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore_categoriesexistasync",
-      "community": 175,
+      "community": 18,
       "norm_label": ".categoriesexistasync()"
     },
     {
@@ -9819,7 +9828,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L169",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore_updateasync",
-      "community": 175,
+      "community": 18,
       "norm_label": ".updateasync()"
     },
     {
@@ -9828,7 +9837,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L175",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_stubmonthlyreportanalyzer",
-      "community": 148,
+      "community": 140,
       "norm_label": "stubmonthlyreportanalyzer"
     },
     {
@@ -9837,7 +9846,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L177",
       "id": "aidraftanalysisresult",
-      "community": 148,
+      "community": 140,
       "norm_label": "aidraftanalysisresult"
     },
     {
@@ -9846,7 +9855,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L184",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_stubmonthlyreportanalyzer_analyzeasync",
-      "community": 148,
+      "community": 140,
       "norm_label": ".analyzeasync()"
     },
     {
@@ -9855,7 +9864,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L197",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportrulematcher",
-      "community": 148,
+      "community": 140,
       "norm_label": "passthroughmonthlyreportrulematcher"
     },
     {
@@ -9864,7 +9873,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L199",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportrulematcher_applyasync",
-      "community": 148,
+      "community": 140,
       "norm_label": ".applyasync()"
     },
     {
@@ -9873,7 +9882,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L208",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportduplicatemarker",
-      "community": 148,
+      "community": 140,
       "norm_label": "passthroughmonthlyreportduplicatemarker"
     },
     {
@@ -9882,7 +9891,7 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
       "source_location": "L210",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportduplicatemarker_markduplicatesasync",
-      "community": 148,
+      "community": 140,
       "norm_label": ".markduplicatesasync()"
     },
     {
@@ -13626,7 +13635,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportAnalysisAdapter.cs",
       "source_location": "L1",
       "id": "backend_src_ledgerra_api_services_imports_monthlyreportanalysisadapter_cs",
-      "community": 168,
+      "community": 140,
       "norm_label": "monthlyreportanalysisadapter.cs"
     },
     {
@@ -13635,7 +13644,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportAnalysisAdapter.cs",
       "source_location": "L7",
       "id": "imports_monthlyreportanalysisadapter_monthlyreportanalysisadapter",
-      "community": 168,
+      "community": 140,
       "norm_label": "monthlyreportanalysisadapter"
     },
     {
@@ -13644,7 +13653,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportAnalysisAdapter.cs",
       "source_location": "L9",
       "id": "aireportanalysisservice",
-      "community": 168,
+      "community": 140,
       "norm_label": "aireportanalysisservice"
     },
     {
@@ -13653,7 +13662,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportAnalysisAdapter.cs",
       "source_location": "L16",
       "id": "imports_monthlyreportanalysisadapter_monthlyreportanalysisadapter_analyzeasync",
-      "community": 168,
+      "community": 140,
       "norm_label": ".analyzeasync()"
     },
     {
@@ -13986,7 +13995,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportDuplicateMarkerAdapter.cs",
       "source_location": "L1",
       "id": "backend_src_ledgerra_api_services_imports_monthlyreportduplicatemarkeradapter_cs",
-      "community": 169,
+      "community": 140,
       "norm_label": "monthlyreportduplicatemarkeradapter.cs"
     },
     {
@@ -13995,7 +14004,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportDuplicateMarkerAdapter.cs",
       "source_location": "L5",
       "id": "imports_monthlyreportduplicatemarkeradapter_monthlyreportduplicatemarkeradapter",
-      "community": 169,
+      "community": 140,
       "norm_label": "monthlyreportduplicatemarkeradapter"
     },
     {
@@ -14004,7 +14013,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportDuplicateMarkerAdapter.cs",
       "source_location": "L7",
       "id": "backend_src_ledgerra_api_services_imports_monthlyreportduplicatemarkeradapter_cs_iimportduplicatedetector",
-      "community": 169,
+      "community": 140,
       "norm_label": "iimportduplicatedetector"
     },
     {
@@ -14013,7 +14022,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportDuplicateMarkerAdapter.cs",
       "source_location": "L14",
       "id": "imports_monthlyreportduplicatemarkeradapter_monthlyreportduplicatemarkeradapter_markduplicatesasync",
-      "community": 169,
+      "community": 140,
       "norm_label": ".markduplicatesasync()"
     },
     {
@@ -14022,7 +14031,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportRuleMatcherAdapter.cs",
       "source_location": "L1",
       "id": "backend_src_ledgerra_api_services_imports_monthlyreportrulematcheradapter_cs",
-      "community": 170,
+      "community": 140,
       "norm_label": "monthlyreportrulematcheradapter.cs"
     },
     {
@@ -14031,7 +14040,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportRuleMatcherAdapter.cs",
       "source_location": "L5",
       "id": "imports_monthlyreportrulematcheradapter_monthlyreportrulematcheradapter",
-      "community": 170,
+      "community": 140,
       "norm_label": "monthlyreportrulematcheradapter"
     },
     {
@@ -14040,7 +14049,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportRuleMatcherAdapter.cs",
       "source_location": "L7",
       "id": "backend_src_ledgerra_api_services_imports_monthlyreportrulematcheradapter_cs_iimportcategorizationrulematcher",
-      "community": 170,
+      "community": 140,
       "norm_label": "iimportcategorizationrulematcher"
     },
     {
@@ -14049,7 +14058,7 @@
       "source_file": "backend/src/Ledgerra.Api/Services/Imports/MonthlyReportRuleMatcherAdapter.cs",
       "source_location": "L14",
       "id": "imports_monthlyreportrulematcheradapter_monthlyreportrulematcheradapter_applyasync",
-      "community": 170,
+      "community": 140,
       "norm_label": ".applyasync()"
     },
     {
@@ -16560,7 +16569,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L1",
       "id": "backend_src_ledgerra_application_imports_analyzemonthlyreport_cs",
-      "community": 20,
+      "community": 140,
       "norm_label": "analyzemonthlyreport.cs"
     },
     {
@@ -16569,7 +16578,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L75",
       "id": "imports_analyzemonthlyreport_imonthlyreportanalyzer",
-      "community": 20,
+      "community": 140,
       "norm_label": "imonthlyreportanalyzer"
     },
     {
@@ -16578,7 +16587,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L77",
       "id": "imports_analyzemonthlyreport_imonthlyreportanalyzer_analyzeasync",
-      "community": 20,
+      "community": 140,
       "norm_label": ".analyzeasync()"
     },
     {
@@ -16587,7 +16596,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L87",
       "id": "imports_analyzemonthlyreport_imonthlyreportrulematcher",
-      "community": 20,
+      "community": 140,
       "norm_label": "imonthlyreportrulematcher"
     },
     {
@@ -16596,7 +16605,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L89",
       "id": "imports_analyzemonthlyreport_imonthlyreportrulematcher_applyasync",
-      "community": 20,
+      "community": 140,
       "norm_label": ".applyasync()"
     },
     {
@@ -16605,7 +16614,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L95",
       "id": "imports_analyzemonthlyreport_imonthlyreportduplicatemarker",
-      "community": 20,
+      "community": 140,
       "norm_label": "imonthlyreportduplicatemarker"
     },
     {
@@ -16614,7 +16623,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L97",
       "id": "imports_analyzemonthlyreport_imonthlyreportduplicatemarker_markduplicatesasync",
-      "community": 20,
+      "community": 140,
       "norm_label": ".markduplicatesasync()"
     },
     {
@@ -16623,7 +16632,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L103",
       "id": "imports_analyzemonthlyreport_analyzemonthlyreportcommandhandler",
-      "community": 20,
+      "community": 140,
       "norm_label": "analyzemonthlyreportcommandhandler"
     },
     {
@@ -16632,7 +16641,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L119",
       "id": "imports_analyzemonthlyreport_analyzemonthlyreportcommandhandler_handleasync",
-      "community": 20,
+      "community": 140,
       "norm_label": ".handleasync()"
     },
     {
@@ -16641,7 +16650,7 @@
       "source_file": "backend/src/Ledgerra.Application/Imports/AnalyzeMonthlyReport.cs",
       "source_location": "L133",
       "id": "imports_analyzemonthlyreport_analyzemonthlyreportcommandhandler_handleanalysisresultasync",
-      "community": 20,
+      "community": 140,
       "norm_label": ".handleanalysisresultasync()"
     },
     {
@@ -25649,9 +25658,9 @@
       "source_file": "frontend/e2e/transactions-responsive.spec.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_e2e_transactions_responsive_spec_ts",
-      "target": "e2e_transactions_responsive_spec_authpayload",
-      "confidence_score": 1.0
+      "target": "e2e_transactions_responsive_spec_authpayload"
     },
     {
       "relation": "contains",
@@ -25659,9 +25668,9 @@
       "source_file": "frontend/e2e/transactions-responsive.spec.ts",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_e2e_transactions_responsive_spec_ts",
-      "target": "e2e_transactions_responsive_spec_accounts",
-      "confidence_score": 1.0
+      "target": "e2e_transactions_responsive_spec_accounts"
     },
     {
       "relation": "contains",
@@ -25669,9 +25678,9 @@
       "source_file": "frontend/e2e/transactions-responsive.spec.ts",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_e2e_transactions_responsive_spec_ts",
-      "target": "e2e_transactions_responsive_spec_categories",
-      "confidence_score": 1.0
+      "target": "e2e_transactions_responsive_spec_categories"
     },
     {
       "relation": "contains",
@@ -25679,9 +25688,9 @@
       "source_file": "frontend/e2e/transactions-responsive.spec.ts",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_e2e_transactions_responsive_spec_ts",
-      "target": "e2e_transactions_responsive_spec_transactions",
-      "confidence_score": 1.0
+      "target": "e2e_transactions_responsive_spec_transactions"
     },
     {
       "relation": "imports_from",
@@ -36564,11 +36573,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/pages/TransactionsResponsiveStyles.test.ts",
-      "source_location": "L7",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_src_pages_transactionsresponsivestyles_test_ts",
-      "target": "pages_transactionsresponsivestyles_test_styles",
+      "target": "pages_transactionsresponsivestyles_test_basedir",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/TransactionsResponsiveStyles.test.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_transactionsresponsivestyles_test_ts",
+      "target": "pages_transactionsresponsivestyles_test_styles"
     },
     {
       "relation": "contains",
@@ -51638,5 +51657,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f42656ff63716edc3d1a03822ecac1a556d17d70"
+  "built_at_commit": "11f64a24291625849a507da7fd1aed72d6e816ec"
 }
