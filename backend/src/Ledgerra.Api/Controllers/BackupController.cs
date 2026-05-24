@@ -1,3 +1,4 @@
+using System.Globalization;
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
 using Ledgerra.Infrastructure.Persistence;
@@ -63,6 +64,12 @@ public sealed class BackupController : ControllerBase
             return BadRequest(new ProblemDetails { Title = referenceError });
         }
 
+        var shapeError = ValidateArchiveShape(archive);
+        if (shapeError is not null)
+        {
+            return BadRequest(new ProblemDetails { Title = shapeError });
+        }
+
         await using var tx = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         var budgetPeriodIds = _dbContext.BudgetPeriods.Where(x => x.UserId == userId).Select(x => x.Id);
         _dbContext.BudgetCategoryLimits.RemoveRange(_dbContext.BudgetCategoryLimits.Where(x => budgetPeriodIds.Contains(x.BudgetPeriodId)));
@@ -78,20 +85,20 @@ public sealed class BackupController : ControllerBase
             Id = x.Id,
             UserId = userId,
             Name = x.Name,
-            Type = Enum.Parse<Ledgerra.Domain.Accounts.AccountType>(x.Type),
+            Type = Enum.Parse<Ledgerra.Domain.Accounts.AccountType>(x.Type, ignoreCase: true),
             CurrencyCode = x.CurrencyCode,
             OpeningBalance = x.OpeningBalance,
             IsActive = x.IsActive,
             InstitutionName = x.InstitutionName,
             AccountNumberMasked = x.AccountNumberMasked,
-            IconKind = Enum.Parse<Ledgerra.Domain.Accounts.AccountIconKind>(x.IconKind)
+            IconKind = Enum.Parse<Ledgerra.Domain.Accounts.AccountIconKind>(x.IconKind, ignoreCase: true)
         }).ToList();
         var categories = archive.Categories.Select(x => new Ledgerra.Domain.Categories.Category
         {
             Id = x.Id,
             UserId = userId,
             Name = x.Name,
-            Kind = Enum.Parse<Ledgerra.Domain.Categories.CategoryKind>(x.Kind),
+            Kind = Enum.Parse<Ledgerra.Domain.Categories.CategoryKind>(x.Kind, ignoreCase: true),
             Color = x.Color
         }).ToList();
         var transactions = archive.Transactions.Select(x => new Ledgerra.Domain.Transactions.Transaction
@@ -101,8 +108,8 @@ public sealed class BackupController : ControllerBase
             AccountId = x.AccountId,
             CategoryId = x.CategoryId,
             Amount = x.Amount,
-            Type = Enum.Parse<Ledgerra.Domain.Transactions.TransactionType>(x.Type),
-            OccurredOnUtc = DateTime.Parse(x.OccurredOnUtc),
+            Type = Enum.Parse<Ledgerra.Domain.Transactions.TransactionType>(x.Type, ignoreCase: true),
+            OccurredOnUtc = DateTime.Parse(x.OccurredOnUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
             Note = x.Note,
             TransferGroupId = x.TransferGroupId,
             SplitGroupId = x.SplitGroupId,
@@ -115,9 +122,9 @@ public sealed class BackupController : ControllerBase
             UserId = userId,
             Name = x.Name,
             TargetAmount = x.TargetAmount,
-            DeadlineUtc = string.IsNullOrWhiteSpace(x.DeadlineUtc) ? null : DateTime.Parse(x.DeadlineUtc),
-            CreatedAtUtc = string.IsNullOrWhiteSpace(x.CreatedAtUtc) ? DateTime.UtcNow : DateTime.Parse(x.CreatedAtUtc),
-            UpdatedAtUtc = string.IsNullOrWhiteSpace(x.UpdatedAtUtc) ? DateTime.UtcNow : DateTime.Parse(x.UpdatedAtUtc)
+            DeadlineUtc = string.IsNullOrWhiteSpace(x.DeadlineUtc) ? null : DateTime.Parse(x.DeadlineUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+            CreatedAtUtc = string.IsNullOrWhiteSpace(x.CreatedAtUtc) ? DateTime.UtcNow : DateTime.Parse(x.CreatedAtUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+            UpdatedAtUtc = string.IsNullOrWhiteSpace(x.UpdatedAtUtc) ? DateTime.UtcNow : DateTime.Parse(x.UpdatedAtUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind)
         }).ToList();
 
         var periods = archive.BudgetPeriods.Select(x => new Ledgerra.Domain.Budgets.BudgetPeriod
@@ -190,5 +197,75 @@ public sealed class BackupController : ControllerBase
         }
 
         return null;
+    }
+
+    private static string? ValidateArchiveShape(BackupArchiveResponse archive)
+    {
+        foreach (var account in archive.Accounts)
+        {
+            if (!Enum.TryParse<Ledgerra.Domain.Accounts.AccountType>(account.Type, ignoreCase: true, out _))
+            {
+                return "Backup contains an account with an unsupported type.";
+            }
+
+            if (!Enum.TryParse<Ledgerra.Domain.Accounts.AccountIconKind>(account.IconKind, ignoreCase: true, out _))
+            {
+                return "Backup contains an account with an unsupported icon kind.";
+            }
+        }
+
+        foreach (var category in archive.Categories)
+        {
+            if (!Enum.TryParse<Ledgerra.Domain.Categories.CategoryKind>(category.Kind, ignoreCase: true, out _))
+            {
+                return "Backup contains a category with an unsupported kind.";
+            }
+        }
+
+        foreach (var transaction in archive.Transactions)
+        {
+            if (!Enum.TryParse<Ledgerra.Domain.Transactions.TransactionType>(transaction.Type, ignoreCase: true, out _))
+            {
+                return "Backup contains a transaction with an unsupported type.";
+            }
+
+            if (!TryParseDateTime(transaction.OccurredOnUtc))
+            {
+                return "Backup contains a transaction with an invalid occurred-on date.";
+            }
+        }
+
+        foreach (var goal in archive.SavingsGoals ?? [])
+        {
+            if (!string.IsNullOrWhiteSpace(goal.DeadlineUtc) && !TryParseDateTime(goal.DeadlineUtc))
+            {
+                return "Backup contains a savings goal with an invalid deadline date.";
+            }
+
+            if (!string.IsNullOrWhiteSpace(goal.CreatedAtUtc) && !TryParseDateTime(goal.CreatedAtUtc))
+            {
+                return "Backup contains a savings goal with an invalid created date.";
+            }
+
+            if (!string.IsNullOrWhiteSpace(goal.UpdatedAtUtc) && !TryParseDateTime(goal.UpdatedAtUtc))
+            {
+                return "Backup contains a savings goal with an invalid updated date.";
+            }
+        }
+
+        foreach (var period in archive.BudgetPeriods)
+        {
+            if (period.Month is < 1 or > 12)
+            {
+                return "Backup contains a budget period with an invalid month.";
+            }
+        }
+
+        return null;
+    }
+
+    private static bool TryParseDateTime(string value)
+    {
+        return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _);
     }
 }

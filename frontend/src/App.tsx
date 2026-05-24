@@ -47,14 +47,18 @@ function ProtectedRoutes() {
 }
 
 export function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isRestoring } = useAuth();
 
   return (
     <I18nProvider>
-      <Routes>
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
-        <Route path="/*" element={isAuthenticated ? <ProtectedRoutes /> : <Navigate to="/login" replace />} />
-      </Routes>
+      {isRestoring ? (
+        <div className="page-stack"><p>Loading...</p></div>
+      ) : (
+        <Routes>
+          <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+          <Route path="/*" element={isAuthenticated ? <ProtectedRoutes /> : <Navigate to="/login" replace />} />
+        </Routes>
+      )}
     </I18nProvider>
   );
 }

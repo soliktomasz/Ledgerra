@@ -134,7 +134,7 @@ describe("TransactionsPage", () => {
     await waitFor(() => {
       expect(mocks.getTransactions).toHaveBeenLastCalledWith(
         "token",
-        "?accountId=account-1&categoryId=category-1&type=Expense&from=2026-04-01&to=2026-04-30"
+        "?accountId=account-1&categoryId=category-1&type=Expense&from=2026-04-01&to=2026-04-30&minAmount=10&maxAmount=100&q=market"
       );
     });
 

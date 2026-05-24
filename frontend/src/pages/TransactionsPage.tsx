@@ -100,10 +100,9 @@ function getRelativeDayLabel(value: string, t: ReturnType<typeof useI18n>["t"]) 
 export function TransactionsPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
-  const { accounts, categories, transactions, budget, refresh } = useLedgerraData({
+  const { accounts, categories, budget, refresh } = useLedgerraData({
     accounts: true,
     categories: true,
-    transactions: true,
     budget: true
   });
   const [formMode, setFormMode] = useState<TransactionFormMode>("create");
@@ -137,7 +136,7 @@ export function TransactionsPage() {
   const [maxAmount, setMaxAmount] = useState(() => initialQuery.get("maxAmount") ?? "");
   const [noteSearch, setNoteSearch] = useState(() => initialQuery.get("q") ?? "");
   const [showUncategorizedOnly, setShowUncategorizedOnly] = useState(() => initialQuery.get("view") === "uncategorized");
-  const [ledgerTransactions, setLedgerTransactions] = useState<Transaction[]>(transactions);
+  const [ledgerTransactions, setLedgerTransactions] = useState<Transaction[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedTransactionIds, setSelectedTransactionIds] = useState<string[]>([]);
@@ -149,20 +148,15 @@ export function TransactionsPage() {
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
 
   useEffect(() => {
-    setLedgerTransactions(transactions);
-  }, [transactions]);
-  useEffect(() => {
     if (!auth?.accessToken) return;
     void apiClient.getSavingsGoals(auth.accessToken).then(setSavingsGoals).catch(() => setSavingsGoals([]));
   }, [auth?.accessToken]);
 
   const filterQuery = useMemo(() => {
     const params = new URLSearchParams();
-    if (filterAccountIds.length === 1) {
-      params.set("accountId", filterAccountIds[0]);
-    }
-    if (filterCategoryIds.length === 1 && filterType !== "Transfer") {
-      params.set("categoryId", filterCategoryIds[0]);
+    filterAccountIds.forEach((id) => params.append("accountId", id));
+    if (filterType !== "Transfer") {
+      filterCategoryIds.forEach((id) => params.append("categoryId", id));
     }
     if (filterType && filterType !== "Transfer") {
       params.set("type", filterType);
@@ -173,10 +167,22 @@ export function TransactionsPage() {
     if (toDate) {
       params.set("to", toDate);
     }
+    if (minAmount) {
+      params.set("minAmount", minAmount);
+    }
+    if (maxAmount) {
+      params.set("maxAmount", maxAmount);
+    }
+    if (noteSearch.trim()) {
+      params.set("q", noteSearch.trim());
+    }
+    if (showUncategorizedOnly) {
+      params.set("uncategorizedOnly", "true");
+    }
 
     const query = params.toString();
     return query ? `?${query}` : "";
-  }, [filterAccountIds, filterCategoryIds, filterType, fromDate, toDate]);
+  }, [filterAccountIds, filterCategoryIds, filterType, fromDate, toDate, minAmount, maxAmount, noteSearch, showUncategorizedOnly]);
 
   useEffect(() => {
     const params = new URLSearchParams();

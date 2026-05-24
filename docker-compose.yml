@@ -29,9 +29,12 @@ services:
       Auth__SigningKey: change-this-before-production
       Auth__AccessTokenMinutes: 60
       Auth__RefreshTokenDays: 30
+      DataProtection__KeysPath: /var/lib/ledgerra/keyring
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ledgerra-keyring:/var/lib/ledgerra/keyring
     expose:
       - "8080"
 
@@ -49,3 +52,4 @@ services:
 
 volumes:
   ledgerra-postgres:
+  ledgerra-keyring:

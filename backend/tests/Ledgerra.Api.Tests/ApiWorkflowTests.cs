@@ -628,6 +628,56 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task AuthenticatedUser_CanFilterTransactionsByAmountNoteAndUncategorizedOnServer()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var savingsId = await CreateAccountAsync(client, "Savings", "Savings", 600m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var matchingResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-10T08:00:00Z",
+            note = "Corner Market"
+        });
+        Assert.Equal(HttpStatusCode.Created, matchingResponse.StatusCode);
+        var matchingPayload = await matchingResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var matchingId = matchingPayload.GetProperty("id").GetGuid();
+
+        await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-11T08:00:00Z",
+            note = "Corner Market categorized"
+        });
+        await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = savingsId,
+            amount = 500m,
+            type = "Income",
+            occurredOnUtc = "2026-04-12T08:00:00Z",
+            note = "Payroll"
+        });
+
+        var filteredResponse = await client.GetAsync($"/api/transactions?accountId={checkingId}&accountId={savingsId}&minAmount=40&maxAmount=50&q=market&uncategorizedOnly=true");
+        Assert.Equal(HttpStatusCode.OK, filteredResponse.StatusCode);
+
+        var filteredPayload = await filteredResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(filteredPayload.EnumerateArray());
+        Assert.Equal(matchingId, filteredPayload[0].GetProperty("id").GetGuid());
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanUpdateAccountButCannotDeleteAccountWithTransactions()
     {
         using var client = _factory.CreateClient();

@@ -27,9 +27,12 @@ services:
       Auth__SigningKey: ${AUTH_SIGNING_KEY:?Set AUTH_SIGNING_KEY in .env}
       Auth__AccessTokenMinutes: ${AUTH_ACCESS_TOKEN_MINUTES:-60}
       Auth__RefreshTokenDays: ${AUTH_REFRESH_TOKEN_DAYS:-30}
+      DataProtection__KeysPath: /var/lib/ledgerra/keyring
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ${LEDGERRA_KEYRING_DATA:-/mnt/user/appdata/ledgerra/keyring}:/var/lib/ledgerra/keyring
     expose:
       - "8080"
 
