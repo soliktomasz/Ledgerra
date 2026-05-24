@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useMonthSelection } from "../state/MonthContext";
 import { TransactionForm } from "../components/TransactionForm";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
@@ -9,6 +10,7 @@ import { MetricCard } from "../ui/MetricCard";
 import { SectionCard } from "../ui/SectionCard";
 import { EmptyState } from "../ui/EmptyState";
 import { formatCurrency } from "../utils/format";
+import { getMonthRangeParams } from "../utils/monthRange";
 import type { BudgetSummary, Transaction } from "../types";
 
 type ChecklistAction =
@@ -139,6 +141,7 @@ function buildDashboardInsights(
   budget: BudgetSummary | null,
   transactions: Transaction[],
   currencyCode: string,
+  monthRangeParams: string,
   t: ReturnType<typeof useI18n>["t"]
 ): DashboardInsight[] {
   const insights: DashboardInsight[] = [];
@@ -186,7 +189,7 @@ function buildDashboardInsights(
       title: t("dashboard.categorizeRecentSpendingTitle"),
       detail: t("dashboard.categorizeRecentSpendingDetail", { count: uncategorizedExpenseCount }),
       tone: "attention",
-      action: { label: t("dashboard.reviewTransactions"), to: "/transactions?view=uncategorized" }
+      action: { label: t("dashboard.reviewTransactions"), to: `/transactions?view=uncategorized&${monthRangeParams}` }
     });
   }
 
@@ -206,6 +209,7 @@ function buildDashboardInsights(
 export function DashboardPage() {
   const { auth } = useAuth();
   const { t } = useI18n();
+  const { selectedMonth } = useMonthSelection();
   const { accounts, categories, dashboard, budget, loading, error, profile, transactions, refresh } = useLedgerraData({
     accounts: true,
     categories: true,
@@ -236,6 +240,7 @@ export function DashboardPage() {
     [accounts]
   );
   const hasBudget = (budget?.totalPlanned ?? 0) > 0 || Boolean(budget?.categories.some((category) => category.planned > 0));
+  const monthRangeParams = getMonthRangeParams(selectedMonth);
 
   const markAcknowledgement = useCallback((key: keyof typeof acknowledgementDefaults) => {
     setAcknowledgements((current) => {
@@ -323,8 +328,8 @@ export function DashboardPage() {
   const completedChecklistItems = checklistItems.filter((item) => item.complete).length;
   const isChecklistComplete = completedChecklistItems === checklistItems.length;
   const insights = useMemo(
-    () => buildDashboardInsights(budget, transactions, mainCurrencyCode, t),
-    [budget, mainCurrencyCode, t, transactions]
+    () => buildDashboardInsights(budget, transactions, mainCurrencyCode, monthRangeParams, t),
+    [budget, mainCurrencyCode, monthRangeParams, t, transactions]
   );
 
   useEffect(() => {
@@ -583,7 +588,7 @@ export function DashboardPage() {
                     return (
                       <div className="bar-item" key={category.categoryId}>
                         <div>
-                          <strong>{category.categoryName}</strong>
+                          <Link to={`/transactions?type=Expense&categoryId=${category.categoryId}&${monthRangeParams}`}><strong>{category.categoryName}</strong></Link>
                           <span>{formatCurrency(category.amount, mainCurrencyCode)}</span>
                         </div>
                         <div className="bar-track">
@@ -610,7 +615,7 @@ export function DashboardPage() {
                 {dashboard.accounts.map((account) => (
                   <article key={account.accountId} className="balance-row">
                     <div>
-                      <strong>{account.name}</strong>
+                      <Link to={`/transactions?accountId=${account.accountId}&${monthRangeParams}`}><strong>{account.name}</strong></Link>
                       <p>{t("dashboard.liveBalance")}</p>
                     </div>
                     <strong>{formatCurrency(account.balance, accountCurrencyCodes.get(account.accountId) ?? mainCurrencyCode)}</strong>

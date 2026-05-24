@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { DashboardPage } from "./DashboardPage";
+import { MonthProvider } from "../state/MonthContext";
 import type { Account, BudgetSummary, DashboardSummary, Transaction } from "../types";
 
 const mocks = vi.hoisted(() => ({
@@ -55,6 +56,20 @@ vi.mock("../api/client", () => ({
 vi.mock("../hooks/useLedgerraData", () => ({
   useLedgerraData: () => mocks.data
 }));
+
+function dashboardTree(initialMonth = "2026-05") {
+  return (
+    <MemoryRouter>
+      <MonthProvider initialMonth={initialMonth}>
+        <DashboardPage />
+      </MonthProvider>
+    </MemoryRouter>
+  );
+}
+
+function renderDashboardPage(initialMonth?: string) {
+  return render(dashboardTree(initialMonth));
+}
 
 describe("DashboardPage", () => {
   beforeEach(() => {
@@ -125,11 +140,7 @@ describe("DashboardPage", () => {
       ]
     };
 
-    render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    renderDashboardPage();
 
     expect(screen.getByText("First run checklist")).toBeInTheDocument();
     expect(screen.getByText("2 of 5 complete")).toBeInTheDocument();
@@ -140,11 +151,7 @@ describe("DashboardPage", () => {
   test("lets users acknowledge currency and default categories without resetting on currency changes", async () => {
     const user = userEvent.setup();
 
-    const { rerender } = render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    const { rerender } = renderDashboardPage();
 
     await user.click(screen.getByRole("button", { name: "Confirm USD" }));
     expect(screen.getByRole("link", { name: "Open categories" })).toHaveAttribute("href", "/categories");
@@ -155,11 +162,7 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Categories reviewed")).toBeInTheDocument();
 
     mocks.data.profile = { email: "owner@ledgerra.local", preferredCurrencyCode: "EUR", preferredLanguageCode: "en" };
-    rerender(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    rerender(dashboardTree());
 
     expect(screen.getByText("2 of 5 complete")).toBeInTheDocument();
     expect(screen.getByText("Currency confirmed")).toBeInTheDocument();
@@ -169,11 +172,7 @@ describe("DashboardPage", () => {
   test("lets users close the first-run checklist without completing steps", async () => {
     const user = userEvent.setup();
 
-    const { rerender } = render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    const { rerender } = renderDashboardPage();
 
     expect(screen.getByLabelText("First run checklist")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Close checklist" }));
@@ -185,11 +184,7 @@ describe("DashboardPage", () => {
       categories: false
     });
 
-    rerender(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    rerender(dashboardTree());
 
     expect(screen.queryByLabelText("First run checklist")).not.toBeInTheDocument();
   });
@@ -240,11 +235,7 @@ describe("DashboardPage", () => {
       }
     ];
 
-    render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    renderDashboardPage();
 
     expect(screen.queryByLabelText("Onboarding checklist")).not.toBeInTheDocument();
   });
@@ -322,17 +313,13 @@ describe("DashboardPage", () => {
       }
     ];
 
-    render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    renderDashboardPage();
 
     expect(screen.getByRole("heading", { name: "Insights" })).toBeInTheDocument();
     expect(screen.getByText("Dining is 82% of its budget.")).toBeInTheDocument();
     expect(screen.getByText("Subscriptions is over budget by $5.00.")).toBeInTheDocument();
     expect(screen.getByText("You have 2 uncategorized expense transactions.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review transactions" })).toHaveAttribute("href", "/transactions?view=uncategorized");
+    expect(screen.getByRole("link", { name: "Review transactions" })).toHaveAttribute("href", "/transactions?view=uncategorized&from=2026-05-01&to=2026-05-31");
   });
 
   test("prompts users to set a budget when transactions exist without planned limits", () => {
@@ -354,11 +341,7 @@ describe("DashboardPage", () => {
       }
     ];
 
-    render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    renderDashboardPage();
 
     expect(screen.getByText("Set a monthly budget to turn spending into progress alerts.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open budgets" })).toHaveAttribute("href", "/budgets");
@@ -384,11 +367,7 @@ describe("DashboardPage", () => {
       }
     } as DashboardSummary;
 
-    render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    renderDashboardPage();
 
     expect(screen.getByText("Reports preview")).toBeInTheDocument();
     expect(screen.getByText("Spending is up $60.00 vs prior month.")).toBeInTheDocument();
@@ -411,11 +390,7 @@ describe("DashboardPage", () => {
       }
     } as DashboardSummary;
 
-    const { rerender } = render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    const { rerender } = renderDashboardPage();
 
     expect(screen.getByRole("heading", { name: "Top categories" })).toBeInTheDocument();
     await user.click(screen.getByRole("checkbox", { name: "Top categories" }));
@@ -424,11 +399,7 @@ describe("DashboardPage", () => {
     await user.click(within(screen.getByText("Summary metrics").closest("article") as HTMLElement).getByRole("button", { name: "Move down" }));
     expect(screen.getByText("Reports preview").compareDocumentPosition(screen.getByText("Income")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    rerender(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    rerender(dashboardTree());
 
     expect(screen.getByText("Reports preview").compareDocumentPosition(screen.getByText("Income")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const stored = localStorage.getItem("ledgerra:dashboard-widgets:owner@ledgerra.local");
@@ -439,11 +410,7 @@ describe("DashboardPage", () => {
   test("closes and reopens dashboard widget customization without changing widget preferences", async () => {
     const user = userEvent.setup();
 
-    const { rerender } = render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    const { rerender } = renderDashboardPage();
 
     const customizationPanel = screen.getByLabelText("Customize widgets");
     await user.click(within(customizationPanel).getByRole("button", { name: "Close" }));
@@ -453,11 +420,7 @@ describe("DashboardPage", () => {
     expect(localStorage.getItem("ledgerra:dashboard-widget-customization-closed:owner@ledgerra.local")).toBe("true");
     expect(localStorage.getItem("ledgerra:dashboard-widgets:owner@ledgerra.local")).toBeNull();
 
-    rerender(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    rerender(dashboardTree());
 
     expect(screen.queryByLabelText("Customize widgets")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Customize widgets" }));
@@ -466,6 +429,27 @@ describe("DashboardPage", () => {
     expect(localStorage.getItem("ledgerra:dashboard-widget-customization-closed:owner@ledgerra.local")).toBe("false");
   });
 
+  
+  test("builds month-scoped drilldown links for top categories and accounts", () => {
+    mocks.data.dashboard = {
+      income: 4000,
+      expenses: 540,
+      net: 3460,
+      budgetRemaining: 260,
+      topCategories: [{ categoryId: "category-1", categoryName: "Groceries", amount: 100 }],
+      accounts: [{ accountId: "account-1", name: "Main checking", balance: 900 }],
+      trends: {
+        spendingDeltaAmount: 60,
+        spendingDeltaPercent: 12.5,
+        spendingSparkline: []
+      }
+    } as DashboardSummary;
+
+    renderDashboardPage("2026-02");
+
+    expect(screen.getByRole("link", { name: "Groceries" })).toHaveAttribute("href", "/transactions?type=Expense&categoryId=category-1&from=2026-02-01&to=2026-02-28");
+    expect(screen.getByRole("link", { name: "Main checking" })).toHaveAttribute("href", "/transactions?accountId=account-1&from=2026-02-01&to=2026-02-28");
+  });
   test("opens quick transaction dialog and saves a transaction from the dashboard", async () => {
     const user = userEvent.setup();
     mocks.data.accounts = [
@@ -481,11 +465,7 @@ describe("DashboardPage", () => {
       }
     ];
 
-    render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    renderDashboardPage();
 
     await user.click(screen.getByRole("button", { name: "Add transaction" }));
     expect(screen.getByRole("dialog", { name: "Add transaction" })).toBeInTheDocument();
@@ -527,11 +507,7 @@ describe("DashboardPage", () => {
       }
     ];
 
-    render(
-      <MemoryRouter>
-        <DashboardPage />
-      </MemoryRouter>
-    );
+    renderDashboardPage();
 
     await user.click(screen.getByRole("button", { name: "Add transaction" }));
     await user.selectOptions(screen.getByLabelText("Account"), "account-1");

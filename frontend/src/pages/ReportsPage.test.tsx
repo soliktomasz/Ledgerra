@@ -110,7 +110,18 @@ describe("ReportsPage", () => {
     expect(mocks.state.setRangePreset).toHaveBeenCalledWith("3M");
   });
 
-  test("shows mixed-currency warnings and empty chart states", () => {
+  
+  test("adds transaction drilldown links for category breakdown rows", () => {
+    render(<MemoryRouter><ReportsPage /></MemoryRouter>);
+
+    const link = screen.getByRole("link", { name: "Groceries" });
+    const url = new URL(link.getAttribute("href") ?? "", window.location.origin);
+
+    expect(url.pathname).toBe("/transactions");
+    expect(url.searchParams.get("type")).toBe("Expense");
+    expect(url.searchParams.get("categoryId")).toBe("category-1");
+  });
+test("shows mixed-currency warnings and empty chart states", () => {
     mocks.state.overview = {
       ...overview,
       monthlySpendingTrend: [],

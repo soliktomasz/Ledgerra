@@ -31,8 +31,10 @@ function getMonthParts(month: string) {
   return { selectedYear: year, selectedMonthNumber: monthNumber };
 }
 
-export function MonthProvider({ children }: { children: ReactNode }) {
-  const [selectedMonth, setSelectedMonthState] = useState(currentMonthKey);
+export function MonthProvider({ children, initialMonth }: { children: ReactNode; initialMonth?: string }) {
+  const [selectedMonth, setSelectedMonthState] = useState(() =>
+    initialMonth && isMonthKey(initialMonth) ? initialMonth : currentMonthKey()
+  );
 
   const value = useMemo<MonthSelectionContextValue>(() => {
     const { selectedYear, selectedMonthNumber } = getMonthParts(selectedMonth);

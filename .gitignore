@@ -494,3 +494,5 @@ $RECYCLE.BIN/
 .superpowers/
 docs/superpowers/plans/
 docs/superpowers/specs/
+
+.codex/hooks.json
