@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import {
   Area,
   AreaChart,
@@ -41,6 +42,12 @@ type NetWorthPoint = {
 };
 
 type Translator = ReturnType<typeof useI18n>["t"];
+
+function getCategoryTransactionsPath(categoryId: string) {
+  const params = new URLSearchParams({ type: "Expense", categoryId: String(categoryId) });
+
+  return `/transactions?${params.toString()}`;
+}
 
 function formatMonthLabel(month: string) {
   const [year, monthNumber] = month.split("-");
@@ -246,7 +253,7 @@ export function CategoryBreakdownChart({
       <div className="chart-summary-list">
         {rows.map((row) => (
           <div className="chart-summary-item" key={row.categoryId}>
-            <a href={`/transactions?type=Expense&categoryId=${row.categoryId}`}><strong>{row.categoryName}</strong></a>
+            <Link to={getCategoryTransactionsPath(row.categoryId)}><strong>{row.categoryName}</strong></Link>
             <span>{formatCurrency(row.amount, currencyCode)} · {row.percentage}%</span>
           </div>
         ))}

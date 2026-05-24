@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { Link } from "react-router-dom";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
@@ -7,6 +8,7 @@ import { useMonthSelection } from "../state/MonthContext";
 import type { BudgetCategory, Category, Transaction } from "../types";
 import { BookmarkIcon, BudgetsIcon, CategoryIcon, DuplicateIcon, EditIcon, TrendIcon } from "../ui/icons";
 import { formatCurrency } from "../utils/format";
+import { getMonthRangeParams } from "../utils/monthRange";
 
 type BudgetStatus = "ok" | "near" | "over" | "unset";
 type BudgetFilter = "all" | "ok" | "near" | "over";
@@ -427,7 +429,7 @@ export function BudgetsPage() {
   );
   const timing = useMemo(() => getBudgetTiming(selectedYear, selectedMonthNumber), [selectedMonthNumber, selectedYear]);
   const monthLabel = formatMonthLabel(getMonthDate(selectedYear, selectedMonthNumber), languageCode);
-  const monthRangeParams = `from=${selectedMonth}-01&to=${selectedMonth}-31`;
+  const monthRangeParams = getMonthRangeParams(selectedMonth);
   const totalPlanned = budgetRows.reduce((sum, row) => sum + row.available, 0);
   const totalSpent = budgetRows.reduce((sum, row) => sum + row.spent, 0);
   const totalRemaining = totalPlanned - totalSpent;
@@ -668,7 +670,7 @@ export function BudgetsPage() {
                             </div>
                             <div className="budget-envelope-main">
                               <div className="budget-envelope-titleline">
-                                <a href={`/transactions?type=Expense&categoryId=${row.categoryId}&${monthRangeParams}`}><strong>{row.categoryName}</strong></a>
+                                <Link to={`/transactions?type=Expense&categoryId=${row.categoryId}&${monthRangeParams}`}><strong>{row.categoryName}</strong></Link>
                                 <span>· {row.operationCount > 0 ? copy.operation(row.operationCount) : copy.noOperations}</span>
                                 <em>{statusLabel}</em>
                               </div>
@@ -777,7 +779,7 @@ export function BudgetsPage() {
                 <article key={`recurring-${row.categoryId}`}>
                   <span style={{ background: row.color }} />
                   <div>
-                    <a href={`/transactions?type=Expense&categoryId=${row.categoryId}&${monthRangeParams}`}><strong>{row.categoryName}</strong></a>
+                    <Link to={`/transactions?type=Expense&categoryId=${row.categoryId}&${monthRangeParams}`}><strong>{row.categoryName}</strong></Link>
                     <p>{row.operationCount > 0 ? copy.operation(row.operationCount) : copy.noOperations}</p>
                   </div>
                   <b>{formatCurrency(row.planned, mainCurrencyCode)}</b>{row.carryForward > 0 ? ` (+${formatCurrency(row.carryForward, mainCurrencyCode)} rollover)` : ""}

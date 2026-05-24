@@ -10,6 +10,7 @@ import { MetricCard } from "../ui/MetricCard";
 import { SectionCard } from "../ui/SectionCard";
 import { EmptyState } from "../ui/EmptyState";
 import { formatCurrency } from "../utils/format";
+import { getMonthRangeParams } from "../utils/monthRange";
 import type { BudgetSummary, Transaction } from "../types";
 
 type ChecklistAction =
@@ -239,7 +240,7 @@ export function DashboardPage() {
     [accounts]
   );
   const hasBudget = (budget?.totalPlanned ?? 0) > 0 || Boolean(budget?.categories.some((category) => category.planned > 0));
-  const monthRangeParams = `from=${selectedMonth}-01&to=${selectedMonth}-31`;
+  const monthRangeParams = getMonthRangeParams(selectedMonth);
 
   const markAcknowledgement = useCallback((key: keyof typeof acknowledgementDefaults) => {
     setAcknowledgements((current) => {
@@ -587,7 +588,7 @@ export function DashboardPage() {
                     return (
                       <div className="bar-item" key={category.categoryId}>
                         <div>
-                          <a href={`/transactions?type=Expense&categoryId=${category.categoryId}&${monthRangeParams}`}><strong>{category.categoryName}</strong></a>
+                          <Link to={`/transactions?type=Expense&categoryId=${category.categoryId}&${monthRangeParams}`}><strong>{category.categoryName}</strong></Link>
                           <span>{formatCurrency(category.amount, mainCurrencyCode)}</span>
                         </div>
                         <div className="bar-track">
@@ -614,7 +615,7 @@ export function DashboardPage() {
                 {dashboard.accounts.map((account) => (
                   <article key={account.accountId} className="balance-row">
                     <div>
-                      <a href={`/transactions?accountId=${account.accountId}&${monthRangeParams}`}><strong>{account.name}</strong></a>
+                      <Link to={`/transactions?accountId=${account.accountId}&${monthRangeParams}`}><strong>{account.name}</strong></Link>
                       <p>{t("dashboard.liveBalance")}</p>
                     </div>
                     <strong>{formatCurrency(account.balance, accountCurrencyCodes.get(account.accountId) ?? mainCurrencyCode)}</strong>

@@ -1,6 +1,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import { BudgetsPage } from "./BudgetsPage";
 
 const mocks = vi.hoisted(() => ({
@@ -64,10 +65,18 @@ describe("BudgetsPage", () => {
     mocks.refresh.mockResolvedValue(undefined);
   });
 
+  function renderBudgetsPage() {
+    return render(
+      <MemoryRouter>
+        <BudgetsPage />
+      </MemoryRouter>
+    );
+  }
+
   test("saves budget changes for the globally selected month", async () => {
     const user = userEvent.setup();
 
-    render(<BudgetsPage />);
+    renderBudgetsPage();
 
     await user.clear(screen.getByLabelText("Groceries"));
     await user.type(screen.getByLabelText("Groceries"), "125");
@@ -83,7 +92,7 @@ describe("BudgetsPage", () => {
   test("saves rollover setting with budget changes", async () => {
     const user = userEvent.setup();
 
-    render(<BudgetsPage />);
+    renderBudgetsPage();
 
     await user.click(screen.getByRole("checkbox", { name: "Rollover" }));
     await user.click(screen.getByRole("button", { name: "Save budget" }));

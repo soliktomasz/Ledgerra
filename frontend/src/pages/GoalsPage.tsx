@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState, type CSSProperties } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { apiClient } from "../api/client";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
@@ -516,7 +516,7 @@ export function GoalsPage() {
                         <article key={transaction.id}>
                           <span>↓</span>
                           <div>
-                            <a href={`/transactions?type=TransferOut&savingsGoalId=${selectedGoal.id}&from=${transaction.occurredOnUtc.slice(0, 10)}&to=${transaction.occurredOnUtc.slice(0, 10)}`}><strong>+ {formatCurrency(Math.abs(transaction.amount), currencyCode)}</strong></a>
+                            <Link to={`/transactions?type=TransferOut&savingsGoalId=${selectedGoal.id}&from=${transaction.occurredOnUtc.slice(0, 10)}&to=${transaction.occurredOnUtc.slice(0, 10)}`}><strong>+ {formatCurrency(Math.abs(transaction.amount), currencyCode)}</strong></Link>
                             <p>{fullDateFormatter.format(new Date(transaction.occurredOnUtc))}</p>
                           </div>
                         </article>
