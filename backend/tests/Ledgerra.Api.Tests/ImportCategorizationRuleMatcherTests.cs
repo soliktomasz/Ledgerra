@@ -48,6 +48,22 @@ public sealed class ImportCategorizationRuleMatcherTests
         Assert.Equal(expected, result[0].AppliedRuleName is not null);
     }
 
+    [Fact]
+    public async Task ApplyAsync_TreatsInvalidRegexRuleAsNonMatch()
+    {
+        var userId = Guid.NewGuid();
+        await using var db = CreateDb();
+        db.CategorizationRules.Add(Rule(userId, "bad regex", 1, true, ImportRuleMatchField.Note, ImportRuleMatchOperator.Regex, "(", Guid.NewGuid()));
+        await db.SaveChangesAsync();
+
+        var matcher = new ImportCategorizationRuleMatcher(db);
+        var draft = Draft(note: "Market", amount: 12, type: "Expense");
+
+        var result = await matcher.ApplyAsync(userId, [draft], CancellationToken.None);
+
+        Assert.Null(result[0].AppliedRuleName);
+    }
+
     private static LedgerraDbContext CreateDb()
     {
         var options = new DbContextOptionsBuilder<LedgerraDbContext>()

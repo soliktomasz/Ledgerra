@@ -1065,6 +1065,38 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
 
         Assert.Equal(HttpStatusCode.BadRequest, unsupportedFieldResponse.StatusCode);
 
+        var undefinedNumericFieldResponse = await ownerClient.PostAsJsonAsync("/api/import-rules", new
+        {
+            name = "Bad numeric field",
+            matchField = "999",
+            matchOperator = "Contains",
+            matchValue = "Market",
+            assignCategoryId = ownerCategoryId,
+            assignTransactionType = "Expense",
+            priority = 1,
+            isActive = true
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, undefinedNumericFieldResponse.StatusCode);
+        var undefinedNumericFieldProblem = await undefinedNumericFieldResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(undefinedNumericFieldProblem.GetProperty("errors").TryGetProperty("matchField", out _));
+
+        var undefinedNumericOperatorResponse = await ownerClient.PostAsJsonAsync("/api/import-rules", new
+        {
+            name = "Bad numeric operator",
+            matchField = "Note",
+            matchOperator = "999",
+            matchValue = "Market",
+            assignCategoryId = ownerCategoryId,
+            assignTransactionType = "Expense",
+            priority = 1,
+            isActive = true
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, undefinedNumericOperatorResponse.StatusCode);
+        var undefinedNumericOperatorProblem = await undefinedNumericOperatorResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(undefinedNumericOperatorProblem.GetProperty("errors").TryGetProperty("matchOperator", out _));
+
         var foreignCategoryResponse = await ownerClient.PostAsJsonAsync("/api/import-rules", new
         {
             name = "Foreign category",

@@ -208,12 +208,14 @@ public sealed class ImportRulesController : ControllerBase
 
     private static bool TryParseSupportedMatchField(string value, out ImportRuleMatchField field)
     {
-        return Enum.TryParse(value, true, out field);
+        return Enum.TryParse(value, true, out field) &&
+            Enum.IsDefined(typeof(ImportRuleMatchField), field);
     }
 
     private static bool TryParseSupportedMatchOperator(string value, out ImportRuleMatchOperator matchOperator)
     {
-        return Enum.TryParse(value, true, out matchOperator);
+        return Enum.TryParse(value, true, out matchOperator) &&
+            Enum.IsDefined(typeof(ImportRuleMatchOperator), matchOperator);
     }
 
     private static bool IsSupportedOperatorForField(ImportRuleMatchField field, ImportRuleMatchOperator matchOperator)

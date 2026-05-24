@@ -76,9 +76,25 @@ public sealed class ImportCategorizationRuleMatcher : IImportCategorizationRuleM
             ImportRuleMatchOperator.Equals => string.Equals(input.Trim(), value.Trim(), StringComparison.OrdinalIgnoreCase),
             ImportRuleMatchOperator.NotEquals => !string.Equals(input.Trim(), value.Trim(), StringComparison.OrdinalIgnoreCase),
             ImportRuleMatchOperator.StartsWith => input.StartsWith(value, StringComparison.OrdinalIgnoreCase),
-            ImportRuleMatchOperator.Regex => Regex.IsMatch(input, value, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
+            ImportRuleMatchOperator.Regex => TryMatchRegex(input, value),
             _ => false
         };
+    }
+
+    private static bool TryMatchRegex(string input, string value)
+    {
+        try
+        {
+            return Regex.IsMatch(input, value, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
     }
 
     private static bool MatchType(string input, ImportRuleMatchOperator op, string value)
