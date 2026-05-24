@@ -135,6 +135,10 @@ const categoryCopy = {
     duplicate: "Duplicate",
     archive: "Archive",
     archiveUnavailable: "Used categories cannot be archived",
+    categoryEditor: "Category editor",
+    editInline: (name: string) => `Edit ${name} inline`,
+    newInline: "New category inline",
+    close: "Close",
     livePreview: "Live preview",
     previewName: "Category name...",
     name: "Name",
@@ -211,6 +215,10 @@ const categoryCopy = {
     duplicate: "Duplikuj",
     archive: "Archiwizuj",
     archiveUnavailable: "Używanych kategorii nie można archiwizować",
+    categoryEditor: "Edytor kategorii",
+    editInline: (name: string) => `Edytuj ${name} inline`,
+    newInline: "Nowa kategoria inline",
+    close: "Zamknij",
     livePreview: "Podgląd na żywo",
     previewName: "Nazwa kategorii...",
     name: "Nazwa",
@@ -253,6 +261,33 @@ function isCategoryCopyKey(value: string): value is CategoryCopyKey {
 function getCategoryPageCopy(languageCode: string) {
   const primaryLanguage = languageCode.split("-")[0].toLowerCase();
   return isCategoryCopyKey(primaryLanguage) ? categoryCopy[primaryLanguage] : categoryCopy.en;
+}
+
+function useMediaQuery(query: string) {
+  const getMatches = () => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return false;
+    }
+
+    return window.matchMedia(query).matches;
+  };
+
+  const [matches, setMatches] = useState(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia(query);
+    const updateMatches = () => setMatches(mediaQuery.matches);
+    updateMatches();
+    mediaQuery.addEventListener("change", updateMatches);
+
+    return () => mediaQuery.removeEventListener("change", updateMatches);
+  }, [query]);
+
+  return matches;
 }
 
 function getCategoryKindLabel(kind: string, t: ReturnType<typeof useI18n>["t"]) {
@@ -511,6 +546,7 @@ export function CategoriesPage() {
     profile: true
   });
   const copy = getCategoryPageCopy(languageCode);
+  const isCompactCategoryLayout = useMediaQuery("(max-width: 1500px)");
   const monthLabel = formatMonthLabel(selectedMonth, languageCode);
   const currencyCode = profile?.preferredCurrencyCode ?? "USD";
   const [preferences, setPreferences] = useState(readCategoryPreferences);
@@ -525,10 +561,12 @@ export function CategoriesPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [compactEditorOpen, setCompactEditorOpen] = useState(false);
 
   useEffect(() => {
     if (selectedCategoryId && !categories.some((category) => category.id === selectedCategoryId)) {
       setSelectedCategoryId(null);
+      setCompactEditorOpen(false);
     }
   }, [categories, selectedCategoryId]);
 
@@ -679,7 +717,7 @@ export function CategoriesPage() {
     });
   };
 
-  const startNewCategory = () => {
+  const resetCategoryForm = () => {
     setSelectedCategoryId(null);
     setName("");
     setKind("Expense");
@@ -688,6 +726,11 @@ export function CategoriesPage() {
     setIconKey("basket");
     setFormError(null);
     setNotice(null);
+  };
+
+  const startNewCategory = () => {
+    resetCategoryForm();
+    setCompactEditorOpen(true);
   };
 
   const selectCategory = (row: CategoryRow) => {
@@ -699,6 +742,7 @@ export function CategoriesPage() {
     setIconKey(row.iconKey);
     setFormError(null);
     setNotice(null);
+    setCompactEditorOpen(true);
   };
 
   const duplicateCategory = (row: CategoryRow) => {
@@ -710,6 +754,7 @@ export function CategoriesPage() {
     setIconKey(row.iconKey);
     setFormError(null);
     setNotice(null);
+    setCompactEditorOpen(true);
   };
 
   const handleKindChange = (nextKind: CategoryKind) => {
@@ -756,6 +801,7 @@ export function CategoriesPage() {
       setColor(savedCategory.color ?? color);
       setNotice(selectedCategory ? copy.updated : copy.created);
       await refresh();
+      setCompactEditorOpen(false);
     } catch {
       setFormError(copy.unableToSave);
     } finally {
@@ -776,7 +822,8 @@ export function CategoriesPage() {
       await apiClient.deleteCategory(auth.accessToken, row.category.id);
       removePreferences(row.category.id);
       if (selectedCategoryId === row.category.id) {
-        startNewCategory();
+        resetCategoryForm();
+        setCompactEditorOpen(false);
       }
       setNotice(copy.archived);
       await refresh();
@@ -807,6 +854,109 @@ export function CategoriesPage() {
     link.click();
     URL.revokeObjectURL(url);
     setNotice(copy.exported);
+  };
+
+  const renderCategoryEditorForm = (placement: "side" | "inline") => {
+    const isInline = placement === "inline";
+    const formLabel = isInline
+      ? selectedCategory
+        ? copy.editInline(selectedCategory.name)
+        : copy.newInline
+      : copy.categoryEditor;
+
+    return (
+      <form className={`category-editor-form ${isInline ? "is-inline" : ""}`} aria-label={formLabel} onSubmit={handleSubmit}>
+        <div className="category-preview" style={{ "--category-color": color } as CSSProperties}>
+          <span className="category-preview-icon">
+            <PreviewIcon />
+          </span>
+          <div>
+            <strong>{name.trim() || copy.previewName}</strong>
+            <span>{copy.groupLabels[group]} · {getCategoryKindLabel(kind, t)}</span>
+          </div>
+          <em>{kind === "Expense" ? "-" : "+"} {getCategoryKindLabel(kind, t).toLocaleUpperCase()}</em>
+        </div>
+
+        <label>
+          {copy.name}
+          <input value={name} onChange={(event) => setName(event.target.value)} placeholder={copy.namePlaceholder} required />
+        </label>
+
+        <label>
+          {copy.group}
+          <select value={group} onChange={(event) => setGroup(event.target.value as CategoryGroupId)}>
+            {formGroupOptions.map((groupId) => (
+              <option key={groupId} value={groupId}>
+                {copy.groupLabels[groupId]}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="category-form-field">
+          <span>{copy.type}</span>
+          <div className="category-type-options">
+            <button className={kind === "Expense" ? "is-active" : undefined} type="button" onClick={() => handleKindChange("Expense")}>
+              <ExpenseIcon />
+              {getCategoryKindLabel("Expense", t)}
+            </button>
+            <button className={kind === "Income" ? "is-active" : undefined} type="button" onClick={() => handleKindChange("Income")}>
+              <IncomeIcon />
+              {getCategoryKindLabel("Income", t)}
+            </button>
+          </div>
+        </div>
+
+        <div className="category-form-field">
+          <span>{copy.color}</span>
+          <div className="category-color-grid" role="radiogroup" aria-label={copy.color}>
+            {colorSwatches.map((swatch) => (
+              <button
+                aria-label={swatch}
+                className={color === swatch ? "is-active" : undefined}
+                key={swatch}
+                type="button"
+                style={{ "--category-color": swatch } as CSSProperties}
+                onClick={() => setColor(swatch)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="category-form-field">
+          <span>{copy.icon}</span>
+          <div className="category-icon-grid">
+            {categoryIconOptions.map((option) => (
+              <button
+                className={iconKey === option.id ? "is-active" : undefined}
+                key={option.id}
+                type="button"
+                title={option.label}
+                onClick={() => setIconKey(option.id)}
+              >
+                <option.Icon />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="category-editor-actions">
+          {isInline ? (
+            <button className="ghost-button" type="button" onClick={() => setCompactEditorOpen(false)}>
+              {copy.close}
+            </button>
+          ) : (
+            <button className="ghost-button" type="button" onClick={() => firstRuleCandidate && selectCategory(firstRuleCandidate)} disabled={!firstRuleCandidate}>
+              <BoltIcon />
+              {copy.addRule}
+            </button>
+          )}
+          <button className="primary-button" type="submit" disabled={saving || !name.trim()}>
+            {saving ? copy.saving : selectedCategory ? copy.updateCategory : copy.saveCategory}
+          </button>
+        </div>
+      </form>
+    );
   };
 
   return (
@@ -918,6 +1068,18 @@ export function CategoriesPage() {
             </div>
           </div>
 
+          {isCompactCategoryLayout && compactEditorOpen && !selectedCategory ? (
+            <section className="category-inline-editor category-inline-editor-create">
+              <div className="category-side-heading">
+                <h2>{copy.newCategory}</h2>
+                <button className="category-link-button" type="button" onClick={() => setCompactEditorOpen(false)}>
+                  {copy.close}
+                </button>
+              </div>
+              {renderCategoryEditorForm("inline")}
+            </section>
+          ) : null}
+
           {loading ? (
             <div className="category-empty-state">{t("common.loading")}</div>
           ) : groupedRows.length === 0 ? (
@@ -994,6 +1156,17 @@ export function CategoriesPage() {
                                 <ArchiveIcon />
                               </button>
                             </div>
+                            {isCompactCategoryLayout && compactEditorOpen && selectedCategoryId === row.category.id ? (
+                              <div className="category-inline-editor">
+                                <div className="category-side-heading">
+                                  <h2>{copy.edit}</h2>
+                                  <button className="category-link-button" type="button" onClick={() => setCompactEditorOpen(false)}>
+                                    {copy.close}
+                                  </button>
+                                </div>
+                                {renderCategoryEditorForm("inline")}
+                              </div>
+                            ) : null}
                           </article>
                         );
                       })}
@@ -1006,100 +1179,18 @@ export function CategoriesPage() {
         </section>
 
         <aside className="category-side-stack">
-          <section className="category-editor-panel">
-            <div className="category-side-heading">
-              <h2>{selectedCategory ? copy.edit : copy.newCategory}</h2>
-              <button className="category-link-button" type="button" onClick={startNewCategory}>
-                {copy.newCategory}
-              </button>
-            </div>
-
-            <form className="category-editor-form" onSubmit={handleSubmit}>
-              <div className="category-preview" style={{ "--category-color": color } as CSSProperties}>
-                <span className="category-preview-icon">
-                  <PreviewIcon />
-                </span>
-                <div>
-                  <strong>{name.trim() || copy.previewName}</strong>
-                  <span>{copy.groupLabels[group]} · {getCategoryKindLabel(kind, t)}</span>
-                </div>
-                <em>{kind === "Expense" ? "-" : "+"} {getCategoryKindLabel(kind, t).toLocaleUpperCase()}</em>
-              </div>
-
-              <label>
-                {copy.name}
-                <input value={name} onChange={(event) => setName(event.target.value)} placeholder={copy.namePlaceholder} required />
-              </label>
-
-              <label>
-                {copy.group}
-                <select value={group} onChange={(event) => setGroup(event.target.value as CategoryGroupId)}>
-                  {formGroupOptions.map((groupId) => (
-                    <option key={groupId} value={groupId}>
-                      {copy.groupLabels[groupId]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="category-form-field">
-                <span>{copy.type}</span>
-                <div className="category-type-options">
-                  <button className={kind === "Expense" ? "is-active" : undefined} type="button" onClick={() => handleKindChange("Expense")}>
-                    <ExpenseIcon />
-                    {getCategoryKindLabel("Expense", t)}
-                  </button>
-                  <button className={kind === "Income" ? "is-active" : undefined} type="button" onClick={() => handleKindChange("Income")}>
-                    <IncomeIcon />
-                    {getCategoryKindLabel("Income", t)}
-                  </button>
-                </div>
-              </div>
-
-              <div className="category-form-field">
-                <span>{copy.color}</span>
-                <div className="category-color-grid" role="radiogroup" aria-label={copy.color}>
-                  {colorSwatches.map((swatch) => (
-                    <button
-                      aria-label={swatch}
-                      className={color === swatch ? "is-active" : undefined}
-                      key={swatch}
-                      type="button"
-                      style={{ "--category-color": swatch } as CSSProperties}
-                      onClick={() => setColor(swatch)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="category-form-field">
-                <span>{copy.icon}</span>
-                <div className="category-icon-grid">
-                  {categoryIconOptions.map((option) => (
-                    <button
-                      className={iconKey === option.id ? "is-active" : undefined}
-                      key={option.id}
-                      type="button"
-                      title={option.label}
-                      onClick={() => setIconKey(option.id)}
-                    >
-                      <option.Icon />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="category-editor-actions">
-                <button className="ghost-button" type="button" onClick={() => firstRuleCandidate && selectCategory(firstRuleCandidate)} disabled={!firstRuleCandidate}>
-                  <BoltIcon />
-                  {copy.addRule}
-                </button>
-                <button className="primary-button" type="submit" disabled={saving || !name.trim()}>
-                  {saving ? copy.saving : selectedCategory ? copy.updateCategory : copy.saveCategory}
+          {!isCompactCategoryLayout ? (
+            <section className="category-editor-panel" aria-label={copy.categoryEditor}>
+              <div className="category-side-heading">
+                <h2>{selectedCategory ? copy.edit : copy.newCategory}</h2>
+                <button className="category-link-button" type="button" onClick={startNewCategory}>
+                  {copy.newCategory}
                 </button>
               </div>
-            </form>
-          </section>
+
+              {renderCategoryEditorForm("side")}
+            </section>
+          ) : null}
 
           <section className="category-suggestions-panel">
             <div className="category-side-heading">

@@ -1473,6 +1473,23 @@ label {
   padding: 1rem;
 }
 
+.category-inline-editor {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+  padding: 0.82rem;
+  border: 1px solid color-mix(in srgb, var(--category-color, var(--accent)) 45%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--category-color, var(--accent)) 7%, var(--surface));
+}
+
+.category-inline-editor-create {
+  margin: 0 0 1rem;
+  border-color: var(--border-strong);
+  background: var(--surface-muted);
+}
+
 .category-side-stack {
   position: sticky;
   top: 1rem;
@@ -1670,6 +1687,30 @@ label {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 0.6rem;
   margin-top: 0.25rem;
+}
+
+.category-editor-form.is-inline {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.68rem;
+}
+
+.category-editor-form.is-inline .category-preview {
+  grid-column: 1 / -1;
+  padding: 0.68rem;
+}
+
+.category-editor-form.is-inline .category-form-field,
+.category-editor-form.is-inline .category-editor-actions {
+  grid-column: auto;
+}
+
+.category-editor-form.is-inline .category-type-options,
+.category-editor-form.is-inline .category-editor-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.category-editor-form.is-inline .category-icon-grid {
+  grid-template-columns: repeat(6, minmax(2rem, 1fr));
 }
 
 .category-suggestions-list article {
@@ -6897,7 +6938,16 @@ label {
   }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1500px) {
+  .category-page .page-header h1 {
+    font-size: clamp(2rem, 4vw, 2.85rem);
+  }
+
+  .category-overview-cell {
+    min-height: 6.4rem;
+    padding: 0.88rem 1rem;
+  }
+
   .category-overview-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -6916,6 +6966,10 @@ label {
 
   .category-side-stack {
     position: static;
+  }
+
+  .category-suggestions-panel {
+    padding: 0.9rem;
   }
 }
 
@@ -6953,6 +7007,15 @@ label {
 
   .category-row-actions {
     justify-content: flex-end;
+  }
+
+  .category-editor-form.is-inline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .category-editor-form.is-inline .category-icon-grid,
+  .category-editor-form.is-inline .category-editor-actions {
+    grid-column: 1 / -1;
   }
 }
 
@@ -7029,6 +7092,17 @@ label {
   .category-preview em {
     grid-column: 1 / -1;
     justify-self: start;
+  }
+
+  .category-editor-form.is-inline,
+  .category-editor-form.is-inline .category-type-options,
+  .category-editor-form.is-inline .category-editor-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .category-editor-form.is-inline .category-form-field,
+  .category-editor-form.is-inline .category-editor-actions {
+    grid-column: 1 / -1;
   }
 
   .category-suggestions-list button {

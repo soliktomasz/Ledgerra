@@ -118,6 +118,27 @@ describe("CategoriesPage", () => {
     expect(screen.getByRole("button", { name: "Archive unavailable for Rent" })).toBeDisabled();
   });
 
+  test("opens the selected category editor inline in compact windows", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
+      matches: query === "(max-width: 1500px)",
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn()
+    }));
+
+    render(<CategoriesPage />);
+
+    await user.click(screen.getByRole("button", { name: "Edit Groceries" }));
+
+    expect(screen.getByRole("form", { name: "Edit Groceries inline" })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Category editor" })).not.toBeInTheDocument();
+  });
+
   test("neutralizes dangerous CSV values before exporting categories", async () => {
     const user = userEvent.setup();
 
