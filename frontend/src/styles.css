@@ -3635,6 +3635,33 @@ label {
   margin: 0;
 }
 
+.settings-danger-panel {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.settings-danger-action {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem;
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+}
+
+.settings-danger-action h2 {
+  margin: 0 0 0.2rem;
+  font-size: 0.96rem;
+}
+
+.settings-danger-action p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
 .settings-token-section {
   margin-top: 1.25rem;
   padding-top: 1.25rem;
@@ -5451,6 +5478,11 @@ label {
     align-items: flex-start;
     justify-content: flex-start;
     width: 100%;
+  }
+
+  .settings-danger-action {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .settings-form-grid,

@@ -1425,8 +1425,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/state/I18nContext.tsx": {
-    "mtime": 1779569113.022566,
-    "ast_hash": "992c8ecdad9f8f84e55d17cbd9a8e767",
+    "mtime": 1779638653.7766776,
+    "ast_hash": "0d70159a099e6842b065c424523979be",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/state/ThemeContext.tsx": {
@@ -1490,8 +1490,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/api/client.ts": {
-    "mtime": 1779605795.8176682,
-    "ast_hash": "8c71a2994a8b32cf4dc690311ff9f900",
+    "mtime": 1779638568.3723345,
+    "ast_hash": "7c355b1b9687d58cd3f9e3fb92031a7e",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/api/client.test.ts": {
@@ -1530,8 +1530,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/SettingsPage.tsx": {
-    "mtime": 1779000894.8576355,
-    "ast_hash": "a36a1170fc1f241ed2677497f51a8f26",
+    "mtime": 1779639766.0121424,
+    "ast_hash": "b870e452e7496190600a027ddffb5a69",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ReportsPage.tsx": {
@@ -1570,8 +1570,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/SettingsPage.test.tsx": {
-    "mtime": 1779000894.856718,
-    "ast_hash": "39cfd553cf52332a09a898bff824e80c",
+    "mtime": 1779639732.2264686,
+    "ast_hash": "5a90e01dd40f2fedbd0d60f79c78933e",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ImportsPage.test.tsx": {
@@ -1640,8 +1640,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs": {
-    "mtime": 1779605624.4328167,
-    "ast_hash": "44919021e290b2a53493bf4193be1374",
+    "mtime": 1779638515.322943,
+    "ast_hash": "2915913366c7b5930d00bf018c2e4c1c",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/tests/Ledgerra.Api.Tests/AccountFieldsTests.cs": {
@@ -1930,8 +1930,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Controllers/SettingsController.cs": {
-    "mtime": 1777626258.9959323,
-    "ast_hash": "e50b1ed1714b52550fc805be17bbc79f",
+    "mtime": 1779639752.6963863,
+    "ast_hash": "6b4a855385e6e89648e496a2c564b226",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Controllers/SavingsGoalsController.cs": {

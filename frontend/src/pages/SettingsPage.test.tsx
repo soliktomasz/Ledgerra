@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { ThemeProvider } from "../state/ThemeContext";
 import { SettingsPage } from "./SettingsPage";
 
@@ -15,6 +15,9 @@ const mocks = vi.hoisted(() => ({
   getPersonalAccessTokens: vi.fn(),
   createPersonalAccessToken: vi.fn(),
   revokePersonalAccessToken: vi.fn(),
+  clearAccountData: vi.fn(),
+  deleteAccount: vi.fn(),
+  logout: vi.fn(),
   createImportRule: vi.fn(),
   updateImportRule: vi.fn(),
   deleteImportRule: vi.fn(),
@@ -29,7 +32,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../state/AuthContext", () => ({
-  useAuth: () => ({ auth: { accessToken: "token", email: "owner@ledgerra.local" } })
+  useAuth: () => ({ auth: { accessToken: "token", email: "owner@ledgerra.local" }, logout: mocks.logout })
 }));
 
 vi.mock("../api/client", () => ({
@@ -43,6 +46,8 @@ vi.mock("../api/client", () => ({
     getPersonalAccessTokens: mocks.getPersonalAccessTokens,
     createPersonalAccessToken: mocks.createPersonalAccessToken,
     revokePersonalAccessToken: mocks.revokePersonalAccessToken,
+    clearAccountData: mocks.clearAccountData,
+    deleteAccount: mocks.deleteAccount,
     createImportRule: mocks.createImportRule,
     updateImportRule: mocks.updateImportRule,
     deleteImportRule: mocks.deleteImportRule
@@ -92,7 +97,13 @@ describe("SettingsPage", () => {
     mocks.getPersonalAccessTokens.mockResolvedValue([]);
     mocks.createPersonalAccessToken.mockResolvedValue({ plainTextToken: "ledgerra_pat_test" });
     mocks.revokePersonalAccessToken.mockResolvedValue(undefined);
+    mocks.clearAccountData.mockResolvedValue(undefined);
+    mocks.deleteAccount.mockResolvedValue(undefined);
     mocks.getAiProviderModels.mockResolvedValue({ models: ["synthetic-finance-1", "synthetic-fast"] });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   test("shows AI provider configuration state", async () => {
@@ -445,5 +456,77 @@ describe("SettingsPage", () => {
     rerender(<SettingsPage />);
 
     expect(screen.getByLabelText("Default provider")).toHaveValue("Anthropic");
+  });
+
+  test("clears account data and deletes the account from danger zone", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Danger Zone" }));
+
+    expect(screen.getByRole("heading", { name: "Danger Zone" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Clear all data" }));
+
+    await waitFor(() => {
+      expect(mocks.clearAccountData).toHaveBeenCalledWith("token");
+    });
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+
+    await waitFor(() => {
+      expect(mocks.deleteAccount).toHaveBeenCalledWith("token");
+    });
+    expect(mocks.logout).toHaveBeenCalledTimes(1);
+  });
+
+  test("does not run danger zone actions when confirmation is cancelled", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Danger Zone" }));
+    await user.click(screen.getByRole("button", { name: "Clear all data" }));
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalledTimes(2);
+    });
+    expect(mocks.clearAccountData).not.toHaveBeenCalled();
+    expect(mocks.deleteAccount).not.toHaveBeenCalled();
+    expect(mocks.refresh).not.toHaveBeenCalled();
+    expect(mocks.logout).not.toHaveBeenCalled();
+  });
+
+  test("disables danger zone actions while one is running", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    let resolveClearAccountData: () => void = () => undefined;
+    mocks.clearAccountData.mockReturnValue(new Promise<void>((resolve) => {
+      resolveClearAccountData = resolve;
+    }));
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Danger Zone" }));
+    const clearButton = screen.getByRole("button", { name: "Clear all data" });
+    const deleteButton = screen.getByRole("button", { name: "Delete account" });
+
+    await user.click(clearButton);
+
+    expect(clearButton).toBeDisabled();
+    expect(deleteButton).toBeDisabled();
+
+    await user.click(clearButton);
+    expect(mocks.clearAccountData).toHaveBeenCalledTimes(1);
+
+    resolveClearAccountData();
+    await waitFor(() => {
+      expect(clearButton).toBeEnabled();
+    });
   });
 });

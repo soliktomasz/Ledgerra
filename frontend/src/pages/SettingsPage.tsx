@@ -10,7 +10,7 @@ import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 import { normalizeLanguageCode, supportedLanguages } from "../utils/language";
 
-type SettingsSection = "appearance" | "region" | "profile" | "security" | "ai" | "rules" | "backup";
+type SettingsSection = "appearance" | "region" | "profile" | "security" | "ai" | "rules" | "backup" | "danger";
 type DensityPreference = "comfortable" | "standard" | "compact";
 
 const densityStorageKey = "ledgerra:density";
@@ -44,7 +44,7 @@ function resolveInitialBooleanPreference(storageKey: string, fallback: boolean) 
 }
 
 export function SettingsPage() {
-  const { auth } = useAuth();
+  const { auth, logout } = useAuth();
   const { setLanguageCode, t } = useI18n();
   const { themePreference, resolvedTheme, accentColor, setThemePreference, setAccentColor } = useTheme();
   const [activeSection, setActiveSection] = useState<SettingsSection>("appearance");
@@ -72,6 +72,9 @@ export function SettingsPage() {
   const [ruleError, setRuleError] = useState<string | null>(null);
   const [backupError, setBackupError] = useState<string | null>(null);
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
+  const [dangerError, setDangerError] = useState<string | null>(null);
+  const [dangerNotice, setDangerNotice] = useState<string | null>(null);
+  const [isDangerLoading, setIsDangerLoading] = useState(false);
   const [personalAccessTokens, setPersonalAccessTokens] = useState<PersonalAccessToken[]>([]);
   const [newTokenName, setNewTokenName] = useState("");
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -355,7 +358,8 @@ export function SettingsPage() {
       label: t("settings.accountGroup"),
       items: [
         { section: "profile" as SettingsSection, label: t("settings.profile"), icon: AccountsIcon },
-        { section: "security" as SettingsSection, label: t("settings.security"), icon: SettingsIcon }
+        { section: "security" as SettingsSection, label: t("settings.security"), icon: SettingsIcon },
+        { section: "danger" as SettingsSection, label: t("settings.dangerZone"), icon: SettingsIcon }
       ]
     }
   ];
@@ -367,7 +371,8 @@ export function SettingsPage() {
     security: t("settings.security"),
     ai: t("settings.aiProviders"),
     rules: t("settings.importRules"),
-    backup: t("settings.backupAndRestore")
+    backup: t("settings.backupAndRestore"),
+    danger: t("settings.dangerZone")
   };
   const sectionDescriptions: Record<SettingsSection, string> = {
     appearance: t("settings.appearanceDescription"),
@@ -376,7 +381,8 @@ export function SettingsPage() {
     security: t("settings.securityDescription"),
     ai: t("settings.aiProvidersDescription"),
     rules: t("settings.importRulesDescription"),
-    backup: t("settings.backupAndRestoreDescription")
+    backup: t("settings.backupAndRestoreDescription"),
+    danger: t("settings.dangerZoneDescription")
   };
 
   const accentLabels: Record<AccentColor, string> = {
@@ -452,6 +458,53 @@ export function SettingsPage() {
       setBackupError(getErrorMessage(exception, t("settings.unableToRestoreBackup")));
     } finally {
       event.currentTarget.value = "";
+    }
+  };
+
+  const handleClearAccountData = async () => {
+    if (!auth?.accessToken || isDangerLoading) {
+      return;
+    }
+
+    const confirmed = window.confirm(t("settings.clearAccountDataConfirm"));
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setIsDangerLoading(true);
+      setDangerError(null);
+      setDangerNotice(null);
+      await apiClient.clearAccountData(auth.accessToken);
+      await refresh();
+      setDangerNotice(t("settings.accountDataCleared"));
+    } catch (exception) {
+      setDangerError(getErrorMessage(exception, t("settings.unableToClearAccountData")));
+    } finally {
+      setIsDangerLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!auth?.accessToken || isDangerLoading) {
+      return;
+    }
+
+    const confirmed = window.confirm(t("settings.deleteAccountConfirm"));
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setIsDangerLoading(true);
+      setDangerError(null);
+      setDangerNotice(null);
+      await apiClient.deleteAccount(auth.accessToken);
+      logout();
+    } catch (exception) {
+      setDangerError(getErrorMessage(exception, t("settings.unableToDeleteAccount")));
+    } finally {
+      setIsDangerLoading(false);
     }
   };
 
@@ -1007,6 +1060,38 @@ export function SettingsPage() {
                       {t("settings.restoreBackup")}
                       <input type="file" accept="application/json" onChange={(event) => void handleRestoreBackup(event)} />
                     </label>
+                  </div>
+                </SectionCard>
+              </div>
+            </section>
+          )}
+
+          {activeSection === "danger" && (
+            <section className="settings-section-stack" aria-labelledby="settings-danger-title">
+              {renderSectionIntro("danger")}
+              <div className="settings-content-card">
+                <SectionCard title={t("settings.dangerZone")} icon={<SettingsIcon />} hideHeader>
+                  <div className="settings-danger-panel">
+                    {dangerError ? <p className="error-banner">{dangerError}</p> : null}
+                    {dangerNotice ? <p className="success-banner settings-inline-banner">{dangerNotice}</p> : null}
+                    <article className="settings-danger-action">
+                      <div>
+                        <h2>{t("settings.clearAccountData")}</h2>
+                        <p>{t("settings.clearAccountDataDescription")}</p>
+                      </div>
+                      <button className="ghost-button danger-button" type="button" disabled={isDangerLoading} onClick={() => void handleClearAccountData()}>
+                        {t("settings.clearAllData")}
+                      </button>
+                    </article>
+                    <article className="settings-danger-action">
+                      <div>
+                        <h2>{t("settings.deleteAccount")}</h2>
+                        <p>{t("settings.deleteAccountDescription")}</p>
+                      </div>
+                      <button className="ghost-button danger-button" type="button" disabled={isDangerLoading} onClick={() => void handleDeleteAccount()}>
+                        {t("settings.deleteAccount")}
+                      </button>
+                    </article>
                   </div>
                 </SectionCard>
               </div>
