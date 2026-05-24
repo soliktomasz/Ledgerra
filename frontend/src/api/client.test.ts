@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiClient, resolveApiUrl } from "./client";
 
 afterEach(() => {
+  apiClient.setAuthHandlers(null, null);
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
@@ -113,6 +114,60 @@ describe("apiClient", () => {
     expect(persist).toHaveBeenCalledWith(null);
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
     unsubscribe();
+  });
+
+  it("refreshes and retries CSV preview requests through the shared request path", async () => {
+    const persist = vi.fn();
+    apiClient.setAuthHandlers(
+      () => ({
+        userId: "user-1",
+        login: "owner",
+        email: "owner@test.local",
+        accessToken: "expired-token",
+        refreshToken: "refresh-token",
+        expiresAtUtc: "2999-01-01T00:00:00Z"
+      }),
+      persist
+    );
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 401, clone: () => ({ json: async () => ({ title: "expired" }) }), text: async () => "expired" })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          userId: "user-1",
+          login: "owner",
+          email: "owner@test.local",
+          accessToken: "fresh-token",
+          refreshToken: "rotated",
+          expiresAtUtc: "2999-01-02T00:00:00Z"
+        })
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ transactions: [], warnings: [] })
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiClient.previewCsvBankImport("expired-token", {
+      accountId: "account-1",
+      file: new File(["date,amount"], "report.csv", { type: "text/csv" }),
+      dateColumn: "date",
+      amountColumn: "amount"
+    })).resolves.toEqual({ transactions: [], warnings: [] });
+
+    expect(fetchMock.mock.calls.map((call) => call[0])).toEqual([
+      expect.stringContaining("/api/imports/monthly-report/csv-preview"),
+      expect.stringContaining("/api/auth/refresh"),
+      expect.stringContaining("/api/imports/monthly-report/csv-preview")
+    ]);
+    expect(fetchMock.mock.calls[2][1]).toMatchObject({
+      method: "POST",
+      headers: { Authorization: "Bearer fresh-token" }
+    });
+    expect(persist).toHaveBeenCalledWith(expect.objectContaining({ accessToken: "fresh-token" }));
   });
 
   it("submits monthly report analysis as a job and polls until completion", async () => {

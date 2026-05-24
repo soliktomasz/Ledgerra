@@ -1,394 +1,626 @@
-# Graph Report - backend/src + frontend/src  (2026-05-23)
+# Graph Report - Ledgerra  (2026-05-24)
 
 ## Corpus Check
-- 178 files · ~69,965 words
+- 222 files · ~223,039 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1169 nodes · 1875 edges · 124 communities (71 shown, 53 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 2199 nodes · 3053 edges · 185 communities (120 shown, 65 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `fc1640ff`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Account Language Balance|Account Language Balance]]
-- [[_COMMUNITY_Transaction Get Date|Transaction Get Date]]
-- [[_COMMUNITY_Async() Command Transaction|Async() Command Transaction]]
-- [[_COMMUNITY_Theme Accent Preference()|Theme Accent Preference()]]
-- [[_COMMUNITY_Async() Account .Handle|Async() Account .Handle]]
-- [[_COMMUNITY_Async() Category .Handle|Async() Category .Handle]]
-- [[_COMMUNITY_Category Get Copy|Category Get Copy]]
-- [[_COMMUNITY_Async() Report Monthly|Async() Report Monthly]]
-- [[_COMMUNITY_Budget Get Budgets|Budget Get Budgets]]
-- [[_COMMUNITY_Get Goal Date()|Get Goal Date()]]
-- [[_COMMUNITY_Async() Transaction .Get|Async() Transaction .Get]]
-- [[_COMMUNITY_Icon() Accounts Archive|Icon() Accounts Archive]]
-- [[_COMMUNITY_Analysis Report Client|Analysis Report Client]]
-- [[_COMMUNITY_Backup Reporting Account|Backup Reporting Account]]
-- [[_COMMUNITY_Icon() Chart() Point|Icon() Chart() Point]]
-- [[_COMMUNITY_Async() Key() Provider|Async() Key() Provider]]
-- [[_COMMUNITY_Async() .Get Budget|Async() .Get Budget]]
-- [[_COMMUNITY_Async() .Get Reporting|Async() .Get Reporting]]
-- [[_COMMUNITY_Async() Budget Summary|Async() Budget Summary]]
-- [[_COMMUNITY_Month Ledgerra Accounts|Month Ledgerra Accounts]]
-- [[_COMMUNITY_Report Monthly Async()|Report Monthly Async()]]
-- [[_COMMUNITY_Unauthorized Api Auth|Unauthorized Api Auth]]
-- [[_COMMUNITY_Page() Use Login|Page() Use Login]]
-- [[_COMMUNITY_Token Access Allowed|Token Access Allowed]]
-- [[_COMMUNITY_Account Form Icon|Account Form Icon]]
-- [[_COMMUNITY_Async() Transfer .Create|Async() Transfer .Create]]
-- [[_COMMUNITY_Handler Transaction Command|Handler Transaction Command]]
-- [[_COMMUNITY_Async() Query Transaction|Async() Query Transaction]]
-- [[_COMMUNITY_Dashboard Widget Checklist|Dashboard Widget Checklist]]
-- [[_COMMUNITY_.Build Calculator .Is|.Build Calculator .Is]]
-- [[_COMMUNITY_Async() Profile User|Async() Profile User]]
-- [[_COMMUNITY_Handler Account Accounts|Handler Account Accounts]]
-- [[_COMMUNITY_Handler Category Categories|Handler Category Categories]]
-- [[_COMMUNITY_.Get .Try Import|.Get .Try Import]]
-- [[_COMMUNITY_Imports Section Text()|Imports Section Text()]]
-- [[_COMMUNITY_Auth Service Token|Auth Service Token]]
-- [[_COMMUNITY_Monthly Report .Map|Monthly Report .Map]]
-- [[_COMMUNITY_Auth Context Context.Test.Tsx|Auth Context Context.Test.Tsx]]
-- [[_COMMUNITY_Environment Launch $Schema|Environment Launch $Schema]]
-- [[_COMMUNITY_Appsettings.Development.Json Connection Core|Appsettings.Development.Json Connection Core]]
-- [[_COMMUNITY_Duplicate .Mark Detector|Duplicate .Mark Detector]]
-- [[_COMMUNITY_Controller Dashboard .Get|Controller Dashboard .Get]]
-- [[_COMMUNITY_.Get Goals Savings|.Get Goals Savings]]
-- [[_COMMUNITY_Account Async() Balance|Account Async() Balance]]
-- [[_COMMUNITY_Token Token() .Issue|Token Token() .Issue]]
-- [[_COMMUNITY_Access Personal Token()|Access Personal Token()]]
-- [[_COMMUNITY_Recurring Transactions .Create()|Recurring Transactions .Create()]]
-- [[_COMMUNITY_Categorization Rule .Apply|Categorization Rule .Apply]]
-- [[_COMMUNITY_Content Extractor Report|Content Extractor Report]]
-- [[_COMMUNITY_Analysis Report .Analyze|Analysis Report .Analyze]]
-- [[_COMMUNITY_Json Report .Build|Json Report .Build]]
-- [[_COMMUNITY_Password Service .Hash()|Password Service .Hash()]]
-- [[_COMMUNITY_Request Commit Import|Request Commit Import]]
-- [[_COMMUNITY_Budget Budgets Handler|Budget Budgets Handler]]
-- [[_COMMUNITY_Handler Profile Profile()|Handler Profile Profile()]]
-- [[_COMMUNITY_Bank Csv Import|Bank Csv Import]]
-- [[_COMMUNITY_Protector Data Protection|Protector Data Protection]]
-- [[_COMMUNITY_.Is Blocked Endpoint|.Is Blocked Endpoint]]
-- [[_COMMUNITY_Token() .Issue Ijwt|Token() .Issue Ijwt]]
-- [[_COMMUNITY_Transaction Request Account|Transaction Request Account]]
-- [[_COMMUNITY_.Try Parse Enum|.Try Parse Enum]]
-- [[_COMMUNITY_Blob Categories Mocks|Blob Categories Mocks]]
-- [[_COMMUNITY_Account Balance .Calculate()|Account Balance .Calculate()]]
-- [[_COMMUNITY_Analysis Client Report|Analysis Client Report]]
-- [[_COMMUNITY_Ipassword .Hash() .Verify()|Ipassword .Hash() .Verify()]]
-- [[_COMMUNITY_Provider Request Update|Provider Request Update]]
-- [[_COMMUNITY_Request Auth Contracts.Cs|Request Auth Contracts.Cs]]
-- [[_COMMUNITY_Account Schema .Initialize|Account Schema .Initialize]]
-- [[_COMMUNITY_Budget Schema .Initialize|Budget Schema .Initialize]]
-- [[_COMMUNITY_Isecret .Protect() .Unprotect()|Isecret .Protect() .Unprotect()]]
-- [[_COMMUNITY_Content Csv Report|Content Csv Report]]
-- [[_COMMUNITY_Auth Schema .Initialize|Auth Schema .Initialize]]
-- [[_COMMUNITY_Categorization Rule Schema|Categorization Rule Schema]]
-- [[_COMMUNITY_Context Ledgerra .On|Context Ledgerra .On]]
-- [[_COMMUNITY_Models.Cs Normalize() Report|Models.Cs Normalize() Report]]
-- [[_COMMUNITY_Refresh .Is Active()|Refresh .Is Active()]]
-- [[_COMMUNITY_Auth Options Options.Cs|Auth Options Options.Cs]]
-- [[_COMMUNITY_Category Request Contracts.Cs|Category Request Contracts.Cs]]
-- [[_COMMUNITY_Goal Savings Request|Goal Savings Request]]
-- [[_COMMUNITY_Parsing Provider .Try|Parsing Provider .Try]]
-- [[_COMMUNITY_Claims Principal .Get|Claims Principal .Get]]
-- [[_COMMUNITY_Duplicate Iimport .Mark|Duplicate Iimport .Mark]]
-- [[_COMMUNITY_Content Ireport .Extract|Content Ireport .Extract]]
-- [[_COMMUNITY_Content Pdf Report|Content Pdf Report]]
-- [[_COMMUNITY_Category Default .Build|Category Default .Build]]
-- [[_COMMUNITY_Budget Summary Category|Budget Summary Category]]
-- [[_COMMUNITY_Budget Summary .Build|Budget Summary .Build]]
-- [[_COMMUNITY_Account Request Contracts.Cs|Account Request Contracts.Cs]]
-- [[_COMMUNITY_Budget Request Category|Budget Request Category]]
-- [[_COMMUNITY_Controller Validation .Validation|Controller Validation .Validation]]
-- [[_COMMUNITY_Categorization Iimport Rule|Categorization Iimport Rule]]
-- [[_COMMUNITY_Account Balance Monthly|Account Balance Monthly]]
-- [[_COMMUNITY_Access Personal Token|Access Personal Token]]
-- [[_COMMUNITY_Recurring Transaction Contracts.Cs|Recurring Transaction Contracts.Cs]]
-- [[_COMMUNITY_Account Account.Cs|Account Account.Cs]]
-- [[_COMMUNITY_Provider Credential Credential.Cs|Provider Credential Credential.Cs]]
-- [[_COMMUNITY_User Preference Preference.Cs|User Preference Preference.Cs]]
-- [[_COMMUNITY_User User.Cs|User User.Cs]]
-- [[_COMMUNITY_Budget Category Limit|Budget Category Limit]]
-- [[_COMMUNITY_Savings Goal Goal.Cs|Savings Goal Goal.Cs]]
-- [[_COMMUNITY_Categorization Rule Rule.Cs|Categorization Rule Rule.Cs]]
-- [[_COMMUNITY_Recurring Transaction Template|Recurring Transaction Template]]
-- [[_COMMUNITY_Budget Period Period.Cs|Budget Period Period.Cs]]
-- [[_COMMUNITY_Category Category.Cs|Category Category.Cs]]
-- [[_COMMUNITY_Import Rule Contracts.Cs|Import Rule Contracts.Cs]]
-- [[_COMMUNITY_Access Personal Token|Access Personal Token]]
-- [[_COMMUNITY_Contracts.Cs Profile Request|Contracts.Cs Profile Request]]
-- [[_COMMUNITY_Program Program.Cs|Program Program.Cs]]
-- [[_COMMUNITY_Transaction Transaction.Cs|Transaction Transaction.Cs]]
+- [[_COMMUNITY_Community 0|Community 0]]
+- [[_COMMUNITY_Community 1|Community 1]]
+- [[_COMMUNITY_Community 2|Community 2]]
+- [[_COMMUNITY_Community 3|Community 3]]
+- [[_COMMUNITY_Community 4|Community 4]]
+- [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
+- [[_COMMUNITY_Community 8|Community 8]]
+- [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
+- [[_COMMUNITY_Community 13|Community 13]]
+- [[_COMMUNITY_Community 14|Community 14]]
+- [[_COMMUNITY_Community 15|Community 15]]
+- [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 18|Community 18]]
+- [[_COMMUNITY_Community 19|Community 19]]
+- [[_COMMUNITY_Community 20|Community 20]]
+- [[_COMMUNITY_Community 21|Community 21]]
+- [[_COMMUNITY_Community 22|Community 22]]
+- [[_COMMUNITY_Community 23|Community 23]]
+- [[_COMMUNITY_Community 24|Community 24]]
+- [[_COMMUNITY_Community 25|Community 25]]
+- [[_COMMUNITY_Community 26|Community 26]]
+- [[_COMMUNITY_Community 27|Community 27]]
+- [[_COMMUNITY_Community 28|Community 28]]
+- [[_COMMUNITY_Community 29|Community 29]]
+- [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
+- [[_COMMUNITY_Community 32|Community 32]]
+- [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 39|Community 39]]
+- [[_COMMUNITY_Community 40|Community 40]]
+- [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
+- [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 46|Community 46]]
+- [[_COMMUNITY_Community 47|Community 47]]
+- [[_COMMUNITY_Community 48|Community 48]]
+- [[_COMMUNITY_Community 49|Community 49]]
+- [[_COMMUNITY_Community 50|Community 50]]
+- [[_COMMUNITY_Community 51|Community 51]]
+- [[_COMMUNITY_Community 52|Community 52]]
+- [[_COMMUNITY_Community 53|Community 53]]
+- [[_COMMUNITY_Community 54|Community 54]]
+- [[_COMMUNITY_Community 55|Community 55]]
+- [[_COMMUNITY_Community 56|Community 56]]
+- [[_COMMUNITY_Community 57|Community 57]]
+- [[_COMMUNITY_Community 58|Community 58]]
+- [[_COMMUNITY_Community 59|Community 59]]
+- [[_COMMUNITY_Community 60|Community 60]]
+- [[_COMMUNITY_Community 61|Community 61]]
+- [[_COMMUNITY_Community 62|Community 62]]
+- [[_COMMUNITY_Community 63|Community 63]]
+- [[_COMMUNITY_Community 64|Community 64]]
+- [[_COMMUNITY_Community 65|Community 65]]
+- [[_COMMUNITY_Community 66|Community 66]]
+- [[_COMMUNITY_Community 67|Community 67]]
+- [[_COMMUNITY_Community 68|Community 68]]
+- [[_COMMUNITY_Community 69|Community 69]]
+- [[_COMMUNITY_Community 70|Community 70]]
+- [[_COMMUNITY_Community 71|Community 71]]
+- [[_COMMUNITY_Community 72|Community 72]]
+- [[_COMMUNITY_Community 73|Community 73]]
+- [[_COMMUNITY_Community 74|Community 74]]
+- [[_COMMUNITY_Community 75|Community 75]]
+- [[_COMMUNITY_Community 76|Community 76]]
+- [[_COMMUNITY_Community 77|Community 77]]
+- [[_COMMUNITY_Community 78|Community 78]]
+- [[_COMMUNITY_Community 79|Community 79]]
+- [[_COMMUNITY_Community 80|Community 80]]
+- [[_COMMUNITY_Community 81|Community 81]]
+- [[_COMMUNITY_Community 82|Community 82]]
+- [[_COMMUNITY_Community 83|Community 83]]
+- [[_COMMUNITY_Community 84|Community 84]]
+- [[_COMMUNITY_Community 85|Community 85]]
+- [[_COMMUNITY_Community 86|Community 86]]
+- [[_COMMUNITY_Community 87|Community 87]]
+- [[_COMMUNITY_Community 88|Community 88]]
+- [[_COMMUNITY_Community 89|Community 89]]
+- [[_COMMUNITY_Community 90|Community 90]]
+- [[_COMMUNITY_Community 91|Community 91]]
+- [[_COMMUNITY_Community 92|Community 92]]
+- [[_COMMUNITY_Community 93|Community 93]]
+- [[_COMMUNITY_Community 94|Community 94]]
+- [[_COMMUNITY_Community 95|Community 95]]
+- [[_COMMUNITY_Community 96|Community 96]]
+- [[_COMMUNITY_Community 97|Community 97]]
+- [[_COMMUNITY_Community 98|Community 98]]
+- [[_COMMUNITY_Community 99|Community 99]]
+- [[_COMMUNITY_Community 100|Community 100]]
+- [[_COMMUNITY_Community 101|Community 101]]
+- [[_COMMUNITY_Community 102|Community 102]]
+- [[_COMMUNITY_Community 103|Community 103]]
+- [[_COMMUNITY_Community 104|Community 104]]
+- [[_COMMUNITY_Community 105|Community 105]]
+- [[_COMMUNITY_Community 106|Community 106]]
+- [[_COMMUNITY_Community 108|Community 108]]
+- [[_COMMUNITY_Community 109|Community 109]]
+- [[_COMMUNITY_Community 124|Community 124]]
+- [[_COMMUNITY_Community 125|Community 125]]
+- [[_COMMUNITY_Community 126|Community 126]]
+- [[_COMMUNITY_Community 127|Community 127]]
+- [[_COMMUNITY_Community 128|Community 128]]
+- [[_COMMUNITY_Community 129|Community 129]]
+- [[_COMMUNITY_Community 130|Community 130]]
+- [[_COMMUNITY_Community 131|Community 131]]
+- [[_COMMUNITY_Community 132|Community 132]]
+- [[_COMMUNITY_Community 133|Community 133]]
+- [[_COMMUNITY_Community 134|Community 134]]
+- [[_COMMUNITY_Community 135|Community 135]]
+- [[_COMMUNITY_Community 136|Community 136]]
+- [[_COMMUNITY_Community 137|Community 137]]
+- [[_COMMUNITY_Community 138|Community 138]]
+- [[_COMMUNITY_Community 139|Community 139]]
+- [[_COMMUNITY_Community 140|Community 140]]
+- [[_COMMUNITY_Community 141|Community 141]]
+- [[_COMMUNITY_Community 142|Community 142]]
+- [[_COMMUNITY_Community 143|Community 143]]
+- [[_COMMUNITY_Community 144|Community 144]]
+- [[_COMMUNITY_Community 145|Community 145]]
+- [[_COMMUNITY_Community 146|Community 146]]
+- [[_COMMUNITY_Community 147|Community 147]]
+- [[_COMMUNITY_Community 148|Community 148]]
+- [[_COMMUNITY_Community 149|Community 149]]
+- [[_COMMUNITY_Community 150|Community 150]]
+- [[_COMMUNITY_Community 151|Community 151]]
+- [[_COMMUNITY_Community 152|Community 152]]
+- [[_COMMUNITY_Community 153|Community 153]]
+- [[_COMMUNITY_Community 154|Community 154]]
+- [[_COMMUNITY_Community 155|Community 155]]
+- [[_COMMUNITY_Community 156|Community 156]]
+- [[_COMMUNITY_Community 157|Community 157]]
+- [[_COMMUNITY_Community 158|Community 158]]
+- [[_COMMUNITY_Community 159|Community 159]]
+- [[_COMMUNITY_Community 160|Community 160]]
+- [[_COMMUNITY_Community 161|Community 161]]
+- [[_COMMUNITY_Community 162|Community 162]]
+- [[_COMMUNITY_Community 163|Community 163]]
+- [[_COMMUNITY_Community 164|Community 164]]
+- [[_COMMUNITY_Community 165|Community 165]]
+- [[_COMMUNITY_Community 166|Community 166]]
+- [[_COMMUNITY_Community 167|Community 167]]
+- [[_COMMUNITY_Community 168|Community 168]]
+- [[_COMMUNITY_Community 169|Community 169]]
+- [[_COMMUNITY_Community 170|Community 170]]
+- [[_COMMUNITY_Community 171|Community 171]]
+- [[_COMMUNITY_Community 172|Community 172]]
+- [[_COMMUNITY_Community 173|Community 173]]
+- [[_COMMUNITY_Community 174|Community 174]]
+- [[_COMMUNITY_Community 175|Community 175]]
+- [[_COMMUNITY_Community 176|Community 176]]
+- [[_COMMUNITY_Community 177|Community 177]]
+- [[_COMMUNITY_Community 178|Community 178]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `useI18n()` - 38 edges
-2. `useAuth()` - 29 edges
-3. `formatCurrency()` - 23 edges
-4. `AiSettingsController` - 22 edges
-5. `useLedgerraData()` - 21 edges
-6. `GoalsPage()` - 19 edges
-7. `TransactionCommandStore` - 16 edges
-8. `ITransactionCommandStore` - 16 edges
-9. `TransactionsController` - 15 edges
-10. `Transaction` - 15 edges
+1. `communities` - 125 edges
+2. `cohesion` - 125 edges
+3. `ApiWorkflowTests` - 51 edges
+4. `useI18n()` - 38 edges
+5. `useAuth()` - 29 edges
+6. `formatCurrency()` - 23 edges
+7. `AiSettingsController` - 22 edges
+8. `useLedgerraData()` - 21 edges
+9. `GoalsPage()` - 19 edges
+10. `ITransactionCommandStore` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `describeSpendingDelta()` --calls--> `formatCurrency()`  [EXTRACTED]
   frontend/src/pages/DashboardPage.tsx → frontend/src/utils/format.ts
 - `AuthProbe()` --calls--> `useAuth()`  [EXTRACTED]
   frontend/src/state/AuthContext.test.tsx → frontend/src/state/AuthContext.tsx
-- `TransactionCommandStore` --inherits--> `ITransactionCommandStore`  [EXTRACTED]
-  backend/src/Ledgerra.Infrastructure/Persistence/TransactionCommandStore.cs → backend/src/Ledgerra.Application/Transactions/TransactionCommandUseCases.cs
+- `waitForMonthlyReportAnalysisJob()` --calls--> `onJobUpdate`  [INFERRED]
+  frontend/src/api/client.ts → frontend/src/api/client.test.ts
 - `resolveInitialLanguageCode()` --calls--> `normalizeLanguageCode()`  [EXTRACTED]
   frontend/src/state/I18nContext.tsx → frontend/src/utils/language.ts
 - `GoalsPage()` --calls--> `getLocaleForLanguageCode()`  [EXTRACTED]
   frontend/src/pages/GoalsPage.tsx → frontend/src/utils/language.ts
 
-## Communities (124 total, 53 thin omitted)
+## Communities (185 total, 65 thin omitted)
 
-### Community 0 - "Account Language Balance"
-Cohesion: 0.05
-Nodes (53): AccountBalanceChart(), BalanceRange, RANGE_DAYS, AccountDetailColumn(), breadcrumbForType(), countInMonth(), formatMonthLabel(), formatSigned() (+45 more)
+### Community 0 - "Community 0"
+Cohesion: 0.11
+Nodes (22): ACCOUNT_GROUP_ORDER, AccountGroup, AccountGroupType, accountIconClass(), BalancePoint, computeBalanceSeries(), computeMonthInflows(), computeMonthOutflows() (+14 more)
 
-### Community 1 - "Transaction Get Date"
-Cohesion: 0.07
-Nodes (26): buildDefaultValues(), now, toDateTimeLocal(), toFormType(), toLocalDateTimeInputValue(), TransactionForm(), TransactionFormMode, TransactionFormProps (+18 more)
+### Community 1 - "Community 1"
+Cohesion: 0.12
+Nodes (11): getDateKey(), getRelativeDayLabel(), getTransactionTypeLabel(), transactionLabel(), transactionTypes, ChevronDownIcon(), DownloadIcon(), DuplicateIcon() (+3 more)
 
-### Community 2 - "Async() Command Transaction"
-Cohesion: 0.13
-Nodes (8): IMonthlyAccountBalanceSnapshotService, CreateTransactionCommandHandler, DeleteTransactionCommandHandler, ITransactionCommandStore, MoveTransactionAccountCommandHandler, TransactionCommandResult, TransactionDeleteResult, UpdateTransactionCommandHandler
-
-### Community 3 - "Theme Accent Preference()"
+### Community 2 - "Community 2"
 Cohesion: 0.08
-Nodes (22): DensityPreference, SettingsSection, mocks, removeButtons, { rerender }, user, AuthProvider(), AccentColor (+14 more)
+Nodes (10): IMonthlyAccountBalanceSnapshotService, LedgerraDbContext, TransactionCommandStore, CreateTransactionCommandHandler, DeleteTransactionCommandHandler, ITransactionCommandStore, MoveTransactionAccountCommandHandler, TransactionCommandResult (+2 more)
 
-### Community 4 - "Async() Account .Handle"
+### Community 3 - "Community 3"
+Cohesion: 0.09
+Nodes (20): DensityPreference, SettingsSection, mocks, removeButtons, { rerender }, user, ImportRule, PersonalAccessToken (+12 more)
+
+### Community 4 - "Community 4"
 Cohesion: 0.10
 Nodes (11): AccountCommandResult, AccountMappings, CreateAccountCommandHandler, DeleteAccountCommandHandler, GetAccountByIdQueryHandler, GetAccountsQueryHandler, IAccountStore, UpdateAccountCommandHandler (+3 more)
 
-### Community 5 - "Async() Category .Handle"
+### Community 5 - "Community 5"
 Cohesion: 0.10
 Nodes (10): LedgerraDbContext, CategoryCommandResult, CategoryMappings, CreateCategoryCommandHandler, DeleteCategoryCommandHandler, GetCategoriesQueryHandler, GetCategoryByIdQueryHandler, ICategoryStore (+2 more)
 
-### Community 6 - "Category Get Copy"
+### Community 6 - "Community 6"
 Cohesion: 0.07
-Nodes (23): categoryCopy, CategoryCopyKey, CategoryFilter, CategoryGroupId, CategoryIconKey, categoryIconOptions, CategoryKind, CategoryPreferences (+15 more)
+Nodes (29): CategoriesPage(), categoryCopy, CategoryCopyKey, CategoryFilter, CategoryGroupId, CategoryIconKey, categoryIconOptions, CategoryKind (+21 more)
 
-### Community 7 - "Async() Report Monthly"
+### Community 7 - "Community 7"
 Cohesion: 0.11
 Nodes (8): IImportDuplicateDetector, LedgerraDbContext, CommitMonthlyReportDraftsCommandHandler, CommitMonthlyReportDraftsResult, IMonthlyReportDuplicateReviewer, IMonthlyReportImportCommitStore, MonthlyReportDuplicateReviewerAdapter, MonthlyReportImportCommitStore
 
-### Community 8 - "Budget Get Budgets"
+### Community 8 - "Community 8"
+Cohesion: 0.09
+Nodes (22): BudgetEnvelope, BudgetFilter, BudgetGroupId, budgetKeywords, BudgetRhythmChart(), BudgetStatus, classifyBudgetCategory(), formatCompactCurrency() (+14 more)
+
+### Community 9 - "Community 9"
+Cohesion: 0.17
+Nodes (22): clamp(), formatDeadline(), formatDeadlineShort(), getDaysLeft(), getDeadlineDate(), getGoalStatus(), getGoalTheme(), getGoalTransactions() (+14 more)
+
+### Community 10 - "Community 10"
+Cohesion: 0.06
+Nodes (12): Action, int, LedgerraDbContext, string, HttpMessageHandler, IProgress, CaptureRequestHandler, ImmediateProgress (+4 more)
+
+### Community 11 - "Community 11"
+Cohesion: 0.13
+Nodes (18): AccountsIcon(), ArchiveIcon(), BriefcaseIcon(), BudgetsIcon(), CalendarIcon(), CategoriesIcon(), DashboardIcon(), GoalsIcon() (+10 more)
+
+### Community 12 - "Community 12"
+Cohesion: 0.08
+Nodes (11): AnthropicReportAnalysisClient, IAiReportAnalysisClient, OpenAiCompatibleReportAnalysisClient, OpenAiReportAnalysisClient, HttpClient, string, HttpClient, HttpClient (+3 more)
+
+### Community 13 - "Community 13"
+Cohesion: 0.07
+Nodes (32): LedgerraDataOptions, mocks, { result }, mocks, customizationPanel, dashboardTree(), mocks, renderDashboardPage() (+24 more)
+
+### Community 14 - "Community 14"
 Cohesion: 0.10
-Nodes (22): BudgetEnvelope, BudgetFilter, BudgetGroupId, budgetKeywords, BudgetRhythmChart(), BudgetsPage(), BudgetStatus, classifyBudgetCategory() (+14 more)
+Nodes (20): rangePresets, EmptyState(), CashFlowIcon(), CategoryIcon(), ExpenseIcon(), IncomeIcon(), NetWorthIcon(), TrendIcon() (+12 more)
 
-### Community 9 - "Get Goal Date()"
-Cohesion: 0.15
-Nodes (24): clamp(), formatDeadline(), formatDeadlineShort(), getDaysLeft(), getDeadlineDate(), getGoalStatus(), getGoalTheme(), getGoalTransactions() (+16 more)
-
-### Community 10 - "Async() Transaction .Get"
-Cohesion: 0.10
-Nodes (5): int, LedgerraDbContext, RecurringTransactionRepository, IRecurringTransactionRepository, RecurringTransactionUseCases
-
-### Community 11 - "Icon() Accounts Archive"
-Cohesion: 0.10
-Nodes (23): AccountsIcon(), ArchiveIcon(), BasketIcon(), BoltIcon(), BriefcaseIcon(), BudgetsIcon(), CalendarIcon(), CategoriesIcon() (+15 more)
-
-### Community 12 - "Analysis Report Client"
-Cohesion: 0.11
-Nodes (9): AnthropicReportAnalysisClient, IAiReportAnalysisClient, OpenAiCompatibleReportAnalysisClient, OpenAiReportAnalysisClient, HttpClient, string, HttpClient, HttpClient (+1 more)
-
-### Community 13 - "Backup Reporting Account"
-Cohesion: 0.11
-Nodes (20): customizationPanel, mocks, { rerender }, stored, user, mocks, overview, user (+12 more)
-
-### Community 14 - "Icon() Chart() Point"
-Cohesion: 0.11
-Nodes (19): rangePresets, EmptyState(), CategoryIcon(), ExpenseIcon(), IncomeIcon(), NetWorthIcon(), TrendIcon(), MetricCard() (+11 more)
-
-### Community 15 - "Async() Key() Provider"
+### Community 15 - "Community 15"
 Cohesion: 0.19
 Nodes (6): ISecretProtector, LedgerraDbContext, string, AiSettingsController, IHttpClientFactory, IReadOnlyDictionary
 
-### Community 16 - "Async() .Get Budget"
+### Community 16 - "Community 16"
 Cohesion: 0.14
 Nodes (4): LedgerraDbContext, GetDashboardSummaryQueryHandler, IDashboardSummaryDataProvider, DashboardSummaryDataProvider
 
-### Community 17 - "Async() .Get Reporting"
+### Community 17 - "Community 17"
 Cohesion: 0.13
 Nodes (6): LedgerraDbContext, HashSet, ReportingDataProvider, GetReportingOverviewQueryHandler, IMonthlyAccountBalanceSnapshotService, IReportingDataProvider
 
-### Community 18 - "Async() Budget Summary"
+### Community 18 - "Community 18"
 Cohesion: 0.16
 Nodes (6): LedgerraDbContext, GetBudgetSummaryQueryHandler, IBudgetSummaryStore, UpdateBudgetCommandHandler, UpdateBudgetResult, BudgetSummaryStore
 
-### Community 19 - "Month Ledgerra Accounts"
+### Community 19 - "Community 19"
+Cohesion: 0.02
+Nodes (124): 0, 1, 10, 100, 101, 102, 103, 104 (+116 more)
+
+### Community 20 - "Community 20"
+Cohesion: 0.40
+Nodes (4): AnalyzeMonthlyReportCommandHandler, IMonthlyReportAnalyzer, IMonthlyReportDuplicateMarker, IMonthlyReportRuleMatcher
+
+### Community 21 - "Community 21"
 Cohesion: 0.11
-Nodes (12): LedgerraDataOptions, mocks, { result }, mocks, AiSettings, Category, ImportRule, Profile (+4 more)
+Nodes (23): AuthPersister, AuthResolver, fetchMonthlyReportAnalysisJob(), notifyUnauthorized(), readErrorMessage(), readMonthlyReportAnalysisResult(), refreshSession(), request() (+15 more)
 
-### Community 20 - "Report Monthly Async()"
-Cohesion: 0.12
-Nodes (10): AiReportAnalysisService, IImportDuplicateDetector, IImportCategorizationRuleMatcher, AnalyzeMonthlyReportCommandHandler, IMonthlyReportAnalyzer, IMonthlyReportDuplicateMarker, IMonthlyReportRuleMatcher, MonthlyReportAnalysisAdapter (+2 more)
+### Community 22 - "Community 22"
+Cohesion: 0.27
+Nodes (16): useLedgerraData(), useReportingOverview(), AccountsPage(), BudgetsPage(), DashboardPage(), ImportsPage(), LoginPage(), ReportsPage() (+8 more)
 
-### Community 21 - "Unauthorized Api Auth"
-Cohesion: 0.13
-Nodes (18): apiClient, AuthPersister, AuthResolver, notifyUnauthorized(), readErrorMessage(), refreshSession(), request(), RequestOptions (+10 more)
-
-### Community 22 - "Page() Use Login"
-Cohesion: 0.26
-Nodes (16): useLedgerraData(), useReportingOverview(), AccountsPage(), CategoriesPage(), DashboardPage(), ImportsPage(), LoginPage(), ReportsPage() (+8 more)
-
-### Community 23 - "Token Access Allowed"
+### Community 23 - "Community 23"
 Cohesion: 0.12
 Nodes (15): AllowedHosts, Auth, AccessTokenMinutes, Audience, Issuer, RefreshTokenDays, SigningKey, ConnectionStrings (+7 more)
 
-### Community 24 - "Account Form Icon"
-Cohesion: 0.17
-Nodes (9): AccountForm(), AccountFormProps, AccountFormValues, accountIconKinds, accountTypes, AccountFormModal(), AccountListColumn(), AccountIconKind (+1 more)
+### Community 24 - "Community 24"
+Cohesion: 0.18
+Nodes (10): AccountForm(), AccountFormProps, AccountFormValues, accountIconKinds, accountTypes, AccountFormModal(), AccountListColumn(), AccountIconKind (+2 more)
 
-### Community 26 - "Handler Transaction Command"
+### Community 25 - "Community 25"
+Cohesion: 0.02
+Nodes (124): 0, 1, 10, 100, 101, 102, 103, 104 (+116 more)
+
+### Community 26 - "Community 26"
 Cohesion: 0.17
 Nodes (7): TransactionsController, CreateTransactionCommandHandler, DeleteTransactionCommandHandler, GetTransactionByIdQueryHandler, GetTransactionsQueryHandler, MoveTransactionAccountCommandHandler, UpdateTransactionCommandHandler
 
-### Community 27 - "Async() Query Transaction"
+### Community 27 - "Community 27"
 Cohesion: 0.18
 Nodes (5): LedgerraDbContext, TransactionQueryStore, GetTransactionByIdQueryHandler, GetTransactionsQueryHandler, ITransactionQueryStore
 
-### Community 28 - "Dashboard Widget Checklist"
-Cohesion: 0.14
-Nodes (9): acknowledgementDefaults, ChecklistAction, ChecklistItem, DashboardInsight, dashboardWidgetDefaults, DashboardWidgetId, DashboardWidgetPreference, describeSpendingDelta() (+1 more)
+### Community 28 - "Community 28"
+Cohesion: 0.12
+Nodes (11): acknowledgementDefaults, ChecklistAction, ChecklistItem, DashboardInsight, dashboardWidgetDefaults, DashboardWidgetId, DashboardWidgetPreference, describeSpendingDelta() (+3 more)
 
-### Community 29 - ".Build Calculator .Is"
+### Community 29 - "Community 29"
 Cohesion: 0.16
 Nodes (4): CategoryBreakdownCalculator, NetWorthRollupCalculator, ReportingCalendar, TransactionAggregationCalculator
 
-### Community 30 - "Async() Profile User"
+### Community 30 - "Community 30"
 Cohesion: 0.20
 Nodes (5): LedgerraDbContext, UserProfileStore, GetProfileQueryHandler, IUserProfileStore, UpdateProfileCommandHandler
 
-### Community 31 - "Handler Account Accounts"
+### Community 31 - "Community 31"
 Cohesion: 0.19
 Nodes (6): AccountsController, CreateAccountCommandHandler, DeleteAccountCommandHandler, GetAccountByIdQueryHandler, GetAccountsQueryHandler, UpdateAccountCommandHandler
 
-### Community 32 - "Handler Category Categories"
+### Community 32 - "Community 32"
 Cohesion: 0.19
 Nodes (6): CategoriesController, CreateCategoryCommandHandler, DeleteCategoryCommandHandler, GetCategoriesQueryHandler, GetCategoryByIdQueryHandler, UpdateCategoryCommandHandler
 
-### Community 34 - "Imports Section Text()"
-Cohesion: 0.18
-Nodes (4): mocks, user, MonthlyReportDraftTransaction, SectionCard()
+### Community 34 - "Community 34"
+Cohesion: 0.14
+Nodes (7): MonthlyReportAnalysis, MonthlyReportAnalysisJob, MonthlyReportDraftTransaction, ImportAnalysisContext, ImportAnalysisContextValue, ImportAnalysisProvider(), useImportAnalysis()
 
-### Community 35 - "Auth Service Token"
+### Community 35 - "Community 35"
 Cohesion: 0.22
 Nodes (6): AuthOptions, IJwtTokenService, IPasswordService, LedgerraDbContext, AuthController, EmailAddressAttribute
 
-### Community 36 - "Monthly Report .Map"
-Cohesion: 0.18
-Nodes (5): AnalyzeMonthlyReportCommandHandler, IReportContentExtractor, CommitMonthlyReportDraftsCommandHandler, MonthlyReportImportsController, CsvBankImportMapper
+### Community 36 - "Community 36"
+Cohesion: 0.13
+Nodes (6): AnalyzeMonthlyReportCommandHandler, IReportContentExtractor, CommitMonthlyReportDraftsCommandHandler, MonthlyReportImportsController, CsvBankImportMapper, MonthlyReportAnalysisJobStore
 
-### Community 37 - "Auth Context Context.Test.Tsx"
+### Community 37 - "Community 37"
 Cohesion: 0.20
-Nodes (6): AuthPayload, AuthContext, AuthContextValue, AuthProbe(), { onUnauthorizedMock, setAuthHandlersMock }, persist
+Nodes (7): AuthPayload, AuthContext, AuthContextValue, AuthProvider(), AuthProbe(), { onUnauthorizedMock, setAuthHandlersMock }, persist
 
-### Community 38 - "Environment Launch $Schema"
+### Community 38 - "Community 38"
 Cohesion: 0.20
 Nodes (9): ASPNETCORE_ENVIRONMENT, applicationUrl, commandName, dotnetRunMessages, environmentVariables, launchBrowser, profiles, http (+1 more)
 
-### Community 39 - "Appsettings.Development.Json Connection Core"
+### Community 39 - "Community 39"
 Cohesion: 0.22
 Nodes (8): ConnectionStrings, Ledgerra, Cors, Origins, Logging, LogLevel, Default, Microsoft.AspNetCore
 
-### Community 40 - "Duplicate .Mark Detector"
+### Community 40 - "Community 40"
 Cohesion: 0.36
 Nodes (3): LedgerraDbContext, IImportDuplicateDetector, ImportDuplicateDetector
 
-### Community 41 - "Controller Dashboard .Get"
+### Community 41 - "Community 41"
 Cohesion: 0.22
 Nodes (5): ControllerBase, DashboardController, ReportsController, GetDashboardSummaryQueryHandler, GetReportingOverviewQueryHandler
 
-### Community 43 - "Account Async() Balance"
+### Community 43 - "Community 43"
 Cohesion: 0.36
 Nodes (3): LedgerraDbContext, IMonthlyAccountBalanceSnapshotService, MonthlyAccountBalanceSnapshotService
 
-### Community 44 - "Token Token() .Issue"
+### Community 44 - "Community 44"
 Cohesion: 0.29
 Nodes (3): JwtTokenService, AuthOptions, IJwtTokenService
 
-### Community 45 - "Access Personal Token()"
+### Community 45 - "Community 45"
 Cohesion: 0.29
 Nodes (3): IJwtTokenService, LedgerraDbContext, PersonalAccessTokensController
 
-### Community 47 - "Categorization Rule .Apply"
+### Community 47 - "Community 47"
 Cohesion: 0.38
 Nodes (3): LedgerraDbContext, IImportCategorizationRuleMatcher, ImportCategorizationRuleMatcher
 
-### Community 48 - "Content Extractor Report"
+### Community 48 - "Community 48"
 Cohesion: 0.29
 Nodes (5): CsvReportContentExtractor, ReportContentExtractor, IReportContentExtractor, long, PdfReportContentExtractor
 
-### Community 49 - "Analysis Report .Analyze"
+### Community 49 - "Community 49"
 Cohesion: 0.33
 Nodes (4): AiReportAnalysisService, AiReportAnalysisClientFactory, ISecretProtector, LedgerraDbContext
 
-### Community 50 - "Json Report .Build"
+### Community 50 - "Community 50"
 Cohesion: 0.33
 Nodes (3): AiReportSchema, string, JsonDocument
 
-### Community 51 - "Password Service .Hash()"
+### Community 51 - "Community 51"
 Cohesion: 0.33
 Nodes (3): PasswordService, int, IPasswordService
 
-### Community 52 - "Request Commit Import"
+### Community 52 - "Community 52"
 Cohesion: 0.33
 Nodes (4): CommitMonthlyReportDraftRequest, CommitMonthlyReportDraftsRequest, CsvImportPreviewRequest, IValidatableObject
 
-### Community 53 - "Budget Budgets Handler"
+### Community 53 - "Community 53"
 Cohesion: 0.33
 Nodes (3): BudgetsController, GetBudgetSummaryQueryHandler, UpdateBudgetCommandHandler
 
-### Community 54 - "Handler Profile Profile()"
+### Community 54 - "Community 54"
 Cohesion: 0.33
 Nodes (3): SettingsController, GetProfileQueryHandler, UpdateProfileCommandHandler
 
-### Community 56 - "Protector Data Protection"
+### Community 56 - "Community 56"
 Cohesion: 0.33
 Nodes (3): IDataProtector, ISecretProtector, DataProtectionSecretProtector
 
-### Community 59 - "Transaction Request Account"
+### Community 59 - "Community 59"
 Cohesion: 0.40
 Nodes (4): CreateTransactionRequest, MoveTransactionAccountRequest, TransactionSplitLineRequest, UpdateTransactionRequest
 
-### Community 61 - "Blob Categories Mocks"
+### Community 61 - "Community 61"
 Cohesion: 0.40
 Nodes (3): mocks, translations, user
 
-### Community 65 - "Provider Request Update"
+### Community 65 - "Community 65"
 Cohesion: 0.50
 Nodes (3): SaveAiProviderKeyRequest, UpdateAiProviderModelRequest, UpdateDefaultAiProviderRequest
 
-### Community 66 - "Request Auth Contracts.Cs"
+### Community 66 - "Community 66"
 Cohesion: 0.50
 Nodes (3): LoginRequest, RefreshRequest, RegisterRequest
 
+### Community 74 - "Community 74"
+Cohesion: 0.50
+Nodes (4): AiReportAnalysisParseException, IsSupportedType(), Normalize(), Exception
+
+### Community 124 - "Community 124"
+Cohesion: 0.02
+Nodes (125): cohesion, 0, 1, 10, 100, 101, 102, 103 (+117 more)
+
+### Community 125 - "Community 125"
+Cohesion: 0.02
+Nodes (125): communities, 0, 1, 10, 100, 101, 102, 103 (+117 more)
+
+### Community 127 - "Community 127"
+Cohesion: 0.06
+Nodes (31): Accounts page redesign — design, API, Backend — `Account` (additive), Balance over time chart, code:csharp (public sealed class Account), code:csharp (builder.Property(a => a.InstitutionName).HasMaxLength(120);), code:sql (ALTER TABLE "Accounts" ADD COLUMN IF NOT EXISTS "Institution), code:ts (export type AccountIconKind = "Bank" | "Piggy" | "Card" | "C) (+23 more)
+
+### Community 128 - "Community 128"
+Cohesion: 0.07
+Nodes (28): dependencies, react, react-dom, react-is, react-router-dom, recharts, devDependencies, jsdom (+20 more)
+
+### Community 129 - "Community 129"
+Cohesion: 0.12
+Nodes (17): de, defaultContextValue, es, I18nContext, I18nContextValue, I18nProvider(), interpolate(), MessageValue (+9 more)
+
+### Community 130 - "Community 130"
+Cohesion: 0.18
+Nodes (15): AccountBalanceChart(), BalanceRange, RANGE_DAYS, AccountDetailColumn(), breadcrumbForType(), countInMonth(), formatMonthLabel(), formatSigned() (+7 more)
+
+### Community 131 - "Community 131"
+Cohesion: 0.20
+Nodes (5): LedgerraApiFactory, LedgerraApiFactory, IClassFixture, AccountFieldsTests, ReportingApiTests
+
+### Community 132 - "Community 132"
+Cohesion: 0.14
+Nodes (7): int, ConcurrentDictionary, IDisposable, MonthlyReportAnalysisJobStore, IServiceScopeFactory, Timer, TimeSpan
+
+### Community 133 - "Community 133"
+Cohesion: 0.15
+Nodes (12): apiClient, buildDefaultValues(), now, toDateTimeLocal(), toFormType(), toLocalDateTimeInputValue(), TransactionForm(), TransactionFormMode (+4 more)
+
+### Community 134 - "Community 134"
+Cohesion: 0.12
+Nodes (16): compilerOptions, allowImportingTsExtensions, allowSyntheticDefaultImports, isolatedModules, jsx, lib, module, moduleResolution (+8 more)
+
+### Community 135 - "Community 135"
+Cohesion: 0.12
+Nodes (16): code:ts (export type AccountFormValues = {), code:bash (git add frontend/src/components/AccountForm.tsx), code:tsx (export function AccountFormModal({), code:bash (git add frontend/src/components/AccountFormModal.tsx), code:tsx (import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxi), code:bash (git add frontend/src/components/AccountBalanceChart.tsx), code:tsx (export function AccountListColumn({), code:bash (git add frontend/src/components/AccountListColumn.tsx fronte) (+8 more)
+
+### Community 136 - "Community 136"
+Cohesion: 0.28
+Nodes (14): cleanup(), is_compose_postgres_running(), is_url_ready(), log(), postgres_container_exists(), postgres_container_running(), require_command(), require_docker_daemon() (+6 more)
+
+### Community 137 - "Community 137"
+Cohesion: 0.14
+Nodes (14): code:csharp (namespace Ledgerra.Domain.Accounts;), code:csharp (public sealed class CreateAccountRequest), code:csharp (private static AccountResponse MapAccount(AccountDetails acc), code:bash (git add backend/src/Ledgerra.Api/Contracts/AccountContracts.), code:bash (git add backend/tests/Ledgerra.Api.Tests/), code:bash (git add backend/src/Ledgerra.Domain/Accounts/AccountIconKind), code:csharp (using Microsoft.EntityFrameworkCore;), code:csharp (await AccountSchemaInitializer.InitializeAsync(dbContext);) (+6 more)
+
+### Community 138 - "Community 138"
+Cohesion: 0.15
+Nodes (8): appendChild, click, createElement, element, mocks, originalCreateElement, removeChild, user
+
+### Community 139 - "Community 139"
+Cohesion: 0.17
+Nodes (11): Accounts page redesign — Implementation Plan, code:ts (export type AccountIconKind = "Bank" | "Piggy" | "Card" | "C), code:ts (createAccount(token: string, payload: Pick<Account,), code:bash (git add frontend/src/types.ts frontend/src/api/client.ts), code:bash (git add frontend/src/pages/AccountsPage.test.tsx), Done criteria, Phase 2 — Frontend types & API, Phase 7 — Final verification (+3 more)
+
+### Community 141 - "Community 141"
+Cohesion: 0.18
+Nodes (11): 1) Create a personal access token, 2) Lookup the destination account, 3) Analyze a monthly report (review-first), 4) Apply safety contract before commit, 5) Commit approved drafts, API automation for AI agents (PAT + monthly report import), code:bash (curl -sS "$LEDGERRA_BASE_URL/api/accounts" \), code:bash (curl -sS "$LEDGERRA_BASE_URL/api/imports/monthly-report/anal) (+3 more)
+
+### Community 142 - "Community 142"
+Cohesion: 0.20
+Nodes (9): files, code, document, image, paper, video, skipped_sensitive, total_files (+1 more)
+
+### Community 143 - "Community 143"
+Cohesion: 0.20
+Nodes (10): Accounts, App, Backup & Import, Budgets & Categories, Dashboard, Features, Reports, Savings Goals (+2 more)
+
+### Community 144 - "Community 144"
+Cohesion: 0.20
+Nodes (10): code:tsx (export function AccountsPage() {), code:bash (git add frontend/src/pages/AccountsPage.tsx), code:tsx (<Route path="/accounts" element={<AccountsPage />} />), code:bash (git add frontend/src/App.tsx), code:ts (const formParam = initialQuery.get("form");), code:bash (git add frontend/src/pages/TransactionsPage.tsx), Phase 5 — Page rewrite & routing, Task 15: Rewrite `AccountsPage.tsx` (+2 more)
+
+### Community 145 - "Community 145"
+Cohesion: 0.22
+Nodes (8): 1) Budget period toggle exposes a disabled button for a non-interactive state, 2) Transactions filter chips intentionally block transfer toggling, but do not explain why, 3) Settings provider model fetch controls are gated by provider setup state, Backend wiring review notes, Findings, Frontend audit — 2026-05-14, Next suggested pass, Scope
+
+### Community 147 - "Community 147"
+Cohesion: 0.22
+Nodes (9): code:ts (import { describe, expect, it } from "vitest";), code:ts (import type { Account } from "../types";), code:bash (git add frontend/src/utils/accounts.ts frontend/src/utils/ac), code:ts (import { computeBalanceSeries } from "./accounts";), code:ts (import type { Transaction } from "../types";), code:bash (git add frontend/src/utils/accounts.ts frontend/src/utils/ac), Phase 3 — Frontend utilities (TDD), Task 8: `groupAccountsByType` utility (+1 more)
+
+### Community 148 - "Community 148"
+Cohesion: 0.25
+Nodes (4): AiDraftAnalysisResult, PassthroughMonthlyReportDuplicateMarker, PassthroughMonthlyReportRuleMatcher, StubMonthlyReportAnalyzer
+
+### Community 149 - "Community 149"
+Cohesion: 0.25
+Nodes (7): compilerOptions, allowSyntheticDefaultImports, composite, module, moduleResolution, skipLibCheck, include
+
+### Community 150 - "Community 150"
+Cohesion: 0.25
+Nodes (8): Backend, Browser smoke tests (Playwright), code:bash (./scripts/dev-stack.sh), code:bash (cd frontend), code:bash (cd frontend), code:bash (VITE_API_BASE_URL=http://localhost:5027), Frontend, Local Development
+
+### Community 151 - "Community 151"
+Cohesion: 0.25
+Nodes (8): code:bash (git add frontend/src/styles.css), code:json ("accounts.netWorth": "Net worth",), code:json ("accounts.netWorth": "Wartość netto",), code:bash (npm --prefix frontend run build), code:bash (git add frontend/src/state/I18nContext.tsx), Phase 6 — Styles, i18n, polish, Task 18: Add CSS for the redesign, Task 19: Add translations (pl + en)
+
+### Community 154 - "Community 154"
+Cohesion: 0.29
+Nodes (6): code:bash (mkdir -p /mnt/user/appdata/ledgerra/postgres), code:bash (cd /mnt/user/appdata/ledgerra), code:bash (cd /mnt/user/appdata/ledgerra), Install, Ledgerra on Unraid OS, Upgrade
+
+### Community 155 - "Community 155"
+Cohesion: 0.29
+Nodes (6): code:tsx (<div className="split-grid">), code:tsx (<div className="split-grid">), code:tsx (<div className="page-stack">), code:bash (git add frontend/src/pages/SettingsPage.tsx), Settings Compact Layout Implementation Plan, Task 1: Update SettingsPage layout to two-column grid
+
+### Community 156 - "Community 156"
+Cohesion: 0.29
+Nodes (6): appendSpy, categoryChips, clickSpy, mocks, row, user
+
+### Community 157 - "Community 157"
+Cohesion: 0.29
+Nodes (7): code:bash (docker compose up --build -d), code:bash (mkdir -p /mnt/user/appdata/ledgerra/postgres), code:bash (cd /mnt/user/appdata/ledgerra), code:bash (cd /mnt/user/appdata/ledgerra), Self-Hosted Deployment, TrueNAS SCALE Setup, Unraid OS Setup
+
+### Community 158 - "Community 158"
+Cohesion: 0.29
+Nodes (6): code:bash (cd backend), code:bash (cd frontend), Ledgerra, Project Layout, Project Website, Verification
+
+### Community 159 - "Community 159"
+Cohesion: 0.29
+Nodes (4): code:csharp (public static AccountDetails MapAccount(Account account)), code:csharp (InstitutionName = command.InstitutionName,), code:bash (git add backend/src/Ledgerra.Application/Accounts/AccountUse), Task 4: Extend `AccountDetails`, commands, and `IAccountStore` for new fields
+
+### Community 161 - "Community 161"
+Cohesion: 0.33
+Nodes (5): edges, hyperedges, input_tokens, nodes, output_tokens
+
+### Community 163 - "Community 163"
+Cohesion: 0.33
+Nodes (6): code:bash (git tag v0.12.0), code:text (ghcr.io/<github-owner>/ledgerra-backend:<tag>), code:bash (mkdir -p ledgerra), code:bash (docker compose pull), code:bash (docker compose pull), Release Builds
+
+### Community 164 - "Community 164"
+Cohesion: 0.40
+Nodes (3): string, LedgerraApiFactory, WebApplicationFactory
+
+### Community 165 - "Community 165"
+Cohesion: 0.40
+Nodes (4): code:text (/mnt/tank/apps/ledgerra/postgres), Install via YAML, Ledgerra on TrueNAS SCALE, Metadata
+
+### Community 166 - "Community 166"
+Cohesion: 0.40
+Nodes (5): code:bash (docker run --name ledgerra-postgres \), code:bash (ConnectionStrings__Ledgerra="Host=localhost;Port=5432;Databa), code:bash (cd backend), code:bash (cd backend), Local PostgreSQL setup
+
+### Community 167 - "Community 167"
+Cohesion: 0.50
+Nodes (3): Git Workflow, graphify, Repository Instructions
+
+### Community 172 - "Community 172"
+Cohesion: 0.50
+Nodes (3): APP_SHELL, requestUrl, responseClone
+
+### Community 173 - "Community 173"
+Cohesion: 0.50
+Nodes (3): gods, questions, surprises
+
+### Community 174 - "Community 174"
+Cohesion: 0.50
+Nodes (3): Answer, Q: Why does formatCurrency() bridge account, transaction, budget, goal, dashboard, and chart areas?, Source Nodes
+
+### Community 176 - "Community 176"
+Cohesion: 0.50
+Nodes (4): code:csharp (public string? InstitutionName { get; set; }), code:csharp (builder.Property(account => account.InstitutionName).HasMaxL), code:bash (git add backend/src/Ledgerra.Domain/Accounts/Account.cs back), Task 2: Add new fields to `Account` entity + EF mapping
+
 ## Knowledge Gaps
-- **264 isolated node(s):** `SavingsGoal`, `PersonalAccessToken`, `AppUser`, `CategorizationRule`, `RecurringTransactionTemplate` (+259 more)
+- **979 isolated node(s):** `total_files`, `total_words`, `code`, `document`, `paper` (+974 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **53 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `useI18n()` connect `Page() Use Login` to `Account Language Balance`, `Transaction Get Date`, `Imports Section Text()`, `Theme Accent Preference()`, `Category Get Copy`, `Budget Get Budgets`, `Get Goal Date()`, `Icon() Accounts Archive`, `Backup Reporting Account`, `Icon() Chart() Point`, `Month Ledgerra Accounts`, `Account Form Icon`, `Dashboard Widget Checklist`?**
+- **Why does `cohesion` connect `Community 124` to `Community 173`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `communities` connect `Community 125` to `Community 173`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `AiSettingsController` connect `Async() Key() Provider` to `Controller Dashboard .Get`?**
+- **Why does `useI18n()` connect `Community 22` to `Community 0`, `Community 129`, `Community 130`, `Community 3`, `Community 1`, `Community 133`, `Community 6`, `Community 34`, `Community 8`, `Community 9`, `Community 11`, `Community 13`, `Community 14`, `Community 24`, `Community 28`?**
   _High betweenness centrality (0.005) - this node is a cross-community bridge._
-- **Why does `formatCurrency()` connect `Account Language Balance` to `Transaction Get Date`, `Category Get Copy`, `Budget Get Budgets`, `Get Goal Date()`, `Icon() Chart() Point`, `Page() Use Login`, `Account Form Icon`, `Dashboard Widget Checklist`?**
-  _High betweenness centrality (0.005) - this node is a cross-community bridge._
-- **What connects `SavingsGoal`, `PersonalAccessToken`, `AppUser` to the rest of the system?**
-  _264 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Account Language Balance` be split into smaller, more focused modules?**
-  _Cohesion score 0.05030181086519115 - nodes in this community are weakly interconnected._
-- **Should `Transaction Get Date` be split into smaller, more focused modules?**
-  _Cohesion score 0.06612685560053981 - nodes in this community are weakly interconnected._
-- **Should `Async() Command Transaction` be split into smaller, more focused modules?**
-  _Cohesion score 0.12857142857142856 - nodes in this community are weakly interconnected._
+- **What connects `total_files`, `total_words`, `code` to the rest of the system?**
+  _979 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Community 0` be split into smaller, more focused modules?**
+  _Cohesion score 0.10591133004926108 - nodes in this community are weakly interconnected._
+- **Should `Community 1` be split into smaller, more focused modules?**
+  _Cohesion score 0.12280701754385964 - nodes in this community are weakly interconnected._
+- **Should `Community 2` be split into smaller, more focused modules?**
+  _Cohesion score 0.07918552036199095 - nodes in this community are weakly interconnected._

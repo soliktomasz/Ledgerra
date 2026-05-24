@@ -36,15 +36,29 @@ public sealed class TransactionsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<TransactionResponse>>> GetAll(
-        Guid? accountId,
-        Guid? categoryId,
+        [FromQuery] Guid[] accountId,
+        [FromQuery] Guid[] categoryId,
         string? type,
         DateOnly? from,
         DateOnly? to,
+        decimal? minAmount,
+        decimal? maxAmount,
+        string? q,
+        bool uncategorizedOnly,
         CancellationToken cancellationToken)
     {
         var transactions = await _getTransactionsQueryHandler.HandleAsync(
-            new GetTransactionsQuery(User.GetRequiredUserId(), accountId, categoryId, type, from, to),
+            new GetTransactionsQuery(
+                User.GetRequiredUserId(),
+                accountId,
+                categoryId,
+                type,
+                from,
+                to,
+                minAmount,
+                maxAmount,
+                q,
+                uncategorizedOnly),
             cancellationToken);
 
         return Ok(transactions.Select(MapTransaction));

@@ -4,11 +4,15 @@ namespace Ledgerra.Application.Transactions;
 
 public sealed record GetTransactionsQuery(
     Guid UserId,
-    Guid? AccountId,
-    Guid? CategoryId,
+    IReadOnlyCollection<Guid> AccountIds,
+    IReadOnlyCollection<Guid> CategoryIds,
     string? Type,
     DateOnly? From,
-    DateOnly? To);
+    DateOnly? To,
+    decimal? MinAmount,
+    decimal? MaxAmount,
+    string? Search,
+    bool UncategorizedOnly);
 
 public sealed record GetTransactionByIdQuery(Guid UserId, Guid TransactionId);
 
@@ -16,11 +20,15 @@ public interface ITransactionQueryStore
 {
     Task<IReadOnlyList<Transaction>> GetAllAsync(
         Guid userId,
-        Guid? accountId,
-        Guid? categoryId,
+        IReadOnlyCollection<Guid> accountIds,
+        IReadOnlyCollection<Guid> categoryIds,
         TransactionType? type,
         DateTime? fromUtc,
         DateTime? toUtc,
+        decimal? minAmount,
+        decimal? maxAmount,
+        string? search,
+        bool uncategorizedOnly,
         CancellationToken cancellationToken);
 
     Task<Transaction?> GetByIdAsync(Guid userId, Guid transactionId, CancellationToken cancellationToken);
@@ -43,11 +51,15 @@ public sealed class GetTransactionsQueryHandler
 
         var transactions = await _transactionQueryStore.GetAllAsync(
             query.UserId,
-            query.AccountId,
-            query.CategoryId,
+            query.AccountIds,
+            query.CategoryIds,
             parsedType,
             query.From?.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
             query.To?.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc),
+            query.MinAmount,
+            query.MaxAmount,
+            query.Search,
+            query.UncategorizedOnly,
             cancellationToken);
 
         return transactions.Select(MapTransaction).ToList();

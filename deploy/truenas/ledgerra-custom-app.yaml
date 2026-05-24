@@ -29,9 +29,12 @@ services:
       Auth__SigningKey: replace-with-at-least-32-random-characters
       Auth__AccessTokenMinutes: 60
       Auth__RefreshTokenDays: 30
+      DataProtection__KeysPath: /var/lib/ledgerra/keyring
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - /mnt/tank/apps/ledgerra/keyring:/var/lib/ledgerra/keyring
     expose:
       - "8080"
 

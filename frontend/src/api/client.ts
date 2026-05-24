@@ -529,20 +529,10 @@ export const apiClient = {
       body.append("descriptionColumn", payload.descriptionColumn);
     }
 
-    return fetch(resolveApiUrl(API_BASE_URL, "/api/imports/monthly-report/csv-preview"), {
+    return request<MonthlyReportAnalysis>("/api/imports/monthly-report/csv-preview", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      token,
       body
-    }).then(async (response) => {
-      if (!response.ok) {
-        if (response.status === 401) {
-          notifyUnauthorized();
-        }
-
-        throw new Error(await readErrorMessage(response));
-      }
-
-      return response.json() as Promise<MonthlyReportAnalysis>;
     });
   },
 

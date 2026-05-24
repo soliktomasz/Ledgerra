@@ -117,6 +117,43 @@ public sealed class BackupRestoreSecurityTests : IClassFixture<LedgerraApiFactor
     }
 
     [Fact]
+    public async Task Restore_RejectsMalformedEnumValuesAsBadRequest()
+    {
+        using var client = _factory.CreateClient();
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth);
+
+        var accountId = Guid.NewGuid();
+
+        var archive = new
+        {
+            version = 3,
+            exportedAtUtc = "2025-01-01T00:00:00Z",
+            accounts = new[]
+            {
+                new
+                {
+                    id = accountId,
+                    name = "My Account",
+                    type = "NotARealAccountType",
+                    currencyCode = "USD",
+                    openingBalance = 0m,
+                    isActive = true,
+                    iconKind = "Bank"
+                }
+            },
+            categories = Array.Empty<object>(),
+            transactions = Array.Empty<object>(),
+            budgetPeriods = Array.Empty<object>(),
+            savingsGoals = Array.Empty<object>()
+        };
+
+        var response = await client.PostAsJsonAsync("/api/backup/restore", archive);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Restore_RejectsTransactionReferencingForeignParentTransactionId()
     {
         using var client = _factory.CreateClient();

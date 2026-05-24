@@ -12,6 +12,7 @@ public sealed class MonthlyReportAnalysisJobStore : IDisposable
     private readonly ConcurrentDictionary<Guid, MonthlyReportAnalysisJob> _jobs = new();
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly TimeSpan _retentionPeriod;
+    private readonly TimeSpan _analysisTimeout;
     private readonly int _maxJobs;
     private readonly Timer _cleanupTimer;
 
@@ -19,6 +20,7 @@ public sealed class MonthlyReportAnalysisJobStore : IDisposable
     {
         _scopeFactory = scopeFactory;
         _retentionPeriod = TimeSpan.FromHours(configuration?.GetValue<double?>("MonthlyReportAnalysisJobs:RetentionHours") ?? 24);
+        _analysisTimeout = TimeSpan.FromMinutes(configuration?.GetValue<double?>("MonthlyReportAnalysisJobs:TimeoutMinutes") ?? 10);
         _maxJobs = Math.Max(1, configuration?.GetValue<int?>("MonthlyReportAnalysisJobs:MaxJobs") ?? 500);
         var cleanupInterval = TimeSpan.FromMinutes(configuration?.GetValue<double?>("MonthlyReportAnalysisJobs:CleanupIntervalMinutes") ?? 60);
         _cleanupTimer = new Timer(_ => CleanupExpiredJobs(), null, cleanupInterval, cleanupInterval);
@@ -178,9 +180,10 @@ public sealed class MonthlyReportAnalysisJobStore : IDisposable
                     : new MonthlyReportAnalysisTokenUsageResponse(item.Usage.PromptTokens, item.Usage.CompletionTokens, item.Usage.TotalTokens),
                 UpdatedAtUtc = DateTime.UtcNow
             }));
+            using var timeout = new CancellationTokenSource(_analysisTimeout);
             var result = await handler.HandleAsync(
                 new AnalyzeMonthlyReportCommand(userId, accountId, month, provider, reportContent, progress),
-                CancellationToken.None);
+                timeout.Token);
 
             Update(jobId, job => job with
             {
@@ -217,6 +220,17 @@ public sealed class MonthlyReportAnalysisJobStore : IDisposable
                 Status = "failed",
                 StatusMessage = "Analysis failed.",
                 Error = exception.Message,
+                UpdatedAtUtc = DateTime.UtcNow,
+                CompletedAtUtc = DateTime.UtcNow
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            Update(jobId, job => job with
+            {
+                Status = "failed",
+                StatusMessage = "Analysis timed out.",
+                Error = "AI analysis exceeded the configured timeout.",
                 UpdatedAtUtc = DateTime.UtcNow,
                 CompletedAtUtc = DateTime.UtcNow
             });

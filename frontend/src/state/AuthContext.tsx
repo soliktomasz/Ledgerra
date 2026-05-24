@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import type { AuthPayload } from "../types";
 
 type AuthContextValue = {
   auth: AuthPayload | null;
+  isRestoring: boolean;
   isAuthenticated: boolean;
   login: (login: string, password: string, mode: "login" | "register", email?: string) => Promise<void>;
   logout: () => void;
@@ -28,42 +29,77 @@ function isSessionValid(payload: AuthPayload): boolean {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth, setAuth] = useState<AuthPayload | null>(null);
+  const [isRestoring, setIsRestoring] = useState(true);
 
-  useEffect(() => {
-    const raw = getAuthStorage().getItem(STORAGE_KEY);
-    if (!raw) {
-      return;
-    }
-
-    try {
-      const payload = JSON.parse(raw) as AuthPayload;
-      if (isSessionValid(payload)) {
-        setAuth(payload);
-      } else {
-        getAuthStorage().removeItem(STORAGE_KEY);
-      }
-    } catch {
-      getAuthStorage().removeItem(STORAGE_KEY);
-    }
-  }, []);
-
-  const persist = (payload: AuthPayload | null) => {
+  const persist = useCallback((payload: AuthPayload | null) => {
     setAuth(payload);
     if (payload && isSessionValid(payload)) {
       getAuthStorage().setItem(STORAGE_KEY, JSON.stringify(payload));
     } else {
       getAuthStorage().removeItem(STORAGE_KEY);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const raw = getAuthStorage().getItem(STORAGE_KEY);
+    if (!raw) {
+      setIsRestoring(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    try {
+      const payload = JSON.parse(raw) as AuthPayload;
+      if (isSessionValid(payload)) {
+        setAuth(payload);
+        setIsRestoring(false);
+        return () => {
+          isMounted = false;
+        };
+      }
+
+      if (payload.refreshToken) {
+        void apiClient.refresh(payload.refreshToken)
+          .then((refreshed) => {
+            if (!isMounted) {
+              return;
+            }
+
+            persist(refreshed);
+            setIsRestoring(false);
+          })
+          .catch(() => {
+            if (!isMounted) {
+              return;
+            }
+
+            persist(null);
+            setIsRestoring(false);
+          });
+      } else {
+        persist(null);
+        setIsRestoring(false);
+      }
+    } catch {
+      persist(null);
+      setIsRestoring(false);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [persist]);
 
   useEffect(() => {
     apiClient.setAuthHandlers(() => auth, persist);
     return () => {
       apiClient.setAuthHandlers(null, null);
     };
-  }, [auth]);
+  }, [auth, persist]);
 
-  useEffect(() => apiClient.onUnauthorized(() => persist(null)), []);
+  useEffect(() => apiClient.onUnauthorized(() => persist(null)), [persist]);
 
   const login = async (login: string, password: string, mode: "login" | "register", email?: string) => {
     const payload = mode === "register"
@@ -79,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         auth,
+        isRestoring,
         isAuthenticated: Boolean(auth?.accessToken),
         login,
         logout

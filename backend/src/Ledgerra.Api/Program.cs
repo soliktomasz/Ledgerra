@@ -13,6 +13,7 @@ using Ledgerra.Infrastructure.Authentication;
 using Ledgerra.Infrastructure.Persistence;
 using Ledgerra.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,7 +21,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
-builder.Services.AddDataProtection();
+var dataProtectionBuilder = builder.Services.AddDataProtection();
+var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"];
+if (!string.IsNullOrWhiteSpace(dataProtectionKeysPath))
+{
+    dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+}
 builder.Services.AddScoped<ISecretProtector, DataProtectionSecretProtector>();
 builder.Services.AddScoped<CsvReportContentExtractor>();
 builder.Services.AddScoped<PdfReportContentExtractor>();
@@ -134,17 +140,17 @@ builder.Services
                 if (token.LastUsedAtUtc == null || (now - token.LastUsedAtUtc.Value) > TimeSpan.FromHours(1))
                 {
                     token.LastUsedAtUtc = now;
-                    _ = Task.Run(async () =>
+                    try
                     {
-                        try
-                        {
-                            await dbContext.SaveChangesAsync();
-                        }
-                        catch
-                        {
-                            // Fail silently - token validation should not fail due to DB save errors
-                        }
-                    });
+                        await dbContext.SaveChangesAsync();
+                    }
+                    catch (Exception exception)
+                    {
+                        var logger = context.HttpContext.RequestServices
+                            .GetRequiredService<ILoggerFactory>()
+                            .CreateLogger("Ledgerra.Authentication.PersonalAccessToken");
+                        logger.LogWarning(exception, "Unable to update personal access token last-used timestamp.");
+                    }
                 }
             }
         };
