@@ -63,7 +63,8 @@ public sealed class SettingsController : ControllerBase
             return NotFound();
         }
 
-        await ClearAccountDataAsync(userId, cancellationToken);
+        ClearAccountData(userId);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return NoContent();
     }
@@ -78,17 +79,20 @@ public sealed class SettingsController : ControllerBase
             return NotFound();
         }
 
-        await ClearAccountDataAsync(userId, cancellationToken);
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+        ClearAccountData(userId);
 
         _dbContext.PersonalAccessTokens.RemoveRange(_dbContext.PersonalAccessTokens.Where(token => token.UserId == userId));
         _dbContext.RefreshTokens.RemoveRange(_dbContext.RefreshTokens.Where(token => token.UserId == userId));
         _dbContext.Users.Remove(user);
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return NoContent();
     }
 
-    private async Task ClearAccountDataAsync(Guid userId, CancellationToken cancellationToken)
+    private void ClearAccountData(Guid userId)
     {
         var budgetPeriodIds = _dbContext.BudgetPeriods.Where(period => period.UserId == userId).Select(period => period.Id);
 
@@ -103,7 +107,5 @@ public sealed class SettingsController : ControllerBase
         _dbContext.Accounts.RemoveRange(_dbContext.Accounts.Where(account => account.UserId == userId));
         _dbContext.AiProviderCredentials.RemoveRange(_dbContext.AiProviderCredentials.Where(credential => credential.UserId == userId));
         _dbContext.UserAiPreferences.RemoveRange(_dbContext.UserAiPreferences.Where(preference => preference.UserId == userId));
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

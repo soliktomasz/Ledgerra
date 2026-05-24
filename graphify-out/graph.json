@@ -5373,7 +5373,7 @@
       "source_file": "frontend/src/App.tsx",
       "source_location": "L1",
       "id": "frontend_src_app_tsx",
-      "community": 22,
+      "community": 13,
       "norm_label": "app.tsx"
     },
     {
@@ -5382,7 +5382,7 @@
       "source_file": "frontend/src/App.tsx",
       "source_location": "L18",
       "id": "src_app_reportspage",
-      "community": 22,
+      "community": 13,
       "norm_label": "reportspage"
     },
     {
@@ -5391,7 +5391,7 @@
       "source_file": "frontend/src/App.tsx",
       "source_location": "L23",
       "id": "src_app_protectedroutes",
-      "community": 22,
+      "community": 13,
       "norm_label": "protectedroutes()"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_file": "frontend/src/App.tsx",
       "source_location": "L49",
       "id": "src_app_app",
-      "community": 22,
+      "community": 13,
       "norm_label": "app()"
     },
     {
@@ -5427,7 +5427,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L1",
       "id": "src_types_authpayload",
-      "community": 22,
+      "community": 21,
       "norm_label": "authpayload"
     },
     {
@@ -5436,7 +5436,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L10",
       "id": "src_types_accounticonkind",
-      "community": 11,
+      "community": 0,
       "norm_label": "accounticonkind"
     },
     {
@@ -5445,7 +5445,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L12",
       "id": "src_types_account",
-      "community": 11,
+      "community": 21,
       "norm_label": "account"
     },
     {
@@ -5580,7 +5580,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L176",
       "id": "src_types_reportingoverview",
-      "community": 13,
+      "community": 22,
       "norm_label": "reportingoverview"
     },
     {
@@ -5625,7 +5625,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L270",
       "id": "src_types_personalaccesstoken",
-      "community": 3,
+      "community": 129,
       "norm_label": "personalaccesstoken"
     },
     {
@@ -5679,7 +5679,7 @@
       "source_file": "frontend/src/ui/AppShell.tsx",
       "source_location": "L8",
       "id": "ui_appshell_appshell",
-      "community": 22,
+      "community": 13,
       "norm_label": "appshell()"
     },
     {
@@ -5724,7 +5724,7 @@
       "source_file": "frontend/src/ui/AppShell.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_appshell_test_tsx",
-      "community": 22,
+      "community": 13,
       "norm_label": "appshell.test.tsx"
     },
     {
@@ -5787,7 +5787,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L50",
       "id": "ui_icons_cashflowicon",
-      "community": 3,
+      "community": 129,
       "norm_label": "cashflowicon()"
     },
     {
@@ -5868,7 +5868,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L137",
       "id": "ui_icons_duplicateicon",
-      "community": 8,
+      "community": 37,
       "norm_label": "duplicateicon()"
     },
     {
@@ -6327,7 +6327,7 @@
       "source_file": "frontend/src/utils/monthRange.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_monthrange_ts",
-      "community": 8,
+      "community": 28,
       "norm_label": "monthrange.ts"
     },
     {
@@ -6336,7 +6336,7 @@
       "source_file": "frontend/src/utils/monthRange.ts",
       "source_location": "L1",
       "id": "utils_monthrange_getmonthrangeparams",
-      "community": 8,
+      "community": 28,
       "norm_label": "getmonthrangeparams()"
     },
     {
@@ -6435,7 +6435,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L5",
       "id": "utils_format_setformattinglanguagecode",
-      "community": 0,
+      "community": 129,
       "norm_label": "setformattinglanguagecode()"
     },
     {
@@ -6696,7 +6696,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L76",
       "id": "state_importanalysiscontext_importanalysisprovider",
-      "community": 22,
+      "community": 21,
       "norm_label": "importanalysisprovider()"
     },
     {
@@ -6705,7 +6705,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L204",
       "id": "state_importanalysiscontext_useimportanalysis",
-      "community": 28,
+      "community": 21,
       "norm_label": "useimportanalysis()"
     },
     {
@@ -6786,7 +6786,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L60",
       "id": "state_monthcontext_usemonthselection",
-      "community": 28,
+      "community": 13,
       "norm_label": "usemonthselection()"
     },
     {
@@ -6939,7 +6939,7 @@
       "source_file": "frontend/src/state/I18nContext.tsx",
       "source_location": "L2564",
       "id": "state_i18ncontext_i18nprovider",
-      "community": 22,
+      "community": 129,
       "norm_label": "i18nprovider()"
     },
     {
@@ -7092,7 +7092,7 @@
       "source_file": "frontend/src/state/ThemeContext.tsx",
       "source_location": "L276",
       "id": "state_themecontext_usetheme",
-      "community": 3,
+      "community": 129,
       "norm_label": "usetheme()"
     },
     {
@@ -7155,7 +7155,7 @@
       "source_file": "frontend/src/state/AuthContext.tsx",
       "source_location": "L129",
       "id": "state_authcontext_useauth",
-      "community": 22,
+      "community": 13,
       "norm_label": "useauth()"
     },
     {
@@ -7371,7 +7371,7 @@
       "source_file": "frontend/src/components/AccountFormModal.tsx",
       "source_location": "L8",
       "id": "components_accountformmodal_accountformmodal",
-      "community": 11,
+      "community": 13,
       "norm_label": "accountformmodal()"
     },
     {
@@ -7515,7 +7515,7 @@
       "source_file": "frontend/src/components/AccountListColumn.tsx",
       "source_location": "L24",
       "id": "components_accountlistcolumn_accountlistcolumn",
-      "community": 0,
+      "community": 13,
       "norm_label": "accountlistcolumn()"
     },
     {
@@ -7542,7 +7542,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.ts",
       "source_location": "L19",
       "id": "hooks_useledgerradata_useledgerradata",
-      "community": 28,
+      "community": 13,
       "norm_label": "useledgerradata()"
     },
     {
@@ -7551,7 +7551,7 @@
       "source_file": "frontend/src/hooks/useReportingOverview.ts",
       "source_location": "L1",
       "id": "frontend_src_hooks_usereportingoverview_ts",
-      "community": 13,
+      "community": 22,
       "norm_label": "usereportingoverview.ts"
     },
     {
@@ -7569,7 +7569,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_hooks_useledgerradata_test_tsx",
-      "community": 28,
+      "community": 13,
       "norm_label": "useledgerradata.test.tsx"
     },
     {
@@ -7578,7 +7578,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L5",
       "id": "hooks_useledgerradata_test_mocks",
-      "community": 28,
+      "community": 13,
       "norm_label": "mocks"
     },
     {
@@ -7587,7 +7587,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L70",
       "id": "hooks_useledgerradata_test_result",
-      "community": 28,
+      "community": 13,
       "norm_label": "{ result }"
     },
     {
@@ -7740,7 +7740,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L219",
       "id": "api_client_apiclient",
-      "community": 37,
+      "community": 22,
       "norm_label": "apiclient"
     },
     {
@@ -7749,7 +7749,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L1",
       "id": "frontend_src_api_client_test_ts",
-      "community": 1,
+      "community": 21,
       "norm_label": "client.test.ts"
     },
     {
@@ -7758,7 +7758,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L31",
       "id": "api_client_test_fetchmock",
-      "community": 1,
+      "community": 21,
       "norm_label": "fetchmock"
     },
     {
@@ -7767,7 +7767,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L55",
       "id": "api_client_test_persist",
-      "community": 1,
+      "community": 21,
       "norm_label": "persist"
     },
     {
@@ -7776,7 +7776,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L86",
       "id": "api_client_test_refreshcalls",
-      "community": 1,
+      "community": 21,
       "norm_label": "refreshcalls"
     },
     {
@@ -7785,7 +7785,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L93",
       "id": "api_client_test_onunauthorized",
-      "community": 1,
+      "community": 21,
       "norm_label": "onunauthorized"
     },
     {
@@ -7794,7 +7794,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L105",
       "id": "api_client_test_unsubscribe",
-      "community": 1,
+      "community": 21,
       "norm_label": "unsubscribe"
     },
     {
@@ -7812,7 +7812,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L212",
       "id": "api_client_test_analysispromise",
-      "community": 1,
+      "community": 21,
       "norm_label": "analysispromise"
     },
     {
@@ -8046,7 +8046,7 @@
       "source_file": "frontend/src/pages/LoginPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_loginpage_tsx",
-      "community": 22,
+      "community": 13,
       "norm_label": "loginpage.tsx"
     },
     {
@@ -8055,7 +8055,7 @@
       "source_file": "frontend/src/pages/LoginPage.tsx",
       "source_location": "L5",
       "id": "pages_loginpage_loginpage",
-      "community": 22,
+      "community": 13,
       "norm_label": "loginpage()"
     },
     {
@@ -8109,7 +8109,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_accountspage_tsx",
-      "community": 11,
+      "community": 13,
       "norm_label": "accountspage.tsx"
     },
     {
@@ -8118,7 +8118,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L13",
       "id": "pages_accountspage_defaultformvalues",
-      "community": 11,
+      "community": 13,
       "norm_label": "defaultformvalues()"
     },
     {
@@ -8127,7 +8127,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L25",
       "id": "pages_accountspage_accounttoformvalues",
-      "community": 11,
+      "community": 13,
       "norm_label": "accounttoformvalues()"
     },
     {
@@ -8136,7 +8136,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L38",
       "id": "pages_accountspage_accountspage",
-      "community": 28,
+      "community": 13,
       "norm_label": "accountspage()"
     },
     {
@@ -8487,7 +8487,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_settingspage_tsx",
-      "community": 3,
+      "community": 129,
       "norm_label": "settingspage.tsx"
     },
     {
@@ -8496,7 +8496,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L13",
       "id": "pages_settingspage_settingssection",
-      "community": 3,
+      "community": 129,
       "norm_label": "settingssection"
     },
     {
@@ -8505,7 +8505,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L14",
       "id": "pages_settingspage_densitypreference",
-      "community": 3,
+      "community": 129,
       "norm_label": "densitypreference"
     },
     {
@@ -8514,7 +8514,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L20",
       "id": "pages_settingspage_geterrormessage",
-      "community": 3,
+      "community": 129,
       "norm_label": "geterrormessage()"
     },
     {
@@ -8523,7 +8523,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L24",
       "id": "pages_settingspage_resolveinitialdensitypreference",
-      "community": 3,
+      "community": 129,
       "norm_label": "resolveinitialdensitypreference()"
     },
     {
@@ -8532,7 +8532,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L35",
       "id": "pages_settingspage_resolveinitialbooleanpreference",
-      "community": 3,
+      "community": 129,
       "norm_label": "resolveinitialbooleanpreference()"
     },
     {
@@ -8541,7 +8541,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L46",
       "id": "pages_settingspage_settingspage",
-      "community": 3,
+      "community": 13,
       "norm_label": "settingspage()"
     },
     {
@@ -9045,7 +9045,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.tsx",
       "source_location": "L100",
       "id": "pages_transactionspage_transactionspage",
-      "community": 37,
+      "community": 13,
       "norm_label": "transactionspage()"
     },
     {
@@ -9054,7 +9054,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_reportspage_test_tsx",
-      "community": 13,
+      "community": 22,
       "norm_label": "reportspage.test.tsx"
     },
     {
@@ -9063,7 +9063,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L8",
       "id": "pages_reportspage_test_overview",
-      "community": 13,
+      "community": 22,
       "norm_label": "overview"
     },
     {
@@ -9072,7 +9072,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L42",
       "id": "pages_reportspage_test_mocks",
-      "community": 13,
+      "community": 22,
       "norm_label": "mocks"
     },
     {
@@ -9081,7 +9081,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L100",
       "id": "pages_reportspage_test_user",
-      "community": 13,
+      "community": 22,
       "norm_label": "user"
     },
     {
@@ -9090,7 +9090,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L117",
       "id": "pages_reportspage_test_link",
-      "community": 13,
+      "community": 22,
       "norm_label": "link"
     },
     {
@@ -9099,7 +9099,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L118",
       "id": "pages_reportspage_test_url",
-      "community": 13,
+      "community": 22,
       "norm_label": "url"
     },
     {
@@ -9151,7 +9151,7 @@
       "label": "user",
       "file_type": "code",
       "source_file": "frontend/src/pages/SettingsPage.test.tsx",
-      "source_location": "L107",
+      "source_location": "L110",
       "id": "pages_settingspage_test_user",
       "community": 3,
       "norm_label": "user"
@@ -9160,7 +9160,7 @@
       "label": "{ rerender }",
       "file_type": "code",
       "source_file": "frontend/src/pages/SettingsPage.test.tsx",
-      "source_location": "L239",
+      "source_location": "L242",
       "id": "pages_settingspage_test_rerender",
       "community": 3,
       "norm_label": "{ rerender }"
@@ -9169,10 +9169,37 @@
       "label": "removeButtons",
       "file_type": "code",
       "source_file": "frontend/src/pages/SettingsPage.test.tsx",
-      "source_location": "L243",
+      "source_location": "L246",
       "id": "pages_settingspage_test_removebuttons",
       "community": 3,
       "norm_label": "removebuttons"
+    },
+    {
+      "label": "resolveClearAccountData()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/SettingsPage.test.tsx",
+      "source_location": "L508",
+      "id": "pages_settingspage_test_resolveclearaccountdata",
+      "community": 3,
+      "norm_label": "resolveclearaccountdata()"
+    },
+    {
+      "label": "clearButton",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/SettingsPage.test.tsx",
+      "source_location": "L516",
+      "id": "pages_settingspage_test_clearbutton",
+      "community": 3,
+      "norm_label": "clearbutton"
+    },
+    {
+      "label": "deleteButton",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/SettingsPage.test.tsx",
+      "source_location": "L517",
+      "id": "pages_settingspage_test_deletebutton",
+      "community": 3,
+      "norm_label": "deletebutton"
     },
     {
       "label": "ImportsPage.test.tsx",
@@ -9360,7 +9387,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L94",
       "id": "pages_importspage_importspage",
-      "community": 28,
+      "community": 13,
       "norm_label": "importspage()"
     },
     {
@@ -9369,7 +9396,7 @@
       "source_file": "frontend/src/pages/LoginPage.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_loginpage_test_tsx",
-      "community": 22,
+      "community": 13,
       "norm_label": "loginpage.test.tsx"
     },
     {
@@ -9504,7 +9531,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L105",
       "id": "pages_dashboardpage_describespendingdelta",
-      "community": 0,
+      "community": 28,
       "norm_label": "describespendingdelta()"
     },
     {
@@ -9531,7 +9558,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L209",
       "id": "pages_dashboardpage_dashboardpage",
-      "community": 28,
+      "community": 13,
       "norm_label": "dashboardpage()"
     },
     {
@@ -12276,7 +12303,7 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/BudgetsController.cs",
       "source_location": "L1",
       "id": "backend_src_ledgerra_api_controllers_budgetscontroller_cs",
-      "community": 41,
+      "community": 1,
       "norm_label": "budgetscontroller.cs"
     },
     {
@@ -12285,7 +12312,7 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/BudgetsController.cs",
       "source_location": "L10",
       "id": "controllers_budgetscontroller_budgetscontroller",
-      "community": 41,
+      "community": 1,
       "norm_label": "budgetscontroller"
     },
     {
@@ -12303,7 +12330,7 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/BudgetsController.cs",
       "source_location": "L15",
       "id": "getbudgetsummaryqueryhandler",
-      "community": 41,
+      "community": 1,
       "norm_label": "getbudgetsummaryqueryhandler"
     },
     {
@@ -12312,7 +12339,7 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/BudgetsController.cs",
       "source_location": "L16",
       "id": "updatebudgetcommandhandler",
-      "community": 41,
+      "community": 1,
       "norm_label": "updatebudgetcommandhandler"
     },
     {
@@ -12321,7 +12348,7 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/BudgetsController.cs",
       "source_location": "L24",
       "id": "controllers_budgetscontroller_budgetscontroller_get",
-      "community": 41,
+      "community": 1,
       "norm_label": ".get()"
     },
     {
@@ -12330,7 +12357,7 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/BudgetsController.cs",
       "source_location": "L32",
       "id": "controllers_budgetscontroller_budgetscontroller_put",
-      "community": 41,
+      "community": 1,
       "norm_label": ".put()"
     },
     {
@@ -12994,19 +13021,10 @@
       "label": ".DeleteAccount()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L71",
+      "source_location": "L72",
       "id": "controllers_settingscontroller_settingscontroller_deleteaccount",
       "community": 54,
       "norm_label": ".deleteaccount()"
-    },
-    {
-      "label": ".ClearAccountDataAsync()",
-      "file_type": "code",
-      "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L91",
-      "id": "controllers_settingscontroller_settingscontroller_clearaccountdataasync",
-      "community": 54,
-      "norm_label": ".clearaccountdataasync()"
     },
     {
       "label": "SavingsGoalsController.cs",
@@ -20001,6 +20019,15 @@
       "id": "memory_query_20260523_100836_why_does_formatcurrency_bridge_account_transact_source_nodes",
       "community": 174,
       "norm_label": "source nodes"
+    },
+    {
+      "label": ".ClearAccountDataAsync()",
+      "file_type": "code",
+      "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
+      "source_location": "L91",
+      "community": 54,
+      "norm_label": ".clearaccountdataasync()",
+      "id": "controllers_settingscontroller_settingscontroller_clearaccountdataasync"
     },
     {
       "label": "AnalyzeMonthlyReportCommandHandler",
@@ -36499,6 +36526,36 @@
       "target": "pages_settingspage_test_removebuttons"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/SettingsPage.test.tsx",
+      "source_location": "L508",
+      "weight": 1.0,
+      "source": "frontend_src_pages_settingspage_test_tsx",
+      "target": "pages_settingspage_test_resolveclearaccountdata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/SettingsPage.test.tsx",
+      "source_location": "L516",
+      "weight": 1.0,
+      "source": "frontend_src_pages_settingspage_test_tsx",
+      "target": "pages_settingspage_test_clearbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/SettingsPage.test.tsx",
+      "source_location": "L517",
+      "weight": 1.0,
+      "source": "frontend_src_pages_settingspage_test_tsx",
+      "target": "pages_settingspage_test_deletebutton",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -38091,9 +38148,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
       "source_location": "L443",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests",
-      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_authenticateduser_cancleardataanddeleteaccount",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_authenticateduser_cancleardataanddeleteaccount"
     },
     {
       "relation": "method",
@@ -38593,9 +38650,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
       "source_location": "L448",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_authenticateduser_cancleardataanddeleteaccount",
-      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_registerandauthenticateasync",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_registerandauthenticateasync"
     },
     {
       "relation": "calls",
@@ -38604,9 +38661,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
       "source_location": "L451",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_authenticateduser_cancleardataanddeleteaccount",
-      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_createaccountasync",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_createaccountasync"
     },
     {
       "relation": "calls",
@@ -38615,9 +38672,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApiWorkflowTests.cs",
       "source_location": "L452",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_authenticateduser_cancleardataanddeleteaccount",
-      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_createcategoryasync",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_apiworkflowtests_apiworkflowtests_createcategoryasync"
     },
     {
       "relation": "calls",
@@ -41753,9 +41810,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "backend_src_ledgerra_api_controllers_settingscontroller_cs_ledgerradbcontext",
-      "confidence_score": 1.0
+      "target": "backend_src_ledgerra_api_controllers_settingscontroller_cs_ledgerradbcontext"
     },
     {
       "relation": "references",
@@ -41805,9 +41862,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "controllers_settingscontroller_settingscontroller_clearaccountdata",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_clearaccountdata"
     },
     {
       "relation": "method",
@@ -41815,9 +41872,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "controllers_settingscontroller_settingscontroller_deleteaccount",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_deleteaccount"
     },
     {
       "relation": "method",
@@ -41825,8 +41882,19 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "controllers_settingscontroller_settingscontroller_clearaccountdataasync",
+      "target": "controllers_settingscontroller_settingscontroller_clearaccountdataasync"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "controllers_settingscontroller_settingscontroller_deleteaccount",
+      "target": "controllers_settingscontroller_settingscontroller_clearaccountdata",
       "confidence_score": 1.0
     },
     {
@@ -41836,9 +41904,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller_clearaccountdata",
-      "target": "controllers_settingscontroller_settingscontroller_clearaccountdataasync",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_clearaccountdataasync"
     },
     {
       "relation": "calls",
@@ -41847,9 +41915,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller_deleteaccount",
-      "target": "controllers_settingscontroller_settingscontroller_clearaccountdataasync",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_clearaccountdataasync"
     },
     {
       "relation": "contains",
@@ -51904,5 +51972,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "6b08ccf093af06cbe2ee5dfd1f1d2f952f1c004f"
+  "built_at_commit": "5ef7630694080cc77f5d15303c3b8c8e3fbc412a"
 }

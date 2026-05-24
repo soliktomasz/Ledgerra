@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { ThemeProvider } from "../state/ThemeContext";
 import { SettingsPage } from "./SettingsPage";
 
@@ -100,7 +100,10 @@ describe("SettingsPage", () => {
     mocks.clearAccountData.mockResolvedValue(undefined);
     mocks.deleteAccount.mockResolvedValue(undefined);
     mocks.getAiProviderModels.mockResolvedValue({ models: ["synthetic-finance-1", "synthetic-fast"] });
-    vi.spyOn(window, "confirm").mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   test("shows AI provider configuration state", async () => {
@@ -457,6 +460,7 @@ describe("SettingsPage", () => {
 
   test("clears account data and deletes the account from danger zone", async () => {
     const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
 
     render(<SettingsPage />);
 
@@ -477,5 +481,52 @@ describe("SettingsPage", () => {
       expect(mocks.deleteAccount).toHaveBeenCalledWith("token");
     });
     expect(mocks.logout).toHaveBeenCalledTimes(1);
+  });
+
+  test("does not run danger zone actions when confirmation is cancelled", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Danger Zone" }));
+    await user.click(screen.getByRole("button", { name: "Clear all data" }));
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalledTimes(2);
+    });
+    expect(mocks.clearAccountData).not.toHaveBeenCalled();
+    expect(mocks.deleteAccount).not.toHaveBeenCalled();
+    expect(mocks.refresh).not.toHaveBeenCalled();
+    expect(mocks.logout).not.toHaveBeenCalled();
+  });
+
+  test("disables danger zone actions while one is running", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    let resolveClearAccountData: () => void = () => undefined;
+    mocks.clearAccountData.mockReturnValue(new Promise<void>((resolve) => {
+      resolveClearAccountData = resolve;
+    }));
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Danger Zone" }));
+    const clearButton = screen.getByRole("button", { name: "Clear all data" });
+    const deleteButton = screen.getByRole("button", { name: "Delete account" });
+
+    await user.click(clearButton);
+
+    expect(clearButton).toBeDisabled();
+    expect(deleteButton).toBeDisabled();
+
+    await user.click(clearButton);
+    expect(mocks.clearAccountData).toHaveBeenCalledTimes(1);
+
+    resolveClearAccountData();
+    await waitFor(() => {
+      expect(clearButton).toBeEnabled();
+    });
   });
 });

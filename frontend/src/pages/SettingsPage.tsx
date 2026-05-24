@@ -74,6 +74,7 @@ export function SettingsPage() {
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
   const [dangerError, setDangerError] = useState<string | null>(null);
   const [dangerNotice, setDangerNotice] = useState<string | null>(null);
+  const [isDangerLoading, setIsDangerLoading] = useState(false);
   const [personalAccessTokens, setPersonalAccessTokens] = useState<PersonalAccessToken[]>([]);
   const [newTokenName, setNewTokenName] = useState("");
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -461,7 +462,7 @@ export function SettingsPage() {
   };
 
   const handleClearAccountData = async () => {
-    if (!auth?.accessToken) {
+    if (!auth?.accessToken || isDangerLoading) {
       return;
     }
 
@@ -471,6 +472,7 @@ export function SettingsPage() {
     }
 
     try {
+      setIsDangerLoading(true);
       setDangerError(null);
       setDangerNotice(null);
       await apiClient.clearAccountData(auth.accessToken);
@@ -478,11 +480,13 @@ export function SettingsPage() {
       setDangerNotice(t("settings.accountDataCleared"));
     } catch (exception) {
       setDangerError(getErrorMessage(exception, t("settings.unableToClearAccountData")));
+    } finally {
+      setIsDangerLoading(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (!auth?.accessToken) {
+    if (!auth?.accessToken || isDangerLoading) {
       return;
     }
 
@@ -492,12 +496,15 @@ export function SettingsPage() {
     }
 
     try {
+      setIsDangerLoading(true);
       setDangerError(null);
       setDangerNotice(null);
       await apiClient.deleteAccount(auth.accessToken);
       logout();
     } catch (exception) {
       setDangerError(getErrorMessage(exception, t("settings.unableToDeleteAccount")));
+    } finally {
+      setIsDangerLoading(false);
     }
   };
 
@@ -1072,7 +1079,7 @@ export function SettingsPage() {
                         <h2>{t("settings.clearAccountData")}</h2>
                         <p>{t("settings.clearAccountDataDescription")}</p>
                       </div>
-                      <button className="ghost-button danger-button" type="button" onClick={() => void handleClearAccountData()}>
+                      <button className="ghost-button danger-button" type="button" disabled={isDangerLoading} onClick={() => void handleClearAccountData()}>
                         {t("settings.clearAllData")}
                       </button>
                     </article>
@@ -1081,7 +1088,7 @@ export function SettingsPage() {
                         <h2>{t("settings.deleteAccount")}</h2>
                         <p>{t("settings.deleteAccountDescription")}</p>
                       </div>
-                      <button className="ghost-button danger-button" type="button" onClick={() => void handleDeleteAccount()}>
+                      <button className="ghost-button danger-button" type="button" disabled={isDangerLoading} onClick={() => void handleDeleteAccount()}>
                         {t("settings.deleteAccount")}
                       </button>
                     </article>
