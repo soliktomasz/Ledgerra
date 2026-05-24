@@ -1,0 +1,2403 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "2026-05-03-settings-compact-layout-design.md",
+      "file_type": "document",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L1",
+      "id": "plans_2026_05_03_settings_compact_layout_design_md",
+      "community": 10,
+      "norm_label": "2026-05-03-settings-compact-layout-design.md"
+    },
+    {
+      "label": "Settings Compact Layout Implementation Plan",
+      "file_type": "document",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L1",
+      "id": "plans_2026_05_03_settings_compact_layout_design_settings_compact_layout_implementation_plan",
+      "community": 10,
+      "norm_label": "settings compact layout implementation plan"
+    },
+    {
+      "label": "Task 1: Update SettingsPage layout to two-column grid",
+      "file_type": "document",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L13",
+      "id": "plans_2026_05_03_settings_compact_layout_design_task_1_update_settingspage_layout_to_two_column_grid",
+      "community": 10,
+      "norm_label": "task 1: update settingspage layout to two-column grid"
+    },
+    {
+      "label": "code:tsx (<div className=\"split-grid\">)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L22",
+      "id": "plans_2026_05_03_settings_compact_layout_design_codeblock_1",
+      "community": 10,
+      "norm_label": "code:tsx (<div classname=\"split-grid\">)"
+    },
+    {
+      "label": "code:tsx (<div className=\"split-grid\">)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L38",
+      "id": "plans_2026_05_03_settings_compact_layout_design_codeblock_2",
+      "community": 10,
+      "norm_label": "code:tsx (<div classname=\"split-grid\">)"
+    },
+    {
+      "label": "code:tsx (<div className=\"page-stack\">)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L55",
+      "id": "plans_2026_05_03_settings_compact_layout_design_codeblock_3",
+      "community": 10,
+      "norm_label": "code:tsx (<div classname=\"page-stack\">)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/pages/SettingsPage.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L89",
+      "id": "plans_2026_05_03_settings_compact_layout_design_codeblock_4",
+      "community": 10,
+      "norm_label": "code:bash (git add frontend/src/pages/settingspage.tsx)"
+    },
+    {
+      "label": "2026-05-12-accounts-page-redesign-design.md",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L1",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_md",
+      "community": 2,
+      "norm_label": "2026-05-12-accounts-page-redesign-design.md"
+    },
+    {
+      "label": "Accounts page redesign \u2014 design",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L1",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "community": 2,
+      "norm_label": "accounts page redesign \u2014 design"
+    },
+    {
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L7",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_goal",
+      "community": 2,
+      "norm_label": "goal"
+    },
+    {
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L13",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_scope",
+      "community": 2,
+      "norm_label": "scope"
+    },
+    {
+      "label": "In scope",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L15",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_in_scope",
+      "community": 2,
+      "norm_label": "in scope"
+    },
+    {
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L28",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_out_of_scope",
+      "community": 2,
+      "norm_label": "out of scope"
+    },
+    {
+      "label": "Data model",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L37",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_data_model",
+      "community": 8,
+      "norm_label": "data model"
+    },
+    {
+      "label": "Backend \u2014 `Account` (additive)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L39",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_backend_account_additive",
+      "community": 8,
+      "norm_label": "backend \u2014 `account` (additive)"
+    },
+    {
+      "label": "code:csharp (public sealed class Account)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L41",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_codeblock_1",
+      "community": 8,
+      "norm_label": "code:csharp (public sealed class account)"
+    },
+    {
+      "label": "code:csharp (builder.Property(a => a.InstitutionName).HasMaxLength(120);)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L69",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_codeblock_2",
+      "community": 8,
+      "norm_label": "code:csharp (builder.property(a => a.institutionname).hasmaxlength(120);)"
+    },
+    {
+      "label": "Schema migration (Postgres)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L75",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_schema_migration_postgres",
+      "community": 8,
+      "norm_label": "schema migration (postgres)"
+    },
+    {
+      "label": "code:sql (ALTER TABLE \"Accounts\" ADD COLUMN IF NOT EXISTS \"Institution)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L79",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_codeblock_3",
+      "community": 8,
+      "norm_label": "code:sql (alter table \"accounts\" add column if not exists \"institution)"
+    },
+    {
+      "label": "Frontend `Account` type",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L87",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_frontend_account_type",
+      "community": 8,
+      "norm_label": "frontend `account` type"
+    },
+    {
+      "label": "code:ts (export type AccountIconKind = \"Bank\" | \"Piggy\" | \"Card\" | \"C)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L89",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_codeblock_4",
+      "community": 8,
+      "norm_label": "code:ts (export type accounticonkind = \"bank\" | \"piggy\" | \"card\" | \"c)"
+    },
+    {
+      "label": "API",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L101",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_api",
+      "community": 2,
+      "norm_label": "api"
+    },
+    {
+      "label": "UI architecture",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L108",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "community": 4,
+      "norm_label": "ui architecture"
+    },
+    {
+      "label": "Route",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L110",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_route",
+      "community": 4,
+      "norm_label": "route"
+    },
+    {
+      "label": "Component tree",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L116",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_component_tree",
+      "community": 4,
+      "norm_label": "component tree"
+    },
+    {
+      "label": "code:text (AccountsPage)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L118",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_codeblock_5",
+      "community": 4,
+      "norm_label": "code:text (accountspage)"
+    },
+    {
+      "label": "Grouping",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L134",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_grouping",
+      "community": 4,
+      "norm_label": "grouping"
+    },
+    {
+      "label": "Search",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L147",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_search",
+      "community": 4,
+      "norm_label": "search"
+    },
+    {
+      "label": "KPI cards",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L151",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_kpi_cards",
+      "community": 4,
+      "norm_label": "kpi cards"
+    },
+    {
+      "label": "Balance over time chart",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L162",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_balance_over_time_chart",
+      "community": 4,
+      "norm_label": "balance over time chart"
+    },
+    {
+      "label": "Recent operations",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L169",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_recent_operations",
+      "community": 4,
+      "norm_label": "recent operations"
+    },
+    {
+      "label": "Mobile (\u2264900px)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L175",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_mobile_900px",
+      "community": 4,
+      "norm_label": "mobile (\u2264900px)"
+    },
+    {
+      "label": "Interactions",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L181",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_interactions",
+      "community": 2,
+      "norm_label": "interactions"
+    },
+    {
+      "label": "Styling",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L187",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_styling",
+      "community": 2,
+      "norm_label": "styling"
+    },
+    {
+      "label": "Translations",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L199",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_translations",
+      "community": 2,
+      "norm_label": "translations"
+    },
+    {
+      "label": "Testing",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L217",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_testing",
+      "community": 2,
+      "norm_label": "testing"
+    },
+    {
+      "label": "Manual verification",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L225",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_manual_verification",
+      "community": 2,
+      "norm_label": "manual verification"
+    },
+    {
+      "label": "Open questions / deferred",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L229",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_open_questions_deferred",
+      "community": 2,
+      "norm_label": "open questions / deferred"
+    },
+    {
+      "label": "File-touch summary",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L235",
+      "id": "plans_2026_05_12_accounts_page_redesign_design_file_touch_summary",
+      "community": 2,
+      "norm_label": "file-touch summary"
+    },
+    {
+      "label": "2026-05-12-accounts-page-redesign.md",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1",
+      "id": "plans_2026_05_12_accounts_page_redesign_md",
+      "community": 3,
+      "norm_label": "2026-05-12-accounts-page-redesign.md"
+    },
+    {
+      "label": "Accounts page redesign \u2014 Implementation Plan",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1",
+      "id": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "community": 3,
+      "norm_label": "accounts page redesign \u2014 implementation plan"
+    },
+    {
+      "label": "Phase 1 \u2014 Backend domain & schema",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L23",
+      "id": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "community": 0,
+      "norm_label": "phase 1 \u2014 backend domain & schema"
+    },
+    {
+      "label": "Task 1: Add `AccountIconKind` enum and `Investment` to `AccountType`",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L25",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_1_add_accounticonkind_enum_and_investment_to_accounttype",
+      "community": 0,
+      "norm_label": "task 1: add `accounticonkind` enum and `investment` to `accounttype`"
+    },
+    {
+      "label": "code:csharp (namespace Ledgerra.Domain.Accounts;)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L33",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_1",
+      "community": 0,
+      "norm_label": "code:csharp (namespace ledgerra.domain.accounts;)"
+    },
+    {
+      "label": "code:bash (git add backend/src/Ledgerra.Domain/Accounts/AccountIconKind)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L58",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_2",
+      "community": 0,
+      "norm_label": "code:bash (git add backend/src/ledgerra.domain/accounts/accounticonkind)"
+    },
+    {
+      "label": "Task 2: Add new fields to `Account` entity + EF mapping",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L65",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_2_add_new_fields_to_account_entity_ef_mapping",
+      "community": 11,
+      "norm_label": "task 2: add new fields to `account` entity + ef mapping"
+    },
+    {
+      "label": "code:csharp (public string? InstitutionName { get; set; })",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L75",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_3",
+      "community": 11,
+      "norm_label": "code:csharp (public string? institutionname { get; set; })"
+    },
+    {
+      "label": "code:csharp (builder.Property(account => account.InstitutionName).HasMaxL)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L87",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_4",
+      "community": 11,
+      "norm_label": "code:csharp (builder.property(account => account.institutionname).hasmaxl)"
+    },
+    {
+      "label": "code:bash (git add backend/src/Ledgerra.Domain/Accounts/Account.cs back)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L100",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_5",
+      "community": 11,
+      "norm_label": "code:bash (git add backend/src/ledgerra.domain/accounts/account.cs back)"
+    },
+    {
+      "label": "Task 3: Add `AccountSchemaInitializer` for Postgres ALTER",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L107",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_3_add_accountschemainitializer_for_postgres_alter",
+      "community": 0,
+      "norm_label": "task 3: add `accountschemainitializer` for postgres alter"
+    },
+    {
+      "label": "code:csharp (using Microsoft.EntityFrameworkCore;)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L115",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_6",
+      "community": 0,
+      "norm_label": "code:csharp (using microsoft.entityframeworkcore;)"
+    },
+    {
+      "label": "code:csharp (await AccountSchemaInitializer.InitializeAsync(dbContext);)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L147",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_7",
+      "community": 0,
+      "norm_label": "code:csharp (await accountschemainitializer.initializeasync(dbcontext);)"
+    },
+    {
+      "label": "code:bash (git add backend/src/Ledgerra.Infrastructure/Persistence/Acco)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L158",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_8",
+      "community": 0,
+      "norm_label": "code:bash (git add backend/src/ledgerra.infrastructure/persistence/acco)"
+    },
+    {
+      "label": "Task 4: Extend `AccountDetails`, commands, and `IAccountStore` for new fields",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L165",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "community": 0,
+      "norm_label": "task 4: extend `accountdetails`, commands, and `iaccountstore` for new fields"
+    },
+    {
+      "label": "code:csharp (public sealed record AccountDetails()",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L173",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_9",
+      "community": 0,
+      "norm_label": "code:csharp (public sealed record accountdetails()"
+    },
+    {
+      "label": "code:csharp (public sealed record CreateAccountCommand()",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L189",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_10",
+      "community": 0,
+      "norm_label": "code:csharp (public sealed record createaccountcommand()"
+    },
+    {
+      "label": "code:csharp (Task<Account?> UpdateAsync()",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L215",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_11",
+      "community": 0,
+      "norm_label": "code:csharp (task<account?> updateasync()"
+    },
+    {
+      "label": "code:csharp (public static AccountDetails MapAccount(Account account))",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L232",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_12",
+      "community": 0,
+      "norm_label": "code:csharp (public static accountdetails mapaccount(account account))"
+    },
+    {
+      "label": "code:csharp (InstitutionName = command.InstitutionName,)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L255",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_13",
+      "community": 0,
+      "norm_label": "code:csharp (institutionname = command.institutionname,)"
+    },
+    {
+      "label": "code:bash (git add backend/src/Ledgerra.Application/Accounts/AccountUse)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L274",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_14",
+      "community": 0,
+      "norm_label": "code:bash (git add backend/src/ledgerra.application/accounts/accountuse)"
+    },
+    {
+      "label": "Task 5: Update DTOs and `AccountsController`",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L283",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_5_update_dtos_and_accountscontroller",
+      "community": 0,
+      "norm_label": "task 5: update dtos and `accountscontroller`"
+    },
+    {
+      "label": "code:csharp (public sealed class CreateAccountRequest)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L292",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_15",
+      "community": 0,
+      "norm_label": "code:csharp (public sealed class createaccountrequest)"
+    },
+    {
+      "label": "code:csharp (private static AccountResponse MapAccount(AccountDetails acc)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L335",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_16",
+      "community": 0,
+      "norm_label": "code:csharp (private static accountresponse mapaccount(accountdetails acc)"
+    },
+    {
+      "label": "code:bash (git add backend/src/Ledgerra.Api/Contracts/AccountContracts.)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L357",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_17",
+      "community": 0,
+      "norm_label": "code:bash (git add backend/src/ledgerra.api/contracts/accountcontracts.)"
+    },
+    {
+      "label": "Task 6: Backend round-trip test for new fields",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L364",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_6_backend_round_trip_test_for_new_fields",
+      "community": 0,
+      "norm_label": "task 6: backend round-trip test for new fields"
+    },
+    {
+      "label": "code:bash (git add backend/tests/Ledgerra.Api.Tests/)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L392",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_18",
+      "community": 0,
+      "norm_label": "code:bash (git add backend/tests/ledgerra.api.tests/)"
+    },
+    {
+      "label": "Phase 2 \u2014 Frontend types & API",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L399",
+      "id": "plans_2026_05_12_accounts_page_redesign_phase_2_frontend_types_api",
+      "community": 3,
+      "norm_label": "phase 2 \u2014 frontend types & api"
+    },
+    {
+      "label": "Task 7: Update frontend `Account` type and API client",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L401",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_7_update_frontend_account_type_and_api_client",
+      "community": 3,
+      "norm_label": "task 7: update frontend `account` type and api client"
+    },
+    {
+      "label": "code:ts (export type AccountIconKind = \"Bank\" | \"Piggy\" | \"Card\" | \"C)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L409",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_19",
+      "community": 3,
+      "norm_label": "code:ts (export type accounticonkind = \"bank\" | \"piggy\" | \"card\" | \"c)"
+    },
+    {
+      "label": "code:ts (createAccount(token: string, payload: Pick<Account,)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L428",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_20",
+      "community": 3,
+      "norm_label": "code:ts (createaccount(token: string, payload: pick<account,)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/types.ts frontend/src/api/client.ts)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L460",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_21",
+      "community": 3,
+      "norm_label": "code:bash (git add frontend/src/types.ts frontend/src/api/client.ts)"
+    },
+    {
+      "label": "Phase 3 \u2014 Frontend utilities (TDD)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L469",
+      "id": "plans_2026_05_12_accounts_page_redesign_phase_3_frontend_utilities_tdd",
+      "community": 7,
+      "norm_label": "phase 3 \u2014 frontend utilities (tdd)"
+    },
+    {
+      "label": "Task 8: `groupAccountsByType` utility",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L471",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_8_groupaccountsbytype_utility",
+      "community": 7,
+      "norm_label": "task 8: `groupaccountsbytype` utility"
+    },
+    {
+      "label": "code:ts (import { describe, expect, it } from \"vitest\";)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L479",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_22",
+      "community": 7,
+      "norm_label": "code:ts (import { describe, expect, it } from \"vitest\";)"
+    },
+    {
+      "label": "code:ts (import type { Account } from \"../types\";)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L544",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_23",
+      "community": 7,
+      "norm_label": "code:ts (import type { account } from \"../types\";)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/utils/accounts.ts frontend/src/utils/ac)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L583",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_24",
+      "community": 7,
+      "norm_label": "code:bash (git add frontend/src/utils/accounts.ts frontend/src/utils/ac)"
+    },
+    {
+      "label": "Task 9: `computeBalanceSeries` utility",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L590",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_9_computebalanceseries_utility",
+      "community": 7,
+      "norm_label": "task 9: `computebalanceseries` utility"
+    },
+    {
+      "label": "code:ts (import { computeBalanceSeries } from \"./accounts\";)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L598",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_25",
+      "community": 7,
+      "norm_label": "code:ts (import { computebalanceseries } from \"./accounts\";)"
+    },
+    {
+      "label": "code:ts (import type { Transaction } from \"../types\";)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L653",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_26",
+      "community": 7,
+      "norm_label": "code:ts (import type { transaction } from \"../types\";)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/utils/accounts.ts frontend/src/utils/ac)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L709",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_27",
+      "community": 7,
+      "norm_label": "code:bash (git add frontend/src/utils/accounts.ts frontend/src/utils/ac)"
+    },
+    {
+      "label": "Phase 4 \u2014 Frontend components",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L716",
+      "id": "plans_2026_05_12_accounts_page_redesign_phase_4_frontend_components",
+      "community": 1,
+      "norm_label": "phase 4 \u2014 frontend components"
+    },
+    {
+      "label": "Task 10: `AccountForm` shared form",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L718",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_10_accountform_shared_form",
+      "community": 1,
+      "norm_label": "task 10: `accountform` shared form"
+    },
+    {
+      "label": "code:ts (export type AccountFormValues = {)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L725",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_28",
+      "community": 1,
+      "norm_label": "code:ts (export type accountformvalues = {)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/components/AccountForm.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L766",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_29",
+      "community": 1,
+      "norm_label": "code:bash (git add frontend/src/components/accountform.tsx)"
+    },
+    {
+      "label": "Task 11: `AccountFormModal` wrapper",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L773",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_11_accountformmodal_wrapper",
+      "community": 1,
+      "norm_label": "task 11: `accountformmodal` wrapper"
+    },
+    {
+      "label": "code:tsx (export function AccountFormModal({)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L780",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_30",
+      "community": 1,
+      "norm_label": "code:tsx (export function accountformmodal({)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/components/AccountFormModal.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L804",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_31",
+      "community": 1,
+      "norm_label": "code:bash (git add frontend/src/components/accountformmodal.tsx)"
+    },
+    {
+      "label": "Task 12: `AccountBalanceChart` component",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L811",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_12_accountbalancechart_component",
+      "community": 1,
+      "norm_label": "task 12: `accountbalancechart` component"
+    },
+    {
+      "label": "code:tsx (import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxi)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L818",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_32",
+      "community": 1,
+      "norm_label": "code:tsx (import { area, areachart, responsivecontainer, tooltip, xaxi)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/components/AccountBalanceChart.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L854",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_33",
+      "community": 1,
+      "norm_label": "code:bash (git add frontend/src/components/accountbalancechart.tsx)"
+    },
+    {
+      "label": "Task 13: `AccountListColumn` (net worth + search + grouped list)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L861",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_13_accountlistcolumn_net_worth_search_grouped_list",
+      "community": 1,
+      "norm_label": "task 13: `accountlistcolumn` (net worth + search + grouped list)"
+    },
+    {
+      "label": "code:tsx (export function AccountListColumn({)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L868",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_34",
+      "community": 1,
+      "norm_label": "code:tsx (export function accountlistcolumn({)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/components/AccountListColumn.tsx fronte)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L904",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_35",
+      "community": 1,
+      "norm_label": "code:bash (git add frontend/src/components/accountlistcolumn.tsx fronte)"
+    },
+    {
+      "label": "Task 14: `AccountDetailColumn` (header + KPIs + chart + recent ops)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L911",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_14_accountdetailcolumn_header_kpis_chart_recent_ops",
+      "community": 1,
+      "norm_label": "task 14: `accountdetailcolumn` (header + kpis + chart + recent ops)"
+    },
+    {
+      "label": "code:tsx (export function AccountDetailColumn({)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L918",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_36",
+      "community": 1,
+      "norm_label": "code:tsx (export function accountdetailcolumn({)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/components/AccountDetailColumn.tsx fron)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L960",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_37",
+      "community": 1,
+      "norm_label": "code:bash (git add frontend/src/components/accountdetailcolumn.tsx fron)"
+    },
+    {
+      "label": "Phase 5 \u2014 Page rewrite & routing",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L967",
+      "id": "plans_2026_05_12_accounts_page_redesign_phase_5_page_rewrite_routing",
+      "community": 5,
+      "norm_label": "phase 5 \u2014 page rewrite & routing"
+    },
+    {
+      "label": "Task 15: Rewrite `AccountsPage.tsx`",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L969",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_15_rewrite_accountspage_tsx",
+      "community": 5,
+      "norm_label": "task 15: rewrite `accountspage.tsx`"
+    },
+    {
+      "label": "code:tsx (export function AccountsPage() {)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L976",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_38",
+      "community": 5,
+      "norm_label": "code:tsx (export function accountspage() {)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/pages/AccountsPage.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1058",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_39",
+      "community": 5,
+      "norm_label": "code:bash (git add frontend/src/pages/accountspage.tsx)"
+    },
+    {
+      "label": "Task 16: Add `/accounts/:accountId?` route",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1065",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_16_add_accounts_accountid_route",
+      "community": 5,
+      "norm_label": "task 16: add `/accounts/:accountid?` route"
+    },
+    {
+      "label": "code:tsx (<Route path=\"/accounts\" element={<AccountsPage />} />)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1074",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_40",
+      "community": 5,
+      "norm_label": "code:tsx (<route path=\"/accounts\" element={<accountspage />} />)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/App.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1086",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_41",
+      "community": 5,
+      "norm_label": "code:bash (git add frontend/src/app.tsx)"
+    },
+    {
+      "label": "Task 17: Wire `form=transfer` query param in `TransactionsPage`",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1093",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_17_wire_form_transfer_query_param_in_transactionspage",
+      "community": 5,
+      "norm_label": "task 17: wire `form=transfer` query param in `transactionspage`"
+    },
+    {
+      "label": "code:ts (const formParam = initialQuery.get(\"form\");)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1100",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_42",
+      "community": 5,
+      "norm_label": "code:ts (const formparam = initialquery.get(\"form\");)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/pages/TransactionsPage.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1114",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_43",
+      "community": 5,
+      "norm_label": "code:bash (git add frontend/src/pages/transactionspage.tsx)"
+    },
+    {
+      "label": "Phase 6 \u2014 Styles, i18n, polish",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1121",
+      "id": "plans_2026_05_12_accounts_page_redesign_phase_6_styles_i18n_polish",
+      "community": 9,
+      "norm_label": "phase 6 \u2014 styles, i18n, polish"
+    },
+    {
+      "label": "Task 18: Add CSS for the redesign",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1123",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_18_add_css_for_the_redesign",
+      "community": 9,
+      "norm_label": "task 18: add css for the redesign"
+    },
+    {
+      "label": "code:bash (git add frontend/src/styles.css)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1155",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_44",
+      "community": 9,
+      "norm_label": "code:bash (git add frontend/src/styles.css)"
+    },
+    {
+      "label": "Task 19: Add translations (pl + en)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1162",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_19_add_translations_pl_en",
+      "community": 9,
+      "norm_label": "task 19: add translations (pl + en)"
+    },
+    {
+      "label": "code:json (\"accounts.netWorth\": \"Net worth\",)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1169",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_45",
+      "community": 9,
+      "norm_label": "code:json (\"accounts.networth\": \"net worth\",)"
+    },
+    {
+      "label": "code:json (\"accounts.netWorth\": \"Warto\u015b\u0107 netto\",)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1204",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_46",
+      "community": 9,
+      "norm_label": "code:json (\"accounts.networth\": \"wartosc netto\",)"
+    },
+    {
+      "label": "code:bash (npm --prefix frontend run build)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1239",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_47",
+      "community": 9,
+      "norm_label": "code:bash (npm --prefix frontend run build)"
+    },
+    {
+      "label": "code:bash (git add frontend/src/state/I18nContext.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1245",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_48",
+      "community": 9,
+      "norm_label": "code:bash (git add frontend/src/state/i18ncontext.tsx)"
+    },
+    {
+      "label": "Phase 7 \u2014 Final verification",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1252",
+      "id": "plans_2026_05_12_accounts_page_redesign_phase_7_final_verification",
+      "community": 3,
+      "norm_label": "phase 7 \u2014 final verification"
+    },
+    {
+      "label": "Task 20: AccountsPage component test",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1254",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_20_accountspage_component_test",
+      "community": 3,
+      "norm_label": "task 20: accountspage component test"
+    },
+    {
+      "label": "code:bash (git add frontend/src/pages/AccountsPage.test.tsx)",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1274",
+      "id": "plans_2026_05_12_accounts_page_redesign_codeblock_49",
+      "community": 3,
+      "norm_label": "code:bash (git add frontend/src/pages/accountspage.test.tsx)"
+    },
+    {
+      "label": "Task 21: Full verification pass",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1281",
+      "id": "plans_2026_05_12_accounts_page_redesign_task_21_full_verification_pass",
+      "community": 3,
+      "norm_label": "task 21: full verification pass"
+    },
+    {
+      "label": "Done criteria",
+      "file_type": "document",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1314",
+      "id": "plans_2026_05_12_accounts_page_redesign_done_criteria",
+      "community": 3,
+      "norm_label": "done criteria"
+    },
+    {
+      "label": "2026-05-14-frontend-audit.md",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L1",
+      "id": "audits_2026_05_14_frontend_audit_md",
+      "community": 6,
+      "norm_label": "2026-05-14-frontend-audit.md"
+    },
+    {
+      "label": "Frontend audit \u2014 2026-05-14",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L1",
+      "id": "audits_2026_05_14_frontend_audit_frontend_audit_2026_05_14",
+      "community": 6,
+      "norm_label": "frontend audit \u2014 2026-05-14"
+    },
+    {
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L3",
+      "id": "audits_2026_05_14_frontend_audit_scope",
+      "community": 6,
+      "norm_label": "scope"
+    },
+    {
+      "label": "Findings",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L7",
+      "id": "audits_2026_05_14_frontend_audit_findings",
+      "community": 6,
+      "norm_label": "findings"
+    },
+    {
+      "label": "1) Budget period toggle exposes a disabled button for a non-interactive state",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L9",
+      "id": "audits_2026_05_14_frontend_audit_1_budget_period_toggle_exposes_a_disabled_button_for_a_non_interactive_state",
+      "community": 6,
+      "norm_label": "1) budget period toggle exposes a disabled button for a non-interactive state"
+    },
+    {
+      "label": "2) Transactions filter chips intentionally block transfer toggling, but do not explain why",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L16",
+      "id": "audits_2026_05_14_frontend_audit_2_transactions_filter_chips_intentionally_block_transfer_toggling_but_do_not_explain_why",
+      "community": 6,
+      "norm_label": "2) transactions filter chips intentionally block transfer toggling, but do not explain why"
+    },
+    {
+      "label": "3) Settings provider model fetch controls are gated by provider setup state",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L23",
+      "id": "audits_2026_05_14_frontend_audit_3_settings_provider_model_fetch_controls_are_gated_by_provider_setup_state",
+      "community": 6,
+      "norm_label": "3) settings provider model fetch controls are gated by provider setup state"
+    },
+    {
+      "label": "Backend wiring review notes",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L30",
+      "id": "audits_2026_05_14_frontend_audit_backend_wiring_review_notes",
+      "community": 6,
+      "norm_label": "backend wiring review notes"
+    },
+    {
+      "label": "Next suggested pass",
+      "file_type": "document",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L34",
+      "id": "audits_2026_05_14_frontend_audit_next_suggested_pass",
+      "community": 6,
+      "norm_label": "next suggested pass"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "plans_2026_05_03_settings_compact_layout_design_md",
+      "target": "plans_2026_05_03_settings_compact_layout_design_settings_compact_layout_implementation_plan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "plans_2026_05_03_settings_compact_layout_design_settings_compact_layout_implementation_plan",
+      "target": "plans_2026_05_03_settings_compact_layout_design_task_1_update_settingspage_layout_to_two_column_grid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "plans_2026_05_03_settings_compact_layout_design_task_1_update_settingspage_layout_to_two_column_grid",
+      "target": "plans_2026_05_03_settings_compact_layout_design_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "plans_2026_05_03_settings_compact_layout_design_task_1_update_settingspage_layout_to_two_column_grid",
+      "target": "plans_2026_05_03_settings_compact_layout_design_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "plans_2026_05_03_settings_compact_layout_design_task_1_update_settingspage_layout_to_two_column_grid",
+      "target": "plans_2026_05_03_settings_compact_layout_design_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-03-settings-compact-layout-design.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "plans_2026_05_03_settings_compact_layout_design_task_1_update_settingspage_layout_to_two_column_grid",
+      "target": "plans_2026_05_03_settings_compact_layout_design_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_md",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_goal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_scope",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_data_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L101",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L181",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_interactions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_styling",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L199",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_translations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L217",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_testing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L225",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_manual_verification",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L229",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_open_questions_deferred",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L235",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_accounts_page_redesign_design",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_file_touch_summary",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_scope",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_in_scope",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_scope",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_out_of_scope",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_data_model",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_backend_account_additive",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_data_model",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_schema_migration_postgres",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_data_model",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_frontend_account_type",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_backend_account_additive",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_backend_account_additive",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_schema_migration_postgres",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_frontend_account_type",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_route",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L116",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_component_tree",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L134",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_grouping",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L147",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_search",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L151",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_kpi_cards",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L162",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_balance_over_time_chart",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L169",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_recent_operations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L175",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_ui_architecture",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_mobile_900px",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign-design.md",
+      "source_location": "L118",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_design_component_tree",
+      "target": "plans_2026_05_12_accounts_page_redesign_design_codeblock_5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_md",
+      "target": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L399",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_phase_2_frontend_types_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L469",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_phase_3_frontend_utilities_tdd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L716",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_phase_4_frontend_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L967",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_phase_5_page_rewrite_routing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1121",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_phase_6_styles_i18n_polish",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1252",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_phase_7_final_verification",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1314",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_accounts_page_redesign_implementation_plan",
+      "target": "plans_2026_05_12_accounts_page_redesign_done_criteria",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_1_add_accounticonkind_enum_and_investment_to_accounttype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_2_add_new_fields_to_account_entity_ef_mapping",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_3_add_accountschemainitializer_for_postgres_alter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L165",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L283",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_5_update_dtos_and_accountscontroller",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L364",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_1_backend_domain_schema",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_6_backend_round_trip_test_for_new_fields",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_1_add_accounticonkind_enum_and_investment_to_accounttype",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_1_add_accounticonkind_enum_and_investment_to_accounttype",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_2_add_new_fields_to_account_entity_ef_mapping",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_2_add_new_fields_to_account_entity_ef_mapping",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L100",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_2_add_new_fields_to_account_entity_ef_mapping",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_3_add_accountschemainitializer_for_postgres_alter",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_6",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L147",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_3_add_accountschemainitializer_for_postgres_alter",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_7",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L158",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_3_add_accountschemainitializer_for_postgres_alter",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_8",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L173",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_9",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L189",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_10",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L215",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_11",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L232",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_12",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L255",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_13",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L274",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_4_extend_accountdetails_commands_and_iaccountstore_for_new_fields",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_14",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L292",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_5_update_dtos_and_accountscontroller",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_15",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L335",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_5_update_dtos_and_accountscontroller",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_16",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L357",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_5_update_dtos_and_accountscontroller",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_17",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L392",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_6_backend_round_trip_test_for_new_fields",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L401",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_2_frontend_types_api",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_7_update_frontend_account_type_and_api_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L409",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_7_update_frontend_account_type_and_api_client",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_19",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L428",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_7_update_frontend_account_type_and_api_client",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_20",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L460",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_7_update_frontend_account_type_and_api_client",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_21",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L471",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_3_frontend_utilities_tdd",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_8_groupaccountsbytype_utility",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L590",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_3_frontend_utilities_tdd",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_9_computebalanceseries_utility",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L479",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_8_groupaccountsbytype_utility",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_22",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L544",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_8_groupaccountsbytype_utility",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_23",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L583",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_8_groupaccountsbytype_utility",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_24",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L598",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_9_computebalanceseries_utility",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_25",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L653",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_9_computebalanceseries_utility",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_26",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L709",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_9_computebalanceseries_utility",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_27",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L718",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_4_frontend_components",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_10_accountform_shared_form",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L773",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_4_frontend_components",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_11_accountformmodal_wrapper",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L811",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_4_frontend_components",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_12_accountbalancechart_component",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L861",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_4_frontend_components",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_13_accountlistcolumn_net_worth_search_grouped_list",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L911",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_4_frontend_components",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_14_accountdetailcolumn_header_kpis_chart_recent_ops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L725",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_10_accountform_shared_form",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_28",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L766",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_10_accountform_shared_form",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_29",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L780",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_11_accountformmodal_wrapper",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_30",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L804",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_11_accountformmodal_wrapper",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_31",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L818",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_12_accountbalancechart_component",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_32",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L854",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_12_accountbalancechart_component",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_33",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L868",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_13_accountlistcolumn_net_worth_search_grouped_list",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_34",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L904",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_13_accountlistcolumn_net_worth_search_grouped_list",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_35",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L918",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_14_accountdetailcolumn_header_kpis_chart_recent_ops",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_36",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L960",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_14_accountdetailcolumn_header_kpis_chart_recent_ops",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_37",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L969",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_5_page_rewrite_routing",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_15_rewrite_accountspage_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1065",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_5_page_rewrite_routing",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_16_add_accounts_accountid_route",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1093",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_5_page_rewrite_routing",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_17_wire_form_transfer_query_param_in_transactionspage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L976",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_15_rewrite_accountspage_tsx",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_38",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1058",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_15_rewrite_accountspage_tsx",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_39",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1074",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_16_add_accounts_accountid_route",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_40",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1086",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_16_add_accounts_accountid_route",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_41",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1100",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_17_wire_form_transfer_query_param_in_transactionspage",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_42",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1114",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_17_wire_form_transfer_query_param_in_transactionspage",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_43",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1123",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_6_styles_i18n_polish",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_18_add_css_for_the_redesign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1162",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_6_styles_i18n_polish",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_19_add_translations_pl_en",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1155",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_18_add_css_for_the_redesign",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_44",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1169",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_19_add_translations_pl_en",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_45",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1204",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_19_add_translations_pl_en",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_46",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1239",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_19_add_translations_pl_en",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_47",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1245",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_19_add_translations_pl_en",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_48",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1254",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_7_final_verification",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_20_accountspage_component_test",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1281",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_phase_7_final_verification",
+      "target": "plans_2026_05_12_accounts_page_redesign_task_21_full_verification_pass",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plans/2026-05-12-accounts-page-redesign.md",
+      "source_location": "L1274",
+      "weight": 1.0,
+      "source": "plans_2026_05_12_accounts_page_redesign_task_20_accountspage_component_test",
+      "target": "plans_2026_05_12_accounts_page_redesign_codeblock_49",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_md",
+      "target": "audits_2026_05_14_frontend_audit_frontend_audit_2026_05_14",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_frontend_audit_2026_05_14",
+      "target": "audits_2026_05_14_frontend_audit_scope",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_frontend_audit_2026_05_14",
+      "target": "audits_2026_05_14_frontend_audit_findings",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_frontend_audit_2026_05_14",
+      "target": "audits_2026_05_14_frontend_audit_backend_wiring_review_notes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_frontend_audit_2026_05_14",
+      "target": "audits_2026_05_14_frontend_audit_next_suggested_pass",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_findings",
+      "target": "audits_2026_05_14_frontend_audit_1_budget_period_toggle_exposes_a_disabled_button_for_a_non_interactive_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_findings",
+      "target": "audits_2026_05_14_frontend_audit_2_transactions_filter_chips_intentionally_block_transfer_toggling_but_do_not_explain_why",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "audits/2026-05-14-frontend-audit.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "audits_2026_05_14_frontend_audit_findings",
+      "target": "audits_2026_05_14_frontend_audit_3_settings_provider_model_fetch_controls_are_gated_by_provider_setup_state",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "9938297e0019de8b55e71d194db724912ed6641c"
+}
