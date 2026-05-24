@@ -1198,5 +1198,15 @@
     "mtime": 1779010179.817748,
     "ast_hash": "6668b1a722db3299bbfd2e9a62e97acb",
     "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/frontend/e2e/transactions-responsive.spec.ts": {
+    "mtime": 1779608407.7658455,
+    "ast_hash": "718c18725bb2b5815613b06af8964725",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/TransactionsResponsiveStyles.test.ts": {
+    "mtime": 1779608683.7704132,
+    "ast_hash": "0ee093f753e01e8830741905e5166624",
+    "semantic_hash": ""
   }
 }

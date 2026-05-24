@@ -4880,6 +4880,107 @@ label {
   align-items: end;
 }
 
+@media (max-width: 1440px) {
+  .transaction-workspace,
+  .transaction-workspace.is-filters-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-settings-panel {
+    position: static;
+    order: -1;
+    gap: 0.85rem;
+    padding: 0.95rem;
+  }
+
+  .transaction-settings-content {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .transaction-settings-panel.is-collapsed {
+    justify-items: stretch;
+    min-height: auto;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .transaction-settings-panel.is-collapsed .transaction-settings-header {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .transaction-settings-panel.is-collapsed .transaction-settings-header h2 {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  .transaction-settings-panel.is-collapsed .transaction-settings-header-actions {
+    flex-direction: row;
+  }
+
+  .transaction-filter-section:has(.transaction-category-chips),
+  .transaction-filter-actions,
+  .transaction-toggle-row {
+    grid-column: span 2;
+  }
+
+  .transaction-filter-section {
+    gap: 0.45rem;
+  }
+
+  .transaction-filter-section select,
+  .transaction-filter-section input:not([type="checkbox"]) {
+    min-height: 2.35rem;
+  }
+
+  .transaction-filter-segmented button {
+    min-height: 1.95rem;
+  }
+
+  .transaction-filter-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .transaction-filter-action {
+    min-height: 2.25rem;
+    padding: 0.48rem 0.62rem;
+    font-size: 0.82rem;
+  }
+
+  .transaction-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .transaction-summary-card {
+    min-height: 5.8rem;
+    padding: 0.85rem 0.95rem;
+  }
+
+  .transaction-summary-card:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .transaction-summary-card:nth-child(n + 3) {
+    border-top: 1px solid var(--border);
+  }
+
+  .transaction-summary-card strong {
+    overflow-wrap: anywhere;
+    font-size: clamp(1.18rem, 2.1vw, 1.55rem);
+  }
+
+  .transaction-entry-launcher {
+    padding: 0.7rem 0.78rem;
+  }
+
+  .transaction-ledger-panel {
+    padding: 0.95rem;
+  }
+}
+
 @media (max-width: 1320px) {
   .onboarding-checklist-items {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -5119,6 +5220,14 @@ label {
     display: none;
   }
 
+  .transaction-settings-content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .transaction-filter-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .transaction-bulk-toolbar {
     flex-direction: column;
   }
@@ -5312,9 +5421,20 @@ label {
   .settings-density-options,
   .settings-toggle-row,
   .transaction-filter-grid,
+  .transaction-settings-content,
   .rule-form,
   .rule-row,
   .transaction-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-filter-section:has(.transaction-category-chips),
+  .transaction-filter-actions,
+  .transaction-toggle-row {
+    grid-column: 1 / -1;
+  }
+
+  .transaction-filter-actions {
     grid-template-columns: 1fr;
   }
 
