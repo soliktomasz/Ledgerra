@@ -441,6 +441,66 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task AuthenticatedUser_CanClearDataAndDeleteAccount()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var checkingId = await CreateAccountAsync(client, "Personal Checking", "Checking", 1500m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        var transactionResponse = await client.PostAsJsonAsync("/api/transactions", new
+        {
+            accountId = checkingId,
+            categoryId = groceriesCategoryId,
+            amount = 42.17m,
+            type = "Expense",
+            occurredOnUtc = "2026-04-10T08:00:00Z",
+            note = "Weekly groceries"
+        });
+        Assert.Equal(HttpStatusCode.Created, transactionResponse.StatusCode);
+
+        var budgetResponse = await client.PutAsJsonAsync("/api/budgets/2026/4", new
+        {
+            categoryLimits = new[]
+            {
+                new
+                {
+                    categoryId = groceriesCategoryId,
+                    plannedAmount = 500m
+                }
+            }
+        });
+        Assert.Equal(HttpStatusCode.OK, budgetResponse.StatusCode);
+
+        var clearResponse = await client.DeleteAsync("/api/settings/account-data");
+        Assert.Equal(HttpStatusCode.NoContent, clearResponse.StatusCode);
+
+        var profileAfterClearResponse = await client.GetAsync("/api/settings/profile");
+        Assert.Equal(HttpStatusCode.OK, profileAfterClearResponse.StatusCode);
+
+        var accountsAfterClearResponse = await client.GetAsync("/api/accounts");
+        var accountsAfterClear = await accountsAfterClearResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, accountsAfterClear.GetArrayLength());
+
+        var transactionsAfterClearResponse = await client.GetAsync("/api/transactions");
+        var transactionsAfterClear = await transactionsAfterClearResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, transactionsAfterClear.GetArrayLength());
+
+        var categoriesAfterClearResponse = await client.GetAsync("/api/categories");
+        var categoriesAfterClear = await categoriesAfterClearResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, categoriesAfterClear.GetArrayLength());
+
+        var deleteResponse = await client.DeleteAsync("/api/settings/account");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        var profileAfterDeleteResponse = await client.GetAsync("/api/settings/profile");
+        Assert.Equal(HttpStatusCode.NotFound, profileAfterDeleteResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanReplaceTransferWithExpenseTransaction()
     {
         using var client = _factory.CreateClient();

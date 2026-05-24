@@ -15,6 +15,9 @@ const mocks = vi.hoisted(() => ({
   getPersonalAccessTokens: vi.fn(),
   createPersonalAccessToken: vi.fn(),
   revokePersonalAccessToken: vi.fn(),
+  clearAccountData: vi.fn(),
+  deleteAccount: vi.fn(),
+  logout: vi.fn(),
   createImportRule: vi.fn(),
   updateImportRule: vi.fn(),
   deleteImportRule: vi.fn(),
@@ -29,7 +32,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../state/AuthContext", () => ({
-  useAuth: () => ({ auth: { accessToken: "token", email: "owner@ledgerra.local" } })
+  useAuth: () => ({ auth: { accessToken: "token", email: "owner@ledgerra.local" }, logout: mocks.logout })
 }));
 
 vi.mock("../api/client", () => ({
@@ -43,6 +46,8 @@ vi.mock("../api/client", () => ({
     getPersonalAccessTokens: mocks.getPersonalAccessTokens,
     createPersonalAccessToken: mocks.createPersonalAccessToken,
     revokePersonalAccessToken: mocks.revokePersonalAccessToken,
+    clearAccountData: mocks.clearAccountData,
+    deleteAccount: mocks.deleteAccount,
     createImportRule: mocks.createImportRule,
     updateImportRule: mocks.updateImportRule,
     deleteImportRule: mocks.deleteImportRule
@@ -92,7 +97,10 @@ describe("SettingsPage", () => {
     mocks.getPersonalAccessTokens.mockResolvedValue([]);
     mocks.createPersonalAccessToken.mockResolvedValue({ plainTextToken: "ledgerra_pat_test" });
     mocks.revokePersonalAccessToken.mockResolvedValue(undefined);
+    mocks.clearAccountData.mockResolvedValue(undefined);
+    mocks.deleteAccount.mockResolvedValue(undefined);
     mocks.getAiProviderModels.mockResolvedValue({ models: ["synthetic-finance-1", "synthetic-fast"] });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
   });
 
   test("shows AI provider configuration state", async () => {
@@ -445,5 +453,29 @@ describe("SettingsPage", () => {
     rerender(<SettingsPage />);
 
     expect(screen.getByLabelText("Default provider")).toHaveValue("Anthropic");
+  });
+
+  test("clears account data and deletes the account from danger zone", async () => {
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Danger Zone" }));
+
+    expect(screen.getByRole("heading", { name: "Danger Zone" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Clear all data" }));
+
+    await waitFor(() => {
+      expect(mocks.clearAccountData).toHaveBeenCalledWith("token");
+    });
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+
+    await waitFor(() => {
+      expect(mocks.deleteAccount).toHaveBeenCalledWith("token");
+    });
+    expect(mocks.logout).toHaveBeenCalledTimes(1);
   });
 });

@@ -298,6 +298,18 @@ export const apiClient = {
       body: { preferredCurrencyCode, preferredLanguageCode }
     });
   },
+  clearAccountData(token: string) {
+    return request<void>("/api/settings/account-data", {
+      method: "DELETE",
+      token
+    });
+  },
+  deleteAccount(token: string) {
+    return request<void>("/api/settings/account", {
+      method: "DELETE",
+      token
+    });
+  },
   getAiSettings(token: string) {
     return request<AiSettings>("/api/settings/ai", { token });
   },
