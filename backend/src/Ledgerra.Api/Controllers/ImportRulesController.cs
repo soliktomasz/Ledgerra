@@ -155,14 +155,19 @@ public sealed class ImportRulesController : ControllerBase
             return this.ValidationError(new Dictionary<string, string[]> { ["matchValue"] = ["Match value is required."] });
         }
 
-        if (!TryParseSupportedMatchField(request.MatchField, out _))
+        if (!TryParseSupportedMatchField(request.MatchField, out var matchField))
         {
-            return this.ValidationError(new Dictionary<string, string[]> { ["matchField"] = ["Supported match fields are Note."] });
+            return this.ValidationError(new Dictionary<string, string[]> { ["matchField"] = ["Unsupported match field."] });
         }
 
-        if (!TryParseSupportedMatchOperator(request.MatchOperator, out _))
+        if (!TryParseSupportedMatchOperator(request.MatchOperator, out var matchOperator))
         {
-            return this.ValidationError(new Dictionary<string, string[]> { ["matchOperator"] = ["Supported match operators are Contains."] });
+            return this.ValidationError(new Dictionary<string, string[]> { ["matchOperator"] = ["Unsupported match operator."] });
+        }
+
+        if (!IsSupportedOperatorForField(matchField, matchOperator))
+        {
+            return this.ValidationError(new Dictionary<string, string[]> { ["matchOperator"] = ["Operator is not supported for the selected field."] });
         }
 
         if (!EnumParsingExtensions.TryParseTransactionType(request.AssignTransactionType, out var transactionType) ||
@@ -203,26 +208,26 @@ public sealed class ImportRulesController : ControllerBase
 
     private static bool TryParseSupportedMatchField(string value, out ImportRuleMatchField field)
     {
-        if (value.Equals(nameof(ImportRuleMatchField.Note), StringComparison.OrdinalIgnoreCase))
-        {
-            field = ImportRuleMatchField.Note;
-            return true;
-        }
-
-        field = default;
-        return false;
+        return Enum.TryParse(value, true, out field);
     }
 
     private static bool TryParseSupportedMatchOperator(string value, out ImportRuleMatchOperator matchOperator)
     {
-        if (value.Equals(nameof(ImportRuleMatchOperator.Contains), StringComparison.OrdinalIgnoreCase))
-        {
-            matchOperator = ImportRuleMatchOperator.Contains;
-            return true;
-        }
+        return Enum.TryParse(value, true, out matchOperator);
+    }
 
-        matchOperator = default;
-        return false;
+    private static bool IsSupportedOperatorForField(ImportRuleMatchField field, ImportRuleMatchOperator matchOperator)
+    {
+        return field switch
+        {
+            ImportRuleMatchField.Note => matchOperator is ImportRuleMatchOperator.Contains or ImportRuleMatchOperator.NotContains or ImportRuleMatchOperator.Equals or ImportRuleMatchOperator.NotEquals or ImportRuleMatchOperator.StartsWith or ImportRuleMatchOperator.Regex,
+            ImportRuleMatchField.Type => matchOperator is ImportRuleMatchOperator.Equals or ImportRuleMatchOperator.NotEquals,
+            ImportRuleMatchField.Amount => matchOperator is ImportRuleMatchOperator.Equals or ImportRuleMatchOperator.NotEquals or ImportRuleMatchOperator.GreaterThan or ImportRuleMatchOperator.LessThan or ImportRuleMatchOperator.Between,
+            ImportRuleMatchField.Account => matchOperator is ImportRuleMatchOperator.Equals or ImportRuleMatchOperator.NotEquals,
+            ImportRuleMatchField.Date => matchOperator is ImportRuleMatchOperator.Equals or ImportRuleMatchOperator.NotEquals or ImportRuleMatchOperator.GreaterThan or ImportRuleMatchOperator.LessThan or ImportRuleMatchOperator.Between,
+            ImportRuleMatchField.Month => matchOperator is ImportRuleMatchOperator.Equals or ImportRuleMatchOperator.NotEquals,
+            _ => false
+        };
     }
 
     private static ImportRuleResponse MapRule(CategorizationRule rule)
