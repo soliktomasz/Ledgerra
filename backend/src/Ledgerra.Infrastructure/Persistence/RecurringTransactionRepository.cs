@@ -21,6 +21,21 @@ public sealed class RecurringTransactionRepository : IRecurringTransactionReposi
             .ToListAsync(ct);
     }
 
+    public async Task<RecurringTransactionTemplate?> GetByIdAsync(Guid userId, Guid templateId, CancellationToken ct)
+    {
+        return await _dbContext.RecurringTransactionTemplates
+            .SingleOrDefaultAsync(item => item.UserId == userId && item.Id == templateId, ct);
+    }
+
+    public async Task<IReadOnlyList<Guid>> GetUserIdsWithActiveTemplatesAsync(CancellationToken ct)
+    {
+        return await _dbContext.RecurringTransactionTemplates
+            .Where(item => item.IsActive)
+            .Select(item => item.UserId)
+            .Distinct()
+            .ToListAsync(ct);
+    }
+
     public async Task<RecurringTransactionTemplate> CreateAsync(RecurringTransactionTemplate template, CancellationToken ct)
     {
         _dbContext.RecurringTransactionTemplates.Add(template);
@@ -49,6 +64,12 @@ public sealed class RecurringTransactionRepository : IRecurringTransactionReposi
     public Task AddTransactionAsync(Transaction transaction, CancellationToken ct)
     {
         _dbContext.Transactions.Add(transaction);
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(RecurringTransactionTemplate template, CancellationToken ct)
+    {
+        _dbContext.RecurringTransactionTemplates.Remove(template);
         return Task.CompletedTask;
     }
 

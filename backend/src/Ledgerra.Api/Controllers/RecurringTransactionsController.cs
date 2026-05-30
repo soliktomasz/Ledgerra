@@ -35,6 +35,60 @@ public sealed class RecurringTransactionsController : ControllerBase
         }
     }
 
+    [HttpPut("{templateId:guid}")]
+    public async Task<ActionResult<RecurringTransactionTemplateResponse>> Update(Guid templateId, UpdateRecurringTransactionTemplateRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var item = await _useCases.UpdateAsync(User.GetRequiredUserId(), templateId, request.AccountId, request.CategoryId, request.Amount, request.Type, request.Interval, request.StartOnUtc, request.IsActive, request.Note, cancellationToken);
+            return Ok(Map(item));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPatch("{templateId:guid}/status")]
+    public async Task<ActionResult<RecurringTransactionTemplateResponse>> UpdateStatus(Guid templateId, UpdateRecurringTransactionTemplateStatusRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var item = await _useCases.SetActiveAsync(User.GetRequiredUserId(), templateId, request.IsActive, cancellationToken);
+            return Ok(Map(item));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpDelete("{templateId:guid}")]
+    public async Task<IActionResult> Delete(Guid templateId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _useCases.DeleteAsync(User.GetRequiredUserId(), templateId, cancellationToken);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpPost("generate")]
     public async Task<ActionResult<object>> Generate(CancellationToken cancellationToken)
     {

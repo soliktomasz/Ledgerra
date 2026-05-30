@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
-import { AccountsIcon, BudgetsIcon, CategoriesIcon, DashboardIcon, GoalsIcon, ImportsIcon, ReportsIcon, SettingsIcon, TransactionsIcon } from "./icons";
+import { AccountsIcon, BudgetsIcon, CalendarIcon, CategoriesIcon, DashboardIcon, GoalsIcon, ImportsIcon, ReportsIcon, SettingsIcon, TransactionsIcon } from "./icons";
 import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
 
@@ -15,6 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/dashboard", label: t("nav.dashboard"), icon: DashboardIcon },
     { to: "/reports", label: t("nav.reports"), icon: ReportsIcon },
     { to: "/transactions", label: t("nav.transactions"), icon: TransactionsIcon },
+    { to: "/recurring", label: t("nav.recurring"), icon: CalendarIcon },
     { to: "/imports", label: t("nav.imports"), icon: ImportsIcon },
     { to: "/accounts", label: t("nav.accounts"), icon: AccountsIcon },
     { to: "/budgets", label: t("nav.budgets"), icon: BudgetsIcon },

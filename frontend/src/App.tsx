@@ -8,6 +8,7 @@ import { BudgetsPage } from "./pages/BudgetsPage";
 import { CategoriesPage } from "./pages/CategoriesPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ImportsPage } from "./pages/ImportsPage";
+import { RecurringTransactionsPage } from "./pages/RecurringTransactionsPage";
 import { GoalsPage } from "./pages/GoalsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -31,6 +32,7 @@ function ProtectedRoutes() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/recurring" element={<RecurringTransactionsPage />} />
               <Route path="/imports" element={<ImportsPage />} />
               <Route path="/accounts" element={<AccountsPage />} />
               <Route path="/accounts/:accountId" element={<AccountsPage />} />

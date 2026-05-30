@@ -7141,3 +7141,118 @@ label {
     justify-self: start;
   }
 }
+
+.recurring-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(220px, 0.6fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.recurring-generate-button {
+  min-height: 100%;
+  justify-content: center;
+}
+
+.recurring-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.45fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.recurring-form .two-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
+.recurring-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.recurring-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(150px, 0.6fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1.1rem;
+  background: var(--surface-muted);
+}
+
+.recurring-card.is-paused {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--muted-strong);
+}
+
+.recurring-card.is-paused .recurring-card-main p,
+.recurring-card.is-paused .recurring-card-main small,
+.recurring-card.is-paused .recurring-card-amount small {
+  color: var(--muted);
+}
+
+.recurring-card.is-paused .recurring-card-actions,
+.recurring-card.is-paused .recurring-card-actions .compact-button {
+  color: var(--text);
+}
+
+.recurring-card-main h3,
+.recurring-card-main p,
+.recurring-card-main small,
+.recurring-card-amount small {
+  margin: 0;
+}
+
+.recurring-card-main,
+.recurring-card-amount,
+.recurring-card-actions {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.recurring-card-amount strong {
+  font-size: 1.15rem;
+}
+
+.recurring-card-actions {
+  grid-template-columns: repeat(3, auto);
+}
+
+.recurring-card-actions .compact-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (max-width: 960px) {
+  .recurring-hero-grid,
+  .recurring-layout,
+  .recurring-card {
+    grid-template-columns: 1fr;
+  }
+
+  .recurring-generate-button {
+    min-height: 3rem;
+  }
+
+  .recurring-card-actions,
+  .recurring-form .two-columns {
+    grid-template-columns: 1fr;
+  }
+}
