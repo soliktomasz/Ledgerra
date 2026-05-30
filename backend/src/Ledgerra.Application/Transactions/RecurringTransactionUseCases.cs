@@ -20,6 +20,7 @@ public interface IRecurringTransactionRepository
 public sealed class RecurringTransactionUseCases
 {
     private const int MaxCatchUpPerTemplate = 100;
+    private const int DefaultGenerationBatchSize = 50;
     private readonly IRecurringTransactionRepository _repository;
 
     public RecurringTransactionUseCases(IRecurringTransactionRepository repository) => _repository = repository;
@@ -85,12 +86,18 @@ public sealed class RecurringTransactionUseCases
     }
 
     public async Task<int> GenerateDueForAllUsersAsync(DateTime nowUtc, CancellationToken ct)
+        => await GenerateDueForUsersBatchAsync(nowUtc, DefaultGenerationBatchSize, ct);
+
+    public async Task<int> GenerateDueForUsersBatchAsync(DateTime nowUtc, int batchSize, CancellationToken ct)
     {
         var userIds = await _repository.GetUserIdsWithActiveTemplatesAsync(ct);
         var generated = 0;
-        foreach (var userId in userIds)
+        foreach (var batch in userIds.Chunk(Math.Max(1, batchSize)))
         {
-            generated += await GenerateDueAsync(userId, nowUtc, ct);
+            foreach (var userId in batch)
+            {
+                generated += await GenerateDueAsync(userId, nowUtc, ct);
+            }
         }
 
         return generated;
@@ -131,7 +138,7 @@ public sealed class RecurringTransactionUseCases
     private async Task<RecurringTransactionTemplate> GetRequiredTemplateAsync(Guid userId, Guid templateId, CancellationToken ct)
     {
         var template = await _repository.GetByIdAsync(userId, templateId, ct);
-        return template ?? throw new InvalidOperationException("Recurring template not found");
+        return template ?? throw new KeyNotFoundException("Recurring template not found");
     }
 
     private async Task<(TransactionType Type, RecurringInterval Interval, DateTime StartOnUtc)> ValidateTemplateFieldsAsync(Guid userId, Guid accountId, Guid? categoryId, decimal amount, string type, string interval, DateTime startOnUtc, CancellationToken ct)
@@ -147,10 +154,10 @@ public sealed class RecurringTransactionUseCases
         if (!Enum.TryParse<RecurringInterval>(interval, true, out var parsedInterval)) throw new InvalidOperationException("Interval must be Weekly or Monthly");
 
         if (!await _repository.AccountExistsAsync(userId, accountId, ct))
-            throw new InvalidOperationException("Account not found or does not belong to user");
+            throw new InvalidOperationException("Account does not belong to user");
 
         if (categoryId.HasValue && !await _repository.CategoryExistsAsync(userId, categoryId.Value, ct))
-            throw new InvalidOperationException("Category not found or does not belong to user");
+            throw new InvalidOperationException("Category does not belong to user");
 
         return (txType, parsedInterval, normalizedStart);
     }

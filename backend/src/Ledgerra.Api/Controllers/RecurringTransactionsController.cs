@@ -43,7 +43,7 @@ public sealed class RecurringTransactionsController : ControllerBase
             var item = await _useCases.UpdateAsync(User.GetRequiredUserId(), templateId, request.AccountId, request.CategoryId, request.Amount, request.Type, request.Interval, request.StartOnUtc, request.IsActive, request.Note, cancellationToken);
             return Ok(Map(item));
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        catch (KeyNotFoundException ex)
         {
             return NotFound(new { error = ex.Message });
         }
@@ -61,9 +61,13 @@ public sealed class RecurringTransactionsController : ControllerBase
             var item = await _useCases.SetActiveAsync(User.GetRequiredUserId(), templateId, request.IsActive, cancellationToken);
             return Ok(Map(item));
         }
-        catch (InvalidOperationException ex)
+        catch (KeyNotFoundException ex)
         {
             return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
         }
     }
 
@@ -75,9 +79,13 @@ public sealed class RecurringTransactionsController : ControllerBase
             await _useCases.DeleteAsync(User.GetRequiredUserId(), templateId, cancellationToken);
             return NoContent();
         }
-        catch (InvalidOperationException ex)
+        catch (KeyNotFoundException ex)
         {
             return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
         }
     }
 

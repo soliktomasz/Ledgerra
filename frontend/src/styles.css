@@ -7196,7 +7196,20 @@ label {
 }
 
 .recurring-card.is-paused {
-  opacity: 0.76;
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--muted-strong);
+}
+
+.recurring-card.is-paused .recurring-card-main p,
+.recurring-card.is-paused .recurring-card-main small,
+.recurring-card.is-paused .recurring-card-amount small {
+  color: var(--muted);
+}
+
+.recurring-card.is-paused .recurring-card-actions,
+.recurring-card.is-paused .recurring-card-actions .compact-button {
+  color: var(--text);
 }
 
 .recurring-card-main h3,

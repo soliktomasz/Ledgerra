@@ -1830,6 +1830,65 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Empty((await listResponse.Content.ReadFromJsonAsync<JsonElement>()).EnumerateArray());
     }
 
+    [Fact]
+    public async Task RecurringTransactions_ReturnBadRequestForInvalidReferencesAndNotFoundForMissingTemplates()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var accountId = await CreateAccountAsync(client, "Recurring Validation", "Checking", 1000m);
+        var categoryId = await CreateCategoryAsync(client, "Subscriptions", "Expense");
+
+        var createResponse = await client.PostAsJsonAsync("/api/recurring-transactions", new
+        {
+            accountId,
+            categoryId,
+            amount = 25m,
+            type = "Expense",
+            interval = "Monthly",
+            startOnUtc = "2026-01-01T10:00:00Z",
+            note = "Streaming"
+        });
+        Assert.Equal(HttpStatusCode.OK, createResponse.StatusCode);
+        var created = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var templateId = created.GetProperty("id").GetGuid();
+
+        var invalidAccountResponse = await client.PutAsJsonAsync($"/api/recurring-transactions/{templateId}", new
+        {
+            accountId = Guid.NewGuid(),
+            categoryId,
+            amount = 25m,
+            type = "Expense",
+            interval = "Monthly",
+            startOnUtc = "2026-01-01T10:00:00Z",
+            isActive = true,
+            note = "Streaming"
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, invalidAccountResponse.StatusCode);
+
+        var missingTemplateId = Guid.NewGuid();
+        var missingTemplateResponse = await client.PutAsJsonAsync($"/api/recurring-transactions/{missingTemplateId}", new
+        {
+            accountId,
+            categoryId,
+            amount = 25m,
+            type = "Expense",
+            interval = "Monthly",
+            startOnUtc = "2026-01-01T10:00:00Z",
+            isActive = true,
+            note = "Streaming"
+        });
+        Assert.Equal(HttpStatusCode.NotFound, missingTemplateResponse.StatusCode);
+
+        var missingStatusResponse = await client.PatchAsJsonAsync($"/api/recurring-transactions/{missingTemplateId}/status", new { isActive = false });
+        Assert.Equal(HttpStatusCode.NotFound, missingStatusResponse.StatusCode);
+
+        var missingDeleteResponse = await client.DeleteAsync($"/api/recurring-transactions/{missingTemplateId}");
+        Assert.Equal(HttpStatusCode.NotFound, missingDeleteResponse.StatusCode);
+    }
+
     private static async Task<JsonElement> AnalyzeMonthlyReportAsync(HttpClient client, MultipartFormDataContent form)
     {
         var job = await AnalyzeMonthlyReportJobAsync(client, form);

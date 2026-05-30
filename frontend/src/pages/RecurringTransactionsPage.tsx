@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { apiClient } from "../api/client";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
@@ -47,6 +47,19 @@ function toUtcIso(value: string) {
   return new Date(value).toISOString();
 }
 
+function parseAmount(value: string) {
+  if (!value.trim()) {
+    throw new Error("Enter a valid amount.");
+  }
+
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) {
+    throw new Error("Enter a valid amount.");
+  }
+
+  return amount;
+}
+
 function templateToValues(template: RecurringTransactionTemplate): FormValues {
   return {
     accountId: template.accountId,
@@ -61,10 +74,12 @@ function templateToValues(template: RecurringTransactionTemplate): FormValues {
 }
 
 function buildPayload(values: FormValues): RecurringTransactionTemplatePayload {
+  const amount = parseAmount(values.amount);
+
   return {
     accountId: values.accountId,
     categoryId: values.categoryId || null,
-    amount: Number(values.amount),
+    amount,
     type: values.type,
     interval: values.interval,
     startOnUtc: toUtcIso(values.startOnUtc),
@@ -100,8 +115,15 @@ export function RecurringTransactionsPage() {
   const accountById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts]);
   const categoryById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories]);
   const availableCategories = useMemo(() => getCategoryOptions(categories, values.type), [categories, values.type]);
+  const startDateBounds = useMemo(() => {
+    const now = new Date();
+    return {
+      min: toDateTimeLocal(now),
+      max: toDateTimeLocal(new Date(now.getTime() + 5 * 365 * 24 * 60 * 60 * 1000))
+    };
+  }, []);
 
-  const loadTemplates = async () => {
+  const loadTemplates = useCallback(async () => {
     if (!auth?.accessToken) return;
     setLoading(true);
     setError(null);
@@ -112,11 +134,11 @@ export function RecurringTransactionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [auth?.accessToken]);
 
   useEffect(() => {
     void loadTemplates();
-  }, [auth?.accessToken]);
+  }, [loadTemplates]);
 
   useEffect(() => {
     if (!values.accountId && accounts.length > 0) {
@@ -246,7 +268,7 @@ export function RecurringTransactionsPage() {
 
       <div className="recurring-layout">
         <SectionCard title={editingId ? "Edit recurring template" : "Create recurring template"} icon={<CalendarIcon />}>
-          <form className="stack-form recurring-form" onSubmit={handleSubmit}>
+          <form className="stack-form recurring-form" onSubmit={handleSubmit} noValidate>
             <label>
               Account
               <select value={values.accountId} onChange={(event) => updateValue("accountId", event.target.value)} required>
@@ -284,7 +306,7 @@ export function RecurringTransactionsPage() {
               </label>
               <label>
                 Starts on
-                <input type="datetime-local" value={values.startOnUtc} onChange={(event) => updateValue("startOnUtc", event.target.value)} required />
+                <input type="datetime-local" min={startDateBounds.min} max={startDateBounds.max} value={values.startOnUtc} onChange={(event) => updateValue("startOnUtc", event.target.value)} required />
               </label>
             </div>
             <label>

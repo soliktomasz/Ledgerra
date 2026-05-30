@@ -82,6 +82,7 @@ builder.Services.AddScoped<GetTransactionByIdQueryHandler>();
 builder.Services.AddScoped<GetTransactionsQueryHandler>();
 builder.Services.AddScoped<IRecurringTransactionRepository, RecurringTransactionRepository>();
 builder.Services.AddScoped<RecurringTransactionUseCases>();
+builder.Services.AddSingleton<IRecurringTransactionGenerationCoordinator, PostgresRecurringTransactionGenerationCoordinator>();
 builder.Services.AddHostedService<RecurringTransactionGenerationService>();
 builder.Services.AddScoped<IBudgetSummaryStore, BudgetSummaryStore>();
 builder.Services.AddScoped<IDashboardSummaryDataProvider, DashboardSummaryDataProvider>();
