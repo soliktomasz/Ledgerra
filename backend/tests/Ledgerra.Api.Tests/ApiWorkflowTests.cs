@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ledgerra.Api.Tests;
 
@@ -1730,6 +1731,105 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         Assert.Contains("not configured", job.GetProperty("error").GetString(), StringComparison.OrdinalIgnoreCase);
     }
 
+
+    [Fact]
+    public async Task RecurringTransactions_GenerateMonthlyAnchoredMissedIntervalsAndPreventDuplicates()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var accountId = await CreateAccountAsync(client, "Recurring Checking", "Checking", 1000m);
+        var categoryId = await CreateCategoryAsync(client, "Rent", "Expense");
+
+        var createResponse = await client.PostAsJsonAsync("/api/recurring-transactions", new
+        {
+            accountId,
+            categoryId,
+            amount = 250m,
+            type = "Expense",
+            interval = "Monthly",
+            startOnUtc = "2024-01-31T09:00:00Z",
+            note = "Anchored rent"
+        });
+        Assert.Equal(HttpStatusCode.OK, createResponse.StatusCode);
+
+        await using (var scope = _factory.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
+        {
+            var generator = scope.ServiceProvider.GetRequiredService<Ledgerra.Application.Transactions.RecurringTransactionUseCases>();
+            Assert.Equal(3, await generator.GenerateDueAsync(auth.UserId, new DateTime(2024, 3, 31, 12, 0, 0, DateTimeKind.Utc), CancellationToken.None));
+            Assert.Equal(0, await generator.GenerateDueAsync(auth.UserId, new DateTime(2024, 3, 31, 12, 0, 0, DateTimeKind.Utc), CancellationToken.None));
+        }
+
+        var transactionsResponse = await client.GetAsync($"/api/transactions?accountId={accountId}&from=2024-01-01&to=2024-03-31");
+        Assert.Equal(HttpStatusCode.OK, transactionsResponse.StatusCode);
+        var transactions = (await transactionsResponse.Content.ReadFromJsonAsync<JsonElement>()).EnumerateArray().ToArray();
+        Assert.Equal(3, transactions.Length);
+        Assert.Contains(transactions, transaction => transaction.GetProperty("occurredOnUtc").GetDateTime() == new DateTime(2024, 1, 31, 9, 0, 0, DateTimeKind.Utc));
+        Assert.Contains(transactions, transaction => transaction.GetProperty("occurredOnUtc").GetDateTime() == new DateTime(2024, 2, 29, 9, 0, 0, DateTimeKind.Utc));
+        Assert.Contains(transactions, transaction => transaction.GetProperty("occurredOnUtc").GetDateTime() == new DateTime(2024, 3, 31, 9, 0, 0, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public async Task RecurringTransactions_CanUpdatePauseResumeAndDeleteTemplates()
+    {
+        using var client = _factory.CreateClient();
+
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var accountId = await CreateAccountAsync(client, "Paycheck Account", "Checking", 1000m);
+        var incomeCategoryId = await CreateCategoryAsync(client, "Payroll", "Income");
+
+        var createResponse = await client.PostAsJsonAsync("/api/recurring-transactions", new
+        {
+            accountId,
+            categoryId = incomeCategoryId,
+            amount = 1200m,
+            type = "Income",
+            interval = "Weekly",
+            startOnUtc = "2026-01-01T10:00:00Z",
+            note = "Weekly pay"
+        });
+        Assert.Equal(HttpStatusCode.OK, createResponse.StatusCode);
+        var created = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var templateId = created.GetProperty("id").GetGuid();
+
+        var pauseResponse = await client.PatchAsJsonAsync($"/api/recurring-transactions/{templateId}/status", new { isActive = false });
+        Assert.Equal(HttpStatusCode.OK, pauseResponse.StatusCode);
+        Assert.False((await pauseResponse.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("isActive").GetBoolean());
+
+        await using (var scope = _factory.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
+        {
+            var generator = scope.ServiceProvider.GetRequiredService<Ledgerra.Application.Transactions.RecurringTransactionUseCases>();
+            Assert.Equal(0, await generator.GenerateDueAsync(auth.UserId, new DateTime(2026, 1, 15, 10, 0, 0, DateTimeKind.Utc), CancellationToken.None));
+        }
+
+        var updateResponse = await client.PutAsJsonAsync($"/api/recurring-transactions/{templateId}", new
+        {
+            accountId,
+            categoryId = incomeCategoryId,
+            amount = 1500m,
+            type = "Income",
+            interval = "Monthly",
+            startOnUtc = "2026-01-15T10:00:00Z",
+            isActive = true,
+            note = "Monthly pay"
+        });
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+        var updated = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Monthly", updated.GetProperty("interval").GetString());
+        Assert.True(updated.GetProperty("isActive").GetBoolean());
+        Assert.Equal(1500m, updated.GetProperty("amount").GetDecimal());
+
+        var deleteResponse = await client.DeleteAsync($"/api/recurring-transactions/{templateId}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        var listResponse = await client.GetAsync("/api/recurring-transactions");
+        Assert.Empty((await listResponse.Content.ReadFromJsonAsync<JsonElement>()).EnumerateArray());
+    }
+
     private static async Task<JsonElement> AnalyzeMonthlyReportAsync(HttpClient client, MultipartFormDataContent form)
     {
         var job = await AnalyzeMonthlyReportJobAsync(client, form);
@@ -1782,6 +1882,7 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
 
         return new AuthResult(
+            payload.GetProperty("userId").GetGuid(),
             payload.GetProperty("accessToken").GetString()!,
             payload.GetProperty("refreshToken").GetString()!);
     }
@@ -1812,5 +1913,5 @@ public sealed class ApiWorkflowTests : IClassFixture<LedgerraApiFactory>
         return payload.GetProperty("id").GetGuid();
     }
 
-    private sealed record AuthResult(string AccessToken, string RefreshToken);
+    private sealed record AuthResult(Guid UserId, string AccessToken, string RefreshToken);
 }

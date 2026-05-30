@@ -64,6 +64,35 @@ export type Transaction = {
   savingsGoalId?: string | null;
 };
 
+
+export type RecurringTransactionTemplate = {
+  id: string;
+  accountId: string;
+  categoryId?: string | null;
+  amount: number;
+  type: string;
+  interval: string;
+  startOnUtc: string;
+  lastGeneratedOnUtc?: string | null;
+  isActive: boolean;
+  note?: string | null;
+};
+
+export type RecurringTransactionTemplatePayload = {
+  accountId: string;
+  categoryId?: string | null;
+  amount: number;
+  type: string;
+  interval: string;
+  startOnUtc: string;
+  isActive?: boolean;
+  note?: string | null;
+};
+
+export type RecurringGenerationResult = {
+  generated: number;
+};
+
 export type MonthlyReportDraftTransaction = {
   sourceId: string;
   accountId: string;

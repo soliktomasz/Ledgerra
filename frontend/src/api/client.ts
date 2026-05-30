@@ -12,6 +12,9 @@ import type {
   Profile,
   ReportingOverview,
   ReportingRangePreset,
+  RecurringGenerationResult,
+  RecurringTransactionTemplate,
+  RecurringTransactionTemplatePayload,
   BackupArchive,
   Transaction,
   SavingsGoal,
@@ -430,6 +433,43 @@ export const apiClient = {
   },
   updateSavingsGoal(token: string, goalId: string, payload: { name: string; targetAmount: number; deadlineUtc?: string | null }) {
     return request<SavingsGoal>(`/api/savings-goals/${goalId}`, { method: "PUT", token, body: payload });
+  },
+
+  getRecurringTransactions(token: string) {
+    return request<RecurringTransactionTemplate[]>("/api/recurring-transactions", { token });
+  },
+  createRecurringTransaction(token: string, payload: RecurringTransactionTemplatePayload) {
+    return request<RecurringTransactionTemplate>("/api/recurring-transactions", {
+      method: "POST",
+      token,
+      body: payload
+    });
+  },
+  updateRecurringTransaction(token: string, templateId: string, payload: RecurringTransactionTemplatePayload) {
+    return request<RecurringTransactionTemplate>(`/api/recurring-transactions/${templateId}`, {
+      method: "PUT",
+      token,
+      body: payload
+    });
+  },
+  updateRecurringTransactionStatus(token: string, templateId: string, isActive: boolean) {
+    return request<RecurringTransactionTemplate>(`/api/recurring-transactions/${templateId}/status`, {
+      method: "PATCH",
+      token,
+      body: { isActive }
+    });
+  },
+  deleteRecurringTransaction(token: string, templateId: string) {
+    return request<void>(`/api/recurring-transactions/${templateId}`, {
+      method: "DELETE",
+      token
+    });
+  },
+  generateDueRecurringTransactions(token: string) {
+    return request<RecurringGenerationResult>("/api/recurring-transactions/generate", {
+      method: "POST",
+      token
+    });
   },
 
   getTransactions(token: string, query = "") {
