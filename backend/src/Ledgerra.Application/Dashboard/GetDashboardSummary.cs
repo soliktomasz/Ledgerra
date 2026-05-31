@@ -2,6 +2,7 @@ using Ledgerra.Domain.Accounts;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Reporting;
 using Ledgerra.Domain.Transactions;
+using Ledgerra.Domain.ExchangeRates;
 
 namespace Ledgerra.Application.Dashboard;
 
@@ -14,7 +15,11 @@ public sealed record DashboardSummaryResult(
     decimal BudgetRemaining,
     IReadOnlyList<DashboardCategorySpendResult> TopCategories,
     IReadOnlyList<AccountBalanceSnapshotResult> Accounts,
-    DashboardTrendsResult Trends);
+    DashboardTrendsResult Trends,
+    string CurrencyCode,
+    IReadOnlyList<DashboardWarningResult> Warnings);
+
+public sealed record DashboardWarningResult(string Code, string Message);
 
 public sealed record DashboardCategorySpendResult(Guid CategoryId, string CategoryName, decimal Amount);
 
@@ -47,6 +52,10 @@ public interface IDashboardSummaryDataProvider
         Guid userId,
         IReadOnlyCollection<Guid> categoryIds,
         CancellationToken cancellationToken);
+
+    Task<string> GetPreferredCurrencyCodeAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<FxConversionRate>> GetExchangeRatesAsync(Guid userId, CancellationToken cancellationToken);
 }
 
 public sealed class GetDashboardSummaryQueryHandler
@@ -60,11 +69,22 @@ public sealed class GetDashboardSummaryQueryHandler
 
     public async Task<DashboardSummaryResult> HandleAsync(GetDashboardSummaryQuery query, CancellationToken cancellationToken)
     {
-        var transactions = await _dataProvider.GetTransactionsForMonthAsync(query.UserId, query.Year, query.Month, cancellationToken);
+        var currencyCode = await _dataProvider.GetPreferredCurrencyCodeAsync(query.UserId, cancellationToken);
+        var rates = await _dataProvider.GetExchangeRatesAsync(query.UserId, cancellationToken);
+        var warnings = new List<FxConversionWarning>();
+        var transactions = ConvertTransactions(
+            await _dataProvider.GetTransactionsForMonthAsync(query.UserId, query.Year, query.Month, cancellationToken),
+            currencyCode,
+            rates,
+            warnings);
         var trendStartMonth = new DateOnly(query.Year, query.Month, 1).AddMonths(-5);
         var trendStartUtc = new DateTime(trendStartMonth.Year, trendStartMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var trendEndUtc = new DateTime(query.Year, query.Month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(1);
-        var trendTransactions = await _dataProvider.GetTransactionsForRangeAsync(query.UserId, trendStartUtc, trendEndUtc, cancellationToken);
+        var trendTransactions = ConvertTransactions(
+            await _dataProvider.GetTransactionsForRangeAsync(query.UserId, trendStartUtc, trendEndUtc, cancellationToken),
+            currencyCode,
+            rates,
+            warnings);
         var accounts = await _dataProvider.GetAccountsAsync(query.UserId, cancellationToken);
         var period = await _dataProvider.GetBudgetPeriodAsync(query.UserId, query.Year, query.Month, cancellationToken);
 
@@ -106,8 +126,66 @@ public sealed class GetDashboardSummaryQueryHandler
             accounts.Select(account => new AccountBalanceSnapshotResult(
                 account.Id,
                 account.Name,
-                AccountBalanceCalculator.Calculate(account, account.Transactions))).ToList(),
-            BuildTrends(query.Year, query.Month, trendTransactions));
+                ConvertAmount(
+                    AccountBalanceCalculator.Calculate(account, account.Transactions),
+                    account.CurrencyCode,
+                    currencyCode,
+                    new DateOnly(query.Year, query.Month, 1),
+                    rates,
+                    warnings))).ToList(),
+            BuildTrends(query.Year, query.Month, trendTransactions),
+            currencyCode,
+            MapWarnings(warnings).ToList());
+    }
+
+    private static IReadOnlyList<Transaction> ConvertTransactions(
+        IReadOnlyList<Transaction> transactions,
+        string currencyCode,
+        IReadOnlyList<FxConversionRate> rates,
+        List<FxConversionWarning> warnings)
+    {
+        return transactions.Select(transaction =>
+        {
+            var month = new DateOnly(transaction.OccurredOnUtc.Year, transaction.OccurredOnUtc.Month, 1);
+            var amount = ConvertAmount(transaction.Amount, transaction.Account?.CurrencyCode ?? currencyCode, currencyCode, month, rates, warnings);
+            return new Transaction
+            {
+                Id = transaction.Id,
+                UserId = transaction.UserId,
+                AccountId = transaction.AccountId,
+                CategoryId = transaction.CategoryId,
+                Amount = amount,
+                Type = transaction.Type,
+                Note = transaction.Note,
+                OccurredOnUtc = transaction.OccurredOnUtc,
+                TransferGroupId = transaction.TransferGroupId,
+                SplitGroupId = transaction.SplitGroupId,
+                ParentTransactionId = transaction.ParentTransactionId,
+                SavingsGoalId = transaction.SavingsGoalId,
+                Account = transaction.Account,
+                Category = transaction.Category
+            };
+        }).ToList();
+    }
+
+    private static decimal ConvertAmount(
+        decimal amount,
+        string fromCurrencyCode,
+        string toCurrencyCode,
+        DateOnly month,
+        IReadOnlyList<FxConversionRate> rates,
+        List<FxConversionWarning> warnings)
+    {
+        var result = FxRateConverter.Convert(amount, fromCurrencyCode, toCurrencyCode, month, rates);
+        warnings.AddRange(result.Warnings);
+        return result.Amount;
+    }
+
+    private static IEnumerable<DashboardWarningResult> MapWarnings(IEnumerable<FxConversionWarning> warnings)
+    {
+        return warnings
+            .GroupBy(warning => new { warning.Code, warning.Message })
+            .Select(group => new DashboardWarningResult(group.Key.Code, group.Key.Message));
     }
 
     private static DashboardTrendsResult BuildTrends(int year, int month, IReadOnlyList<Transaction> transactions)

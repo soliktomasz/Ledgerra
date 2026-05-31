@@ -27,7 +27,9 @@ const mocks = vi.hoisted(() => ({
         spendingDeltaAmount: 0,
         spendingDeltaPercent: null,
         spendingSparkline: []
-      }
+      },
+      currencyCode: "USD",
+      warnings: []
     } as DashboardSummary,
     budget: {
       totalPlanned: 0,
@@ -97,7 +99,9 @@ describe("DashboardPage", () => {
         spendingDeltaAmount: 0,
         spendingDeltaPercent: null,
         spendingSparkline: []
-      }
+      },
+      currencyCode: "USD",
+      warnings: []
     } as DashboardSummary;
     mocks.data.budget = {
       totalPlanned: 0,
@@ -107,6 +111,22 @@ describe("DashboardPage", () => {
     } as BudgetSummary;
     mocks.data.transactions = [];
     mocks.data.profile = { email: "owner@ledgerra.local", preferredCurrencyCode: "USD", preferredLanguageCode: "en" };
+  });
+
+
+  test("surfaces FX conversion warnings from dashboard totals", () => {
+    mocks.data.dashboard = {
+      ...mocks.data.dashboard,
+      currencyCode: "USD",
+      warnings: [
+        { code: "MissingFxRate", message: "Missing FX rate for EUR to USD in 2026-05." }
+      ]
+    } as DashboardSummary;
+
+    renderDashboardPage();
+
+    expect(screen.getByText("FX conversion warning")).toBeInTheDocument();
+    expect(screen.getByText("Missing FX rate for EUR to USD in 2026-05.")).toBeInTheDocument();
   });
 
   test("shows first-run checklist progress from current ledger data", () => {
@@ -255,7 +275,9 @@ describe("DashboardPage", () => {
           { month: "2026-03", amount: 480 },
           { month: "2026-04", amount: 540 }
         ]
-      }
+      },
+      currencyCode: "USD",
+      warnings: []
     } as DashboardSummary;
     mocks.data.budget = {
       totalPlanned: 1500,
@@ -364,7 +386,9 @@ describe("DashboardPage", () => {
           { month: "2026-03", amount: 480 },
           { month: "2026-04", amount: 540 }
         ]
-      }
+      },
+      currencyCode: "USD",
+      warnings: []
     } as DashboardSummary;
 
     renderDashboardPage();
@@ -387,7 +411,9 @@ describe("DashboardPage", () => {
         spendingDeltaAmount: 60,
         spendingDeltaPercent: 12.5,
         spendingSparkline: [{ month: "2026-04", amount: 540 }]
-      }
+      },
+      currencyCode: "USD",
+      warnings: []
     } as DashboardSummary;
 
     const { rerender } = renderDashboardPage();
@@ -442,7 +468,9 @@ describe("DashboardPage", () => {
         spendingDeltaAmount: 60,
         spendingDeltaPercent: 12.5,
         spendingSparkline: []
-      }
+      },
+      currencyCode: "USD",
+      warnings: []
     } as DashboardSummary;
 
     renderDashboardPage("2026-02");

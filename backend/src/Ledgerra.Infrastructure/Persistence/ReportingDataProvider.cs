@@ -1,6 +1,7 @@
 using Ledgerra.Application.Reporting;
 using Ledgerra.Domain.Accounts;
 using Ledgerra.Domain.Transactions;
+using Ledgerra.Domain.ExchangeRates;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ledgerra.Infrastructure.Persistence;
@@ -41,7 +42,9 @@ public sealed class ReportingDataProvider : IReportingDataProvider
             query = query.Where(item => item.AccountId == accountId.Value);
         }
 
-        return await query.ToListAsync(cancellationToken);
+        return await query
+            .Include(item => item.Account)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyDictionary<Guid, string>> GetCategoryNamesAsync(
@@ -75,5 +78,21 @@ public sealed class ReportingDataProvider : IReportingDataProvider
         }
 
         return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<string> GetPreferredCurrencyCodeAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Users
+            .Where(user => user.Id == userId)
+            .Select(user => user.PreferredCurrencyCode)
+            .SingleOrDefaultAsync(cancellationToken) ?? "USD";
+    }
+
+    public async Task<IReadOnlyList<FxConversionRate>> GetExchangeRatesAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ExchangeRates
+            .Where(rate => rate.UserId == userId)
+            .Select(rate => new FxConversionRate(rate.FromCurrencyCode, rate.ToCurrencyCode, rate.Month, rate.Rate))
+            .ToListAsync(cancellationToken);
     }
 }

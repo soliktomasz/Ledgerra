@@ -7,7 +7,11 @@ public sealed record DashboardSummaryResponse(
     decimal BudgetRemaining,
     IReadOnlyList<DashboardCategorySpendResponse> TopCategories,
     IReadOnlyList<AccountBalanceSnapshot> Accounts,
-    DashboardTrendsResponse Trends);
+    DashboardTrendsResponse Trends,
+    string CurrencyCode,
+    IReadOnlyList<DashboardWarningResponse> Warnings);
+
+public sealed record DashboardWarningResponse(string Code, string Message);
 
 public sealed record DashboardCategorySpendResponse(Guid CategoryId, string CategoryName, decimal Amount);
 

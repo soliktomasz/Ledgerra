@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   getAccounts: vi.fn(),
   getCategories: vi.fn(),
   getImportRules: vi.fn(),
+  getExchangeRates: vi.fn(),
   getTransactions: vi.fn(),
   getBudget: vi.fn()
 }));
@@ -33,6 +34,7 @@ vi.mock("../api/client", () => ({
     getAccounts: mocks.getAccounts,
     getCategories: mocks.getCategories,
     getImportRules: mocks.getImportRules,
+    getExchangeRates: mocks.getExchangeRates,
     getTransactions: mocks.getTransactions,
     getBudget: mocks.getBudget
   }
@@ -60,6 +62,7 @@ describe("useLedgerraData", () => {
     mocks.getAccounts.mockResolvedValue([]);
     mocks.getCategories.mockResolvedValue([{ id: "category-1", name: "Groceries", kind: "Expense", isSystem: false }]);
     mocks.getImportRules.mockResolvedValue([]);
+    mocks.getExchangeRates.mockResolvedValue([]);
     mocks.getTransactions.mockResolvedValue([]);
     mocks.getBudget.mockResolvedValue({ totalPlanned: 0, totalSpent: 0, totalRemaining: 0, categories: [] });
   });

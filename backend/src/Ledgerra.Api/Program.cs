@@ -6,6 +6,7 @@ using Ledgerra.Application.Dashboard;
 using Ledgerra.Application.Imports;
 using Ledgerra.Application.Reporting;
 using Ledgerra.Application.Settings;
+using Ledgerra.Application.ExchangeRates;
 using Ledgerra.Application.Transactions;
 using Ledgerra.Api.Services;
 using Ledgerra.Api.Services.Ai;
@@ -89,6 +90,10 @@ builder.Services.AddScoped<IDashboardSummaryDataProvider, DashboardSummaryDataPr
 builder.Services.AddScoped<IReportingDataProvider, ReportingDataProvider>();
 builder.Services.AddScoped<IMonthlyAccountBalanceSnapshotService, MonthlyAccountBalanceSnapshotService>();
 builder.Services.AddScoped<IUserProfileStore, UserProfileStore>();
+builder.Services.AddScoped<IExchangeRateStore, ExchangeRateStore>();
+builder.Services.AddScoped<GetExchangeRatesQueryHandler>();
+builder.Services.AddScoped<UpsertExchangeRateCommandHandler>();
+builder.Services.AddScoped<DeleteExchangeRateCommandHandler>();
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();

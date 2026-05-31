@@ -1315,8 +1315,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/types.ts": {
-    "mtime": 1780125816.8053994,
-    "ast_hash": "3bf7ffa5601542c53ea7a3ce809167cf",
+    "mtime": 1780247458.9131598,
+    "ast_hash": "104ad4c7feeea8b0ec1483ad87143dc8",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/vite-env.d.ts": {
@@ -1475,8 +1475,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/hooks/useLedgerraData.ts": {
-    "mtime": 1779000894.8522046,
-    "ast_hash": "abb962c9682bbdb8c477fa4abb14c2d7",
+    "mtime": 1780247458.9104857,
+    "ast_hash": "f8282ac4978332745f5ae5cf7bb84234",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/hooks/useReportingOverview.ts": {
@@ -1485,13 +1485,13 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/hooks/useLedgerraData.test.tsx": {
-    "mtime": 1777626258.9741461,
-    "ast_hash": "91b27b5f00183cb6390a161c70417118",
+    "mtime": 1780248317.3048031,
+    "ast_hash": "897dd13971816f39f6f497f30bb5a85e",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/api/client.ts": {
-    "mtime": 1780125816.8031306,
-    "ast_hash": "4482abca20836b271b41993c1d95468f",
+    "mtime": 1780247458.9099636,
+    "ast_hash": "16fa0f086b59a691221d789e6fe6c4e1",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/api/client.test.ts": {
@@ -1530,13 +1530,13 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/SettingsPage.tsx": {
-    "mtime": 1779639766.0121424,
-    "ast_hash": "b870e452e7496190600a027ddffb5a69",
+    "mtime": 1780247458.9127498,
+    "ast_hash": "5454aa5ad14d2d78de5ff5600f230dfb",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ReportsPage.tsx": {
-    "mtime": 1779000894.8563118,
-    "ast_hash": "13af30ad9deab1e34c6697a904b1d877",
+    "mtime": 1780247458.9117794,
+    "ast_hash": "daaa2c0a4250332f3821ebe7672d8c96",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/BudgetsPage.tsx": {
@@ -1545,8 +1545,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/DashboardPage.test.tsx": {
-    "mtime": 1779603665.4144738,
-    "ast_hash": "1c94db87e2ba7c410b83fdaf1f5339dc",
+    "mtime": 1780247458.9108922,
+    "ast_hash": "1b632cc6c62c1faa8d55a3ebeafc7e75",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/TransactionsPage.test.tsx": {
@@ -1570,8 +1570,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/SettingsPage.test.tsx": {
-    "mtime": 1779639732.2264686,
-    "ast_hash": "5a90e01dd40f2fedbd0d60f79c78933e",
+    "mtime": 1780247458.9122634,
+    "ast_hash": "3826361ea089172a020509f144eb93e6",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ImportsPage.test.tsx": {
@@ -1595,13 +1595,13 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/DashboardPage.tsx": {
-    "mtime": 1779603651.8987927,
-    "ast_hash": "fbbb9139c90ac51f94282ba8627a406b",
+    "mtime": 1780247458.9111724,
+    "ast_hash": "f089c9d6a8f3669355ee0ccc5950737f",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs": {
-    "mtime": 1777400015.579926,
-    "ast_hash": "52d4449d0daf8a769a58e33eed51ece4",
+    "mtime": 1780247458.9094944,
+    "ast_hash": "60bb88401200503b8c5273175fd6f575",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/tests/Ledgerra.Api.Tests/EndpointValidatorTests.cs": {
@@ -1610,8 +1610,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/tests/Ledgerra.Api.Tests/ReportingApiTests.cs": {
-    "mtime": 1779517641.1380498,
-    "ast_hash": "7b599b9b33502abd93c42690b4efeac5",
+    "mtime": 1780247458.9090505,
+    "ast_hash": "122c776e5e932b5b1a01b86d12b1ed04",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs": {
@@ -1675,8 +1675,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Domain/Auth/AppUser.cs": {
-    "mtime": 1779517641.135193,
-    "ast_hash": "75e6c2c0a4c107c0c2fea24c1f913345",
+    "mtime": 1780247458.9066083,
+    "ast_hash": "74cc64c67f6e4c9acf4f31d9fc9d2ab1",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Domain/Imports/CategorizationRule.cs": {
@@ -1795,13 +1795,13 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Program.cs": {
-    "mtime": 1780126039.9417636,
-    "ast_hash": "247ce882642ea4d2dd78b3df5d561dc2",
+    "mtime": 1780247458.9047961,
+    "ast_hash": "3cbc2e334649b71be1e82740ccba496b",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Contracts/DashboardContracts.cs": {
-    "mtime": 1777617352.7377796,
-    "ast_hash": "5d705879d4c2929670f6fb9e10cc136f",
+    "mtime": 1780247458.902735,
+    "ast_hash": "38d0d2148d446897f6807b4805b4d7ba",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Contracts/ReportingContracts.cs": {
@@ -1835,8 +1835,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Contracts/SettingsContracts.cs": {
-    "mtime": 1777626258.9899404,
-    "ast_hash": "7908d52d11821763c890e968da0a8c6a",
+    "mtime": 1780247458.9034815,
+    "ast_hash": "552febedf1f22f24f897d17a6f968c0e",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Contracts/SavingsGoalContracts.cs": {
@@ -1905,8 +1905,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Controllers/DashboardController.cs": {
-    "mtime": 1777617382.8524396,
-    "ast_hash": "d7ff0e4c4bbe585a719a15ee0a8afe3b",
+    "mtime": 1780247540.0430818,
+    "ast_hash": "68e40c58e5603b9814b4ad47deeeb0bb",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Controllers/MonthlyReportImportsController.cs": {
@@ -1930,8 +1930,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Controllers/SettingsController.cs": {
-    "mtime": 1779639752.6963863,
-    "ast_hash": "6b4a855385e6e89648e496a2c564b226",
+    "mtime": 1780247458.9043698,
+    "ast_hash": "1a76e23bb3406d57aa5b148a571539e9",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Controllers/SavingsGoalsController.cs": {
@@ -2110,8 +2110,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/DashboardSummaryDataProvider.cs": {
-    "mtime": 1779002693.6417592,
-    "ast_hash": "0f2ebe75c242191b7749e5f0858c4087",
+    "mtime": 1780247458.9079566,
+    "ast_hash": "fd4fe08926ecc331ca8bc0e1727f8e12",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/AccountStore.cs": {
@@ -2160,13 +2160,13 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/ReportingDataProvider.cs": {
-    "mtime": 1777617256.0128844,
-    "ast_hash": "dcffb68c99191e21386b19e3207beb08",
+    "mtime": 1780247458.9085848,
+    "ast_hash": "aa3cfbc82df3c0355afd84c3a88e0779",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/CategorizationRuleSchemaInitializer.cs": {
-    "mtime": 1779000894.843358,
-    "ast_hash": "8b4a63ce7b0299d6b9c32684fa8f160e",
+    "mtime": 1780247458.9074225,
+    "ast_hash": "ef84840e6ea76a3e5efb2f11eb6585c9",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/BudgetSchemaInitializer.cs": {
@@ -2175,8 +2175,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/LedgerraDbContext.cs": {
-    "mtime": 1779517641.1358316,
-    "ast_hash": "4555b6261d1b25dcc3f1e7c1a5a61993",
+    "mtime": 1780247458.9084148,
+    "ast_hash": "7f97c53d8ee5d88d1f701d190038a803",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/MonthlyReportImportCommitStore.cs": {
@@ -2225,8 +2225,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs": {
-    "mtime": 1777619323.8505518,
-    "ast_hash": "fcfcd326761609c4181f1e92113d07ec",
+    "mtime": 1780248401.1307573,
+    "ast_hash": "f8b7c63a474574587aff700dde2a7456",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/Imports/CommitMonthlyReportDrafts.cs": {
@@ -2240,8 +2240,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs": {
-    "mtime": 1779002693.6400168,
-    "ast_hash": "d9bcca048e7a78b56227dd8647e711ba",
+    "mtime": 1780247458.9054234,
+    "ast_hash": "fb7ea0bde69312dab37de3748006bd4f",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/Transactions/TransactionQueryUseCases.cs": {
@@ -2442,6 +2442,26 @@
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Api/Services/RecurringTransactionGenerationService.cs": {
     "mtime": 1780126249.605433,
     "ast_hash": "e2db8160cc6906ba87f247faab583c5d",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Domain/ExchangeRates/FxConversion.cs": {
+    "mtime": 1780247458.906799,
+    "ast_hash": "6d58558dd34d398e9f5fca69257876cb",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Domain/ExchangeRates/UserExchangeRate.cs": {
+    "mtime": 1780247458.9069252,
+    "ast_hash": "e0dd301a31300a740b3e5a5e3fd663b8",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs": {
+    "mtime": 1780247458.9080703,
+    "ast_hash": "40916b9eae560fd0d4827de626bf1fec",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs": {
+    "mtime": 1780247458.9056249,
+    "ast_hash": "9681cce8c4188aefdb4ef8049d7b9f4a",
     "semantic_hash": ""
   }
 }

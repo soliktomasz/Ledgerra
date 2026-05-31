@@ -35,6 +35,15 @@ export type AiProviderStatus = {
   model?: string | null;
 };
 
+export type ExchangeRate = {
+  id: string;
+  fromCurrencyCode: string;
+  toCurrencyCode: string;
+  month: string;
+  rate: number;
+  updatedAtUtc: string;
+};
+
 export type AiSettings = {
   providers: {
     openAi: AiProviderStatus;
@@ -188,6 +197,11 @@ export type DashboardSummary = {
       amount: number;
     }>;
   };
+  currencyCode: string;
+  warnings: Array<{
+    code: string;
+    message: string;
+  }>;
 };
 
 

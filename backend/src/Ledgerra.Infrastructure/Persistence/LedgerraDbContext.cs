@@ -5,6 +5,7 @@ using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
 using Ledgerra.Domain.Imports;
 using Ledgerra.Domain.Goals;
+using Ledgerra.Domain.ExchangeRates;
 using Ledgerra.Domain.Transactions;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,6 +46,8 @@ public sealed class LedgerraDbContext : DbContext
 
     public DbSet<SavingsGoal> SavingsGoals => Set<SavingsGoal>();
 
+    public DbSet<UserExchangeRate> ExchangeRates => Set<UserExchangeRate>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AppUser>(builder =>
@@ -57,6 +60,20 @@ public sealed class LedgerraDbContext : DbContext
             builder.Property(user => user.PasswordHash).HasMaxLength(2048);
             builder.Property(user => user.PreferredCurrencyCode).HasMaxLength(3);
             builder.Property(user => user.PreferredLanguageCode).HasMaxLength(10);
+        });
+
+
+        modelBuilder.Entity<UserExchangeRate>(builder =>
+        {
+            builder.HasKey(rate => rate.Id);
+            builder.Property(rate => rate.FromCurrencyCode).HasMaxLength(3);
+            builder.Property(rate => rate.ToCurrencyCode).HasMaxLength(3);
+            builder.Property(rate => rate.Rate).HasPrecision(18, 8);
+            builder.HasIndex(rate => new { rate.UserId, rate.FromCurrencyCode, rate.ToCurrencyCode, rate.Month }).IsUnique();
+            builder.HasOne<AppUser>()
+                .WithMany(user => user.ExchangeRates)
+                .HasForeignKey(rate => rate.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Account>(builder =>
