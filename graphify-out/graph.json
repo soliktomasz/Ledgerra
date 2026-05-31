@@ -7621,7 +7621,7 @@
       "label": "{ result }",
       "file_type": "code",
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
-      "source_location": "L70",
+      "source_location": "L73",
       "id": "hooks_useledgerradata_test_result",
       "community": 21,
       "norm_label": "{ result }"
@@ -17422,7 +17422,7 @@
       "label": ".ConvertTransactions()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
-      "source_location": "L158",
+      "source_location": "L174",
       "id": "reporting_getreportingoverview_getreportingoverviewqueryhandler_converttransactions",
       "community": 17,
       "norm_label": ".converttransactions()"
@@ -17431,7 +17431,7 @@
       "label": ".ConvertSnapshots()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
-      "source_location": "L193",
+      "source_location": "L209",
       "id": "reporting_getreportingoverview_getreportingoverviewqueryhandler_convertsnapshots",
       "community": 17,
       "norm_label": ".convertsnapshots()"
@@ -17440,7 +17440,7 @@
       "label": ".MapWarnings()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
-      "source_location": "L220",
+      "source_location": "L245",
       "id": "reporting_getreportingoverview_getreportingoverviewqueryhandler_mapwarnings",
       "community": 17,
       "norm_label": ".mapwarnings()"
@@ -17449,7 +17449,7 @@
       "label": ".BuildSummary()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
-      "source_location": "L227",
+      "source_location": "L252",
       "id": "reporting_getreportingoverview_getreportingoverviewqueryhandler_buildsummary",
       "community": 17,
       "norm_label": ".buildsummary()"
@@ -17458,7 +17458,7 @@
       "label": ".NormalizeRangePreset()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
-      "source_location": "L253",
+      "source_location": "L278",
       "id": "reporting_getreportingoverview_getreportingoverviewqueryhandler_normalizerangepreset",
       "community": 17,
       "norm_label": ".normalizerangepreset()"
@@ -17467,7 +17467,7 @@
       "label": ".CalculateStartMonth()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
-      "source_location": "L263",
+      "source_location": "L288",
       "id": "reporting_getreportingoverview_getreportingoverviewqueryhandler_calculatestartmonth",
       "community": 17,
       "norm_label": ".calculatestartmonth()"
@@ -27565,9 +27565,9 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_types_ts",
-      "target": "src_types_exchangerate",
-      "confidence_score": 1.0
+      "target": "src_types_exchangerate"
     },
     {
       "relation": "contains",
@@ -28346,9 +28346,9 @@
       "source_file": "frontend/src/hooks/useLedgerraData.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_hooks_useledgerradata_ts",
-      "target": "src_types_exchangerate",
-      "confidence_score": 1.0
+      "target": "src_types_exchangerate"
     },
     {
       "relation": "imports",
@@ -28357,9 +28357,9 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_api_client_ts",
-      "target": "src_types_exchangerate",
-      "confidence_score": 1.0
+      "target": "src_types_exchangerate"
     },
     {
       "relation": "imports",
@@ -28368,9 +28368,9 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_settingspage_tsx",
-      "target": "src_types_exchangerate",
-      "confidence_score": 1.0
+      "target": "src_types_exchangerate"
     },
     {
       "relation": "imports",
@@ -38905,9 +38905,9 @@
       "source_file": "backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_domain_tests_financecalculationstests_financecalculationstests",
-      "target": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_usesmonthlymanualrateandwarnswhenrateisstale",
-      "confidence_score": 1.0
+      "target": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_usesmonthlymanualrateandwarnswhenrateisstale"
     },
     {
       "relation": "method",
@@ -38915,9 +38915,9 @@
       "source_file": "backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_domain_tests_financecalculationstests_financecalculationstests",
-      "target": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_returnszeroandwarningwhenrateismissing",
-      "confidence_score": 1.0
+      "target": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_returnszeroandwarningwhenrateismissing"
     },
     {
       "relation": "method",
@@ -39089,9 +39089,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ReportingApiTests.cs",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_reportingapitests_reportingapitests",
-      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_overview_convertsmixedcurrencyreportswithmanualfxrates",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_overview_convertsmixedcurrencyreportswithmanualfxrates"
     },
     {
       "relation": "method",
@@ -39234,9 +39234,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ReportingApiTests.cs",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_reportingapitests_reportingapitests_overview_convertsmixedcurrencyreportswithmanualfxrates",
-      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_authenticateasync",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_authenticateasync"
     },
     {
       "relation": "calls",
@@ -39245,9 +39245,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ReportingApiTests.cs",
       "source_location": "L85",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_reportingapitests_reportingapitests_overview_convertsmixedcurrencyreportswithmanualfxrates",
-      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_createaccountasync",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_createaccountasync"
     },
     {
       "relation": "calls",
@@ -39256,9 +39256,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ReportingApiTests.cs",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_reportingapitests_reportingapitests_overview_convertsmixedcurrencyreportswithmanualfxrates",
-      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_createcategoryasync",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_createcategoryasync"
     },
     {
       "relation": "calls",
@@ -39267,9 +39267,9 @@
       "source_file": "backend/tests/Ledgerra.Api.Tests/ReportingApiTests.cs",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ledgerra_api_tests_reportingapitests_reportingapitests_overview_convertsmixedcurrencyreportswithmanualfxrates",
-      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_createtransactionasync",
-      "confidence_score": 1.0
+      "target": "ledgerra_api_tests_reportingapitests_reportingapitests_createtransactionasync"
     },
     {
       "relation": "calls",
@@ -42383,9 +42383,9 @@
       "source_file": "backend/src/Ledgerra.Domain/ExchangeRates/FxConversion.cs",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_domain_exchangerates_fxconversion_cs",
-      "target": "exchangerates_fxconversion_fxrateconverter",
-      "confidence_score": 1.0
+      "target": "exchangerates_fxconversion_fxrateconverter"
     },
     {
       "relation": "method",
@@ -42393,9 +42393,9 @@
       "source_file": "backend/src/Ledgerra.Domain/ExchangeRates/FxConversion.cs",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_fxconversion_fxrateconverter",
-      "target": "exchangerates_fxconversion_fxrateconverter_convert",
-      "confidence_score": 1.0
+      "target": "exchangerates_fxconversion_fxrateconverter_convert"
     },
     {
       "relation": "method",
@@ -42403,9 +42403,9 @@
       "source_file": "backend/src/Ledgerra.Domain/ExchangeRates/FxConversion.cs",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_fxconversion_fxrateconverter",
-      "target": "exchangerates_fxconversion_fxrateconverter_normalizecurrency",
-      "confidence_score": 1.0
+      "target": "exchangerates_fxconversion_fxrateconverter_normalizecurrency"
     },
     {
       "relation": "calls",
@@ -42414,9 +42414,9 @@
       "source_file": "backend/src/Ledgerra.Domain/ExchangeRates/FxConversion.cs",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_fxconversion_fxrateconverter_convert",
-      "target": "exchangerates_fxconversion_fxrateconverter_normalizecurrency",
-      "confidence_score": 1.0
+      "target": "exchangerates_fxconversion_fxrateconverter_normalizecurrency"
     },
     {
       "relation": "contains",
@@ -42424,9 +42424,9 @@
       "source_file": "backend/src/Ledgerra.Domain/ExchangeRates/UserExchangeRate.cs",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_domain_exchangerates_userexchangerate_cs",
-      "target": "exchangerates_userexchangerate_userexchangerate",
-      "confidence_score": 1.0
+      "target": "exchangerates_userexchangerate_userexchangerate"
     },
     {
       "relation": "contains",
@@ -42814,9 +42814,9 @@
       "source_file": "backend/src/Ledgerra.Api/Contracts/SettingsContracts.cs",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_api_contracts_settingscontracts_cs",
-      "target": "contracts_settingscontracts_upsertexchangeraterequest",
-      "confidence_score": 1.0
+      "target": "contracts_settingscontracts_upsertexchangeraterequest"
     },
     {
       "relation": "contains",
@@ -44249,9 +44249,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "getexchangeratesqueryhandler",
-      "confidence_score": 1.0
+      "target": "getexchangeratesqueryhandler"
     },
     {
       "relation": "references",
@@ -44260,9 +44260,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "upsertexchangeratecommandhandler",
-      "confidence_score": 1.0
+      "target": "upsertexchangeratecommandhandler"
     },
     {
       "relation": "references",
@@ -44271,9 +44271,9 @@
       "source_location": "L22",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "deleteexchangeratecommandhandler",
-      "confidence_score": 1.0
+      "target": "deleteexchangeratecommandhandler"
     },
     {
       "relation": "method",
@@ -44301,9 +44301,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "controllers_settingscontroller_settingscontroller_getexchangerates",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_getexchangerates"
     },
     {
       "relation": "method",
@@ -44311,9 +44311,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L82",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "controllers_settingscontroller_settingscontroller_upsertexchangerate",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_upsertexchangerate"
     },
     {
       "relation": "method",
@@ -44321,9 +44321,9 @@
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controllers_settingscontroller_settingscontroller",
-      "target": "controllers_settingscontroller_settingscontroller_deleteexchangerate",
-      "confidence_score": 1.0
+      "target": "controllers_settingscontroller_settingscontroller_deleteexchangerate"
     },
     {
       "relation": "method",
@@ -48054,9 +48054,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/DashboardSummaryDataProvider.cs",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_dashboardsummarydataprovider_dashboardsummarydataprovider",
-      "target": "persistence_dashboardsummarydataprovider_dashboardsummarydataprovider_getpreferredcurrencycodeasync",
-      "confidence_score": 1.0
+      "target": "persistence_dashboardsummarydataprovider_dashboardsummarydataprovider_getpreferredcurrencycodeasync"
     },
     {
       "relation": "method",
@@ -48064,9 +48064,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/DashboardSummaryDataProvider.cs",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_dashboardsummarydataprovider_dashboardsummarydataprovider",
-      "target": "persistence_dashboardsummarydataprovider_dashboardsummarydataprovider_getexchangeratesasync",
-      "confidence_score": 1.0
+      "target": "persistence_dashboardsummarydataprovider_dashboardsummarydataprovider_getexchangeratesasync"
     },
     {
       "relation": "method",
@@ -49033,9 +49033,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ReportingDataProvider.cs",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_reportingdataprovider_reportingdataprovider",
-      "target": "persistence_reportingdataprovider_reportingdataprovider_getpreferredcurrencycodeasync",
-      "confidence_score": 1.0
+      "target": "persistence_reportingdataprovider_reportingdataprovider_getpreferredcurrencycodeasync"
     },
     {
       "relation": "method",
@@ -49043,9 +49043,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ReportingDataProvider.cs",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_reportingdataprovider_reportingdataprovider",
-      "target": "persistence_reportingdataprovider_reportingdataprovider_getexchangeratesasync",
-      "confidence_score": 1.0
+      "target": "persistence_reportingdataprovider_reportingdataprovider_getexchangeratesasync"
     },
     {
       "relation": "contains",
@@ -49053,9 +49053,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_infrastructure_persistence_exchangeratestore_cs",
-      "target": "persistence_exchangeratestore_exchangeratestore",
-      "confidence_score": 1.0
+      "target": "persistence_exchangeratestore_exchangeratestore"
     },
     {
       "relation": "inherits",
@@ -49063,9 +49063,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore"
     },
     {
       "relation": "references",
@@ -49074,9 +49074,9 @@
       "source_location": "L9",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore",
-      "target": "backend_src_ledgerra_infrastructure_persistence_exchangeratestore_cs_ledgerradbcontext",
-      "confidence_score": 1.0
+      "target": "backend_src_ledgerra_infrastructure_persistence_exchangeratestore_cs_ledgerradbcontext"
     },
     {
       "relation": "method",
@@ -49084,9 +49084,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore",
-      "target": "persistence_exchangeratestore_exchangeratestore_getforuserasync",
-      "confidence_score": 1.0
+      "target": "persistence_exchangeratestore_exchangeratestore_getforuserasync"
     },
     {
       "relation": "method",
@@ -49094,9 +49094,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore",
-      "target": "persistence_exchangeratestore_exchangeratestore_upsertasync",
-      "confidence_score": 1.0
+      "target": "persistence_exchangeratestore_exchangeratestore_upsertasync"
     },
     {
       "relation": "method",
@@ -49104,9 +49104,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore",
-      "target": "persistence_exchangeratestore_exchangeratestore_deleteasync",
-      "confidence_score": 1.0
+      "target": "persistence_exchangeratestore_exchangeratestore_deleteasync"
     },
     {
       "relation": "method",
@@ -49114,9 +49114,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore",
-      "target": "persistence_exchangeratestore_exchangeratestore_map",
-      "confidence_score": 1.0
+      "target": "persistence_exchangeratestore_exchangeratestore_map"
     },
     {
       "relation": "calls",
@@ -49125,9 +49125,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore_getforuserasync",
-      "target": "persistence_exchangeratestore_exchangeratestore_map",
-      "confidence_score": 1.0
+      "target": "persistence_exchangeratestore_exchangeratestore_map"
     },
     {
       "relation": "calls",
@@ -49136,9 +49136,9 @@
       "source_file": "backend/src/Ledgerra.Infrastructure/Persistence/ExchangeRateStore.cs",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "persistence_exchangeratestore_exchangeratestore_upsertasync",
-      "target": "persistence_exchangeratestore_exchangeratestore_map",
-      "confidence_score": 1.0
+      "target": "persistence_exchangeratestore_exchangeratestore_map"
     },
     {
       "relation": "contains",
@@ -49811,9 +49811,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_ireportingdataprovider",
-      "target": "reporting_getreportingoverview_ireportingdataprovider_getpreferredcurrencycodeasync",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_ireportingdataprovider_getpreferredcurrencycodeasync"
     },
     {
       "relation": "method",
@@ -49821,9 +49821,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_ireportingdataprovider",
-      "target": "reporting_getreportingoverview_ireportingdataprovider_getexchangeratesasync",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_ireportingdataprovider_getexchangeratesasync"
     },
     {
       "relation": "references",
@@ -49887,9 +49887,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler_handleasync",
-      "target": "reporting_getreportingoverview_ireportingdataprovider_getpreferredcurrencycodeasync",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_ireportingdataprovider_getpreferredcurrencycodeasync"
     },
     {
       "relation": "calls",
@@ -49898,9 +49898,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler_handleasync",
-      "target": "reporting_getreportingoverview_ireportingdataprovider_getexchangeratesasync",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_ireportingdataprovider_getexchangeratesasync"
     },
     {
       "relation": "method",
@@ -49971,9 +49971,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler",
-      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_converttransactions",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_converttransactions"
     },
     {
       "relation": "method",
@@ -49981,9 +49981,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L193",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler",
-      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_convertsnapshots",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_convertsnapshots"
     },
     {
       "relation": "method",
@@ -49991,9 +49991,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L220",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler",
-      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_mapwarnings",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_mapwarnings"
     },
     {
       "relation": "method",
@@ -50054,9 +50054,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler_handleasync",
-      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_converttransactions",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_converttransactions"
     },
     {
       "relation": "calls",
@@ -50065,9 +50065,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler_handleasync",
-      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_mapwarnings",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_mapwarnings"
     },
     {
       "relation": "calls",
@@ -50076,9 +50076,9 @@
       "source_file": "backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "reporting_getreportingoverview_getreportingoverviewqueryhandler_handleasync",
-      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_convertsnapshots",
-      "confidence_score": 1.0
+      "target": "reporting_getreportingoverview_getreportingoverviewqueryhandler_convertsnapshots"
     },
     {
       "relation": "calls",
@@ -50712,9 +50712,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_idashboardsummarydataprovider",
-      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getpreferredcurrencycodeasync",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getpreferredcurrencycodeasync"
     },
     {
       "relation": "method",
@@ -50722,9 +50722,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_idashboardsummarydataprovider",
-      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getexchangeratesasync",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getexchangeratesasync"
     },
     {
       "relation": "references",
@@ -50810,9 +50810,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_handleasync",
-      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getpreferredcurrencycodeasync",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getpreferredcurrencycodeasync"
     },
     {
       "relation": "calls",
@@ -50821,9 +50821,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_handleasync",
-      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getexchangeratesasync",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_idashboardsummarydataprovider_getexchangeratesasync"
     },
     {
       "relation": "method",
@@ -50841,9 +50841,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler",
-      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_converttransactions",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_converttransactions"
     },
     {
       "relation": "method",
@@ -50851,9 +50851,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L171",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler",
-      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_convertamount",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_convertamount"
     },
     {
       "relation": "method",
@@ -50861,9 +50861,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler",
-      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_mapwarnings",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_mapwarnings"
     },
     {
       "relation": "method",
@@ -50892,9 +50892,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_handleasync",
-      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_converttransactions",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_converttransactions"
     },
     {
       "relation": "calls",
@@ -50903,9 +50903,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_handleasync",
-      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_convertamount",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_convertamount"
     },
     {
       "relation": "calls",
@@ -50925,9 +50925,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L138",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_handleasync",
-      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_mapwarnings",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_mapwarnings"
     },
     {
       "relation": "calls",
@@ -50936,9 +50936,9 @@
       "source_file": "backend/src/Ledgerra.Application/Dashboard/GetDashboardSummary.cs",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_converttransactions",
-      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_convertamount",
-      "confidence_score": 1.0
+      "target": "dashboard_getdashboardsummary_getdashboardsummaryqueryhandler_convertamount"
     },
     {
       "relation": "contains",
@@ -53486,9 +53486,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_application_exchangerates_exchangerateusecases_cs",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore"
     },
     {
       "relation": "contains",
@@ -53496,9 +53496,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_application_exchangerates_exchangerateusecases_cs",
-      "target": "exchangerates_exchangerateusecases_getexchangeratesqueryhandler",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_getexchangeratesqueryhandler"
     },
     {
       "relation": "contains",
@@ -53506,9 +53506,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_application_exchangerates_exchangerateusecases_cs",
-      "target": "exchangerates_exchangerateusecases_upsertexchangeratecommandhandler",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_upsertexchangeratecommandhandler"
     },
     {
       "relation": "contains",
@@ -53516,9 +53516,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_ledgerra_application_exchangerates_exchangerateusecases_cs",
-      "target": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler"
     },
     {
       "relation": "method",
@@ -53526,9 +53526,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore_getforuserasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore_getforuserasync"
     },
     {
       "relation": "method",
@@ -53536,9 +53536,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore_upsertasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore_upsertasync"
     },
     {
       "relation": "method",
@@ -53546,9 +53546,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore_deleteasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore_deleteasync"
     },
     {
       "relation": "references",
@@ -53557,9 +53557,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_getexchangeratesqueryhandler",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore"
     },
     {
       "relation": "references",
@@ -53568,9 +53568,9 @@
       "source_location": "L35",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_upsertexchangeratecommandhandler",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore"
     },
     {
       "relation": "references",
@@ -53579,9 +53579,9 @@
       "source_location": "L59",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore"
     },
     {
       "relation": "calls",
@@ -53590,9 +53590,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_getexchangeratesqueryhandler_handleasync",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore_getforuserasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore_getforuserasync"
     },
     {
       "relation": "calls",
@@ -53601,9 +53601,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_upsertexchangeratecommandhandler_handleasync",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore_upsertasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore_upsertasync"
     },
     {
       "relation": "calls",
@@ -53612,9 +53612,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler_handleasync",
-      "target": "exchangerates_exchangerateusecases_iexchangeratestore_deleteasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore_deleteasync"
     },
     {
       "relation": "method",
@@ -53622,9 +53622,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_getexchangeratesqueryhandler",
-      "target": "exchangerates_exchangerateusecases_getexchangeratesqueryhandler_handleasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_getexchangeratesqueryhandler_handleasync"
     },
     {
       "relation": "method",
@@ -53632,9 +53632,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_upsertexchangeratecommandhandler",
-      "target": "exchangerates_exchangerateusecases_upsertexchangeratecommandhandler_handleasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_upsertexchangeratecommandhandler_handleasync"
     },
     {
       "relation": "method",
@@ -53642,9 +53642,9 @@
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler",
-      "target": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler_handleasync",
-      "confidence_score": 1.0
+      "target": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler_handleasync"
     },
     {
       "relation": "contains",
@@ -55957,5 +55957,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "aa28bbe0881acfa57c35c7cb01a2256546a81da4"
+  "built_at_commit": "b3834d046a5c919fe28a040b0c8e2cbf1382f662"
 }

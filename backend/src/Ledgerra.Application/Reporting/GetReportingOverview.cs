@@ -134,8 +134,21 @@ public sealed class GetReportingOverviewQueryHandler
                 query.AccountId,
                 cancellationToken);
             var netWorthConversion = ConvertSnapshots(snapshots, currencyCode, rates);
-            warnings.AddRange(MapWarnings(netWorthConversion.Warnings));
-            netWorthHistory = NetWorthRollupCalculator.BuildNetWorthHistory(buckets, netWorthConversion.Snapshots, currencyCode);
+            var availableBuckets = buckets
+                .Where(bucket => !netWorthConversion.UnavailableMonths.Contains(ReportingCalendar.MonthEnd(bucket.MonthStart)))
+                .ToList();
+
+            if (availableBuckets.Count == 0 && netWorthConversion.UnavailableMonths.Count > 0)
+            {
+                warnings.Add(new ReportingWarningResult(
+                    "MixedCurrencyNetWorthExcluded",
+                    $"Net worth history was excluded because one or more account balances could not be converted to {currencyCode}."));
+            }
+            else
+            {
+                warnings.AddRange(MapWarnings(netWorthConversion.Warnings.Where(warning => warning.Code != "MissingFxRate")));
+                netWorthHistory = NetWorthRollupCalculator.BuildNetWorthHistory(availableBuckets, netWorthConversion.Snapshots, currencyCode);
+            }
         }
 
         return new ReportingOverviewResult(
@@ -153,7 +166,10 @@ public sealed class GetReportingOverviewQueryHandler
 
     private sealed record ConvertedTransactions(IReadOnlyList<Transaction> Transactions, IReadOnlyList<FxConversionWarning> Warnings);
 
-    private sealed record ConvertedSnapshots(IReadOnlyList<MonthlyAccountBalanceSnapshot> Snapshots, IReadOnlyList<FxConversionWarning> Warnings);
+    private sealed record ConvertedSnapshots(
+        IReadOnlyList<MonthlyAccountBalanceSnapshot> Snapshots,
+        IReadOnlyList<FxConversionWarning> Warnings,
+        IReadOnlySet<DateOnly> UnavailableMonths);
 
     private static ConvertedTransactions ConvertTransactions(
         IReadOnlyList<Transaction> transactions,
@@ -196,13 +212,20 @@ public sealed class GetReportingOverviewQueryHandler
         IReadOnlyList<FxConversionRate> rates)
     {
         var warnings = new List<FxConversionWarning>();
-        var converted = snapshots.Select(snapshot =>
+        var unavailableMonths = new HashSet<DateOnly>();
+        var converted = new List<MonthlyAccountBalanceSnapshot>();
+
+        foreach (var snapshot in snapshots)
         {
             var month = new DateOnly(snapshot.MonthEndDate.Year, snapshot.MonthEndDate.Month, 1);
             var result = FxRateConverter.Convert(snapshot.Balance, snapshot.CurrencyCode, currencyCode, month, rates);
             warnings.AddRange(result.Warnings);
+            if (result.Warnings.Any(warning => warning.Code == "MissingFxRate"))
+            {
+                unavailableMonths.Add(snapshot.MonthEndDate);
+            }
 
-            return new MonthlyAccountBalanceSnapshot
+            converted.Add(new MonthlyAccountBalanceSnapshot
             {
                 Id = snapshot.Id,
                 UserId = snapshot.UserId,
@@ -211,10 +234,12 @@ public sealed class GetReportingOverviewQueryHandler
                 Balance = result.Amount,
                 CurrencyCode = currencyCode,
                 Account = snapshot.Account
-            };
-        }).ToList();
+            });
+        }
 
-        return new ConvertedSnapshots(converted, warnings);
+        converted.RemoveAll(snapshot => unavailableMonths.Contains(snapshot.MonthEndDate));
+
+        return new ConvertedSnapshots(converted, warnings, unavailableMonths);
     }
 
     private static IEnumerable<ReportingWarningResult> MapWarnings(IEnumerable<FxConversionWarning> warnings)

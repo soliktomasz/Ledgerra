@@ -1485,8 +1485,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/hooks/useLedgerraData.test.tsx": {
-    "mtime": 1777626258.9741461,
-    "ast_hash": "91b27b5f00183cb6390a161c70417118",
+    "mtime": 1780248317.3048031,
+    "ast_hash": "897dd13971816f39f6f497f30bb5a85e",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/api/client.ts": {
@@ -2225,8 +2225,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/Reporting/GetReportingOverview.cs": {
-    "mtime": 1780247458.9061491,
-    "ast_hash": "738fb9e99770da9fc3cd216092092562",
+    "mtime": 1780248401.1307573,
+    "ast_hash": "f8b7c63a474574587aff700dde2a7456",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/Imports/CommitMonthlyReportDrafts.cs": {
