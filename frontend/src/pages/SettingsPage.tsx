@@ -4,7 +4,7 @@ import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import { accentPresets, useTheme, type AccentColor, type ThemePreference } from "../state/ThemeContext";
-import type { ImportRule, PersonalAccessToken } from "../types";
+import type { ExchangeRate, ImportRule, PersonalAccessToken } from "../types";
 import { AccountsIcon, CashFlowIcon, CategoryIcon, ImportsIcon, ReportsIcon, SettingsIcon } from "../ui/icons";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
@@ -48,11 +48,12 @@ export function SettingsPage() {
   const { setLanguageCode, t } = useI18n();
   const { themePreference, resolvedTheme, accentColor, setThemePreference, setAccentColor } = useTheme();
   const [activeSection, setActiveSection] = useState<SettingsSection>("appearance");
-  const { profile, aiSettings, categories, importRules, refresh } = useLedgerraData({
+  const { profile, aiSettings, categories, importRules, exchangeRates, refresh } = useLedgerraData({
     profile: true,
     aiSettings: true,
     categories: true,
-    importRules: true
+    importRules: true,
+    exchangeRates: true
   });
   const [preferredCurrencyCode, setPreferredCurrencyCode] = useState("USD");
   const [preferredLanguageCode, setPreferredLanguageCode] = useState("en");
@@ -82,6 +83,10 @@ export function SettingsPage() {
   const [densityPreference, setDensityPreference] = useState<DensityPreference>(() => resolveInitialDensityPreference());
   const [animationsEnabled, setAnimationsEnabled] = useState(() => resolveInitialBooleanPreference(animationStorageKey, true));
   const [minimalNavigation, setMinimalNavigation] = useState(() => resolveInitialBooleanPreference(minimalNavigationStorageKey, false));
+  const [fxFromCurrencyCode, setFxFromCurrencyCode] = useState("EUR");
+  const [fxMonth, setFxMonth] = useState("2026-01");
+  const [fxRate, setFxRate] = useState("");
+  const [fxError, setFxError] = useState<string | null>(null);
 
   const filteredCategories = useMemo(() => categories.filter((category) => category.kind === transactionType), [categories, transactionType]);
 
@@ -154,6 +159,48 @@ export function SettingsPage() {
     );
     setLanguageCode(preferredLanguageCode);
     await refresh();
+  };
+
+
+  const handleExchangeRateSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    try {
+      setFxError(null);
+      const parsedRate = Number(fxRate);
+      if (!Number.isFinite(parsedRate) || parsedRate <= 0) {
+        setFxError("Enter a positive FX rate.");
+        return;
+      }
+
+      await apiClient.upsertExchangeRate(auth.accessToken, {
+        fromCurrencyCode: normalizeCurrencyCode(fxFromCurrencyCode),
+        toCurrencyCode: normalizeCurrencyCode(preferredCurrencyCode),
+        month: fxMonth,
+        rate: parsedRate
+      });
+      setFxRate("");
+      await refresh();
+    } catch (exception) {
+      setFxError(getErrorMessage(exception, "Unable to save FX rate."));
+    }
+  };
+
+  const handleDeleteExchangeRate = async (rate: ExchangeRate) => {
+    if (!auth?.accessToken) {
+      return;
+    }
+
+    try {
+      setFxError(null);
+      await apiClient.deleteExchangeRate(auth.accessToken, rate.id);
+      await refresh();
+    } catch (exception) {
+      setFxError(getErrorMessage(exception, "Unable to delete FX rate."));
+    }
   };
 
   const handleAiProviderSubmit = async (event: FormEvent) => {
@@ -706,6 +753,56 @@ export function SettingsPage() {
                       {t("settings.savePreferences")}
                     </button>
                   </form>
+                </SectionCard>
+              </div>
+
+              <div className="settings-content-card">
+                <SectionCard title="Manual FX rates" icon={<CashFlowIcon />}>
+                  <form className="settings-form-grid" onSubmit={handleExchangeRateSubmit}>
+                    {fxError ? <p className="error-banner">{fxError}</p> : null}
+                    <label>
+                      From currency
+                      <select value={fxFromCurrencyCode} onChange={(event) => setFxFromCurrencyCode(event.target.value)}>
+                        {supportedCurrencies.map((currency) => (
+                          <option key={currency.code} value={currency.code}>
+                            {currency.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      To profile currency
+                      <input value={normalizeCurrencyCode(preferredCurrencyCode)} readOnly />
+                    </label>
+                    <label>
+                      Month
+                      <input type="month" value={fxMonth} onChange={(event) => setFxMonth(event.target.value)} />
+                    </label>
+                    <label>
+                      Rate
+                      <input inputMode="decimal" value={fxRate} onChange={(event) => setFxRate(event.target.value)} placeholder="1.0000" />
+                    </label>
+                    <button className="primary-button" type="submit">Save FX rate</button>
+                  </form>
+
+                  <div className="settings-provider-list" aria-label="Manual FX rates">
+                    {exchangeRates.length === 0 ? (
+                      <p className="field-hint">Add monthly rates for accounts that differ from your profile currency.</p>
+                    ) : exchangeRates.map((rate) => (
+                      <article className="settings-provider-row" key={rate.id}>
+                        <div>
+                          <strong>{rate.fromCurrencyCode} → {rate.toCurrencyCode}</strong>
+                          <p>{rate.month}</p>
+                        </div>
+                        <div className="settings-provider-actions">
+                          <strong>{rate.rate}</strong>
+                          <button className="ghost-button compact-button" type="button" onClick={() => void handleDeleteExchangeRate(rate)}>
+                            {t("common.delete")}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 </SectionCard>
               </div>
             </section>

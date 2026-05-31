@@ -3,6 +3,7 @@ using Ledgerra.Domain.Ai;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
 using Ledgerra.Domain.Goals;
+using Ledgerra.Domain.ExchangeRates;
 using Ledgerra.Domain.Imports;
 using Ledgerra.Domain.Transactions;
 
@@ -37,6 +38,8 @@ public sealed class AppUser
     public List<RefreshToken> RefreshTokens { get; set; } = [];
 
     public List<PersonalAccessToken> PersonalAccessTokens { get; set; } = [];
+
+    public List<UserExchangeRate> ExchangeRates { get; set; } = [];
 
     public List<AiProviderCredential> AiProviderCredentials { get; set; } = [];
 

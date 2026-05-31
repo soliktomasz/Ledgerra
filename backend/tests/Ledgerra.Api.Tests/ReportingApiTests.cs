@@ -62,6 +62,47 @@ public sealed class ReportingApiTests : IClassFixture<LedgerraApiFactory>
         Assert.Equal(0, payload.GetProperty("warnings").GetArrayLength());
     }
 
+
+    [Fact]
+    public async Task Overview_ConvertsMixedCurrencyReportsWithManualFxRates()
+    {
+        using var client = _factory.CreateClient();
+        await AuthenticateAsync(client);
+
+        await client.PutAsJsonAsync("/api/settings/profile", new
+        {
+            preferredCurrencyCode = "USD",
+            preferredLanguageCode = "en"
+        });
+        await client.PutAsJsonAsync("/api/settings/exchange-rates", new
+        {
+            fromCurrencyCode = "EUR",
+            toCurrencyCode = "USD",
+            month = "2026-03",
+            rate = 1.20m
+        });
+
+        var usdAccountId = await CreateAccountAsync(client, "Checking", "Checking", "USD", 1000m);
+        var eurAccountId = await CreateAccountAsync(client, "Euro savings", "Savings", "EUR", 100m);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+        var salaryCategoryId = await CreateCategoryAsync(client, "Salary", "Income");
+
+        await CreateTransactionAsync(client, usdAccountId, salaryCategoryId, 100m, "Income", "2026-03-01T08:00:00Z", "USD pay");
+        await CreateTransactionAsync(client, eurAccountId, groceriesCategoryId, 50m, "Expense", "2026-03-02T08:00:00Z", "EUR groceries");
+
+        var response = await client.GetAsync("/api/reports/overview?range=3M&endMonth=2026-03");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("USD", payload.GetProperty("currencyCode").GetString());
+        Assert.Equal(60m, payload.GetProperty("summary").GetProperty("expenseTotal").GetDecimal());
+        Assert.Equal(40m, payload.GetProperty("summary").GetProperty("netCashFlow").GetDecimal());
+
+        var netWorth = payload.GetProperty("netWorthHistory").EnumerateArray().ToArray();
+        Assert.Equal(1160m, netWorth[^1].GetProperty("netWorth").GetDecimal());
+        Assert.DoesNotContain(payload.GetProperty("warnings").EnumerateArray(), warning => warning.GetProperty("code").GetString() == "MixedCurrencyNetWorthExcluded");
+    }
+
     [Fact]
     public async Task Overview_BackfillsSnapshotsAndRecomputesAfterHistoricalTransactionEdits()
     {

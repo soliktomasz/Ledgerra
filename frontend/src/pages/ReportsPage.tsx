@@ -69,7 +69,7 @@ export function ReportsPage() {
       {error ? <p className="error-banner">{error}</p> : null}
 
       {overview?.warnings.map((warning) => (
-        <p className="warning-banner" key={warning.code}>{warning.message}</p>
+        <p className="warning-banner" key={`${warning.code}-${warning.message}`}>{warning.message}</p>
       ))}
 
       <div className="metric-grid">

@@ -157,6 +157,23 @@ public static class CategorizationRuleSchemaInitializer
             CREATE UNIQUE INDEX IF NOT EXISTS "IX_CategorizationRules_UserId_Name"
                 ON "CategorizationRules" ("UserId", "Name");
 
+
+            CREATE TABLE IF NOT EXISTS "ExchangeRates" (
+                "Id" uuid NOT NULL,
+                "UserId" uuid NOT NULL,
+                "FromCurrencyCode" character varying(3) NOT NULL,
+                "ToCurrencyCode" character varying(3) NOT NULL,
+                "Month" date NOT NULL,
+                "Rate" numeric(18,8) NOT NULL,
+                "CreatedAtUtc" timestamp with time zone NOT NULL,
+                "UpdatedAtUtc" timestamp with time zone NOT NULL,
+                CONSTRAINT "PK_ExchangeRates" PRIMARY KEY ("Id"),
+                CONSTRAINT "FK_ExchangeRates_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_ExchangeRates_UserId_FromCurrencyCode_ToCurrencyCode_Month"
+                ON "ExchangeRates" ("UserId", "FromCurrencyCode", "ToCurrencyCode", "Month");
+
             CREATE TABLE IF NOT EXISTS "MonthlyAccountBalanceSnapshots" (
                 "Id" uuid NOT NULL,
                 "UserId" uuid NOT NULL,
