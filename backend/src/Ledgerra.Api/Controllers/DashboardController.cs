@@ -57,6 +57,6 @@ public sealed class DashboardController : ControllerBase
             summary.CurrencyCode,
             summary.Warnings
                 .Select(item => new DashboardWarningResponse(item.Code, item.Message))
-                .ToList())));
+                .ToList()));
     }
 }

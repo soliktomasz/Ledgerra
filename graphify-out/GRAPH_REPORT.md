@@ -1,16 +1,16 @@
-# Graph Report - Ledgerra  (2026-05-30)
+# Graph Report - Ledgerra  (2026-05-31)
 
 ## Corpus Check
-- 229 files · ~229,471 words
+- 233 files · ~231,646 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2308 nodes · 3265 edges · 190 communities (123 shown, 67 thin omitted)
+- 2357 nodes · 3339 edges · 193 communities (124 shown, 69 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bc2f731b`
+- Built from commit: `aa28bbe0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -184,6 +184,9 @@
 - [[_COMMUNITY_Community 187|Community 187]]
 - [[_COMMUNITY_Community 188|Community 188]]
 - [[_COMMUNITY_Community 189|Community 189]]
+- [[_COMMUNITY_Community 190|Community 190]]
+- [[_COMMUNITY_Community 191|Community 191]]
+- [[_COMMUNITY_Community 192|Community 192]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `communities` - 125 edges
@@ -204,12 +207,12 @@
   frontend/src/state/AuthContext.test.tsx → frontend/src/state/AuthContext.tsx
 - `waitForMonthlyReportAnalysisJob()` --calls--> `onJobUpdate`  [INFERRED]
   frontend/src/api/client.ts → frontend/src/api/client.test.ts
+- `SettingsPage()` --calls--> `normalizeCurrencyCode()`  [EXTRACTED]
+  frontend/src/pages/SettingsPage.tsx → frontend/src/utils/currency.ts
 - `resolveInitialLanguageCode()` --calls--> `normalizeLanguageCode()`  [EXTRACTED]
   frontend/src/state/I18nContext.tsx → frontend/src/utils/language.ts
-- `formatCurrency()` --calls--> `getLocaleForLanguageCode()`  [EXTRACTED]
-  frontend/src/utils/format.ts → frontend/src/utils/language.ts
 
-## Communities (190 total, 67 thin omitted)
+## Communities (193 total, 69 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.11
@@ -224,8 +227,8 @@ Cohesion: 0.13
 Nodes (8): IMonthlyAccountBalanceSnapshotService, CreateTransactionCommandHandler, DeleteTransactionCommandHandler, ITransactionCommandStore, MoveTransactionAccountCommandHandler, TransactionCommandResult, TransactionDeleteResult, UpdateTransactionCommandHandler
 
 ### Community 3 - "Community 3"
-Cohesion: 0.09
-Nodes (18): clearButton, deleteButton, mocks, removeButtons, { rerender }, user, AccentColor, accentPresets (+10 more)
+Cohesion: 0.07
+Nodes (23): DensityPreference, SettingsSection, clearButton, deleteButton, mocks, removeButtons, { rerender }, user (+15 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.10
@@ -237,7 +240,7 @@ Nodes (10): LedgerraDbContext, CategoryCommandResult, CategoryMappings, CreateCa
 
 ### Community 6 - "Community 6"
 Cohesion: 0.09
-Nodes (15): categoryCopy, CategoryCopyKey, CategoryFilter, CategoryGroupId, CategoryIconKey, categoryIconOptions, CategoryKind, CategoryPreferences (+7 more)
+Nodes (17): categoryCopy, CategoryCopyKey, CategoryFilter, CategoryGroupId, CategoryIconKey, categoryIconOptions, CategoryKind, CategoryPreferences (+9 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.11
@@ -256,8 +259,8 @@ Cohesion: 0.05
 Nodes (12): Action, int, LedgerraDbContext, string, HttpMessageHandler, IProgress, CaptureRequestHandler, ImmediateProgress (+4 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.20
-Nodes (9): AccountForm(), AccountFormProps, AccountFormValues, accountIconKinds, accountTypes, AccountFormModal(), Account, normalizeCurrencyCode() (+1 more)
+Cohesion: 0.18
+Nodes (10): AccountForm(), AccountFormProps, AccountFormValues, accountIconKinds, accountTypes, AccountFormModal(), AccountListColumn(), AccountIconKind (+2 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.08
@@ -268,19 +271,19 @@ Cohesion: 0.26
 Nodes (17): useLedgerraData(), useReportingOverview(), AccountsPage(), BudgetsPage(), DashboardPage(), ImportsPage(), LoginPage(), RecurringTransactionsPage() (+9 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.08
-Nodes (23): rangePresets, link, mocks, overview, url, user, ReportingOverview, CategoryIcon() (+15 more)
+Cohesion: 0.10
+Nodes (19): rangePresets, EmptyState(), CategoryIcon(), ExpenseIcon(), IncomeIcon(), NetWorthIcon(), TrendIcon(), MetricCard() (+11 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.19
 Nodes (6): ISecretProtector, LedgerraDbContext, string, AiSettingsController, IHttpClientFactory, IReadOnlyDictionary
 
 ### Community 16 - "Community 16"
-Cohesion: 0.14
+Cohesion: 0.11
 Nodes (4): LedgerraDbContext, GetDashboardSummaryQueryHandler, IDashboardSummaryDataProvider, DashboardSummaryDataProvider
 
 ### Community 17 - "Community 17"
-Cohesion: 0.13
+Cohesion: 0.11
 Nodes (6): LedgerraDbContext, HashSet, ReportingDataProvider, GetReportingOverviewQueryHandler, IMonthlyAccountBalanceSnapshotService, IReportingDataProvider
 
 ### Community 18 - "Community 18"
@@ -292,16 +295,16 @@ Cohesion: 0.02
 Nodes (124): 0, 1, 10, 100, 101, 102, 103, 104 (+116 more)
 
 ### Community 20 - "Community 20"
-Cohesion: 0.09
-Nodes (26): AccountsIcon(), ArchiveIcon(), BasketIcon(), BoltIcon(), BriefcaseIcon(), BudgetsIcon(), CalendarIcon(), CategoriesIcon() (+18 more)
+Cohesion: 0.10
+Nodes (22): AccountsIcon(), ArchiveIcon(), BasketIcon(), BoltIcon(), BriefcaseIcon(), BudgetsIcon(), CalendarIcon(), CategoriesIcon() (+14 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.05
-Nodes (45): AuthPersister, AuthResolver, RequestOptions, UnauthorizedListener, unauthorizedListeners, LedgerraDataOptions, mocks, { result } (+37 more)
+Cohesion: 0.09
+Nodes (28): LedgerraDataOptions, mocks, { result }, mocks, mocks, user, link, mocks (+20 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.17
-Nodes (9): apiClient, AuthPayload, ReportingRangePreset, AuthContext, AuthContextValue, AuthProvider(), AuthProbe(), { onUnauthorizedMock, setAuthHandlersMock } (+1 more)
+Cohesion: 0.19
+Nodes (8): apiClient, AuthPayload, AuthContext, AuthContextValue, AuthProvider(), AuthProbe(), { onUnauthorizedMock, setAuthHandlersMock }, persist
 
 ### Community 23 - "Community 23"
 Cohesion: 0.12
@@ -320,8 +323,8 @@ Cohesion: 0.18
 Nodes (5): LedgerraDbContext, TransactionQueryStore, GetTransactionByIdQueryHandler, GetTransactionsQueryHandler, ITransactionQueryStore
 
 ### Community 28 - "Community 28"
-Cohesion: 0.12
-Nodes (12): acknowledgementDefaults, ChecklistAction, ChecklistItem, DashboardInsight, dashboardWidgetDefaults, DashboardWidgetId, DashboardWidgetPreference, describeSpendingDelta() (+4 more)
+Cohesion: 0.07
+Nodes (22): acknowledgementDefaults, ChecklistAction, ChecklistItem, DashboardInsight, dashboardWidgetDefaults, DashboardWidgetId, DashboardWidgetPreference, describeSpendingDelta() (+14 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.16
@@ -340,8 +343,8 @@ Cohesion: 0.19
 Nodes (6): CategoriesController, CreateCategoryCommandHandler, DeleteCategoryCommandHandler, GetCategoriesQueryHandler, GetCategoryByIdQueryHandler, UpdateCategoryCommandHandler
 
 ### Community 34 - "Community 34"
-Cohesion: 0.13
-Nodes (10): buildPayload(), defaultValues, FormValues, parseAmount(), templateToValues(), toDateTimeLocal(), toUtcIso(), RecurringTransactionTemplatePayload (+2 more)
+Cohesion: 0.08
+Nodes (18): buildPayload(), defaultValues, FormValues, parseAmount(), templateToValues(), toDateTimeLocal(), toUtcIso(), MonthlyReportAnalysis (+10 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.22
@@ -412,8 +415,8 @@ Cohesion: 0.40
 Nodes (4): AnalyzeMonthlyReportCommandHandler, IMonthlyReportAnalyzer, IMonthlyReportDuplicateMarker, IMonthlyReportRuleMatcher
 
 ### Community 54 - "Community 54"
-Cohesion: 0.27
-Nodes (4): LedgerraDbContext, SettingsController, GetProfileQueryHandler, UpdateProfileCommandHandler
+Cohesion: 0.15
+Nodes (7): LedgerraDbContext, SettingsController, DeleteExchangeRateCommandHandler, GetExchangeRatesQueryHandler, GetProfileQueryHandler, UpdateProfileCommandHandler, UpsertExchangeRateCommandHandler
 
 ### Community 56 - "Community 56"
 Cohesion: 0.33
@@ -424,8 +427,8 @@ Cohesion: 0.40
 Nodes (4): CreateTransactionRequest, MoveTransactionAccountRequest, TransactionSplitLineRequest, UpdateTransactionRequest
 
 ### Community 61 - "Community 61"
-Cohesion: 0.07
-Nodes (24): fetchMonthlyReportAnalysisJob(), notifyUnauthorized(), readErrorMessage(), readMonthlyReportAnalysisResult(), refreshSession(), request(), resolveApiUrl(), analysisPromise (+16 more)
+Cohesion: 0.12
+Nodes (21): AuthPersister, AuthResolver, fetchMonthlyReportAnalysisJob(), notifyUnauthorized(), readErrorMessage(), readMonthlyReportAnalysisResult(), refreshSession(), request() (+13 more)
 
 ### Community 65 - "Community 65"
 Cohesion: 0.50
@@ -460,15 +463,15 @@ Cohesion: 0.07
 Nodes (28): dependencies, react, react-dom, react-is, react-router-dom, recharts, devDependencies, jsdom (+20 more)
 
 ### Community 129 - "Community 129"
-Cohesion: 0.08
-Nodes (22): DensityPreference, SettingsSection, PersonalAccessToken, de, defaultContextValue, es, I18nContext, I18nContextValue (+14 more)
+Cohesion: 0.11
+Nodes (18): de, defaultContextValue, es, I18nContext, I18nContextValue, I18nProvider(), interpolate(), MessageValue (+10 more)
 
 ### Community 130 - "Community 130"
-Cohesion: 0.19
-Nodes (13): AccountBalanceChart(), BalanceRange, RANGE_DAYS, AccountDetailColumn(), breadcrumbForType(), countInMonth(), formatMonthLabel(), formatSigned() (+5 more)
+Cohesion: 0.18
+Nodes (15): AccountBalanceChart(), BalanceRange, RANGE_DAYS, AccountDetailColumn(), breadcrumbForType(), countInMonth(), formatMonthLabel(), formatSigned() (+7 more)
 
 ### Community 131 - "Community 131"
-Cohesion: 0.20
+Cohesion: 0.21
 Nodes (5): LedgerraApiFactory, LedgerraApiFactory, IClassFixture, AccountFieldsTests, ReportingApiTests
 
 ### Community 132 - "Community 132"
@@ -548,8 +551,8 @@ Cohesion: 0.29
 Nodes (6): code:tsx (<div className="split-grid">), code:tsx (<div className="split-grid">), code:tsx (<div className="page-stack">), code:bash (git add frontend/src/pages/SettingsPage.tsx), Settings Compact Layout Implementation Plan, Task 1: Update SettingsPage layout to two-column grid
 
 ### Community 156 - "Community 156"
-Cohesion: 0.22
-Nodes (10): CategoriesPage(), findSimilarCategoryPair(), getCategoryGroup(), getCategoryKindLabel(), getCategoryPageCopy(), getDefaultCategoryIcon(), getIconByKey(), isCategoryCopyKey() (+2 more)
+Cohesion: 0.17
+Nodes (11): CategoriesPage(), findSimilarCategoryPair(), getCategoryGroup(), getCategoryKindLabel(), getDefaultCategoryIcon(), getIconByKey(), normalizeSearchText(), mocks (+3 more)
 
 ### Community 157 - "Community 157"
 Cohesion: 0.29
@@ -568,8 +571,8 @@ Cohesion: 0.33
 Nodes (5): edges, hyperedges, input_tokens, nodes, output_tokens
 
 ### Community 162 - "Community 162"
-Cohesion: 0.40
-Nodes (3): mocks, translations, user
+Cohesion: 0.16
+Nodes (6): LedgerraDbContext, DeleteExchangeRateCommandHandler, GetExchangeRatesQueryHandler, IExchangeRateStore, UpsertExchangeRateCommandHandler, ExchangeRateStore
 
 ### Community 163 - "Community 163"
 Cohesion: 0.33
@@ -619,10 +622,14 @@ Nodes (6): appendSpy, categoryChips, clickSpy, mocks, row, user
 Cohesion: 0.11
 Nodes (14): AsyncServiceScope, ILogger, IServiceScopeFactory, LedgerraDbContext, long, TimeSpan, BackgroundService, IAsyncDisposable (+6 more)
 
+### Community 190 - "Community 190"
+Cohesion: 0.15
+Nodes (8): appendChild, click, createElement, element, mocks, originalCreateElement, removeChild, user
+
 ## Knowledge Gaps
-- **1005 isolated node(s):** `total_files`, `total_words`, `code`, `document`, `paper` (+1000 more)
+- **1011 isolated node(s):** `total_files`, `total_words`, `code`, `document`, `paper` (+1006 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **67 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **69 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -630,14 +637,14 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `cohesion` connect `Community 124` to `Community 173`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Why does `communities` connect `Community 125` to `Community 173`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **Why does `useI18n()` connect `Community 13` to `Community 0`, `Community 129`, `Community 130`, `Community 34`, `Community 37`, `Community 6`, `Community 8`, `Community 9`, `Community 11`, `Community 14`, `Community 156`, `Community 20`, `Community 21`, `Community 22`, `Community 28`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `useI18n()` connect `Community 13` to `Community 0`, `Community 129`, `Community 130`, `Community 3`, `Community 34`, `Community 37`, `Community 6`, `Community 8`, `Community 9`, `Community 11`, `Community 14`, `Community 156`, `Community 20`, `Community 21`, `Community 28`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._
 - **What connects `total_files`, `total_words`, `code` to the rest of the system?**
-  _1005 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1011 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.10846560846560846 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.12857142857142856 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.09057971014492754 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07386363636363637 - nodes in this community are weakly interconnected._
