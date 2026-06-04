@@ -1,6 +1,7 @@
 using Ledgerra.Domain.Accounts;
 using Ledgerra.Domain.Reporting;
 using Ledgerra.Domain.Transactions;
+using Ledgerra.Domain.ExchangeRates;
 
 namespace Ledgerra.Application.Reporting;
 
@@ -50,6 +51,10 @@ public interface IReportingDataProvider
         DateOnly endMonthEnd,
         Guid? accountId,
         CancellationToken cancellationToken);
+
+    Task<string> GetPreferredCurrencyCodeAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<FxConversionRate>> GetExchangeRatesAsync(Guid userId, CancellationToken cancellationToken);
 }
 
 public interface IMonthlyAccountBalanceSnapshotService
@@ -108,21 +113,18 @@ public sealed class GetReportingOverviewQueryHandler
             .ToArray();
 
         var categoryNames = await _dataProvider.GetCategoryNamesAsync(query.UserId, categoryIds, cancellationToken);
-        var monthlySpending = TransactionAggregationCalculator.BuildMonthlySpending(buckets, transactions);
-        var cashFlow = TransactionAggregationCalculator.BuildMonthlyCashFlow(buckets, transactions);
-        var categoryBreakdown = CategoryBreakdownCalculator.BuildRankedBreakdown(transactions, categoryNames);
         var warnings = new List<ReportingWarningResult>();
+        var currencyCode = await _dataProvider.GetPreferredCurrencyCodeAsync(query.UserId, cancellationToken);
+        var rates = await _dataProvider.GetExchangeRatesAsync(query.UserId, cancellationToken);
+        var conversion = ConvertTransactions(transactions, currencyCode, rates);
+        warnings.AddRange(MapWarnings(conversion.Warnings));
+        var monthlySpending = TransactionAggregationCalculator.BuildMonthlySpending(buckets, conversion.Transactions);
+        var cashFlow = TransactionAggregationCalculator.BuildMonthlyCashFlow(buckets, conversion.Transactions);
+        var categoryBreakdown = CategoryBreakdownCalculator.BuildRankedBreakdown(conversion.Transactions, categoryNames);
         var accounts = await _dataProvider.GetAccountsAsync(query.UserId, query.AccountId, cancellationToken);
         IReadOnlyList<NetWorthPoint> netWorthHistory = [];
-        var currencyCode = accounts.FirstOrDefault()?.CurrencyCode ?? "USD";
 
-        if (accounts.Select(item => item.CurrencyCode).Distinct(StringComparer.OrdinalIgnoreCase).Count() > 1)
-        {
-            warnings.Add(new ReportingWarningResult(
-                "MixedCurrencyNetWorthExcluded",
-                "Net worth history is hidden because the selected accounts use multiple currencies and Ledgerra does not apply FX conversion yet."));
-        }
-        else if (accounts.Count > 0)
+        if (accounts.Count > 0)
         {
             await _snapshotService.EnsureSnapshotsAsync(query.UserId, startMonth, endMonth, query.AccountId, cancellationToken);
             var snapshots = await _dataProvider.GetSnapshotsAsync(
@@ -131,7 +133,22 @@ public sealed class GetReportingOverviewQueryHandler
                 ReportingCalendar.MonthEnd(endMonth),
                 query.AccountId,
                 cancellationToken);
-            netWorthHistory = NetWorthRollupCalculator.BuildNetWorthHistory(buckets, snapshots, currencyCode);
+            var netWorthConversion = ConvertSnapshots(snapshots, currencyCode, rates);
+            var availableBuckets = buckets
+                .Where(bucket => !netWorthConversion.UnavailableMonths.Contains(ReportingCalendar.MonthEnd(bucket.MonthStart)))
+                .ToList();
+
+            if (availableBuckets.Count == 0 && netWorthConversion.UnavailableMonths.Count > 0)
+            {
+                warnings.Add(new ReportingWarningResult(
+                    "MixedCurrencyNetWorthExcluded",
+                    $"Net worth history was excluded because one or more account balances could not be converted to {currencyCode}."));
+            }
+            else
+            {
+                warnings.AddRange(MapWarnings(netWorthConversion.Warnings.Where(warning => warning.Code != "MissingFxRate")));
+                netWorthHistory = NetWorthRollupCalculator.BuildNetWorthHistory(availableBuckets, netWorthConversion.Snapshots, currencyCode);
+            }
         }
 
         return new ReportingOverviewResult(
@@ -145,6 +162,91 @@ public sealed class GetReportingOverviewQueryHandler
             categoryBreakdown,
             netWorthHistory,
             warnings);
+    }
+
+    private sealed record ConvertedTransactions(IReadOnlyList<Transaction> Transactions, IReadOnlyList<FxConversionWarning> Warnings);
+
+    private sealed record ConvertedSnapshots(
+        IReadOnlyList<MonthlyAccountBalanceSnapshot> Snapshots,
+        IReadOnlyList<FxConversionWarning> Warnings,
+        IReadOnlySet<DateOnly> UnavailableMonths);
+
+    private static ConvertedTransactions ConvertTransactions(
+        IReadOnlyList<Transaction> transactions,
+        string currencyCode,
+        IReadOnlyList<FxConversionRate> rates)
+    {
+        var warnings = new List<FxConversionWarning>();
+        var converted = transactions.Select(transaction =>
+        {
+            var month = new DateOnly(transaction.OccurredOnUtc.Year, transaction.OccurredOnUtc.Month, 1);
+            var sourceCurrency = transaction.Account?.CurrencyCode ?? currencyCode;
+            var result = FxRateConverter.Convert(transaction.Amount, sourceCurrency, currencyCode, month, rates);
+            warnings.AddRange(result.Warnings);
+
+            return new Transaction
+            {
+                Id = transaction.Id,
+                UserId = transaction.UserId,
+                AccountId = transaction.AccountId,
+                CategoryId = transaction.CategoryId,
+                Amount = result.Amount,
+                Type = transaction.Type,
+                Note = transaction.Note,
+                OccurredOnUtc = transaction.OccurredOnUtc,
+                TransferGroupId = transaction.TransferGroupId,
+                SplitGroupId = transaction.SplitGroupId,
+                ParentTransactionId = transaction.ParentTransactionId,
+                SavingsGoalId = transaction.SavingsGoalId,
+                Account = transaction.Account,
+                Category = transaction.Category
+            };
+        }).ToList();
+
+        return new ConvertedTransactions(converted, warnings);
+    }
+
+    private static ConvertedSnapshots ConvertSnapshots(
+        IReadOnlyList<MonthlyAccountBalanceSnapshot> snapshots,
+        string currencyCode,
+        IReadOnlyList<FxConversionRate> rates)
+    {
+        var warnings = new List<FxConversionWarning>();
+        var unavailableMonths = new HashSet<DateOnly>();
+        var converted = new List<MonthlyAccountBalanceSnapshot>();
+
+        foreach (var snapshot in snapshots)
+        {
+            var month = new DateOnly(snapshot.MonthEndDate.Year, snapshot.MonthEndDate.Month, 1);
+            var result = FxRateConverter.Convert(snapshot.Balance, snapshot.CurrencyCode, currencyCode, month, rates);
+            warnings.AddRange(result.Warnings);
+            if (result.Warnings.Any(warning => warning.Code == "MissingFxRate"))
+            {
+                unavailableMonths.Add(snapshot.MonthEndDate);
+            }
+
+            converted.Add(new MonthlyAccountBalanceSnapshot
+            {
+                Id = snapshot.Id,
+                UserId = snapshot.UserId,
+                AccountId = snapshot.AccountId,
+                MonthEndDate = snapshot.MonthEndDate,
+                Balance = result.Amount,
+                CurrencyCode = currencyCode,
+                Account = snapshot.Account
+            });
+        }
+
+        converted.RemoveAll(snapshot => unavailableMonths.Contains(snapshot.MonthEndDate));
+
+        return new ConvertedSnapshots(converted, warnings, unavailableMonths);
+    }
+
+    private static IEnumerable<ReportingWarningResult> MapWarnings(IEnumerable<FxConversionWarning> warnings)
+    {
+        return warnings
+            .GroupBy(warning => new { warning.Code, warning.Message })
+            .Select(group => new ReportingWarningResult(group.Key.Code, group.Key.Message));
     }
 
     private static ReportingSummaryResult BuildSummary(

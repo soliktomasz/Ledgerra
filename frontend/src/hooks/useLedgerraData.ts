@@ -3,7 +3,7 @@ import { apiClient } from "../api/client";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import { useMonthSelection } from "../state/MonthContext";
-import type { Account, AiSettings, BudgetSummary, Category, DashboardSummary, ImportRule, Profile, Transaction } from "../types";
+import type { Account, AiSettings, BudgetSummary, Category, DashboardSummary, ExchangeRate, ImportRule, Profile, Transaction } from "../types";
 
 type LedgerraDataOptions = {
   profile?: boolean;
@@ -14,6 +14,7 @@ type LedgerraDataOptions = {
   transactions?: boolean;
   budget?: boolean;
   importRules?: boolean;
+  exchangeRates?: boolean;
 };
 
 export function useLedgerraData(options: LedgerraDataOptions = {}) {
@@ -29,6 +30,7 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
   const loadTransactions = options.transactions ?? loadAll;
   const loadBudget = options.budget ?? loadAll;
   const loadImportRules = options.importRules ?? loadAll;
+  const loadExchangeRates = options.exchangeRates ?? loadAll;
   const translatorRef = useRef(t);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -36,6 +38,7 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [importRules, setImportRules] = useState<ImportRule[]>([]);
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budget, setBudget] = useState<BudgetSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,7 +65,8 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
         categoriesPayload,
         transactionsPayload,
         budgetPayload,
-        importRulesPayload
+        importRulesPayload,
+        exchangeRatesPayload
       ] = await Promise.all([
         loadProfile ? apiClient.getProfile(auth.accessToken) : Promise.resolve(null),
         loadAiSettings ? apiClient.getAiSettings(auth.accessToken) : Promise.resolve(null),
@@ -71,7 +75,8 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
         loadCategories ? apiClient.getCategories(auth.accessToken) : Promise.resolve([]),
         loadTransactions ? apiClient.getTransactions(auth.accessToken) : Promise.resolve([]),
         loadBudget ? apiClient.getBudget(auth.accessToken, selectedYear, selectedMonthNumber) : Promise.resolve(null),
-        loadImportRules ? apiClient.getImportRules(auth.accessToken).catch(() => []) : Promise.resolve([])
+        loadImportRules ? apiClient.getImportRules(auth.accessToken).catch(() => []) : Promise.resolve([]),
+        loadExchangeRates ? apiClient.getExchangeRates(auth.accessToken).catch(() => []) : Promise.resolve([])
       ]);
 
       if (loadProfile) setProfile(profilePayload);
@@ -82,6 +87,7 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
       if (loadTransactions) setTransactions(transactionsPayload);
       if (loadBudget) setBudget(budgetPayload);
       if (loadImportRules) setImportRules(importRulesPayload);
+      if (loadExchangeRates) setExchangeRates(exchangeRatesPayload);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : translatorRef.current("common.unknown"));
     } finally {
@@ -94,6 +100,7 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
     loadBudget,
     loadCategories,
     loadDashboard,
+    loadExchangeRates,
     loadImportRules,
     loadProfile,
     loadTransactions,
@@ -120,6 +127,7 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
     accounts,
     categories,
     importRules,
+    exchangeRates,
     transactions,
     budget,
     loading,

@@ -2,6 +2,7 @@ using Ledgerra.Application.Dashboard;
 using Ledgerra.Domain.Accounts;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Transactions;
+using Ledgerra.Domain.ExchangeRates;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ledgerra.Infrastructure.Persistence;
@@ -31,6 +32,7 @@ public sealed class DashboardSummaryDataProvider : IDashboardSummaryDataProvider
     {
         return await _dbContext.Transactions
             .Where(item => item.UserId == userId && item.OccurredOnUtc >= startUtc && item.OccurredOnUtc < endExclusiveUtc)
+            .Include(item => item.Account)
             .ToListAsync(cancellationToken);
     }
 
@@ -69,6 +71,22 @@ public sealed class DashboardSummaryDataProvider : IDashboardSummaryDataProvider
         return await _dbContext.Categories
             .Where(item => item.UserId == userId && categoryIds.Contains(item.Id))
             .ToDictionaryAsync(item => item.Id, item => item.Name, cancellationToken);
+    }
+
+    public async Task<string> GetPreferredCurrencyCodeAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Users
+            .Where(user => user.Id == userId)
+            .Select(user => user.PreferredCurrencyCode)
+            .SingleOrDefaultAsync(cancellationToken) ?? "USD";
+    }
+
+    public async Task<IReadOnlyList<FxConversionRate>> GetExchangeRatesAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ExchangeRates
+            .Where(rate => rate.UserId == userId)
+            .Select(rate => new FxConversionRate(rate.FromCurrencyCode, rate.ToCurrencyCode, rate.Month, rate.Rate))
+            .ToListAsync(cancellationToken);
     }
 
     private async Task<Dictionary<Guid, decimal>> BuildCarryForwardMapAsync(Guid userId, int year, int month, CancellationToken cancellationToken)

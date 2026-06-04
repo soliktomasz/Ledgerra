@@ -218,7 +218,7 @@ export function DashboardPage() {
     profile: true,
     transactions: true
   });
-  const mainCurrencyCode = profile?.preferredCurrencyCode ?? "USD";
+  const mainCurrencyCode = dashboard?.currencyCode ?? profile?.preferredCurrencyCode ?? "USD";
   const acknowledgementStorageKey = `ledgerra:onboarding:${profile?.email ?? "anonymous"}`;
   const checklistDismissalStorageKey = `ledgerra:onboarding-dismissed:${profile?.email ?? "anonymous"}`;
   const widgetPreferenceStorageKey = `ledgerra:dashboard-widgets:${profile?.email ?? "anonymous"}`;
@@ -235,10 +235,6 @@ export function DashboardPage() {
   );
   const [quickAddError, setQuickAddError] = useState("");
   const [quickAddStatus, setQuickAddStatus] = useState("");
-  const accountCurrencyCodes = useMemo(
-    () => new Map(accounts.map((account) => [account.id, account.currencyCode])),
-    [accounts]
-  );
   const hasBudget = (budget?.totalPlanned ?? 0) > 0 || Boolean(budget?.categories.some((category) => category.planned > 0));
   const monthRangeParams = getMonthRangeParams(selectedMonth);
 
@@ -380,6 +376,16 @@ export function DashboardPage() {
       />
 
       {error ? <p className="error-banner">{error}</p> : null}
+      {dashboard?.warnings.length ? (
+        <div className="warning-banner" role="status">
+          <strong>FX conversion warning</strong>
+          <ul>
+            {dashboard.warnings.map((warning) => (
+              <li key={`${warning.code}-${warning.message}`}>{warning.message}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {isQuickAddOpen && auth?.accessToken ? (
         <div className="modal-backdrop" role="presentation">
@@ -618,7 +624,7 @@ export function DashboardPage() {
                       <Link to={`/transactions?accountId=${account.accountId}&${monthRangeParams}`}><strong>{account.name}</strong></Link>
                       <p>{t("dashboard.liveBalance")}</p>
                     </div>
-                    <strong>{formatCurrency(account.balance, accountCurrencyCodes.get(account.accountId) ?? mainCurrencyCode)}</strong>
+                    <strong>{formatCurrency(account.balance, mainCurrencyCode)}</strong>
                   </article>
                 ))}
               </div>

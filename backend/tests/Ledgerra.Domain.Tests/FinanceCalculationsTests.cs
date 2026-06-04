@@ -2,6 +2,7 @@ using Ledgerra.Domain.Accounts;
 using Ledgerra.Domain.Budgets;
 using Ledgerra.Domain.Categories;
 using Ledgerra.Domain.Transactions;
+using Ledgerra.Domain.ExchangeRates;
 
 namespace Ledgerra.Domain.Tests;
 
@@ -94,6 +95,42 @@ public sealed class FinanceCalculationsTests
         Assert.Equal("Groceries", summary.Categories[0].CategoryName);
         Assert.Equal(160m, summary.Categories[0].Spent);
         Assert.Equal(240m, summary.Categories[0].Remaining);
+    }
+
+
+    [Fact]
+    public void Convert_UsesMonthlyManualRateAndWarnsWhenRateIsStale()
+    {
+        var result = FxRateConverter.Convert(100m, "EUR", "USD", new DateOnly(2026, 5, 1),
+        [
+            new FxConversionRate("EUR", "USD", new DateOnly(2026, 4, 1), 1.10m)
+        ]);
+
+        Assert.Equal(110m, result.Amount);
+        var warning = Assert.Single(result.Warnings);
+        Assert.Equal("StaleFxRate", warning.Code);
+    }
+
+    [Fact]
+    public void Convert_UsesExactMonthlyManualRateWithoutWarning()
+    {
+        var result = FxRateConverter.Convert(100m, "EUR", "USD", new DateOnly(2026, 5, 1),
+        [
+            new FxConversionRate("EUR", "USD", new DateOnly(2026, 5, 1), 1.10m)
+        ]);
+
+        Assert.Equal(110m, result.Amount);
+        Assert.Empty(result.Warnings);
+    }
+
+    [Fact]
+    public void Convert_ReturnsZeroAndWarningWhenRateIsMissing()
+    {
+        var result = FxRateConverter.Convert(100m, "EUR", "USD", new DateOnly(2026, 5, 1), []);
+
+        Assert.Equal(0m, result.Amount);
+        var warning = Assert.Single(result.Warnings);
+        Assert.Equal("MissingFxRate", warning.Code);
     }
 
     private static Transaction BuildTransaction(

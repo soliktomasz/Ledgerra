@@ -21,6 +21,8 @@ const mocks = vi.hoisted(() => ({
   createImportRule: vi.fn(),
   updateImportRule: vi.fn(),
   deleteImportRule: vi.fn(),
+  upsertExchangeRate: vi.fn(),
+  deleteExchangeRate: vi.fn(),
   aiSettings: {
     providers: {
       openAi: { isConfigured: true, maskedKey: "...3456" as string | null },
@@ -50,7 +52,9 @@ vi.mock("../api/client", () => ({
     deleteAccount: mocks.deleteAccount,
     createImportRule: mocks.createImportRule,
     updateImportRule: mocks.updateImportRule,
-    deleteImportRule: mocks.deleteImportRule
+    deleteImportRule: mocks.deleteImportRule,
+    upsertExchangeRate: mocks.upsertExchangeRate,
+    deleteExchangeRate: mocks.deleteExchangeRate
   }
 }));
 
@@ -77,6 +81,9 @@ vi.mock("../hooks/useLedgerraData", () => ({
         updatedAtUtc: "2026-04-29T10:00:00Z"
       }
     ],
+    exchangeRates: [
+      { id: "fx-1", fromCurrencyCode: "EUR", toCurrencyCode: "USD", month: "2026-04", rate: 1.1, updatedAtUtc: "2026-04-30T10:00:00Z" }
+    ],
     refresh: mocks.refresh
   })
 }));
@@ -100,6 +107,8 @@ describe("SettingsPage", () => {
     mocks.clearAccountData.mockResolvedValue(undefined);
     mocks.deleteAccount.mockResolvedValue(undefined);
     mocks.getAiProviderModels.mockResolvedValue({ models: ["synthetic-finance-1", "synthetic-fast"] });
+    mocks.upsertExchangeRate.mockResolvedValue({ id: "fx-2", fromCurrencyCode: "EUR", toCurrencyCode: "USD", month: "2026-05", rate: 1.2, updatedAtUtc: "2026-05-01T10:00:00Z" });
+    mocks.deleteExchangeRate.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -159,6 +168,34 @@ describe("SettingsPage", () => {
       expect(mocks.updateProfile).toHaveBeenCalledWith("token", "PLN", "pl");
     });
     expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  });
+
+
+  test("manages manual FX rates in regional settings", async () => {
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Region and language" }));
+
+    expect(screen.getByRole("heading", { name: "Manual FX rates" })).toBeInTheDocument();
+    expect(screen.getByText("EUR → USD")).toBeInTheDocument();
+    expect(screen.getByText("2026-04")).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("From currency"), "EUR");
+    await user.clear(screen.getByLabelText("Month"));
+    await user.type(screen.getByLabelText("Month"), "2026-05");
+    await user.type(screen.getByLabelText("Rate"), "1.2");
+    await user.click(screen.getByRole("button", { name: "Save FX rate" }));
+
+    await waitFor(() => {
+      expect(mocks.upsertExchangeRate).toHaveBeenCalledWith("token", {
+        fromCurrencyCode: "EUR",
+        toCurrencyCode: "USD",
+        month: "2026-05",
+        rate: 1.2
+      });
+    });
   });
 
   test("saves provider keys and selected default provider", async () => {

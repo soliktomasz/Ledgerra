@@ -53,6 +53,10 @@ public sealed class DashboardController : ControllerBase
                 summary.Trends.SpendingDeltaPercent,
                 summary.Trends.SpendingSparkline
                     .Select(item => new DashboardSpendingSparklinePointResponse(item.Month, item.Amount))
-                    .ToList())));
+                    .ToList()),
+            summary.CurrencyCode,
+            summary.Warnings
+                .Select(item => new DashboardWarningResponse(item.Code, item.Message))
+                .ToList()));
     }
 }

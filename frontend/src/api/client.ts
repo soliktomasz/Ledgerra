@@ -19,7 +19,8 @@ import type {
   Transaction,
   SavingsGoal,
   PersonalAccessToken,
-  CreatePersonalAccessTokenResponse
+  CreatePersonalAccessTokenResponse,
+  ExchangeRate
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
@@ -299,6 +300,22 @@ export const apiClient = {
       method: "PUT",
       token,
       body: { preferredCurrencyCode, preferredLanguageCode }
+    });
+  },
+  getExchangeRates(token: string) {
+    return request<ExchangeRate[]>("/api/settings/exchange-rates", { token });
+  },
+  upsertExchangeRate(token: string, payload: Pick<ExchangeRate, "fromCurrencyCode" | "toCurrencyCode" | "month" | "rate">) {
+    return request<ExchangeRate>("/api/settings/exchange-rates", {
+      method: "PUT",
+      token,
+      body: payload
+    });
+  },
+  deleteExchangeRate(token: string, rateId: string) {
+    return request<void>(`/api/settings/exchange-rates/${rateId}`, {
+      method: "DELETE",
+      token
     });
   },
   clearAccountData(token: string) {
