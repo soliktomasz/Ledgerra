@@ -21,7 +21,9 @@ internal static class EndpointValidator
         return false;
     }
 
-    public static async Task<bool> ResolvesToBlockedAddressAsync(Uri uri)
+    public static async Task<bool> ResolvesToBlockedAddressAsync(
+        Uri uri,
+        Func<string, Task<IPAddress[]>>? dnsResolve = null)
     {
         if (IPAddress.TryParse(uri.Host, out var ip))
         {
@@ -35,7 +37,8 @@ internal static class EndpointValidator
 
         try
         {
-            var addresses = await Dns.GetHostAddressesAsync(uri.Host);
+            dnsResolve ??= host => Dns.GetHostAddressesAsync(host);
+            var addresses = await dnsResolve(uri.Host);
             return addresses.Any(IsPrivateOrReserved);
         }
         catch

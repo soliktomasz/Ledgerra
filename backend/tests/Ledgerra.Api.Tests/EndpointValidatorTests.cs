@@ -1,3 +1,4 @@
+using System.Net;
 using Ledgerra.Api.Services.Ai;
 
 namespace Ledgerra.Api.Tests;
@@ -63,7 +64,11 @@ public sealed class EndpointValidatorTests
     [InlineData("https://api.openai.com")]
     public async Task ResolvesToBlockedAddressAsync_AllowsPublicAddresses(string url)
     {
-        Assert.False(await EndpointValidator.ResolvesToBlockedAddressAsync(new Uri(url)));
+        // Use a stub resolver to avoid real DNS calls in CI environments
+        static Task<IPAddress[]> stubResolver(string _) =>
+            Task.FromResult(new[] { IPAddress.Parse("203.0.113.1") }); // TEST-NET-3 (RFC 5737)
+
+        Assert.False(await EndpointValidator.ResolvesToBlockedAddressAsync(new Uri(url), stubResolver));
     }
 
     [Fact]
