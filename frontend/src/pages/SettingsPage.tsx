@@ -267,8 +267,13 @@ export function SettingsPage() {
       return;
     }
 
-    await apiClient.removeAiProviderKey(auth.accessToken, provider);
-    await refresh();
+    try {
+      setAiProviderError(null);
+      await apiClient.removeAiProviderKey(auth.accessToken, provider);
+      await refresh();
+    } catch (exception) {
+      setAiProviderError(getErrorMessage(exception, t("settings.unableToRemoveProvider")));
+    }
   };
 
   const handleRuleSubmit = async (event: FormEvent) => {
@@ -797,11 +802,11 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{rate.rate}</strong>
-                          <ActionMenu label={`FX rate actions for ${rate.fromCurrencyCode} to ${rate.toCurrencyCode} ${rate.month}`}>
+                          <ActionMenu label={t("settings.manualFxRateActions", { from: rate.fromCurrencyCode, to: rate.toCurrencyCode, month: rate.month })}>
                             <button
                               className="action-menu-item danger-button"
                               type="button"
-                              aria-label={`Delete ${rate.fromCurrencyCode} to ${rate.toCurrencyCode} ${rate.month}`}
+                              aria-label={t("settings.deleteFxRate", { from: rate.fromCurrencyCode, to: rate.toCurrencyCode, month: rate.month })}
                               onClick={() => void handleDeleteExchangeRate(rate)}
                             >
                               {t("common.delete")}
@@ -920,15 +925,15 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{openAiProvider?.maskedKey ?? t("common.notConfigured")}</strong>
-                          <ActionMenu label="Provider actions for OpenAI">
+                          <ActionMenu label={t("settings.providerActions", { provider: "OpenAI" })}>
                             <button
                               className="action-menu-item"
                               type="button"
-                              aria-label="Remove OpenAI"
+                              aria-label={t("settings.removeProvider", { provider: "OpenAI" })}
                               disabled={!isOpenAiConfigured}
                               onClick={() => {
                                 if (isOpenAiConfigured) {
-                                  handleRemoveProvider("openai");
+                                  void handleRemoveProvider("openai");
                                 }
                               }}
                             >
@@ -944,15 +949,15 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{anthropicProvider?.maskedKey ?? t("common.notConfigured")}</strong>
-                          <ActionMenu label="Provider actions for Anthropic">
+                          <ActionMenu label={t("settings.providerActions", { provider: "Anthropic" })}>
                             <button
                               className="action-menu-item"
                               type="button"
-                              aria-label="Remove Anthropic"
+                              aria-label={t("settings.removeProvider", { provider: "Anthropic" })}
                               disabled={!isAnthropicConfigured}
                               onClick={() => {
                                 if (isAnthropicConfigured) {
-                                  handleRemoveProvider("anthropic");
+                                  void handleRemoveProvider("anthropic");
                                 }
                               }}
                             >
@@ -972,15 +977,15 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{openAiCompatibleProvider?.maskedKey ?? t("common.notConfigured")}</strong>
-                          <ActionMenu label={`Provider actions for ${t("settings.openAiCompatibleProvider")}`}>
+                          <ActionMenu label={t("settings.providerActions", { provider: t("settings.openAiCompatibleProvider") })}>
                             <button
                               className="action-menu-item"
                               type="button"
-                              aria-label={`Remove ${t("settings.openAiCompatibleProvider")}`}
+                              aria-label={t("settings.removeProvider", { provider: t("settings.openAiCompatibleProvider") })}
                               disabled={!isOpenAiCompatibleConfigured}
                               onClick={() => {
                                 if (isOpenAiCompatibleConfigured) {
-                                  handleRemoveProvider("openai-compatible");
+                                  void handleRemoveProvider("openai-compatible");
                                 }
                               }}
                             >

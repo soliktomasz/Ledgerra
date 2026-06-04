@@ -4990,12 +4990,14 @@ label {
 }
 
 .action-menu-panel {
-  position: absolute;
-  top: calc(100% + 0.45rem);
-  z-index: 30;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
   display: grid;
   gap: 0.25rem;
   min-width: 12rem;
+  max-width: min(20rem, calc(100vw - 1rem));
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.35rem;
@@ -5004,11 +5006,11 @@ label {
 }
 
 .action-menu-panel--end {
-  right: 0;
+  transform-origin: top right;
 }
 
 .action-menu-panel--start {
-  left: 0;
+  transform-origin: top left;
 }
 
 .action-menu-item {

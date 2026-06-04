@@ -12,11 +12,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { selectedMonth, setSelectedMonth, goToPreviousMonth, goToNextMonth, goToCurrentMonth } = useMonthSelection();
   const isSettingsRoute = location.pathname.startsWith("/settings");
   const signedInIdentity = auth?.email || auth?.login || t("common.unknown");
-  const selectedMonthLabel = new Intl.DateTimeFormat(languageCode, {
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC"
-  }).format(new Date(`${selectedMonth}-01T00:00:00.000Z`));
+  const hasValidSelectedMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(selectedMonth);
+  const selectedMonthDate = hasValidSelectedMonth ? new Date(`${selectedMonth}-01T00:00:00.000Z`) : null;
+  const selectedMonthLabel = selectedMonthDate && !Number.isNaN(selectedMonthDate.getTime())
+    ? new Intl.DateTimeFormat(languageCode, {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    }).format(selectedMonthDate)
+    : "";
   const navItems = [
     { to: "/dashboard", label: t("nav.dashboard"), icon: DashboardIcon },
     { to: "/reports", label: t("nav.reports"), icon: ReportsIcon },

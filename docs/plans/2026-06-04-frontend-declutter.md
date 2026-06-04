@@ -10,7 +10,7 @@
 
 ---
 
-### Task 1: Shared Action Menu
+## Task 1: Shared Action Menu
 
 **Files:**
 - Create: `frontend/src/ui/ActionMenu.tsx`
@@ -24,7 +24,7 @@
 3. Add a simple "more" icon to the local icon set.
 4. Add CSS for `.action-menu`, `.action-menu-panel`, and related states.
 
-### Task 2: Transactions Declutter
+## Task 2: Transactions Declutter
 
 **Files:**
 - Modify: `frontend/src/pages/TransactionsPage.tsx`
@@ -37,7 +37,7 @@
 3. Write tests that export actions work after opening the export panel.
 4. Implement menus/panels and keep existing action handlers unchanged.
 
-### Task 3: Imports Declutter
+## Task 3: Imports Declutter
 
 **Files:**
 - Modify: `frontend/src/pages/ImportsPage.tsx`
@@ -48,7 +48,7 @@
 1. Write a test that review helper actions are unavailable until opening the review actions panel.
 2. Implement a review actions disclosure panel that contains selection helpers, remember rules, duplicate toggle, and bulk category controls.
 
-### Task 4: Categories Declutter
+## Task 4: Categories Declutter
 
 **Files:**
 - Modify: `frontend/src/pages/CategoriesPage.tsx`
@@ -59,7 +59,7 @@
 1. Write tests that header utilities and row utilities are available through menus.
 2. Implement header and row action menus while keeping "New category" visible.
 
-### Task 5: Settings Declutter
+## Task 5: Settings Declutter
 
 **Files:**
 - Modify: `frontend/src/pages/SettingsPage.tsx`
@@ -71,7 +71,7 @@
 2. Replace repeated row buttons with `ActionMenu`.
 3. Keep destructive danger-zone action buttons visible and explicit.
 
-### Task 6: Verification
+## Task 6: Verification
 
 **Commands:**
 - `npm test -- --run frontend/src/pages/TransactionsPage.test.tsx frontend/src/pages/ImportsPage.test.tsx frontend/src/pages/CategoriesPage.test.tsx frontend/src/pages/SettingsPage.test.tsx`

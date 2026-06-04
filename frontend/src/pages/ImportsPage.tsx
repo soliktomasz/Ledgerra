@@ -506,7 +506,7 @@ export function ImportsPage() {
                 aria-controls="review-actions-panel"
                 onClick={() => setReviewActionsOpen((current) => !current)}
               >
-                Review actions
+                {t("imports.reviewActions")}
                 <ChevronDownIcon />
               </button>
             </div>

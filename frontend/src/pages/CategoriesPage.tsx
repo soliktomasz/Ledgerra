@@ -136,6 +136,9 @@ const categoryCopy = {
     duplicate: "Duplicate",
     archive: "Archive",
     archiveUnavailable: "Used categories cannot be archived",
+    archiveUnavailableFor: (name: string) => `Archive unavailable for ${name}`,
+    actionMenuLabel: "Category actions",
+    rowActionMenuLabel: (name: string) => `Category actions for ${name}`,
     categoryEditor: "Category editor",
     editInline: (name: string) => `Edit ${name} inline`,
     newInline: "New category inline",
@@ -216,6 +219,9 @@ const categoryCopy = {
     duplicate: "Duplikuj",
     archive: "Archiwizuj",
     archiveUnavailable: "Używanych kategorii nie można archiwizować",
+    archiveUnavailableFor: (name: string) => `Archiwizacja niedostępna dla ${name}`,
+    actionMenuLabel: "Akcje kategorii",
+    rowActionMenuLabel: (name: string) => `Akcje kategorii dla ${name}`,
     categoryEditor: "Edytor kategorii",
     editInline: (name: string) => `Edytuj ${name} inline`,
     newInline: "Nowa kategoria inline",
@@ -969,7 +975,7 @@ export function CategoriesPage() {
         description={t("categories.description")}
         actions={(
           <div className="category-page-actions">
-            <ActionMenu label="Category actions" panelClassName="category-page-action-menu">
+            <ActionMenu label={copy.actionMenuLabel} panelClassName="category-page-action-menu">
               <button className="action-menu-item" type="button" onClick={exportCategories} disabled={categoryRows.length === 0}>
                 <DownloadIcon />
                 {copy.export}
@@ -1143,7 +1149,7 @@ export function CategoriesPage() {
                               </span>
                             </div>
                             <div className="category-row-actions">
-                              <ActionMenu label={`Category actions for ${row.category.name}`} panelClassName="category-row-action-menu">
+                              <ActionMenu label={copy.rowActionMenuLabel(row.category.name)} panelClassName="category-row-action-menu">
                                 <button className="action-menu-item" type="button" aria-label={`${copy.edit} ${row.category.name}`} onClick={() => selectCategory(row)}>
                                   <EditIcon />
                                   {copy.edit}
@@ -1155,7 +1161,7 @@ export function CategoriesPage() {
                                 <button
                                   className="action-menu-item"
                                   type="button"
-                                  aria-label={row.canArchive ? `${copy.archive} ${row.category.name}` : `Archive unavailable for ${row.category.name}`}
+                                  aria-label={row.canArchive ? `${copy.archive} ${row.category.name}` : copy.archiveUnavailableFor(row.category.name)}
                                   onClick={() => archiveCategory(row)}
                                   disabled={!row.canArchive || saving}
                                 >

@@ -729,7 +729,7 @@ export function TransactionsPage() {
                     aria-controls="transaction-bulk-action-panel"
                     onClick={() => setBulkActionsOpen((current) => !current)}
                   >
-                    Bulk actions
+                    {t("transactions.bulkActions")}
                     <ChevronDownIcon />
                   </button>
                 </div>
@@ -737,11 +737,11 @@ export function TransactionsPage() {
                   <div className="transaction-bulk-actions" id="transaction-bulk-action-panel">
                     <button className="ghost-button compact-button danger-button transaction-bulk-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>
                       <TrashIcon />
-                      Bulk delete
+                      {t("transactions.bulkDelete")}
                     </button>
                     <div className="transaction-bulk-control">
                       <label>
-                        Bulk category
+                        {t("transactions.bulkCategory")}
                         <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
                           <option value="">{t("common.chooseCategory")}</option>
                           {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
@@ -749,12 +749,12 @@ export function TransactionsPage() {
                       </label>
                       <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>
                         <CategoryIcon />
-                        Apply category
+                        {t("transactions.applyCategory")}
                       </button>
                     </div>
                     <div className="transaction-bulk-control">
                       <label>
-                        Move to account
+                        {t("transactions.moveToAccount")}
                         <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
                           <option value="">{t("common.selectAccount")}</option>
                           {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
@@ -762,7 +762,7 @@ export function TransactionsPage() {
                       </label>
                       <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>
                         <AccountsIcon />
-                        Move transactions
+                        {t("transactions.moveTransactions")}
                       </button>
                     </div>
                   </div>
