@@ -112,6 +112,18 @@ public sealed class FinanceCalculationsTests
     }
 
     [Fact]
+    public void Convert_UsesExactMonthlyManualRateWithoutWarning()
+    {
+        var result = FxRateConverter.Convert(100m, "EUR", "USD", new DateOnly(2026, 5, 1),
+        [
+            new FxConversionRate("EUR", "USD", new DateOnly(2026, 5, 1), 1.10m)
+        ]);
+
+        Assert.Equal(110m, result.Amount);
+        Assert.Empty(result.Warnings);
+    }
+
+    [Fact]
     public void Convert_ReturnsZeroAndWarningWhenRateIsMissing()
     {
         var result = FxRateConverter.Convert(100m, "EUR", "USD", new DateOnly(2026, 5, 1), []);

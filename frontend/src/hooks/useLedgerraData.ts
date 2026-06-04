@@ -76,7 +76,7 @@ export function useLedgerraData(options: LedgerraDataOptions = {}) {
         loadTransactions ? apiClient.getTransactions(auth.accessToken) : Promise.resolve([]),
         loadBudget ? apiClient.getBudget(auth.accessToken, selectedYear, selectedMonthNumber) : Promise.resolve(null),
         loadImportRules ? apiClient.getImportRules(auth.accessToken).catch(() => []) : Promise.resolve([]),
-        loadExchangeRates ? apiClient.getExchangeRates(auth.accessToken) : Promise.resolve([])
+        loadExchangeRates ? apiClient.getExchangeRates(auth.accessToken).catch(() => []) : Promise.resolve([])
       ]);
 
       if (loadProfile) setProfile(profilePayload);

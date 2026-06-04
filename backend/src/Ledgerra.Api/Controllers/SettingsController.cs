@@ -1,3 +1,4 @@
+using System.Globalization;
 using Ledgerra.Api.Contracts;
 using Ledgerra.Api.Extensions;
 using Ledgerra.Application.Settings;
@@ -82,7 +83,7 @@ public sealed class SettingsController : ControllerBase
     [HttpPut("exchange-rates")]
     public async Task<ActionResult<ExchangeRateResponse>> UpsertExchangeRate(UpsertExchangeRateRequest request, CancellationToken cancellationToken)
     {
-        if (!DateOnly.TryParse($"{request.Month}-01", out var parsedMonth))
+        if (!DateOnly.TryParseExact($"{request.Month}-01", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedMonth))
         {
             return this.ValidationError(new Dictionary<string, string[]>
             {

@@ -5400,7 +5400,7 @@
       "source_file": "frontend/src/App.tsx",
       "source_location": "L51",
       "id": "src_app_app",
-      "community": 13,
+      "community": 22,
       "norm_label": "app()"
     },
     {
@@ -5436,7 +5436,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L10",
       "id": "src_types_accounticonkind",
-      "community": 11,
+      "community": 3,
       "norm_label": "accounticonkind"
     },
     {
@@ -5535,7 +5535,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L105",
       "id": "src_types_monthlyreportdrafttransaction",
-      "community": 34,
+      "community": 190,
       "norm_label": "monthlyreportdrafttransaction"
     },
     {
@@ -5544,7 +5544,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L123",
       "id": "src_types_monthlyreportanalysis",
-      "community": 34,
+      "community": 190,
       "norm_label": "monthlyreportanalysis"
     },
     {
@@ -5553,7 +5553,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L128",
       "id": "src_types_monthlyreportanalysisjob",
-      "community": 34,
+      "community": 190,
       "norm_label": "monthlyreportanalysisjob"
     },
     {
@@ -5580,7 +5580,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L170",
       "id": "src_types_budgetsummary",
-      "community": 28,
+      "community": 21,
       "norm_label": "budgetsummary"
     },
     {
@@ -5589,7 +5589,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L177",
       "id": "src_types_dashboardsummary",
-      "community": 28,
+      "community": 21,
       "norm_label": "dashboardsummary"
     },
     {
@@ -5607,7 +5607,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L217",
       "id": "src_types_reportingrangepreset",
-      "community": 21,
+      "community": 11,
       "norm_label": "reportingrangepreset"
     },
     {
@@ -5616,7 +5616,7 @@
       "source_file": "frontend/src/types.ts",
       "source_location": "L219",
       "id": "src_types_reportingoverview",
-      "community": 21,
+      "community": 28,
       "norm_label": "reportingoverview"
     },
     {
@@ -5742,7 +5742,7 @@
       "source_file": "frontend/src/ui/MetricCard.tsx",
       "source_location": "L1",
       "id": "frontend_src_ui_metriccard_tsx",
-      "community": 14,
+      "community": 11,
       "norm_label": "metriccard.tsx"
     },
     {
@@ -5751,7 +5751,7 @@
       "source_file": "frontend/src/ui/MetricCard.tsx",
       "source_location": "L3",
       "id": "ui_metriccard_metriccard",
-      "community": 14,
+      "community": 11,
       "norm_label": "metriccard()"
     },
     {
@@ -5796,7 +5796,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L20",
       "id": "ui_icons_trendicon",
-      "community": 14,
+      "community": 11,
       "norm_label": "trendicon()"
     },
     {
@@ -5805,7 +5805,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L30",
       "id": "ui_icons_incomeicon",
-      "community": 14,
+      "community": 11,
       "norm_label": "incomeicon()"
     },
     {
@@ -5814,7 +5814,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L40",
       "id": "ui_icons_expenseicon",
-      "community": 14,
+      "community": 11,
       "norm_label": "expenseicon()"
     },
     {
@@ -5823,7 +5823,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L50",
       "id": "ui_icons_cashflowicon",
-      "community": 3,
+      "community": 11,
       "norm_label": "cashflowicon()"
     },
     {
@@ -5832,7 +5832,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L61",
       "id": "ui_icons_categoryicon",
-      "community": 14,
+      "community": 11,
       "norm_label": "categoryicon()"
     },
     {
@@ -5850,7 +5850,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L83",
       "id": "ui_icons_reportsicon",
-      "community": 3,
+      "community": 20,
       "norm_label": "reportsicon()"
     },
     {
@@ -5886,7 +5886,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L120",
       "id": "ui_icons_bookmarkicon",
-      "community": 9,
+      "community": 37,
       "norm_label": "bookmarkicon()"
     },
     {
@@ -5895,7 +5895,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L128",
       "id": "ui_icons_editicon",
-      "community": 9,
+      "community": 34,
       "norm_label": "editicon()"
     },
     {
@@ -6093,7 +6093,7 @@
       "source_file": "frontend/src/ui/icons.tsx",
       "source_location": "L357",
       "id": "ui_icons_networthicon",
-      "community": 14,
+      "community": 11,
       "norm_label": "networthicon()"
     },
     {
@@ -6255,7 +6255,7 @@
       "source_file": "frontend/src/utils/currency.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_currency_ts",
-      "community": 11,
+      "community": 3,
       "norm_label": "currency.ts"
     },
     {
@@ -6264,7 +6264,7 @@
       "source_file": "frontend/src/utils/currency.ts",
       "source_location": "L1",
       "id": "utils_currency_supportedcurrencies",
-      "community": 11,
+      "community": 3,
       "norm_label": "supportedcurrencies"
     },
     {
@@ -6273,7 +6273,7 @@
       "source_file": "frontend/src/utils/currency.ts",
       "source_location": "L12",
       "id": "utils_currency_normalizecurrencycode",
-      "community": 11,
+      "community": 3,
       "norm_label": "normalizecurrencycode()"
     },
     {
@@ -6282,7 +6282,7 @@
       "source_file": "frontend/src/utils/format.test.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_format_test_ts",
-      "community": 130,
+      "community": 129,
       "norm_label": "format.test.ts"
     },
     {
@@ -6291,7 +6291,7 @@
       "source_file": "frontend/src/utils/format.test.ts",
       "source_location": "L10",
       "id": "utils_format_test_formatted",
-      "community": 130,
+      "community": 129,
       "norm_label": "formatted"
     },
     {
@@ -6345,7 +6345,7 @@
       "source_file": "frontend/src/utils/language.ts",
       "source_location": "L58",
       "id": "utils_language_getlocaleforlanguagecode",
-      "community": 130,
+      "community": 129,
       "norm_label": "getlocaleforlanguagecode()"
     },
     {
@@ -6354,7 +6354,7 @@
       "source_file": "frontend/src/utils/currency.test.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_currency_test_ts",
-      "community": 11,
+      "community": 3,
       "norm_label": "currency.test.ts"
     },
     {
@@ -6363,7 +6363,7 @@
       "source_file": "frontend/src/utils/monthRange.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_monthrange_ts",
-      "community": 28,
+      "community": 8,
       "norm_label": "monthrange.ts"
     },
     {
@@ -6372,7 +6372,7 @@
       "source_file": "frontend/src/utils/monthRange.ts",
       "source_location": "L1",
       "id": "utils_monthrange_getmonthrangeparams",
-      "community": 28,
+      "community": 8,
       "norm_label": "getmonthrangeparams()"
     },
     {
@@ -6462,7 +6462,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L1",
       "id": "frontend_src_utils_format_ts",
-      "community": 130,
+      "community": 129,
       "norm_label": "format.ts"
     },
     {
@@ -6480,7 +6480,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L9",
       "id": "utils_format_formatcurrency",
-      "community": 130,
+      "community": 129,
       "norm_label": "formatcurrency()"
     },
     {
@@ -6489,7 +6489,7 @@
       "source_file": "frontend/src/utils/format.ts",
       "source_location": "L17",
       "id": "utils_format_formatdate",
-      "community": 130,
+      "community": 129,
       "norm_label": "formatdate()"
     },
     {
@@ -6516,7 +6516,7 @@
       "source_file": "frontend/src/utils/accounts.ts",
       "source_location": "L12",
       "id": "utils_accounts_accounticonclass",
-      "community": 130,
+      "community": 129,
       "norm_label": "accounticonclass()"
     },
     {
@@ -6696,7 +6696,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L1",
       "id": "frontend_src_state_importanalysiscontext_tsx",
-      "community": 34,
+      "community": 190,
       "norm_label": "importanalysiscontext.tsx"
     },
     {
@@ -6705,7 +6705,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L5",
       "id": "state_importanalysiscontext_importanalysiscontextvalue",
-      "community": 34,
+      "community": 190,
       "norm_label": "importanalysiscontextvalue"
     },
     {
@@ -6714,7 +6714,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L53",
       "id": "state_importanalysiscontext_importanalysiscontext",
-      "community": 34,
+      "community": 190,
       "norm_label": "importanalysiscontext"
     },
     {
@@ -6723,7 +6723,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L55",
       "id": "state_importanalysiscontext_formatdraftdate",
-      "community": 34,
+      "community": 190,
       "norm_label": "formatdraftdate()"
     },
     {
@@ -6732,7 +6732,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L76",
       "id": "state_importanalysiscontext_importanalysisprovider",
-      "community": 34,
+      "community": 190,
       "norm_label": "importanalysisprovider()"
     },
     {
@@ -6741,7 +6741,7 @@
       "source_file": "frontend/src/state/ImportAnalysisContext.tsx",
       "source_location": "L204",
       "id": "state_importanalysiscontext_useimportanalysis",
-      "community": 34,
+      "community": 190,
       "norm_label": "useimportanalysis()"
     },
     {
@@ -6750,7 +6750,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L1",
       "id": "frontend_src_state_monthcontext_tsx",
-      "community": 28,
+      "community": 21,
       "norm_label": "monthcontext.tsx"
     },
     {
@@ -6759,7 +6759,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L3",
       "id": "state_monthcontext_monthselectioncontextvalue",
-      "community": 28,
+      "community": 21,
       "norm_label": "monthselectioncontextvalue"
     },
     {
@@ -6768,7 +6768,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L13",
       "id": "state_monthcontext_monthselectioncontext",
-      "community": 28,
+      "community": 21,
       "norm_label": "monthselectioncontext"
     },
     {
@@ -6777,7 +6777,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L15",
       "id": "state_monthcontext_currentmonthkey",
-      "community": 28,
+      "community": 21,
       "norm_label": "currentmonthkey()"
     },
     {
@@ -6786,7 +6786,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L19",
       "id": "state_monthcontext_ismonthkey",
-      "community": 28,
+      "community": 21,
       "norm_label": "ismonthkey()"
     },
     {
@@ -6795,7 +6795,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L23",
       "id": "state_monthcontext_shiftmonth",
-      "community": 28,
+      "community": 21,
       "norm_label": "shiftmonth()"
     },
     {
@@ -6804,7 +6804,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L29",
       "id": "state_monthcontext_getmonthparts",
-      "community": 28,
+      "community": 21,
       "norm_label": "getmonthparts()"
     },
     {
@@ -6813,7 +6813,7 @@
       "source_file": "frontend/src/state/MonthContext.tsx",
       "source_location": "L34",
       "id": "state_monthcontext_monthprovider",
-      "community": 28,
+      "community": 21,
       "norm_label": "monthprovider()"
     },
     {
@@ -6975,7 +6975,7 @@
       "source_file": "frontend/src/state/I18nContext.tsx",
       "source_location": "L2568",
       "id": "state_i18ncontext_i18nprovider",
-      "community": 129,
+      "community": 13,
       "norm_label": "i18nprovider()"
     },
     {
@@ -7119,7 +7119,7 @@
       "source_file": "frontend/src/state/ThemeContext.tsx",
       "source_location": "L208",
       "id": "state_themecontext_themeprovider",
-      "community": 3,
+      "community": 22,
       "norm_label": "themeprovider()"
     },
     {
@@ -7308,7 +7308,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountform_tsx",
-      "community": 11,
+      "community": 3,
       "norm_label": "accountform.tsx"
     },
     {
@@ -7317,7 +7317,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L6",
       "id": "components_accountform_accounttypes",
-      "community": 11,
+      "community": 3,
       "norm_label": "accounttypes"
     },
     {
@@ -7326,7 +7326,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L7",
       "id": "components_accountform_accounticonkinds",
-      "community": 11,
+      "community": 3,
       "norm_label": "accounticonkinds"
     },
     {
@@ -7335,7 +7335,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L9",
       "id": "components_accountform_accountformvalues",
-      "community": 11,
+      "community": 3,
       "norm_label": "accountformvalues"
     },
     {
@@ -7344,7 +7344,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L20",
       "id": "components_accountform_accountformprops",
-      "community": 11,
+      "community": 3,
       "norm_label": "accountformprops"
     },
     {
@@ -7353,7 +7353,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L30",
       "id": "components_accountform_getaccounttypelabel",
-      "community": 11,
+      "community": 3,
       "norm_label": "getaccounttypelabel()"
     },
     {
@@ -7362,7 +7362,7 @@
       "source_file": "frontend/src/components/AccountForm.tsx",
       "source_location": "L49",
       "id": "components_accountform_accountform",
-      "community": 11,
+      "community": 3,
       "norm_label": "accountform()"
     },
     {
@@ -7398,7 +7398,7 @@
       "source_file": "frontend/src/components/AccountFormModal.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountformmodal_tsx",
-      "community": 11,
+      "community": 3,
       "norm_label": "accountformmodal.tsx"
     },
     {
@@ -7407,7 +7407,7 @@
       "source_file": "frontend/src/components/AccountFormModal.tsx",
       "source_location": "L8",
       "id": "components_accountformmodal_accountformmodal",
-      "community": 11,
+      "community": 13,
       "norm_label": "accountformmodal()"
     },
     {
@@ -7416,7 +7416,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountbalancechart_tsx",
-      "community": 130,
+      "community": 129,
       "norm_label": "accountbalancechart.tsx"
     },
     {
@@ -7425,7 +7425,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L8",
       "id": "components_accountbalancechart_balancerange",
-      "community": 130,
+      "community": 129,
       "norm_label": "balancerange"
     },
     {
@@ -7434,7 +7434,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L10",
       "id": "components_accountbalancechart_range_days",
-      "community": 130,
+      "community": 129,
       "norm_label": "range_days"
     },
     {
@@ -7443,7 +7443,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L17",
       "id": "components_accountbalancechart_accountbalancechart",
-      "community": 130,
+      "community": 129,
       "norm_label": "accountbalancechart()"
     },
     {
@@ -7452,7 +7452,7 @@
       "source_file": "frontend/src/components/AccountBalanceChart.tsx",
       "source_location": "L87",
       "id": "components_accountbalancechart_labelfor",
-      "community": 130,
+      "community": 129,
       "norm_label": "labelfor()"
     },
     {
@@ -7461,7 +7461,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L1",
       "id": "frontend_src_components_accountdetailcolumn_tsx",
-      "community": 130,
+      "community": 129,
       "norm_label": "accountdetailcolumn.tsx"
     },
     {
@@ -7470,7 +7470,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L8",
       "id": "components_accountdetailcolumn_translator",
-      "community": 130,
+      "community": 129,
       "norm_label": "translator"
     },
     {
@@ -7479,7 +7479,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L10",
       "id": "components_accountdetailcolumn_accountdetailcolumn",
-      "community": 130,
+      "community": 129,
       "norm_label": "accountdetailcolumn()"
     },
     {
@@ -7488,7 +7488,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L122",
       "id": "components_accountdetailcolumn_kpicard",
-      "community": 130,
+      "community": 129,
       "norm_label": "kpicard()"
     },
     {
@@ -7497,7 +7497,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L137",
       "id": "components_accountdetailcolumn_formatsigned",
-      "community": 130,
+      "community": 129,
       "norm_label": "formatsigned()"
     },
     {
@@ -7506,7 +7506,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L143",
       "id": "components_accountdetailcolumn_countinmonth",
-      "community": 130,
+      "community": 129,
       "norm_label": "countinmonth()"
     },
     {
@@ -7515,7 +7515,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L147",
       "id": "components_accountdetailcolumn_formatmonthlabel",
-      "community": 130,
+      "community": 129,
       "norm_label": "formatmonthlabel()"
     },
     {
@@ -7524,7 +7524,7 @@
       "source_file": "frontend/src/components/AccountDetailColumn.tsx",
       "source_location": "L154",
       "id": "components_accountdetailcolumn_breadcrumbfortype",
-      "community": 130,
+      "community": 129,
       "norm_label": "breadcrumbfortype()"
     },
     {
@@ -7551,7 +7551,7 @@
       "source_file": "frontend/src/components/AccountListColumn.tsx",
       "source_location": "L24",
       "id": "components_accountlistcolumn_accountlistcolumn",
-      "community": 11,
+      "community": 129,
       "norm_label": "accountlistcolumn()"
     },
     {
@@ -7587,7 +7587,7 @@
       "source_file": "frontend/src/hooks/useReportingOverview.ts",
       "source_location": "L1",
       "id": "frontend_src_hooks_usereportingoverview_ts",
-      "community": 21,
+      "community": 13,
       "norm_label": "usereportingoverview.ts"
     },
     {
@@ -7605,7 +7605,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_hooks_useledgerradata_test_tsx",
-      "community": 21,
+      "community": 13,
       "norm_label": "useledgerradata.test.tsx"
     },
     {
@@ -7614,7 +7614,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L5",
       "id": "hooks_useledgerradata_test_mocks",
-      "community": 21,
+      "community": 13,
       "norm_label": "mocks"
     },
     {
@@ -7623,7 +7623,7 @@
       "source_file": "frontend/src/hooks/useLedgerraData.test.tsx",
       "source_location": "L73",
       "id": "hooks_useledgerradata_test_result",
-      "community": 21,
+      "community": 13,
       "norm_label": "{ result }"
     },
     {
@@ -7632,7 +7632,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L1",
       "id": "frontend_src_api_client_ts",
-      "community": 61,
+      "community": 21,
       "norm_label": "client.ts"
     },
     {
@@ -7641,7 +7641,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L29",
       "id": "api_client_resolveapiurl",
-      "community": 61,
+      "community": 21,
       "norm_label": "resolveapiurl()"
     },
     {
@@ -7650,7 +7650,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L44",
       "id": "api_client_requestoptions",
-      "community": 61,
+      "community": 21,
       "norm_label": "requestoptions"
     },
     {
@@ -7659,7 +7659,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L52",
       "id": "api_client_unauthorizedlistener",
-      "community": 61,
+      "community": 21,
       "norm_label": "unauthorizedlistener"
     },
     {
@@ -7668,7 +7668,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L53",
       "id": "api_client_authresolver",
-      "community": 61,
+      "community": 21,
       "norm_label": "authresolver"
     },
     {
@@ -7677,7 +7677,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L54",
       "id": "api_client_authpersister",
-      "community": 61,
+      "community": 21,
       "norm_label": "authpersister"
     },
     {
@@ -7686,7 +7686,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L56",
       "id": "api_client_unauthorizedlisteners",
-      "community": 61,
+      "community": 21,
       "norm_label": "unauthorizedlisteners"
     },
     {
@@ -7695,7 +7695,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L61",
       "id": "api_client_notifyunauthorized",
-      "community": 61,
+      "community": 21,
       "norm_label": "notifyunauthorized()"
     },
     {
@@ -7704,7 +7704,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L65",
       "id": "api_client_request",
-      "community": 61,
+      "community": 21,
       "norm_label": "request()"
     },
     {
@@ -7713,7 +7713,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L110",
       "id": "api_client_refreshsession",
-      "community": 61,
+      "community": 21,
       "norm_label": "refreshsession()"
     },
     {
@@ -7722,7 +7722,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L142",
       "id": "api_client_readerrormessage",
-      "community": 61,
+      "community": 21,
       "norm_label": "readerrormessage()"
     },
     {
@@ -7731,7 +7731,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L166",
       "id": "api_client_wait",
-      "community": 61,
+      "community": 21,
       "norm_label": "wait()"
     },
     {
@@ -7740,7 +7740,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L170",
       "id": "api_client_fetchmonthlyreportanalysisjob",
-      "community": 61,
+      "community": 21,
       "norm_label": "fetchmonthlyreportanalysisjob()"
     },
     {
@@ -7749,7 +7749,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L174",
       "id": "api_client_waitformonthlyreportanalysisjob",
-      "community": 61,
+      "community": 21,
       "norm_label": "waitformonthlyreportanalysisjob()"
     },
     {
@@ -7758,7 +7758,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L191",
       "id": "api_client_readmonthlyreportanalysisresult",
-      "community": 61,
+      "community": 21,
       "norm_label": "readmonthlyreportanalysisresult()"
     },
     {
@@ -7767,7 +7767,7 @@
       "source_file": "frontend/src/api/client.ts",
       "source_location": "L203",
       "id": "api_client_readcontentdispositionfilename",
-      "community": 61,
+      "community": 21,
       "norm_label": "readcontentdispositionfilename()"
     },
     {
@@ -7785,7 +7785,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L1",
       "id": "frontend_src_api_client_test_ts",
-      "community": 61,
+      "community": 22,
       "norm_label": "client.test.ts"
     },
     {
@@ -7794,7 +7794,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L31",
       "id": "api_client_test_fetchmock",
-      "community": 61,
+      "community": 22,
       "norm_label": "fetchmock"
     },
     {
@@ -7803,7 +7803,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L55",
       "id": "api_client_test_persist",
-      "community": 61,
+      "community": 22,
       "norm_label": "persist"
     },
     {
@@ -7812,7 +7812,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L86",
       "id": "api_client_test_refreshcalls",
-      "community": 61,
+      "community": 22,
       "norm_label": "refreshcalls"
     },
     {
@@ -7821,7 +7821,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L93",
       "id": "api_client_test_onunauthorized",
-      "community": 61,
+      "community": 22,
       "norm_label": "onunauthorized"
     },
     {
@@ -7830,7 +7830,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L105",
       "id": "api_client_test_unsubscribe",
-      "community": 61,
+      "community": 22,
       "norm_label": "unsubscribe"
     },
     {
@@ -7839,7 +7839,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L175",
       "id": "api_client_test_onjobupdate",
-      "community": 61,
+      "community": 21,
       "norm_label": "onjobupdate"
     },
     {
@@ -7848,7 +7848,7 @@
       "source_file": "frontend/src/api/client.test.ts",
       "source_location": "L212",
       "id": "api_client_test_analysispromise",
-      "community": 61,
+      "community": 22,
       "norm_label": "analysispromise"
     },
     {
@@ -8145,7 +8145,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_accountspage_tsx",
-      "community": 11,
+      "community": 13,
       "norm_label": "accountspage.tsx"
     },
     {
@@ -8154,7 +8154,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L13",
       "id": "pages_accountspage_defaultformvalues",
-      "community": 11,
+      "community": 13,
       "norm_label": "defaultformvalues()"
     },
     {
@@ -8163,7 +8163,7 @@
       "source_file": "frontend/src/pages/AccountsPage.tsx",
       "source_location": "L25",
       "id": "pages_accountspage_accounttoformvalues",
-      "community": 11,
+      "community": 13,
       "norm_label": "accounttoformvalues()"
     },
     {
@@ -8316,7 +8316,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L266",
       "id": "pages_categoriespage_usemediaquery",
-      "community": 156,
+      "community": 6,
       "norm_label": "usemediaquery()"
     },
     {
@@ -8325,7 +8325,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L293",
       "id": "pages_categoriespage_getcategorykindlabel",
-      "community": 156,
+      "community": 6,
       "norm_label": "getcategorykindlabel()"
     },
     {
@@ -8334,7 +8334,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L304",
       "id": "pages_categoriespage_normalizesearchtext",
-      "community": 156,
+      "community": 6,
       "norm_label": "normalizesearchtext()"
     },
     {
@@ -8397,7 +8397,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L357",
       "id": "pages_categoriespage_getcategorygroup",
-      "community": 156,
+      "community": 6,
       "norm_label": "getcategorygroup()"
     },
     {
@@ -8406,7 +8406,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L409",
       "id": "pages_categoriespage_getdefaultcategoryicon",
-      "community": 156,
+      "community": 6,
       "norm_label": "getdefaultcategoryicon()"
     },
     {
@@ -8415,7 +8415,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L443",
       "id": "pages_categoriespage_geticonbykey",
-      "community": 156,
+      "community": 6,
       "norm_label": "geticonbykey()"
     },
     {
@@ -8469,7 +8469,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L512",
       "id": "pages_categoriespage_findsimilarcategorypair",
-      "community": 156,
+      "community": 6,
       "norm_label": "findsimilarcategorypair()"
     },
     {
@@ -8478,7 +8478,7 @@
       "source_file": "frontend/src/pages/CategoriesPage.tsx",
       "source_location": "L538",
       "id": "pages_categoriespage_categoriespage",
-      "community": 156,
+      "community": 129,
       "norm_label": "categoriespage()"
     },
     {
@@ -8577,7 +8577,7 @@
       "source_file": "frontend/src/pages/SettingsPage.tsx",
       "source_location": "L46",
       "id": "pages_settingspage_settingspage",
-      "community": 13,
+      "community": 3,
       "norm_label": "settingspage()"
     },
     {
@@ -8586,7 +8586,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_reportspage_tsx",
-      "community": 14,
+      "community": 11,
       "norm_label": "reportspage.tsx"
     },
     {
@@ -8595,7 +8595,7 @@
       "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L12",
       "id": "pages_reportspage_rangepresets",
-      "community": 14,
+      "community": 11,
       "norm_label": "rangepresets"
     },
     {
@@ -8820,7 +8820,7 @@
       "source_file": "frontend/src/pages/BudgetsPage.tsx",
       "source_location": "L382",
       "id": "pages_budgetspage_budgetspage",
-      "community": 13,
+      "community": 8,
       "norm_label": "budgetspage()"
     },
     {
@@ -8829,7 +8829,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_dashboardpage_test_tsx",
-      "community": 28,
+      "community": 21,
       "norm_label": "dashboardpage.test.tsx"
     },
     {
@@ -8838,7 +8838,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L9",
       "id": "pages_dashboardpage_test_mocks",
-      "community": 28,
+      "community": 21,
       "norm_label": "mocks"
     },
     {
@@ -8847,7 +8847,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L62",
       "id": "pages_dashboardpage_test_dashboardtree",
-      "community": 28,
+      "community": 21,
       "norm_label": "dashboardtree()"
     },
     {
@@ -8856,7 +8856,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L72",
       "id": "pages_dashboardpage_test_renderdashboardpage",
-      "community": 28,
+      "community": 21,
       "norm_label": "renderdashboardpage()"
     },
     {
@@ -8865,7 +8865,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L172",
       "id": "pages_dashboardpage_test_user",
-      "community": 28,
+      "community": 21,
       "norm_label": "user"
     },
     {
@@ -8874,7 +8874,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L174",
       "id": "pages_dashboardpage_test_rerender",
-      "community": 28,
+      "community": 21,
       "norm_label": "{ rerender }"
     },
     {
@@ -8883,7 +8883,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L431",
       "id": "pages_dashboardpage_test_stored",
-      "community": 28,
+      "community": 21,
       "norm_label": "stored"
     },
     {
@@ -8892,7 +8892,7 @@
       "source_file": "frontend/src/pages/DashboardPage.test.tsx",
       "source_location": "L441",
       "id": "pages_dashboardpage_test_customizationpanel",
-      "community": 28,
+      "community": 21,
       "norm_label": "customizationpanel"
     },
     {
@@ -9054,7 +9054,7 @@
       "source_file": "frontend/src/pages/TransactionsPage.tsx",
       "source_location": "L66",
       "id": "pages_transactionspage_formatsignedcurrency",
-      "community": 130,
+      "community": 13,
       "norm_label": "formatsignedcurrency()"
     },
     {
@@ -9090,7 +9090,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_reportspage_test_tsx",
-      "community": 21,
+      "community": 28,
       "norm_label": "reportspage.test.tsx"
     },
     {
@@ -9099,7 +9099,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L8",
       "id": "pages_reportspage_test_overview",
-      "community": 21,
+      "community": 28,
       "norm_label": "overview"
     },
     {
@@ -9108,7 +9108,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L42",
       "id": "pages_reportspage_test_mocks",
-      "community": 21,
+      "community": 28,
       "norm_label": "mocks"
     },
     {
@@ -9117,7 +9117,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L100",
       "id": "pages_reportspage_test_user",
-      "community": 21,
+      "community": 28,
       "norm_label": "user"
     },
     {
@@ -9126,7 +9126,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L117",
       "id": "pages_reportspage_test_link",
-      "community": 21,
+      "community": 28,
       "norm_label": "link"
     },
     {
@@ -9135,7 +9135,7 @@
       "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L118",
       "id": "pages_reportspage_test_url",
-      "community": 21,
+      "community": 28,
       "norm_label": "url"
     },
     {
@@ -9360,7 +9360,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_importspage_tsx",
-      "community": 34,
+      "community": 190,
       "norm_label": "importspage.tsx"
     },
     {
@@ -9369,7 +9369,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L14",
       "id": "pages_importspage_truncatetext",
-      "community": 34,
+      "community": 190,
       "norm_label": "truncatetext()"
     },
     {
@@ -9378,7 +9378,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L18",
       "id": "pages_importspage_geterrormessage",
-      "community": 34,
+      "community": 190,
       "norm_label": "geterrormessage()"
     },
     {
@@ -9387,7 +9387,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L22",
       "id": "pages_importspage_readfiletext",
-      "community": 34,
+      "community": 190,
       "norm_label": "readfiletext()"
     },
     {
@@ -9396,7 +9396,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L35",
       "id": "pages_importspage_extractcsvheaders",
-      "community": 34,
+      "community": 190,
       "norm_label": "extractcsvheaders()"
     },
     {
@@ -9405,7 +9405,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L40",
       "id": "pages_importspage_formatdraftdate",
-      "community": 34,
+      "community": 190,
       "norm_label": "formatdraftdate()"
     },
     {
@@ -9414,7 +9414,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L61",
       "id": "pages_importspage_parsedraftdateinput",
-      "community": 34,
+      "community": 190,
       "norm_label": "parsedraftdateinput()"
     },
     {
@@ -9423,7 +9423,7 @@
       "source_file": "frontend/src/pages/ImportsPage.tsx",
       "source_location": "L94",
       "id": "pages_importspage_importspage",
-      "community": 13,
+      "community": 190,
       "norm_label": "importspage()"
     },
     {
@@ -9594,7 +9594,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_dashboardpage_tsx",
-      "community": 28,
+      "community": 34,
       "norm_label": "dashboardpage.tsx"
     },
     {
@@ -9603,7 +9603,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L16",
       "id": "pages_dashboardpage_checklistaction",
-      "community": 28,
+      "community": 34,
       "norm_label": "checklistaction"
     },
     {
@@ -9612,7 +9612,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L21",
       "id": "pages_dashboardpage_checklistitem",
-      "community": 28,
+      "community": 34,
       "norm_label": "checklistitem"
     },
     {
@@ -9621,7 +9621,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L28",
       "id": "pages_dashboardpage_dashboardinsight",
-      "community": 28,
+      "community": 34,
       "norm_label": "dashboardinsight"
     },
     {
@@ -9630,7 +9630,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L39",
       "id": "pages_dashboardpage_onboardingacknowledgements",
-      "community": 28,
+      "community": 34,
       "norm_label": "onboardingacknowledgements"
     },
     {
@@ -9639,7 +9639,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L43",
       "id": "pages_dashboardpage_dashboardwidgetid",
-      "community": 28,
+      "community": 34,
       "norm_label": "dashboardwidgetid"
     },
     {
@@ -9648,7 +9648,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L44",
       "id": "pages_dashboardpage_dashboardwidgetpreference",
-      "community": 28,
+      "community": 34,
       "norm_label": "dashboardwidgetpreference"
     },
     {
@@ -9657,7 +9657,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L46",
       "id": "pages_dashboardpage_acknowledgementdefaults",
-      "community": 28,
+      "community": 34,
       "norm_label": "acknowledgementdefaults"
     },
     {
@@ -9666,7 +9666,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L50",
       "id": "pages_dashboardpage_dashboardwidgetdefaults",
-      "community": 28,
+      "community": 34,
       "norm_label": "dashboardwidgetdefaults"
     },
     {
@@ -9675,7 +9675,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L58",
       "id": "pages_dashboardpage_normalizedashboardwidgetpreferences",
-      "community": 28,
+      "community": 34,
       "norm_label": "normalizedashboardwidgetpreferences()"
     },
     {
@@ -9684,7 +9684,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L96",
       "id": "pages_dashboardpage_readacknowledgements",
-      "community": 28,
+      "community": 34,
       "norm_label": "readacknowledgements()"
     },
     {
@@ -9693,7 +9693,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L105",
       "id": "pages_dashboardpage_describespendingdelta",
-      "community": 28,
+      "community": 129,
       "norm_label": "describespendingdelta()"
     },
     {
@@ -9702,7 +9702,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L116",
       "id": "pages_dashboardpage_minisparkline",
-      "community": 28,
+      "community": 34,
       "norm_label": "minisparkline()"
     },
     {
@@ -9711,7 +9711,7 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "L140",
       "id": "pages_dashboardpage_builddashboardinsights",
-      "community": 28,
+      "community": 34,
       "norm_label": "builddashboardinsights()"
     },
     {
@@ -9778,10 +9778,19 @@
       "norm_label": ".convert_usesmonthlymanualrateandwarnswhenrateisstale()"
     },
     {
-      "label": ".Convert_ReturnsZeroAndWarningWhenRateIsMissing()",
+      "label": ".Convert_UsesExactMonthlyManualRateWithoutWarning()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs",
       "source_location": "L114",
+      "id": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_usesexactmonthlymanualratewithoutwarning",
+      "community": 160,
+      "norm_label": ".convert_usesexactmonthlymanualratewithoutwarning()"
+    },
+    {
+      "label": ".Convert_ReturnsZeroAndWarningWhenRateIsMissing()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs",
+      "source_location": "L126",
       "id": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_returnszeroandwarningwhenrateismissing",
       "community": 160,
       "norm_label": ".convert_returnszeroandwarningwhenrateismissing()"
@@ -9790,7 +9799,7 @@
       "label": ".BuildTransaction()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs",
-      "source_location": "L124",
+      "source_location": "L136",
       "id": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_buildtransaction",
       "community": 160,
       "norm_label": ".buildtransaction()"
@@ -10006,7 +10015,7 @@
       "label": "ApplicationReviewRegressionTests",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L10",
+      "source_location": "L11",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests",
       "community": 148,
       "norm_label": "applicationreviewregressiontests"
@@ -10015,7 +10024,7 @@
       "label": ".UpdateBudget_RejectsInvalidPeriodBeforeCheckingCategories()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L12",
+      "source_location": "L13",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_updatebudget_rejectsinvalidperiodbeforecheckingcategories",
       "community": 148,
       "norm_label": ".updatebudget_rejectsinvalidperiodbeforecheckingcategories()"
@@ -10024,7 +10033,7 @@
       "label": ".AnalyzeMonthlyReport_RejectsAiAccountIdThatDoesNotMatchCommandScope()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L27",
+      "source_location": "L28",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_analyzemonthlyreport_rejectsaiaccountidthatdoesnotmatchcommandscope",
       "community": 148,
       "norm_label": ".analyzemonthlyreport_rejectsaiaccountidthatdoesnotmatchcommandscope()"
@@ -10033,7 +10042,7 @@
       "label": ".CreateTransaction_RejectsNonPositiveAmount()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L61",
+      "source_location": "L62",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_createtransaction_rejectsnonpositiveamount",
       "community": 148,
       "norm_label": ".createtransaction_rejectsnonpositiveamount()"
@@ -10042,7 +10051,7 @@
       "label": ".CreateTransaction_RejectsNonUtcOccurredOn()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L88",
+      "source_location": "L89",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_createtransaction_rejectsnonutcoccurredon",
       "community": 148,
       "norm_label": ".createtransaction_rejectsnonutcoccurredon()"
@@ -10051,16 +10060,25 @@
       "label": ".UpdateTransaction_ValidatesReplacementBeforeDeletingExistingTransaction()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L115",
+      "source_location": "L116",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_updatetransaction_validatesreplacementbeforedeletingexistingtransaction",
       "community": 148,
       "norm_label": ".updatetransaction_validatesreplacementbeforedeletingexistingtransaction()"
     },
     {
+      "label": ".UpsertExchangeRate_RejectsNonPositiveRateBeforePersisting()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L155",
+      "id": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_upsertexchangerate_rejectsnonpositiveratebeforepersisting",
+      "community": 148,
+      "norm_label": ".upsertexchangerate_rejectsnonpositiveratebeforepersisting()"
+    },
+    {
       "label": "RecordingBudgetSummaryStore",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L154",
+      "source_location": "L169",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore",
       "community": 185,
       "norm_label": "recordingbudgetsummarystore"
@@ -10069,7 +10087,7 @@
       "label": ".GetSummaryAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L158",
+      "source_location": "L173",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore_getsummaryasync",
       "community": 185,
       "norm_label": ".getsummaryasync()"
@@ -10078,7 +10096,7 @@
       "label": ".CategoriesExistAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L163",
+      "source_location": "L178",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore_categoriesexistasync",
       "community": 185,
       "norm_label": ".categoriesexistasync()"
@@ -10087,7 +10105,7 @@
       "label": ".UpdateAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L169",
+      "source_location": "L184",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingbudgetsummarystore_updateasync",
       "community": 185,
       "norm_label": ".updateasync()"
@@ -10096,7 +10114,7 @@
       "label": "StubMonthlyReportAnalyzer",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L175",
+      "source_location": "L190",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_stubmonthlyreportanalyzer",
       "community": 133,
       "norm_label": "stubmonthlyreportanalyzer"
@@ -10105,7 +10123,7 @@
       "label": "AiDraftAnalysisResult",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L177",
+      "source_location": "L192",
       "id": "aidraftanalysisresult",
       "community": 133,
       "norm_label": "aidraftanalysisresult"
@@ -10114,7 +10132,7 @@
       "label": ".AnalyzeAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L184",
+      "source_location": "L199",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_stubmonthlyreportanalyzer_analyzeasync",
       "community": 133,
       "norm_label": ".analyzeasync()"
@@ -10123,7 +10141,7 @@
       "label": "PassthroughMonthlyReportRuleMatcher",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L197",
+      "source_location": "L212",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportrulematcher",
       "community": 133,
       "norm_label": "passthroughmonthlyreportrulematcher"
@@ -10132,7 +10150,7 @@
       "label": ".ApplyAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L199",
+      "source_location": "L214",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportrulematcher_applyasync",
       "community": 133,
       "norm_label": ".applyasync()"
@@ -10141,7 +10159,7 @@
       "label": "PassthroughMonthlyReportDuplicateMarker",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L208",
+      "source_location": "L223",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportduplicatemarker",
       "community": 133,
       "norm_label": "passthroughmonthlyreportduplicatemarker"
@@ -10150,7 +10168,7 @@
       "label": ".MarkDuplicatesAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L210",
+      "source_location": "L225",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_passthroughmonthlyreportduplicatemarker_markduplicatesasync",
       "community": 133,
       "norm_label": ".markduplicatesasync()"
@@ -10159,7 +10177,7 @@
       "label": "RecordingTransactionCommandStore",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L219",
+      "source_location": "L234",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore",
       "community": 140,
       "norm_label": "recordingtransactioncommandstore"
@@ -10168,7 +10186,7 @@
       "label": ".AccountExistsAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L231",
+      "source_location": "L246",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_accountexistsasync",
       "community": 140,
       "norm_label": ".accountexistsasync()"
@@ -10177,7 +10195,7 @@
       "label": ".CategoryExistsAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L236",
+      "source_location": "L251",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_categoryexistsasync",
       "community": 140,
       "norm_label": ".categoryexistsasync()"
@@ -10186,7 +10204,7 @@
       "label": ".GetByIdAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L241",
+      "source_location": "L256",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_getbyidasync",
       "community": 140,
       "norm_label": ".getbyidasync()"
@@ -10195,7 +10213,7 @@
       "label": ".DeleteAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L246",
+      "source_location": "L261",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_deleteasync",
       "community": 140,
       "norm_label": ".deleteasync()"
@@ -10204,7 +10222,7 @@
       "label": ".DeleteTransferGroupAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L252",
+      "source_location": "L267",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_deletetransfergroupasync",
       "community": 140,
       "norm_label": ".deletetransfergroupasync()"
@@ -10213,7 +10231,7 @@
       "label": ".CreateAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L258",
+      "source_location": "L273",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_createasync",
       "community": 140,
       "norm_label": ".createasync()"
@@ -10222,7 +10240,7 @@
       "label": ".MoveToAccountAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L267",
+      "source_location": "L282",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_movetoaccountasync",
       "community": 140,
       "norm_label": ".movetoaccountasync()"
@@ -10231,7 +10249,7 @@
       "label": ".CreateTransferAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L276",
+      "source_location": "L291",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_createtransferasync",
       "community": 140,
       "norm_label": ".createtransferasync()"
@@ -10240,7 +10258,7 @@
       "label": ".ReplaceAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L301",
+      "source_location": "L316",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_replaceasync",
       "community": 140,
       "norm_label": ".replaceasync()"
@@ -10249,10 +10267,46 @@
       "label": ".ReplaceWithTransferAsync()",
       "file_type": "code",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
-      "source_location": "L311",
+      "source_location": "L326",
       "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_replacewithtransferasync",
       "community": 140,
       "norm_label": ".replacewithtransferasync()"
+    },
+    {
+      "label": "RecordingExchangeRateStore",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L351",
+      "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore",
+      "community": 162,
+      "norm_label": "recordingexchangeratestore"
+    },
+    {
+      "label": ".GetForUserAsync()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L355",
+      "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore_getforuserasync",
+      "community": 162,
+      "norm_label": ".getforuserasync()"
+    },
+    {
+      "label": ".UpsertAsync()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L360",
+      "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore_upsertasync",
+      "community": 162,
+      "norm_label": ".upsertasync()"
+    },
+    {
+      "label": ".DeleteAsync()",
+      "file_type": "code",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L372",
+      "id": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore_deleteasync",
+      "community": 162,
+      "norm_label": ".deleteasync()"
     },
     {
       "label": "ImportCategorizationRuleMatcherTests.cs",
@@ -13336,7 +13390,7 @@
       "label": "SettingsController",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L12",
+      "source_location": "L13",
       "id": "controllers_settingscontroller_settingscontroller",
       "community": 54,
       "norm_label": "settingscontroller"
@@ -13345,7 +13399,7 @@
       "label": "LedgerraDbContext",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L17",
+      "source_location": "L18",
       "id": "backend_src_ledgerra_api_controllers_settingscontroller_cs_ledgerradbcontext",
       "community": 54,
       "norm_label": "ledgerradbcontext"
@@ -13354,7 +13408,7 @@
       "label": "GetProfileQueryHandler",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "getprofilequeryhandler",
       "community": 54,
       "norm_label": "getprofilequeryhandler"
@@ -13363,7 +13417,7 @@
       "label": "UpdateProfileCommandHandler",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L19",
+      "source_location": "L20",
       "id": "updateprofilecommandhandler",
       "community": 54,
       "norm_label": "updateprofilecommandhandler"
@@ -13372,7 +13426,7 @@
       "label": "GetExchangeRatesQueryHandler",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L20",
+      "source_location": "L21",
       "id": "getexchangeratesqueryhandler",
       "community": 54,
       "norm_label": "getexchangeratesqueryhandler"
@@ -13381,7 +13435,7 @@
       "label": "UpsertExchangeRateCommandHandler",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L21",
+      "source_location": "L22",
       "id": "upsertexchangeratecommandhandler",
       "community": 54,
       "norm_label": "upsertexchangeratecommandhandler"
@@ -13390,7 +13444,7 @@
       "label": "DeleteExchangeRateCommandHandler",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L22",
+      "source_location": "L23",
       "id": "deleteexchangeratecommandhandler",
       "community": 54,
       "norm_label": "deleteexchangeratecommandhandler"
@@ -13399,7 +13453,7 @@
       "label": ".GetProfile()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L40",
+      "source_location": "L41",
       "id": "controllers_settingscontroller_settingscontroller_getprofile",
       "community": 54,
       "norm_label": ".getprofile()"
@@ -13408,7 +13462,7 @@
       "label": ".UpdateProfile()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L51",
+      "source_location": "L52",
       "id": "controllers_settingscontroller_settingscontroller_updateprofile",
       "community": 54,
       "norm_label": ".updateprofile()"
@@ -13417,7 +13471,7 @@
       "label": ".GetExchangeRates()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L68",
+      "source_location": "L69",
       "id": "controllers_settingscontroller_settingscontroller_getexchangerates",
       "community": 54,
       "norm_label": ".getexchangerates()"
@@ -13426,7 +13480,7 @@
       "label": ".UpsertExchangeRate()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L82",
+      "source_location": "L83",
       "id": "controllers_settingscontroller_settingscontroller_upsertexchangerate",
       "community": 54,
       "norm_label": ".upsertexchangerate()"
@@ -13435,7 +13489,7 @@
       "label": ".DeleteExchangeRate()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L105",
+      "source_location": "L106",
       "id": "controllers_settingscontroller_settingscontroller_deleteexchangerate",
       "community": 54,
       "norm_label": ".deleteexchangerate()"
@@ -13444,7 +13498,7 @@
       "label": ".ClearAccountData()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L112",
+      "source_location": "L113",
       "id": "controllers_settingscontroller_settingscontroller_clearaccountdata",
       "community": 54,
       "norm_label": ".clearaccountdata()"
@@ -13453,7 +13507,7 @@
       "label": ".DeleteAccount()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Api/Controllers/SettingsController.cs",
-      "source_location": "L127",
+      "source_location": "L128",
       "id": "controllers_settingscontroller_settingscontroller_deleteaccount",
       "community": 54,
       "norm_label": ".deleteaccount()"
@@ -19141,7 +19195,7 @@
       "label": "DeleteExchangeRateCommandHandler",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
-      "source_location": "L57",
+      "source_location": "L62",
       "id": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler",
       "community": 162,
       "norm_label": "deleteexchangeratecommandhandler"
@@ -19150,7 +19204,7 @@
       "label": ".HandleAsync()",
       "file_type": "code",
       "source_file": "backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs",
-      "source_location": "L66",
+      "source_location": "L71",
       "id": "exchangerates_exchangerateusecases_deleteexchangeratecommandhandler_handleasync",
       "community": 162,
       "norm_label": ".handleasync()"
@@ -38915,6 +38969,16 @@
       "source_file": "backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs",
       "source_location": "L114",
       "weight": 1.0,
+      "source": "ledgerra_domain_tests_financecalculationstests_financecalculationstests",
+      "target": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_usesexactmonthlymanualratewithoutwarning",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Domain.Tests/FinanceCalculationsTests.cs",
+      "source_location": "L114",
+      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "ledgerra_domain_tests_financecalculationstests_financecalculationstests",
       "target": "ledgerra_domain_tests_financecalculationstests_financecalculationstests_convert_returnszeroandwarningwhenrateismissing"
@@ -39442,6 +39506,16 @@
       "target": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L351",
+      "weight": 1.0,
+      "source": "backend_tests_ledgerra_api_tests_applicationreviewregressiontests_cs",
+      "target": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
@@ -39490,6 +39564,16 @@
       "confidence_score": 1.0,
       "source": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests",
       "target": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_updatetransaction_validatesreplacementbeforedeletingexistingtransaction"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L155",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests",
+      "target": "ledgerra_api_tests_applicationreviewregressiontests_applicationreviewregressiontests_upsertexchangerate_rejectsnonpositiveratebeforepersisting",
+      "confidence_score": 1.0
     },
     {
       "relation": "inherits",
@@ -39711,6 +39795,46 @@
       "confidence_score": 1.0,
       "source": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore",
       "target": "ledgerra_api_tests_applicationreviewregressiontests_recordingtransactioncommandstore_replacewithtransferasync"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L351",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore",
+      "target": "exchangerates_exchangerateusecases_iexchangeratestore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L355",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore",
+      "target": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore_getforuserasync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L360",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore",
+      "target": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore_upsertasync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Ledgerra.Api.Tests/ApplicationReviewRegressionTests.cs",
+      "source_location": "L372",
+      "weight": 1.0,
+      "source": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore",
+      "target": "ledgerra_api_tests_applicationreviewregressiontests_recordingexchangeratestore_deleteasync",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -55957,5 +56081,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b3834d046a5c919fe28a040b0c8e2cbf1382f662"
+  "built_at_commit": "18589bc4c39eb583f627cfe05bce0fc9aa772ed3"
 }

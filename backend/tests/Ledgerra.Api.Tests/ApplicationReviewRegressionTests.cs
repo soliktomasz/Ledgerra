@@ -1,4 +1,5 @@
 using Ledgerra.Application.Budgets;
+using Ledgerra.Application.ExchangeRates;
 using Ledgerra.Application.Imports;
 using Ledgerra.Application.Transactions;
 using Ledgerra.Domain.Ai;
@@ -149,6 +150,20 @@ public sealed class ApplicationReviewRegressionTests
         Assert.Equal("amount", result.ValidationKey);
         Assert.False(store.DeletedTransaction);
         Assert.False(store.ReplacedTransaction);
+    }
+
+    [Fact]
+    public async Task UpsertExchangeRate_RejectsNonPositiveRateBeforePersisting()
+    {
+        var store = new RecordingExchangeRateStore();
+        var handler = new UpsertExchangeRateCommandHandler(store);
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => handler.HandleAsync(
+            new UpsertExchangeRateCommand(Guid.NewGuid(), "eur", "usd", new DateOnly(2026, 5, 18), 0m),
+            CancellationToken.None));
+
+        Assert.Contains("positive", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.False(store.UpsertedRate);
     }
 
     private sealed class RecordingBudgetSummaryStore : IBudgetSummaryStore
@@ -330,6 +345,33 @@ public sealed class ApplicationReviewRegressionTests
                 TransferGroupId = Guid.NewGuid(),
                 SavingsGoalId = savingsGoalId
             });
+        }
+    }
+
+    private sealed class RecordingExchangeRateStore : IExchangeRateStore
+    {
+        public bool UpsertedRate { get; private set; }
+
+        public Task<IReadOnlyList<ExchangeRateResult>> GetForUserAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task<ExchangeRateResult> UpsertAsync(UpsertExchangeRateCommand command, CancellationToken cancellationToken)
+        {
+            UpsertedRate = true;
+            return Task.FromResult(new ExchangeRateResult(
+                Guid.NewGuid(),
+                command.FromCurrencyCode,
+                command.ToCurrencyCode,
+                $"{command.Month:yyyy-MM}",
+                command.Rate,
+                DateTime.UtcNow));
+        }
+
+        public Task<bool> DeleteAsync(Guid userId, Guid rateId, CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
         }
     }
 }

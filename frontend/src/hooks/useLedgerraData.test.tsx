@@ -82,6 +82,20 @@ describe("useLedgerraData", () => {
     expect(result.current.importRules).toEqual([]);
   });
 
+  test("keeps core app data when exchange rate loading fails", async () => {
+    mocks.getExchangeRates.mockRejectedValue(new Error("Exchange rates unavailable."));
+
+    const { result } = renderHook(() => useLedgerraData());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBeNull();
+    expect(result.current.profile?.email).toBe("owner@ledgerra.local");
+    expect(result.current.exchangeRates).toEqual([]);
+  });
+
   test("loads dashboard and budget data for the globally selected month", async () => {
     const { result } = renderHook(() => useLedgerraData());
 

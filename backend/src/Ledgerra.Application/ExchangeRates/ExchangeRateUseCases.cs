@@ -45,6 +45,11 @@ public sealed class UpsertExchangeRateCommandHandler
         var normalizedTo = command.ToCurrencyCode.Trim().ToUpperInvariant();
         var normalizedMonth = new DateOnly(command.Month.Year, command.Month.Month, 1);
 
+        if (command.Rate <= 0m)
+        {
+            throw new ArgumentException("Exchange rate must be positive.", nameof(command));
+        }
+
         return _store.UpsertAsync(command with
         {
             FromCurrencyCode = normalizedFrom,
