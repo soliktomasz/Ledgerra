@@ -155,7 +155,7 @@ describe("TransactionsPage", () => {
     const row = await screen.findByLabelText("Transaction Market");
     expect(within(row).queryByRole("button", { name: "Edit Market" })).not.toBeInTheDocument();
     await user.click(within(row).getByRole("button", { name: "Transaction actions for Market" }));
-    await user.click(within(row).getByRole("button", { name: "Edit Market" }));
+    await user.click(screen.getByRole("button", { name: "Edit Market" }));
 
     expect(screen.getByRole("heading", { name: "Edit transaction" })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "50.25" } });
@@ -184,7 +184,7 @@ describe("TransactionsPage", () => {
     const row = await screen.findByLabelText("Transaction Market");
     expect(within(row).queryByRole("button", { name: "Duplicate Market" })).not.toBeInTheDocument();
     await user.click(within(row).getByRole("button", { name: "Transaction actions for Market" }));
-    await user.click(within(row).getByRole("button", { name: "Duplicate Market" }));
+    await user.click(screen.getByRole("button", { name: "Duplicate Market" }));
 
     await waitFor(() => {
       expect(mocks.createTransaction).toHaveBeenCalledWith(
@@ -200,7 +200,7 @@ describe("TransactionsPage", () => {
     });
 
     await user.click(within(row).getByRole("button", { name: "Transaction actions for Market" }));
-    await user.click(within(row).getByRole("button", { name: "Delete Market" }));
+    await user.click(screen.getByRole("button", { name: "Delete Market" }));
 
     await waitFor(() => {
       expect(mocks.deleteTransaction).toHaveBeenCalledWith("token", "transaction-1");
