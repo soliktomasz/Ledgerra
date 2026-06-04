@@ -66,7 +66,7 @@ public sealed class EndpointValidatorTests
     {
         // Use a stub resolver to avoid real DNS calls in CI environments
         static Task<IPAddress[]> stubResolver(string _) =>
-            Task.FromResult(new[] { IPAddress.Parse("104.18.14.101") });
+            Task.FromResult(new[] { IPAddress.Parse("203.0.113.1") }); // TEST-NET-3 (RFC 5737)
 
         Assert.False(await EndpointValidator.ResolvesToBlockedAddressAsync(new Uri(url), stubResolver));
     }
