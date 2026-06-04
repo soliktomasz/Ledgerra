@@ -6,6 +6,21 @@ import { describe, expect, test } from "vitest";
 const baseDir = dirname(fileURLToPath(import.meta.url));
 
 describe("transaction responsive styles", () => {
+  test("uses one modern sans font across project styles", () => {
+    const styles = [
+      readFileSync(resolve(baseDir, "../styles.css"), "utf8"),
+      readFileSync(resolve(baseDir, "../../../site/styles.css"), "utf8"),
+    ].join("\n");
+    const fontFamilyDeclarations = styles.match(/font-family:\s*[^;]+;/gi) ?? [];
+
+    expect(styles).toMatch(/font-family:\s*Inter,\s*ui-sans-serif,\s*system-ui/);
+    expect(fontFamilyDeclarations).not.toContainEqual(
+      expect.stringMatching(
+        /(?:^|[,\s])(?:Georgia|"Times New Roman"|Times|Cambria|ui-serif|serif|SFMono-Regular|Consolas|monospace)(?:[,;\s]|$)/i,
+      ),
+    );
+  });
+
   test("stacks the transaction workspace before the ledger becomes cramped", () => {
     const styles = readFileSync(resolve(baseDir, "../styles.css"), "utf8");
 

@@ -6,6 +6,7 @@ import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import type { SavingsGoal, Transaction } from "../types";
 import { AccountsIcon, BookmarkIcon, CategoryIcon, ChevronDownIcon, DownloadIcon, DuplicateIcon, EditIcon, TrashIcon } from "../ui/icons";
+import { ActionMenu } from "../ui/ActionMenu";
 import { PageHeader } from "../ui/PageHeader";
 import { formatCurrency, formatDate } from "../utils/format";
 
@@ -145,6 +146,8 @@ export function TransactionsPage() {
   const [isApplyingBulkAction, setIsApplyingBulkAction] = useState(false);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
   const [isEntryOpen, setIsEntryOpen] = useState(initialFormFromQuery === "transfer");
+  const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
+  const [exportActionsOpen, setExportActionsOpen] = useState(false);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
 
   useEffect(() => {
@@ -425,13 +428,16 @@ export function TransactionsPage() {
     setSelectedTransactionIds([]);
     setBulkCategoryId("");
     setBulkAccountId("");
+    setBulkActionsOpen(false);
   };
   const toggleTransactionSelection = (transactionId: string, selected: boolean) => {
+    setBulkActionsOpen(false);
     setSelectedTransactionIds((current) =>
       selected ? (current.includes(transactionId) ? current : [...current, transactionId]) : current.filter((id) => id !== transactionId)
     );
   };
   const toggleSelectAllVisible = (selected: boolean) => {
+    setBulkActionsOpen(false);
     setSelectedTransactionIds(selected ? visibleTransactions.map((transaction) => transaction.id) : []);
   };
   const getUniqueDeleteTargets = () => {
@@ -716,39 +722,51 @@ export function TransactionsPage() {
                       <small>{formatCurrency(selectedTotal, defaultCurrencyCode)} selected total · {visibleTransactions.length} in view</small>
                     </span>
                   </label>
-                </div>
-                <div className="transaction-bulk-actions">
-                  <button className="ghost-button compact-button danger-button transaction-bulk-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>
-                    <TrashIcon />
-                    Bulk delete
+                  <button
+                    className="ghost-button compact-button transaction-bulk-toggle"
+                    type="button"
+                    aria-expanded={bulkActionsOpen}
+                    aria-controls="transaction-bulk-action-panel"
+                    onClick={() => setBulkActionsOpen((current) => !current)}
+                  >
+                    {t("transactions.bulkActions")}
+                    <ChevronDownIcon />
                   </button>
-                  <div className="transaction-bulk-control">
-                    <label>
-                      Bulk category
-                      <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
-                        <option value="">{t("common.chooseCategory")}</option>
-                        {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-                      </select>
-                    </label>
-                    <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>
-                      <CategoryIcon />
-                      Apply category
-                    </button>
-                  </div>
-                  <div className="transaction-bulk-control">
-                    <label>
-                      Move to account
-                      <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
-                        <option value="">{t("common.selectAccount")}</option>
-                        {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
-                      </select>
-                    </label>
-                    <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>
-                      <AccountsIcon />
-                      Move transactions
-                    </button>
-                  </div>
                 </div>
+                {bulkActionsOpen ? (
+                  <div className="transaction-bulk-actions" id="transaction-bulk-action-panel">
+                    <button className="ghost-button compact-button danger-button transaction-bulk-button" type="button" onClick={() => void bulkDeleteTransactions()} disabled={selectedTransactionIds.length === 0 || isApplyingBulkAction}>
+                      <TrashIcon />
+                      {t("transactions.bulkDelete")}
+                    </button>
+                    <div className="transaction-bulk-control">
+                      <label>
+                        {t("transactions.bulkCategory")}
+                        <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)} disabled={!bulkCategoryKind}>
+                          <option value="">{t("common.chooseCategory")}</option>
+                          {bulkCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                        </select>
+                      </label>
+                      <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkAssignCategory()} disabled={selectedCategorisableTransactions.length === 0 || !bulkCategoryKind || !bulkCategoryId || isApplyingBulkAction}>
+                        <CategoryIcon />
+                        {t("transactions.applyCategory")}
+                      </button>
+                    </div>
+                    <div className="transaction-bulk-control">
+                      <label>
+                        {t("transactions.moveToAccount")}
+                        <select value={bulkAccountId} onChange={(event) => setBulkAccountId(event.target.value)}>
+                          <option value="">{t("common.selectAccount")}</option>
+                          {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
+                        </select>
+                      </label>
+                      <button className="ghost-button compact-button transaction-bulk-button" type="button" onClick={() => void bulkMoveAccount()} disabled={selectedTransactionIds.length === 0 || !bulkAccountId || isApplyingBulkAction}>
+                        <AccountsIcon />
+                        {t("transactions.moveTransactions")}
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
 
@@ -828,33 +846,35 @@ export function TransactionsPage() {
                                     </select>
                                   </label>
                                 ) : null}
-                                <button
-                                  className="ghost-button compact-button transaction-icon-button"
-                                  type="button"
-                                  onClick={() => startEdit(transaction)}
-                                  aria-label={`${t("transactions.edit")} ${label}`}
-                                  title={t("transactions.edit")}
-                                >
-                                  <EditIcon />
-                                </button>
-                                <button
-                                  className="ghost-button compact-button transaction-icon-button"
-                                  type="button"
-                                  onClick={() => void duplicateTransaction(transaction)}
-                                  aria-label={`${t("transactions.duplicate")} ${label}`}
-                                  title={t("transactions.duplicate")}
-                                >
-                                  <DuplicateIcon />
-                                </button>
-                                <button
-                                  className="ghost-button compact-button danger-button transaction-icon-button"
-                                  type="button"
-                                  onClick={() => void deleteTransaction(transaction)}
-                                  aria-label={`${t("transactions.delete")} ${label}`}
-                                  title={t("transactions.delete")}
-                                >
-                                  <TrashIcon />
-                                </button>
+                                <ActionMenu label={`Transaction actions for ${label}`} panelClassName="transaction-row-action-menu">
+                                  <button
+                                    className="action-menu-item"
+                                    type="button"
+                                    onClick={() => startEdit(transaction)}
+                                    aria-label={`${t("transactions.edit")} ${label}`}
+                                  >
+                                    <EditIcon />
+                                    {t("transactions.edit")}
+                                  </button>
+                                  <button
+                                    className="action-menu-item"
+                                    type="button"
+                                    onClick={() => void duplicateTransaction(transaction)}
+                                    aria-label={`${t("transactions.duplicate")} ${label}`}
+                                  >
+                                    <DuplicateIcon />
+                                    {t("transactions.duplicate")}
+                                  </button>
+                                  <button
+                                    className="action-menu-item danger-button"
+                                    type="button"
+                                    onClick={() => void deleteTransaction(transaction)}
+                                    aria-label={`${t("transactions.delete")} ${label}`}
+                                  >
+                                    <TrashIcon />
+                                    {t("transactions.delete")}
+                                  </button>
+                                </ActionMenu>
                               </div>
                               {isEditingRow && auth?.accessToken ? (
                                 <div className="transaction-inline-editor">
@@ -1030,18 +1050,33 @@ export function TransactionsPage() {
           </label>
 
           <div className="transaction-filter-actions">
-            <button className="transaction-filter-action" type="button" onClick={exportFilteredTransactions} disabled={visibleTransactions.length === 0}>
+            <button
+              className="transaction-filter-action transaction-filter-action-toggle"
+              type="button"
+              aria-expanded={exportActionsOpen}
+              aria-controls="transaction-export-action-panel"
+              onClick={() => setExportActionsOpen((current) => !current)}
+            >
               <DownloadIcon />
-              {t("transactions.exportCsv")}
+              Export and views
+              <ChevronDownIcon />
             </button>
-            <button className="transaction-filter-action" type="button" onClick={exportCategoriesAndBudgets} disabled={categories.length === 0}>
-              <DownloadIcon />
-              {t("transactions.exportCategoriesBudget")}
-            </button>
-            <button className="transaction-filter-action" type="button" onClick={saveCurrentView}>
-              <BookmarkIcon />
-              {t("transactions.saveView")}
-            </button>
+            {exportActionsOpen ? (
+              <div className="transaction-filter-action-panel" id="transaction-export-action-panel">
+                <button className="transaction-filter-action" type="button" onClick={exportFilteredTransactions} disabled={visibleTransactions.length === 0}>
+                  <DownloadIcon />
+                  {t("transactions.exportCsv")}
+                </button>
+                <button className="transaction-filter-action" type="button" onClick={exportCategoriesAndBudgets} disabled={categories.length === 0}>
+                  <DownloadIcon />
+                  {t("transactions.exportCategoriesBudget")}
+                </button>
+                <button className="transaction-filter-action" type="button" onClick={saveCurrentView}>
+                  <BookmarkIcon />
+                  {t("transactions.saveView")}
+                </button>
+              </div>
+            ) : null}
           </div>
           </div>
         </aside>

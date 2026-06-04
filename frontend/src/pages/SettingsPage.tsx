@@ -6,6 +6,7 @@ import { useI18n } from "../state/I18nContext";
 import { accentPresets, useTheme, type AccentColor, type ThemePreference } from "../state/ThemeContext";
 import type { ExchangeRate, ImportRule, PersonalAccessToken } from "../types";
 import { AccountsIcon, CashFlowIcon, CategoryIcon, ImportsIcon, ReportsIcon, SettingsIcon } from "../ui/icons";
+import { ActionMenu } from "../ui/ActionMenu";
 import { SectionCard } from "../ui/SectionCard";
 import { normalizeCurrencyCode, supportedCurrencies } from "../utils/currency";
 import { normalizeLanguageCode, supportedLanguages } from "../utils/language";
@@ -266,8 +267,13 @@ export function SettingsPage() {
       return;
     }
 
-    await apiClient.removeAiProviderKey(auth.accessToken, provider);
-    await refresh();
+    try {
+      setAiProviderError(null);
+      await apiClient.removeAiProviderKey(auth.accessToken, provider);
+      await refresh();
+    } catch (exception) {
+      setAiProviderError(getErrorMessage(exception, t("settings.unableToRemoveProvider")));
+    }
   };
 
   const handleRuleSubmit = async (event: FormEvent) => {
@@ -796,9 +802,16 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{rate.rate}</strong>
-                          <button className="ghost-button compact-button" type="button" onClick={() => void handleDeleteExchangeRate(rate)}>
-                            {t("common.delete")}
-                          </button>
+                          <ActionMenu label={t("settings.manualFxRateActions", { from: rate.fromCurrencyCode, to: rate.toCurrencyCode, month: rate.month })}>
+                            <button
+                              className="action-menu-item danger-button"
+                              type="button"
+                              aria-label={t("settings.deleteFxRate", { from: rate.fromCurrencyCode, to: rate.toCurrencyCode, month: rate.month })}
+                              onClick={() => void handleDeleteExchangeRate(rate)}
+                            >
+                              {t("common.delete")}
+                            </button>
+                          </ActionMenu>
                         </div>
                       </article>
                     ))}
@@ -912,18 +925,21 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{openAiProvider?.maskedKey ?? t("common.notConfigured")}</strong>
-                          <button
-                            className="ghost-button compact-button"
-                            type="button"
-                            disabled={!isOpenAiConfigured}
-                            onClick={() => {
-                              if (isOpenAiConfigured) {
-                                handleRemoveProvider("openai");
-                              }
-                            }}
-                          >
-                            {t("common.remove")}
-                          </button>
+                          <ActionMenu label={t("settings.providerActions", { provider: "OpenAI" })}>
+                            <button
+                              className="action-menu-item"
+                              type="button"
+                              aria-label={t("settings.removeProvider", { provider: "OpenAI" })}
+                              disabled={!isOpenAiConfigured}
+                              onClick={() => {
+                                if (isOpenAiConfigured) {
+                                  void handleRemoveProvider("openai");
+                                }
+                              }}
+                            >
+                              {t("common.remove")}
+                            </button>
+                          </ActionMenu>
                         </div>
                       </article>
                       <article className="settings-provider-row">
@@ -933,18 +949,21 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{anthropicProvider?.maskedKey ?? t("common.notConfigured")}</strong>
-                          <button
-                            className="ghost-button compact-button"
-                            type="button"
-                            disabled={!isAnthropicConfigured}
-                            onClick={() => {
-                              if (isAnthropicConfigured) {
-                                handleRemoveProvider("anthropic");
-                              }
-                            }}
-                          >
-                            {t("common.remove")}
-                          </button>
+                          <ActionMenu label={t("settings.providerActions", { provider: "Anthropic" })}>
+                            <button
+                              className="action-menu-item"
+                              type="button"
+                              aria-label={t("settings.removeProvider", { provider: "Anthropic" })}
+                              disabled={!isAnthropicConfigured}
+                              onClick={() => {
+                                if (isAnthropicConfigured) {
+                                  void handleRemoveProvider("anthropic");
+                                }
+                              }}
+                            >
+                              {t("common.remove")}
+                            </button>
+                          </ActionMenu>
                         </div>
                       </article>
                       <article className="settings-provider-row">
@@ -958,18 +977,21 @@ export function SettingsPage() {
                         </div>
                         <div className="settings-provider-actions">
                           <strong>{openAiCompatibleProvider?.maskedKey ?? t("common.notConfigured")}</strong>
-                          <button
-                            className="ghost-button compact-button"
-                            type="button"
-                            disabled={!isOpenAiCompatibleConfigured}
-                            onClick={() => {
-                              if (isOpenAiCompatibleConfigured) {
-                                handleRemoveProvider("openai-compatible");
-                              }
-                            }}
-                          >
-                            {t("common.remove")}
-                          </button>
+                          <ActionMenu label={t("settings.providerActions", { provider: t("settings.openAiCompatibleProvider") })}>
+                            <button
+                              className="action-menu-item"
+                              type="button"
+                              aria-label={t("settings.removeProvider", { provider: t("settings.openAiCompatibleProvider") })}
+                              disabled={!isOpenAiCompatibleConfigured}
+                              onClick={() => {
+                                if (isOpenAiCompatibleConfigured) {
+                                  void handleRemoveProvider("openai-compatible");
+                                }
+                              }}
+                            >
+                              {t("common.remove")}
+                            </button>
+                          </ActionMenu>
                         </div>
                       </article>
                     </div>
@@ -1030,12 +1052,14 @@ export function SettingsPage() {
                           </div>
                           <div className="rule-actions">
                             <strong>{rule.isActive ? t("common.active") : t("common.disabled")}</strong>
-                            <button className="ghost-button compact-button" type="button" aria-label={`${rule.isActive ? t("common.disable") : t("common.enable")} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
-                              {rule.isActive ? t("common.disable") : t("common.enable")}
-                            </button>
-                            <button className="ghost-button compact-button danger-button" type="button" aria-label={`${t("common.delete")} ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
-                              {t("common.delete")}
-                            </button>
+                            <ActionMenu label={`Rule actions for ${rule.name}`}>
+                              <button className="action-menu-item" type="button" aria-label={`${rule.isActive ? t("common.disable") : t("common.enable")} ${rule.name}`} onClick={() => void handleToggleRule(rule)}>
+                                {rule.isActive ? t("common.disable") : t("common.enable")}
+                              </button>
+                              <button className="action-menu-item danger-button" type="button" aria-label={`${t("common.delete")} ${rule.name}`} onClick={() => void handleDeleteRule(rule.id)}>
+                                {t("common.delete")}
+                              </button>
+                            </ActionMenu>
                           </div>
                         </article>
                       ))
@@ -1125,13 +1149,16 @@ export function SettingsPage() {
                               <strong>{pat.name}</strong>
                               <p>{pat.tokenPrefix}...</p>
                             </div>
-                            <button
-                              className="ghost-button compact-button danger-button"
-                              type="button"
-                              onClick={() => void handleRevokePersonalAccessToken(pat.id)}
-                            >
-                              {t("settings.revokeToken")}
-                            </button>
+                            <ActionMenu label={`Token actions for ${pat.name}`}>
+                              <button
+                                className="action-menu-item danger-button"
+                                type="button"
+                                aria-label={`${t("settings.revokeToken")} ${pat.name}`}
+                                onClick={() => void handleRevokePersonalAccessToken(pat.id)}
+                              >
+                                {t("settings.revokeToken")}
+                              </button>
+                            </ActionMenu>
                           </article>
                         ))
                       )}

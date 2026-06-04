@@ -8,9 +8,19 @@ import { useMonthSelection } from "../state/MonthContext";
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { auth, logout } = useAuth();
-  const { t } = useI18n();
+  const { languageCode, t } = useI18n();
   const { selectedMonth, setSelectedMonth, goToPreviousMonth, goToNextMonth, goToCurrentMonth } = useMonthSelection();
   const isSettingsRoute = location.pathname.startsWith("/settings");
+  const signedInIdentity = auth?.email || auth?.login || t("common.unknown");
+  const hasValidSelectedMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(selectedMonth);
+  const selectedMonthDate = hasValidSelectedMonth ? new Date(`${selectedMonth}-01T00:00:00.000Z`) : null;
+  const selectedMonthLabel = selectedMonthDate && !Number.isNaN(selectedMonthDate.getTime())
+    ? new Intl.DateTimeFormat(languageCode, {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    }).format(selectedMonthDate)
+    : "";
   const navItems = [
     { to: "/dashboard", label: t("nav.dashboard"), icon: DashboardIcon },
     { to: "/reports", label: t("nav.reports"), icon: ReportsIcon },
@@ -63,6 +73,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="month-panel">
           <label htmlFor="global-month">{t("appShell.month")}</label>
+          <strong className="month-selected-label">{selectedMonthLabel}</strong>
           <div className="month-controls">
             <button className="ghost-button compact-button" type="button" onClick={goToPreviousMonth} aria-label={t("appShell.previousMonth")}>
               &lt;
@@ -85,7 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="sidebar-footer account-panel">
           <div>
             <small>{t("appShell.signedInAs")}</small>
-            <strong>{auth?.email}</strong>
+            <strong title={signedInIdentity}>{signedInIdentity}</strong>
           </div>
           <button className="ghost-button" onClick={logout}>
             {t("appShell.signOut")}

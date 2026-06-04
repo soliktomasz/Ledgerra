@@ -1,10 +1,11 @@
-import { ChangeEvent, FormEvent, useEffect } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import { useLedgerraData } from "../hooks/useLedgerraData";
 import { useAuth } from "../state/AuthContext";
 import { useI18n } from "../state/I18nContext";
 import { useImportAnalysis } from "../state/ImportAnalysisContext";
 import type { MonthlyReportDraftTransaction } from "../types";
+import { ChevronDownIcon } from "../ui/icons";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 
@@ -146,6 +147,7 @@ export function ImportsPage() {
     applyAnalysis,
     clearReviewSession
   } = useImportAnalysis();
+  const [reviewActionsOpen, setReviewActionsOpen] = useState(false);
 
   useEffect(() => {
     setProvider(aiSettings?.defaultProvider ?? "OpenAi");
@@ -497,44 +499,60 @@ export function ImportsPage() {
           <div className="review-toolbar" aria-label={t("imports.reviewTools")}>
             <div className="review-toolbar-actions">
               <strong>{t("imports.selectedCount", { count: selectedDraftCount })}</strong>
-              <button className="ghost-button compact-button" type="button" onClick={selectSafeDrafts}>
-                {t("imports.selectSafeDrafts")}
-              </button>
-              <button className="ghost-button compact-button" type="button" onClick={selectAllDrafts}>
-                {t("imports.selectAll")}
-              </button>
-              <button className="ghost-button compact-button" type="button" onClick={clearSelectedDrafts}>
-                {t("imports.clear")}
-              </button>
               <button
-                className="ghost-button compact-button"
+                className="ghost-button compact-button review-actions-toggle"
                 type="button"
-                onClick={() => void rememberSelectedRules()}
-                disabled={selectedRuleReadyDrafts.length === 0 || isRememberingSelectedRules}
+                aria-expanded={reviewActionsOpen}
+                aria-controls="review-actions-panel"
+                onClick={() => setReviewActionsOpen((current) => !current)}
               >
-                {isRememberingSelectedRules ? t("imports.savingRules") : t("imports.rememberSelectedRules")}
-              </button>
-              <label className="inline-checkbox">
-                <input checked={hideDuplicates} onChange={(event) => setHideDuplicates(event.target.checked)} type="checkbox" />
-                {t("imports.hideDuplicates")}
-              </label>
-            </div>
-            <div className="bulk-category-actions">
-              <label>
-                {t("imports.bulkCategory")}
-                <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)}>
-                  <option value="">{t("common.chooseCategory")}</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button className="ghost-button compact-button" type="button" onClick={applyBulkCategory} disabled={!bulkCategoryId || selected.size === 0}>
-                {t("imports.applyToSelected")}
+                {t("imports.reviewActions")}
+                <ChevronDownIcon />
               </button>
             </div>
+            {reviewActionsOpen ? (
+              <div className="review-actions-panel" id="review-actions-panel">
+                <div className="review-selection-actions">
+                  <button className="ghost-button compact-button" type="button" onClick={selectSafeDrafts}>
+                    {t("imports.selectSafeDrafts")}
+                  </button>
+                  <button className="ghost-button compact-button" type="button" onClick={selectAllDrafts}>
+                    {t("imports.selectAll")}
+                  </button>
+                  <button className="ghost-button compact-button" type="button" onClick={clearSelectedDrafts}>
+                    {t("imports.clear")}
+                  </button>
+                  <button
+                    className="ghost-button compact-button"
+                    type="button"
+                    onClick={() => void rememberSelectedRules()}
+                    disabled={selectedRuleReadyDrafts.length === 0 || isRememberingSelectedRules}
+                  >
+                    {isRememberingSelectedRules ? t("imports.savingRules") : t("imports.rememberSelectedRules")}
+                  </button>
+                  <label className="inline-checkbox">
+                    <input checked={hideDuplicates} onChange={(event) => setHideDuplicates(event.target.checked)} type="checkbox" />
+                    {t("imports.hideDuplicates")}
+                  </label>
+                </div>
+                <div className="bulk-category-actions">
+                  <label>
+                    {t("imports.bulkCategory")}
+                    <select value={bulkCategoryId} onChange={(event) => setBulkCategoryId(event.target.value)}>
+                      <option value="">{t("common.chooseCategory")}</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button className="ghost-button compact-button" type="button" onClick={applyBulkCategory} disabled={!bulkCategoryId || selected.size === 0}>
+                    {t("imports.applyToSelected")}
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
           <div className="import-table">
             {visibleDrafts.map((draft) => (
