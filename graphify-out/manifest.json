@@ -1350,8 +1350,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/ui/icons.tsx": {
-    "mtime": 1779000894.8649893,
-    "ast_hash": "fa02cabf3639abaff0adaa77fbafa4af",
+    "mtime": 1780559341.847388,
+    "ast_hash": "a67729dd060043b085e5ac58e27c3ae2",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/ui/ReportCharts.tsx": {
@@ -1510,8 +1510,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/CategoriesPage.test.tsx": {
-    "mtime": 1779632497.543313,
-    "ast_hash": "8ee3fc915cbd0bd11faa330fd9679466",
+    "mtime": 1780559226.2447617,
+    "ast_hash": "afc2cab4a9f77ed793dcbb4a3e42f2ce",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/AccountsPage.tsx": {
@@ -1520,8 +1520,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/CategoriesPage.tsx": {
-    "mtime": 1779632617.329474,
-    "ast_hash": "5897c15f29f75aa2b3f0294c57764a7c",
+    "mtime": 1780559467.634621,
+    "ast_hash": "59808b93248cb3d96269e38753f852a2",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/BudgetsPage.test.tsx": {
@@ -1530,8 +1530,8 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/SettingsPage.tsx": {
-    "mtime": 1780247458.9127498,
-    "ast_hash": "5454aa5ad14d2d78de5ff5600f230dfb",
+    "mtime": 1780559530.327413,
+    "ast_hash": "5bbebfc1e4b223fb87e2324a14268941",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ReportsPage.tsx": {
@@ -1550,13 +1550,13 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/TransactionsPage.test.tsx": {
-    "mtime": 1779605989.6556032,
-    "ast_hash": "851395c1918b41d68f4d83b0866201f9",
+    "mtime": 1780559176.1404064,
+    "ast_hash": "ca47cc6d5299a268a047dfb871d4c204",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/TransactionsPage.tsx": {
-    "mtime": 1779605815.4826849,
-    "ast_hash": "3d585cc4718266860cc587b603f7c52d",
+    "mtime": 1780559687.0173988,
+    "ast_hash": "23e8cfaad0f523f027fe16ce434f4503",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ReportsPage.test.tsx": {
@@ -1570,18 +1570,18 @@
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/SettingsPage.test.tsx": {
-    "mtime": 1780247458.9122634,
-    "ast_hash": "3826361ea089172a020509f144eb93e6",
+    "mtime": 1780559293.5515132,
+    "ast_hash": "3f86f5f3704a71b9919c7223f6eba3c9",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ImportsPage.test.tsx": {
-    "mtime": 1779569804.4463184,
-    "ast_hash": "b88a6510a0da1a370f827b197c0005f7",
+    "mtime": 1780559204.581757,
+    "ast_hash": "fd6e944c1dade3482d121a98a657918d",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/ImportsPage.tsx": {
-    "mtime": 1779569835.8057837,
-    "ast_hash": "c017bddf3645281e7b309d4812b1e625",
+    "mtime": 1780559444.4249287,
+    "ast_hash": "1291ccd1f5708d1a4e713e5c7e3bde14",
     "semantic_hash": ""
   },
   "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/pages/LoginPage.test.tsx": {
@@ -2462,6 +2462,21 @@
   "/Users/tomaszsolik/Projects/Ledgerra/backend/src/Ledgerra.Application/ExchangeRates/ExchangeRateUseCases.cs": {
     "mtime": 1780557129.1695426,
     "ast_hash": "27e819876b0b49db72632a5314ded8c6",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/frontend/src/ui/ActionMenu.tsx": {
+    "mtime": 1780559342.0117135,
+    "ast_hash": "2087959888c278c203088217e9d00d05",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/docs/plans/2026-06-04-frontend-declutter.md": {
+    "mtime": 1780559144.5890996,
+    "ast_hash": "e5bd3538a5035969f0c100b210707428",
+    "semantic_hash": ""
+  },
+  "/Users/tomaszsolik/Projects/Ledgerra/docs/plans/2026-06-04-frontend-declutter-design.md": {
+    "mtime": 1780559144.41986,
+    "ast_hash": "2ba9ef50003d33cb3ff1003c6bd96d42",
     "semantic_hash": ""
   }
 }

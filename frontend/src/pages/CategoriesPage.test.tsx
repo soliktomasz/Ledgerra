@@ -109,12 +109,16 @@ describe("CategoriesPage", () => {
     expect(screen.getByLabelText("Wszystkich kategorii")).toBeInTheDocument();
   });
 
-  test("gives icon-only row actions explicit accessible names", () => {
+  test("gives icon-only row actions explicit accessible names", async () => {
+    const user = userEvent.setup();
     render(<CategoriesPage />);
 
+    expect(screen.queryByRole("button", { name: "Edit Groceries" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Category actions for Groceries" }));
     expect(screen.getByRole("button", { name: "Edit Groceries" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Duplicate Groceries" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Archive Groceries" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Category actions for Rent" }));
     expect(screen.getByRole("button", { name: "Archive unavailable for Rent" })).toBeDisabled();
   });
 
@@ -133,6 +137,7 @@ describe("CategoriesPage", () => {
 
     render(<CategoriesPage />);
 
+    await user.click(screen.getByRole("button", { name: "Category actions for Groceries" }));
     await user.click(screen.getByRole("button", { name: "Edit Groceries" }));
 
     expect(screen.getByRole("form", { name: "Edit Groceries inline" })).toBeInTheDocument();
@@ -144,6 +149,8 @@ describe("CategoriesPage", () => {
 
     render(<CategoriesPage />);
 
+    expect(screen.queryByRole("button", { name: "Export" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Category actions" }));
     await user.click(screen.getByRole("button", { name: "Export" }));
 
     expect(mocks.exportedBlobs).toHaveLength(1);

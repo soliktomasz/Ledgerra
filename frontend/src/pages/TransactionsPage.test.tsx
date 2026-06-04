@@ -153,6 +153,8 @@ describe("TransactionsPage", () => {
     render(<TransactionsPage />);
 
     const row = await screen.findByLabelText("Transaction Market");
+    expect(within(row).queryByRole("button", { name: "Edit Market" })).not.toBeInTheDocument();
+    await user.click(within(row).getByRole("button", { name: "Transaction actions for Market" }));
     await user.click(within(row).getByRole("button", { name: "Edit Market" }));
 
     expect(screen.getByRole("heading", { name: "Edit transaction" })).toBeInTheDocument();
@@ -180,6 +182,8 @@ describe("TransactionsPage", () => {
     render(<TransactionsPage />);
 
     const row = await screen.findByLabelText("Transaction Market");
+    expect(within(row).queryByRole("button", { name: "Duplicate Market" })).not.toBeInTheDocument();
+    await user.click(within(row).getByRole("button", { name: "Transaction actions for Market" }));
     await user.click(within(row).getByRole("button", { name: "Duplicate Market" }));
 
     await waitFor(() => {
@@ -195,6 +199,7 @@ describe("TransactionsPage", () => {
       );
     });
 
+    await user.click(within(row).getByRole("button", { name: "Transaction actions for Market" }));
     await user.click(within(row).getByRole("button", { name: "Delete Market" }));
 
     await waitFor(() => {
@@ -316,15 +321,19 @@ describe("TransactionsPage", () => {
     render(<TransactionsPage />);
 
     await user.click(await screen.findByLabelText("Select all in current filtered view"));
+    expect(screen.queryByRole("button", { name: "Bulk delete" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Bulk actions" }));
     await user.click(screen.getByRole("button", { name: "Bulk delete" }));
     await waitFor(() => expect(mocks.deleteTransaction).toHaveBeenCalledTimes(2));
 
     await user.click(screen.getByLabelText("Select Market"));
+    await user.click(screen.getByRole("button", { name: "Bulk actions" }));
     await user.selectOptions(screen.getByLabelText("Bulk category"), "category-3");
     await user.click(screen.getByRole("button", { name: "Apply category" }));
     await waitFor(() => expect(mocks.updateTransaction).toHaveBeenCalledWith("token", "transaction-1", expect.objectContaining({ categoryId: "category-3" })));
 
     await user.click(screen.getByLabelText("Select Market"));
+    await user.click(screen.getByRole("button", { name: "Bulk actions" }));
     await user.selectOptions(screen.getByLabelText("Move to account"), "account-2");
     await user.click(screen.getByRole("button", { name: "Move transactions" }));
     await waitFor(() => expect(mocks.moveTransactionAccount).toHaveBeenCalledWith("token", "transaction-1", "account-2"));
@@ -358,6 +367,7 @@ describe("TransactionsPage", () => {
     render(<TransactionsPage />);
 
     await user.click(await screen.findByLabelText("Select all in current filtered view"));
+    await user.click(screen.getByRole("button", { name: "Bulk actions" }));
     await user.click(screen.getByRole("button", { name: "Bulk delete" }));
 
     await waitFor(() => expect(mocks.deleteTransaction).toHaveBeenCalledTimes(1));
@@ -369,11 +379,13 @@ describe("TransactionsPage", () => {
     render(<TransactionsPage />);
 
     await user.click(await screen.findByLabelText("Select all in current filtered view"));
+    await user.click(screen.getByRole("button", { name: "Bulk actions" }));
 
     expect(screen.getByRole("button", { name: "Apply category" })).toBeDisabled();
     expect(screen.getByLabelText("Bulk category")).toBeDisabled();
 
     await user.click(screen.getByLabelText("Select Market"));
+    await user.click(screen.getByRole("button", { name: "Bulk actions" }));
     await user.selectOptions(screen.getByLabelText("Bulk category"), "category-2");
     await user.click(screen.getByRole("button", { name: "Apply category" }));
 
@@ -390,7 +402,9 @@ describe("TransactionsPage", () => {
 
     render(<TransactionsPage />);
 
-    await user.click(await screen.findByRole("button", { name: "Export CSV" }));
+    expect(screen.queryByRole("button", { name: "Export CSV" })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: "Export and views" }));
+    await user.click(screen.getByRole("button", { name: "Export CSV" }));
     await user.click(screen.getByRole("button", { name: "Export categories & budget" }));
 
     expect(URL.createObjectURL).toHaveBeenCalledTimes(3);

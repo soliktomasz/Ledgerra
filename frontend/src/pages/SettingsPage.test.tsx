@@ -181,6 +181,13 @@ describe("SettingsPage", () => {
     expect(screen.getByRole("heading", { name: "Manual FX rates" })).toBeInTheDocument();
     expect(screen.getByText("EUR → USD")).toBeInTheDocument();
     expect(screen.getByText("2026-04")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Delete EUR to USD 2026-04" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "FX rate actions for EUR to USD 2026-04" }));
+    await user.click(screen.getByRole("button", { name: "Delete EUR to USD 2026-04" }));
+
+    await waitFor(() => {
+      expect(mocks.deleteExchangeRate).toHaveBeenCalledWith("token", "fx-1");
+    });
 
     await user.selectOptions(screen.getByLabelText("From currency"), "EUR");
     await user.clear(screen.getByLabelText("Month"));
@@ -280,16 +287,20 @@ describe("SettingsPage", () => {
 
     await user.click(screen.getByRole("button", { name: /^AI/ }));
 
-    const removeButtons = screen.getAllByRole("button", { name: "Remove" });
-    expect(removeButtons[0]).toBeEnabled();
-    expect(removeButtons[1]).toBeDisabled();
-    expect(removeButtons[2]).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Remove OpenAI" })).not.toBeInTheDocument();
 
-    await user.click(removeButtons[0]);
+    await user.click(screen.getByRole("button", { name: "Provider actions for OpenAI" }));
+    const removeOpenAiButton = screen.getByRole("button", { name: "Remove OpenAI" });
+    expect(removeOpenAiButton).toBeEnabled();
+
+    await user.click(removeOpenAiButton);
 
     await waitFor(() => {
       expect(mocks.removeAiProviderKey).toHaveBeenCalledWith("token", "openai");
     });
+
+    await user.click(screen.getByRole("button", { name: "Provider actions for Anthropic" }));
+    expect(screen.getByRole("button", { name: "Remove Anthropic" })).toBeDisabled();
 
     mocks.aiSettings.providers.openAi = { isConfigured: false, maskedKey: null };
     rerender(<SettingsPage />);
@@ -327,6 +338,8 @@ describe("SettingsPage", () => {
       });
     });
 
+    expect(screen.queryByRole("button", { name: "Disable Market groceries" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Rule actions for Market groceries" }));
     await user.click(screen.getByRole("button", { name: "Disable Market groceries" }));
 
     await waitFor(() => {
@@ -339,6 +352,7 @@ describe("SettingsPage", () => {
       );
     });
 
+    await user.click(screen.getByRole("button", { name: "Rule actions for Market groceries" }));
     await user.click(screen.getByRole("button", { name: "Delete Market groceries" }));
 
     await waitFor(() => {
@@ -463,7 +477,9 @@ describe("SettingsPage", () => {
     await user.click(screen.getByRole("button", { name: "Security" }));
     expect(await screen.findByText("CLI token")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Revoke" }));
+    expect(screen.queryByRole("button", { name: "Revoke CLI token" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Token actions for CLI token" }));
+    await user.click(screen.getByRole("button", { name: "Revoke CLI token" }));
 
     await waitFor(() => {
       expect(mocks.revokePersonalAccessToken).toHaveBeenCalledWith("token", "pat-1");

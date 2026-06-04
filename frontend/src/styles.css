@@ -1477,6 +1477,23 @@ label {
   height: 0.95rem;
 }
 
+.category-row-actions .action-menu-panel {
+  min-width: 11.5rem;
+}
+
+.category-row-actions .action-menu-panel .action-menu-item {
+  display: flex;
+  width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  border: none;
+  background: transparent;
+}
+
+.category-row-actions .action-menu-panel .action-menu-item:hover {
+  background: var(--surface-muted);
+}
+
 .category-editor-panel,
 .category-suggestions-panel {
   padding: 1rem;
@@ -3967,8 +3984,28 @@ label {
 
 .transaction-bulk-selection {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
   flex: 1 1 14rem;
   min-width: 0;
+}
+
+.transaction-bulk-toggle,
+.review-actions-toggle,
+.transaction-filter-action-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.transaction-bulk-toggle svg,
+.review-actions-toggle svg,
+.transaction-filter-action-toggle svg {
+  flex: 0 0 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .transaction-select-all-control {
@@ -4018,11 +4055,13 @@ label {
 
 .transaction-bulk-actions {
   display: grid;
-  flex: 999 1 34rem;
+  flex: 1 1 100%;
   grid-template-columns: auto minmax(13rem, 1fr) minmax(13rem, 1fr);
   align-items: stretch;
   gap: 0.55rem;
   min-width: 0;
+  border-top: 1px solid var(--border);
+  padding-top: 0.55rem;
 }
 
 .transaction-bulk-control {
@@ -4248,6 +4287,7 @@ label {
 }
 
 .transaction-row-actions {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -4271,6 +4311,10 @@ label {
 .transaction-icon-button svg {
   width: 1rem;
   height: 1rem;
+}
+
+.transaction-row-action-menu {
+  min-width: 10.5rem;
 }
 
 .transaction-inline-editor {
@@ -4638,6 +4682,7 @@ label {
 }
 
 .transaction-filter-actions {
+  display: grid;
   gap: 0.55rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--border);
@@ -4672,6 +4717,11 @@ label {
   flex: 0 0 1rem;
   width: 1rem;
   height: 1rem;
+}
+
+.transaction-filter-action-panel {
+  display: grid;
+  gap: 0.45rem;
 }
 
 .transaction-list {
@@ -4754,6 +4804,20 @@ label {
   align-items: center;
   color: var(--muted-strong);
   font-size: 0.86rem;
+}
+
+.review-actions-panel {
+  display: grid;
+  gap: 0.65rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.7rem;
+}
+
+.review-selection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 .bulk-category-actions label {
@@ -4903,6 +4967,82 @@ label {
   cursor: wait;
   opacity: 0.7;
   transform: none;
+}
+
+.action-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.action-menu-trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 2.15rem;
+  min-width: 2.15rem;
+  padding-inline: 0;
+}
+
+.action-menu-trigger svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.action-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  z-index: 30;
+  display: grid;
+  gap: 0.25rem;
+  min-width: 12rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem;
+  background: var(--surface);
+  box-shadow: var(--modal-shadow);
+}
+
+.action-menu-panel--end {
+  right: 0;
+}
+
+.action-menu-panel--start {
+  left: 0;
+}
+
+.action-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 2.25rem;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 0.65rem;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 750;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.action-menu-item:hover {
+  background: var(--surface-muted);
+}
+
+.action-menu-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.action-menu-item svg {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
 }
 
 .dashboard-header-actions {
@@ -5418,6 +5558,15 @@ label {
 
   .transaction-inline-editor .stack-form {
     grid-template-columns: 1fr;
+  }
+
+  .transaction-bulk-selection,
+  .transaction-bulk-actions,
+  .review-selection-actions,
+  .bulk-category-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 
   .transaction-bulk-control {

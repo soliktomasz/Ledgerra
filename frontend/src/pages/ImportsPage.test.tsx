@@ -735,6 +735,8 @@ describe("ImportsPage", () => {
     fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
 
     await screen.findByDisplayValue("Cafe");
+    expect(screen.queryByRole("button", { name: "Select safe drafts" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Review actions" }));
     await user.click(screen.getByRole("button", { name: "Select safe drafts" }));
     expect(screen.getByLabelText("Select row-1")).toBeChecked();
     expect(screen.getByLabelText("Select row-2")).not.toBeChecked();
@@ -785,6 +787,7 @@ describe("ImportsPage", () => {
     fireEvent.submit(screen.getByRole("button", { name: "Analyze report" }).closest("form")!);
 
     await screen.findByDisplayValue("Cafe");
+    await user.click(screen.getByRole("button", { name: "Review actions" }));
     await user.click(screen.getByRole("button", { name: "Remember selected rules" }));
 
     await waitFor(() => {
