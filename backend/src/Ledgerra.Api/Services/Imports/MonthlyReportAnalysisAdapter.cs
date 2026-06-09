@@ -24,7 +24,7 @@ public sealed class MonthlyReportAnalysisAdapter : IMonthlyReportAnalyzer
     {
         IProgress<AiReportAnalysisProgress>? aiProgress = progress is null
             ? null
-            : new Progress<AiReportAnalysisProgress>(item => progress.Report(new MonthlyReportAnalyzerProgress(
+            : new InlineProgress<AiReportAnalysisProgress>(item => progress.Report(new MonthlyReportAnalyzerProgress(
                 item.StatusMessage,
                 item.GeneratedOutputCharacters,
                 item.Usage is null
@@ -55,5 +55,13 @@ public sealed class MonthlyReportAnalysisAdapter : IMonthlyReportAnalyzer
             result.Usage is null
                 ? null
                 : new MonthlyReportAnalyzerTokenUsage(result.Usage.PromptTokens, result.Usage.CompletionTokens, result.Usage.TotalTokens));
+    }
+
+    private sealed class InlineProgress<T>(Action<T> onReport) : IProgress<T>
+    {
+        public void Report(T value)
+        {
+            onReport(value);
+        }
     }
 }
