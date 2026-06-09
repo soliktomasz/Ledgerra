@@ -76,6 +76,7 @@ describe("ReportsPage", () => {
     mocks.state.accountId = "";
     mocks.state.setRangePreset.mockClear();
     mocks.state.setAccountId.mockClear();
+    window.localStorage.clear();
   });
 
   test("renders the reporting overview with compact chart sections", () => {
@@ -89,11 +90,88 @@ describe("ReportsPage", () => {
     expect(screen.getByRole("button", { name: "12M" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText("$350.00")).toBeInTheDocument();
     expect(screen.getByText("$6,850.00")).toBeInTheDocument();
-    expect(screen.getByText("Spending trend")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Spending trend" })).toBeInTheDocument();
     expect(screen.getByText("Income vs expense")).toBeInTheDocument();
     expect(screen.getByText("Category breakdown")).toBeInTheDocument();
     expect(screen.getByText("Net worth history")).toBeInTheDocument();
     expect(screen.getByText("Groceries")).toBeInTheDocument();
+  });
+
+  test("renders report chart customization with practical chart options", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <ReportsPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("button", { name: "Charts" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Charts" }));
+
+    expect(screen.getByRole("checkbox", { name: "Savings rate" })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Net cash flow trend" })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Income trend" })).toBeInTheDocument();
+  });
+
+  test("removes and restores report charts with persisted selection", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <ReportsPage />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Remove Spending trend" }));
+
+    expect(screen.queryByText("Spending trend")).not.toBeInTheDocument();
+    expect(window.localStorage.getItem("ledgerra:reports:enabled-charts")).toContain("incomeVsExpense");
+
+    await user.click(screen.getByRole("button", { name: "Charts" }));
+    await user.click(screen.getByRole("checkbox", { name: "Spending trend" }));
+
+    expect(screen.getByRole("heading", { name: "Spending trend" })).toBeInTheDocument();
+  });
+
+  test("keeps chart customization usable when persistence fails", async () => {
+    const user = userEvent.setup();
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("Blocked", "SecurityError");
+    });
+
+    try {
+      render(
+        <MemoryRouter>
+          <ReportsPage />
+        </MemoryRouter>
+      );
+
+      await user.click(screen.getByRole("button", { name: "Remove Spending trend" }));
+
+      expect(screen.queryByText("Spending trend")).not.toBeInTheDocument();
+    } finally {
+      setItemSpy.mockRestore();
+    }
+  });
+
+  test("shows an add-charts state when every chart is hidden", async () => {
+    const user = userEvent.setup();
+    window.localStorage.setItem("ledgerra:reports:enabled-charts", "[]");
+
+    render(
+      <MemoryRouter>
+        <ReportsPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("No charts selected")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Add charts" }));
+    await user.click(screen.getByRole("checkbox", { name: "Income trend" }));
+
+    expect(screen.getByRole("heading", { name: "Income trend" })).toBeInTheDocument();
   });
 
   test("updates the selected range preset", async () => {
