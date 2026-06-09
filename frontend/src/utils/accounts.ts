@@ -58,7 +58,11 @@ export type NetWorth = { value: number; currencyCode: string | null };
 
 export function computeNetWorth(accounts: Account[]): NetWorth {
   const includedAccounts = accounts.filter((a) => !a.excludeFromNetWorth);
-  if (includedAccounts.length === 0) return { value: 0, currencyCode: null };
+  if (includedAccounts.length === 0) {
+    const currencies = new Set(accounts.map((a) => a.currencyCode));
+    const currencyCode = accounts.length > 0 && currencies.size === 1 ? accounts[0].currencyCode : null;
+    return { value: 0, currencyCode };
+  }
   const value = includedAccounts.reduce((sum, a) => sum + a.currentBalance, 0);
   const currencies = new Set(includedAccounts.map((a) => a.currencyCode));
   const currencyCode = currencies.size === 1 ? includedAccounts[0].currencyCode : null;

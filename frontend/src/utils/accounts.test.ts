@@ -135,6 +135,14 @@ describe("computeNetWorth", () => {
     expect(computeNetWorth(accounts)).toEqual({ value: 100, currencyCode: "PLN" });
   });
 
+  it("returns zero with shared currency when all accounts are excluded from net worth", () => {
+    const accounts = [
+      makeAccount({ id: "a", currentBalance: 100, currencyCode: "PLN", excludeFromNetWorth: true }),
+      makeAccount({ id: "b", currentBalance: 250, currencyCode: "PLN", excludeFromNetWorth: true })
+    ];
+    expect(computeNetWorth(accounts)).toEqual({ value: 0, currencyCode: "PLN" });
+  });
+
   it("returns null currency on mixed currencies", () => {
     const accounts = [
       makeAccount({ id: "a", currentBalance: 100, currencyCode: "PLN" }),

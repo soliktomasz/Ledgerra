@@ -43,9 +43,9 @@ public sealed class UpdateAccountRequest
 
     public bool IsActive { get; init; }
 
-    public bool ExcludeFromBudget { get; init; }
+    public bool? ExcludeFromBudget { get; init; }
 
-    public bool ExcludeFromNetWorth { get; init; }
+    public bool? ExcludeFromNetWorth { get; init; }
 
     [MaxLength(120)]
     public string? InstitutionName { get; init; }
