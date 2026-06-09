@@ -41,6 +41,16 @@ type NetWorthPoint = {
   netWorth: number;
 };
 
+type AmountPoint = {
+  month: string;
+  amount: number;
+};
+
+type RatePoint = {
+  month: string;
+  rate: number;
+};
+
 type Translator = ReturnType<typeof useI18n>["t"];
 
 function getCategoryTransactionsPath(categoryId: string) {
@@ -101,6 +111,45 @@ function ChartTooltip({
   );
 }
 
+function RateTooltip({
+  active,
+  payload,
+  label
+}: {
+  active?: boolean;
+  payload?: Array<{
+    color?: string;
+    dataKey?: string | number;
+    name?: string;
+    value?: number | string;
+  }>;
+  label?: string;
+}) {
+  if (!active || !payload?.length) {
+    return null;
+  }
+
+  return (
+    <div className="chart-tooltip">
+      {label ? <strong>{formatMonthLabel(label)}</strong> : null}
+      {payload.map((entry) => {
+        const numericValue = typeof entry.value === "number" ? entry.value : Number(entry.value ?? 0);
+        const key = typeof entry.dataKey === "string" ? entry.dataKey : String(entry.dataKey ?? entry.name ?? "value");
+
+        return (
+          <div className="chart-tooltip-row" key={key}>
+            <span className="chart-tooltip-series">
+              <span className="chart-tooltip-dot" style={{ background: entry.color }} />
+              {entry.name}
+            </span>
+            <span>{numericValue.toFixed(1)}%</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ChartShell({ children, ariaLabel }: { children: ReactNode; ariaLabel: string }) {
   return (
     <div className="report-chart">
@@ -108,6 +157,78 @@ function ChartShell({ children, ariaLabel }: { children: ReactNode; ariaLabel: s
         {children}
       </div>
     </div>
+  );
+}
+
+function AmountTrendChart({
+  rows,
+  currencyCode,
+  t,
+  label,
+  ariaLabel,
+  color,
+  gradientId,
+  emptyBody
+}: {
+  rows: AmountPoint[];
+  currencyCode: string;
+  t: Translator;
+  label: string;
+  ariaLabel: string;
+  color: string;
+  gradientId: string;
+  emptyBody: string;
+}) {
+  if (rows.length === 0) {
+    return <EmptyState title={t("reports.noReportDataYet")} body={emptyBody} />;
+  }
+
+  return (
+    <ChartShell ariaLabel={ariaLabel}>
+      <ResponsiveContainer width="100%" height={240}>
+        <AreaChart data={rows} accessibilityLayer margin={{ top: 12, right: 12, left: -16, bottom: 0 }}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.24} />
+              <stop offset="100%" stopColor={color} stopOpacity={0.04} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid className="report-grid" strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            axisLine={false}
+            dataKey="month"
+            minTickGap={24}
+            tickFormatter={formatMonthLabel}
+            tickLine={false}
+          />
+          <YAxis
+            axisLine={false}
+            tickFormatter={(value: number) => formatCurrency(value, currencyCode)}
+            tickLine={false}
+            width={84}
+          />
+          <Tooltip content={<ChartTooltip currencyCode={currencyCode} />} />
+          <Area
+            dataKey="amount"
+            fill={`url(#${gradientId})`}
+            fillOpacity={1}
+            stroke="none"
+            type="monotone"
+          />
+          <Line
+            activeDot={{ r: 5, strokeWidth: 0, fill: color }}
+            dataKey="amount"
+            dot={false}
+            name={label}
+            stroke={color}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            type="monotone"
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </ChartShell>
   );
 }
 
@@ -170,6 +291,99 @@ export function SpendingTrendChart({
         </AreaChart>
       </ResponsiveContainer>
     </ChartShell>
+  );
+}
+
+export function SavingsRateTrendChart({
+  rows,
+  t
+}: {
+  rows: RatePoint[];
+  t: Translator;
+}) {
+  if (rows.length === 0) {
+    return <EmptyState title={t("reports.noReportDataYet")} body={t("reports.noTrendData")} />;
+  }
+
+  return (
+    <ChartShell ariaLabel={t("reports.savingsRateAria")}>
+      <ResponsiveContainer width="100%" height={240}>
+        <LineChart data={rows} accessibilityLayer margin={{ top: 12, right: 12, left: -16, bottom: 0 }}>
+          <CartesianGrid className="report-grid" strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            axisLine={false}
+            dataKey="month"
+            minTickGap={24}
+            tickFormatter={formatMonthLabel}
+            tickLine={false}
+          />
+          <YAxis
+            axisLine={false}
+            tickFormatter={(value: number) => `${value}%`}
+            tickLine={false}
+            width={64}
+          />
+          <Tooltip content={<RateTooltip />} />
+          <Line
+            activeDot={{ r: 5, strokeWidth: 0, fill: "var(--accent-gradient-end)" }}
+            dataKey="rate"
+            dot={{ r: 2.5, strokeWidth: 0, fill: "var(--accent-gradient-end)" }}
+            name={t("reports.savingsRate")}
+            stroke="var(--accent-gradient-end)"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            type="monotone"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartShell>
+  );
+}
+
+export function NetCashFlowTrendChart({
+  rows,
+  currencyCode,
+  t
+}: {
+  rows: AmountPoint[];
+  currencyCode: string;
+  t: Translator;
+}) {
+  return (
+    <AmountTrendChart
+      ariaLabel={t("reports.netCashFlowTrendAria")}
+      color="var(--accent-strong)"
+      currencyCode={currencyCode}
+      emptyBody={t("reports.noCashflowData")}
+      gradientId="netCashFlowTrendFill"
+      label={t("reports.netCashFlow")}
+      rows={rows}
+      t={t}
+    />
+  );
+}
+
+export function IncomeTrendChart({
+  rows,
+  currencyCode,
+  t
+}: {
+  rows: AmountPoint[];
+  currencyCode: string;
+  t: Translator;
+}) {
+  return (
+    <AmountTrendChart
+      ariaLabel={t("reports.incomeTrendAria")}
+      color="var(--positive)"
+      currencyCode={currencyCode}
+      emptyBody={t("reports.noCashflowData")}
+      gradientId="incomeTrendFill"
+      label={t("reports.income")}
+      rows={rows}
+      t={t}
+    />
   );
 }
 
