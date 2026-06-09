@@ -2,8 +2,6 @@
 
 Ledgerra is a self-hosted personal finance tracker built with an ASP.NET Core API and a React frontend. It is designed for homelab deployments such as Unraid and TrueNAS SCALE, keeps a clean JSON API, and covers the full personal finance workflow — accounts, transactions, budgets, savings goals, and analytics.
 
-**Current version: v0.12.0**
-
 ## Features
 
 ### Accounts
