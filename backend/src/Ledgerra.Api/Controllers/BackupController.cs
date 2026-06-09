@@ -37,7 +37,7 @@ public sealed class BackupController : ControllerBase
         return Ok(new BackupArchiveResponse(
             3,
             DateTimeOffset.UtcNow.ToString("O"),
-            accounts.Select(x => new BackupAccountResponse(x.Id, x.Name, x.Type.ToString(), x.CurrencyCode, x.OpeningBalance, x.IsActive, x.InstitutionName, x.AccountNumberMasked, x.IconKind.ToString())).ToList(),
+            accounts.Select(x => new BackupAccountResponse(x.Id, x.Name, x.Type.ToString(), x.CurrencyCode, x.OpeningBalance, x.IsActive, x.InstitutionName, x.AccountNumberMasked, x.IconKind.ToString(), x.ExcludeFromBudget, x.ExcludeFromNetWorth)).ToList(),
             categories.Select(x => new BackupCategoryResponse(x.Id, x.Name, x.Kind.ToString(), x.Color)).ToList(),
             transactions.Select(x => new BackupTransactionResponse(x.Id, x.AccountId, x.CategoryId, x.Amount, x.Type.ToString(), x.OccurredOnUtc.ToString("O"), x.Note, x.TransferGroupId, x.SplitGroupId, x.ParentTransactionId, x.SavingsGoalId)).ToList(),
             budgetPeriods.Select(x => new BackupBudgetPeriodResponse(
@@ -89,6 +89,8 @@ public sealed class BackupController : ControllerBase
             CurrencyCode = x.CurrencyCode,
             OpeningBalance = x.OpeningBalance,
             IsActive = x.IsActive,
+            ExcludeFromBudget = x.ExcludeFromBudget,
+            ExcludeFromNetWorth = x.ExcludeFromNetWorth,
             InstitutionName = x.InstitutionName,
             AccountNumberMasked = x.AccountNumberMasked,
             IconKind = Enum.Parse<Ledgerra.Domain.Accounts.AccountIconKind>(x.IconKind, ignoreCase: true)

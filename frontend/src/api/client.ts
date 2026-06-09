@@ -267,7 +267,7 @@ export const apiClient = {
     token: string,
     payload: Pick<
       Account,
-      "name" | "type" | "currencyCode" | "openingBalance" | "institutionName" | "accountNumberMasked" | "iconKind"
+      "name" | "type" | "currencyCode" | "openingBalance" | "excludeFromBudget" | "excludeFromNetWorth" | "institutionName" | "accountNumberMasked" | "iconKind"
     >
   ) {
     return request<Account>("/api/accounts", {
@@ -286,6 +286,8 @@ export const apiClient = {
         currencyCode: account.currencyCode,
         openingBalance: account.openingBalance,
         isActive: account.isActive,
+        excludeFromBudget: account.excludeFromBudget ?? false,
+        excludeFromNetWorth: account.excludeFromNetWorth ?? false,
         institutionName: account.institutionName ?? null,
         accountNumberMasked: account.accountNumberMasked ?? null,
         iconKind: account.iconKind

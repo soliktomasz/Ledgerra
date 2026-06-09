@@ -130,6 +130,7 @@ public sealed class BudgetSummaryStore : IBudgetSummaryStore
 
         return await _dbContext.Transactions
             .Where(item => item.UserId == userId && item.OccurredOnUtc >= monthStart && item.OccurredOnUtc < monthEnd)
+            .Where(item => !item.Account!.ExcludeFromBudget)
             .ToListAsync(cancellationToken);
     }
 }

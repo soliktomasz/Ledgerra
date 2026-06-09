@@ -15,6 +15,10 @@ public sealed class CreateAccountRequest
 
     public decimal OpeningBalance { get; init; }
 
+    public bool ExcludeFromBudget { get; init; }
+
+    public bool ExcludeFromNetWorth { get; init; }
+
     [MaxLength(120)]
     public string? InstitutionName { get; init; }
 
@@ -39,6 +43,10 @@ public sealed class UpdateAccountRequest
 
     public bool IsActive { get; init; }
 
+    public bool ExcludeFromBudget { get; init; }
+
+    public bool ExcludeFromNetWorth { get; init; }
+
     [MaxLength(120)]
     public string? InstitutionName { get; init; }
 
@@ -56,6 +64,8 @@ public sealed record AccountResponse(
     decimal OpeningBalance,
     decimal CurrentBalance,
     bool IsActive,
+    bool ExcludeFromBudget,
+    bool ExcludeFromNetWorth,
     string? InstitutionName,
     string? AccountNumberMasked,
     string IconKind);

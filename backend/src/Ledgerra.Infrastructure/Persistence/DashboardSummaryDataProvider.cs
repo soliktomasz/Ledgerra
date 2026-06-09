@@ -32,6 +32,7 @@ public sealed class DashboardSummaryDataProvider : IDashboardSummaryDataProvider
     {
         return await _dbContext.Transactions
             .Where(item => item.UserId == userId && item.OccurredOnUtc >= startUtc && item.OccurredOnUtc < endExclusiveUtc)
+            .Where(item => !item.Account!.ExcludeFromBudget)
             .Include(item => item.Account)
             .ToListAsync(cancellationToken);
     }
@@ -39,7 +40,7 @@ public sealed class DashboardSummaryDataProvider : IDashboardSummaryDataProvider
     public async Task<IReadOnlyList<Account>> GetAccountsAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await _dbContext.Accounts
-            .Where(item => item.UserId == userId)
+            .Where(item => item.UserId == userId && !item.ExcludeFromNetWorth)
             .Include(item => item.Transactions)
             .OrderBy(item => item.Name)
             .ToListAsync(cancellationToken);

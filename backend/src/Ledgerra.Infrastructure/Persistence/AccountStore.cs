@@ -45,6 +45,8 @@ public sealed class AccountStore : IAccountStore
         string currencyCode,
         decimal openingBalance,
         bool isActive,
+        bool excludeFromBudget,
+        bool excludeFromNetWorth,
         string? institutionName,
         string? accountNumberMasked,
         AccountIconKind? iconKind,
@@ -61,6 +63,8 @@ public sealed class AccountStore : IAccountStore
         account.CurrencyCode = currencyCode;
         account.OpeningBalance = openingBalance;
         account.IsActive = isActive;
+        account.ExcludeFromBudget = excludeFromBudget;
+        account.ExcludeFromNetWorth = excludeFromNetWorth;
         account.InstitutionName = institutionName;
         account.AccountNumberMasked = accountNumberMasked;
         if (iconKind.HasValue)

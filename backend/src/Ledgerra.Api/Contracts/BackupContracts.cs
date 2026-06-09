@@ -18,7 +18,9 @@ public sealed record BackupAccountResponse(
     bool IsActive,
     string? InstitutionName = null,
     string? AccountNumberMasked = null,
-    string IconKind = "Bank");
+    string IconKind = "Bank",
+    bool ExcludeFromBudget = false,
+    bool ExcludeFromNetWorth = false);
 
 public sealed record BackupCategoryResponse(Guid Id, string Name, string Kind, string? Color);
 

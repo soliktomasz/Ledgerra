@@ -16,6 +16,10 @@ public sealed class Account
 
     public bool IsActive { get; set; } = true;
 
+    public bool ExcludeFromBudget { get; set; }
+
+    public bool ExcludeFromNetWorth { get; set; }
+
     public string? InstitutionName { get; set; }
 
     public string? AccountNumberMasked { get; set; }

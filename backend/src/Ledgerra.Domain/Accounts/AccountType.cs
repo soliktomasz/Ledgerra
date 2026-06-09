@@ -7,5 +7,6 @@ public enum AccountType
     Cash = 3,
     Credit = 4,
     Joint = 5,
-    Investment = 6
+    Investment = 6,
+    Mortgage = 7
 }

@@ -17,9 +17,10 @@ function makeAccount(overrides: Partial<Account>): Account {
 }
 
 describe("groupAccountsByType", () => {
-  it("orders groups Checking → Savings → Credit → Cash → Investment → Joint", () => {
+  it("orders groups Checking → Savings → Credit → Cash → Investment → Mortgage → Joint", () => {
     const accounts = [
       makeAccount({ id: "joint", type: "Joint" }),
+      makeAccount({ id: "mortgage", type: "Mortgage" }),
       makeAccount({ id: "inv", type: "Investment" }),
       makeAccount({ id: "chk", type: "Checking" }),
       makeAccount({ id: "sav", type: "Savings" }),
@@ -28,7 +29,8 @@ describe("groupAccountsByType", () => {
     ];
 
     const groups = groupAccountsByType(accounts);
-    expect(groups.map((g) => g.type)).toEqual(ACCOUNT_GROUP_ORDER);
+    expect(groups.map((g) => g.type)).toEqual(["Checking", "Savings", "Credit", "Cash", "Investment", "Mortgage", "Joint"]);
+    expect(ACCOUNT_GROUP_ORDER).toContain("Mortgage");
   });
 
   it("omits empty groups", () => {
@@ -123,6 +125,14 @@ describe("computeNetWorth", () => {
       makeAccount({ id: "b", currentBalance: 250, currencyCode: "PLN" })
     ];
     expect(computeNetWorth(accounts)).toEqual({ value: 350, currencyCode: "PLN" });
+  });
+
+  it("ignores accounts excluded from net worth", () => {
+    const accounts = [
+      makeAccount({ id: "a", currentBalance: 100, currencyCode: "PLN" }),
+      makeAccount({ id: "b", currentBalance: -250000, currencyCode: "PLN", excludeFromNetWorth: true })
+    ];
+    expect(computeNetWorth(accounts)).toEqual({ value: 100, currencyCode: "PLN" });
   });
 
   it("returns null currency on mixed currencies", () => {
