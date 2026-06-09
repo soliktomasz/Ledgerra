@@ -135,6 +135,27 @@ describe("ReportsPage", () => {
     expect(screen.getByRole("heading", { name: "Spending trend" })).toBeInTheDocument();
   });
 
+  test("keeps chart customization usable when persistence fails", async () => {
+    const user = userEvent.setup();
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("Blocked", "SecurityError");
+    });
+
+    try {
+      render(
+        <MemoryRouter>
+          <ReportsPage />
+        </MemoryRouter>
+      );
+
+      await user.click(screen.getByRole("button", { name: "Remove Spending trend" }));
+
+      expect(screen.queryByText("Spending trend")).not.toBeInTheDocument();
+    } finally {
+      setItemSpy.mockRestore();
+    }
+  });
+
   test("shows an add-charts state when every chart is hidden", async () => {
     const user = userEvent.setup();
     window.localStorage.setItem("ledgerra:reports:enabled-charts", "[]");

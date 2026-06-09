@@ -67,7 +67,11 @@ function readEnabledChartIds() {
 }
 
 function storeEnabledChartIds(chartIds: ReportChartId[]) {
-  window.localStorage.setItem(reportChartStorageKey, JSON.stringify(chartIds));
+  try {
+    window.localStorage.setItem(reportChartStorageKey, JSON.stringify(chartIds));
+  } catch {
+    // Persistence is optional; keep the chart board usable when storage is blocked.
+  }
 }
 
 export function ReportsPage() {
