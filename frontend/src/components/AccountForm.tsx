@@ -3,7 +3,7 @@ import { useI18n } from "../state/I18nContext";
 import { supportedCurrencies } from "../utils/currency";
 import type { AccountIconKind } from "../types";
 
-const accountTypes = ["Checking", "Savings", "Cash", "Credit", "Joint", "Investment"] as const;
+const accountTypes = ["Checking", "Savings", "Cash", "Credit", "Joint", "Investment", "Mortgage"] as const;
 const accountIconKinds: AccountIconKind[] = ["Bank", "Piggy", "Card", "Cash", "Chart", "Users"];
 
 export type AccountFormValues = {
@@ -14,6 +14,8 @@ export type AccountFormValues = {
   institutionName: string;
   accountNumberMasked: string;
   iconKind: AccountIconKind;
+  excludeFromBudget: boolean;
+  excludeFromNetWorth: boolean;
   isActive?: boolean;
 };
 
@@ -41,6 +43,8 @@ function getAccountTypeLabel(type: string, t: ReturnType<typeof useI18n>["t"]) {
       return t("accountType.Joint");
     case "Investment":
       return t("accountType.Investment");
+    case "Mortgage":
+      return t("accountType.Mortgage");
     default:
       return type;
   }
@@ -142,6 +146,24 @@ export function AccountForm({
           value={values.accountNumberMasked}
           onChange={(event) => update("accountNumberMasked", event.target.value)}
         />
+      </label>
+
+      <label className="checkbox-label">
+        <input
+          type="checkbox"
+          checked={values.excludeFromBudget}
+          onChange={(event) => update("excludeFromBudget", event.target.checked)}
+        />
+        {t("accounts.form.excludeFromBudget")}
+      </label>
+
+      <label className="checkbox-label">
+        <input
+          type="checkbox"
+          checked={values.excludeFromNetWorth}
+          onChange={(event) => update("excludeFromNetWorth", event.target.checked)}
+        />
+        {t("accounts.form.excludeFromNetWorth")}
       </label>
 
       {mode === "edit" ? (

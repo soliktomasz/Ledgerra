@@ -123,6 +123,54 @@ public sealed class AccountFieldsTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task Update_WhenExclusionFlagsAreOmitted_PreservesExistingValues()
+    {
+        using var client = _factory.CreateClient();
+        var auth = await RegisterAndAuthenticateAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var createResponse = await client.PostAsJsonAsync("/api/accounts", new
+        {
+            name = "Retirement",
+            type = "Investment",
+            currencyCode = "PLN",
+            openingBalance = 12500m,
+            excludeFromBudget = true,
+            excludeFromNetWorth = true,
+            iconKind = "Piggy"
+        });
+
+        if (createResponse.StatusCode != HttpStatusCode.Created)
+        {
+            var body = await createResponse.Content.ReadAsStringAsync();
+            throw new Xunit.Sdk.XunitException($"Create failed with {(int)createResponse.StatusCode}: {body}");
+        }
+
+        var createdPayload = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var accountId = createdPayload.GetProperty("id").GetGuid();
+
+        var updateResponse = await client.PutAsJsonAsync($"/api/accounts/{accountId}", new
+        {
+            name = "Retirement",
+            type = "Investment",
+            currencyCode = "PLN",
+            openingBalance = 12500m,
+            isActive = true,
+            iconKind = "Piggy"
+        });
+
+        if (updateResponse.StatusCode != HttpStatusCode.OK)
+        {
+            var body = await updateResponse.Content.ReadAsStringAsync();
+            throw new Xunit.Sdk.XunitException($"Update failed with {(int)updateResponse.StatusCode}: {body}");
+        }
+
+        var afterUpdate = await client.GetFromJsonAsync<JsonElement>($"/api/accounts/{accountId}");
+        Assert.True(afterUpdate.GetProperty("excludeFromBudget").GetBoolean());
+        Assert.True(afterUpdate.GetProperty("excludeFromNetWorth").GetBoolean());
+    }
+
+    [Fact]
     public async Task Create_WithLowercaseIconKind_RoundTripsAsCanonicalPascalCase()
     {
         using var client = _factory.CreateClient();

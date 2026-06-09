@@ -13,6 +13,8 @@ public sealed record CreateAccountCommand(
     string Type,
     string CurrencyCode,
     decimal OpeningBalance,
+    bool ExcludeFromBudget,
+    bool ExcludeFromNetWorth,
     string? InstitutionName,
     string? AccountNumberMasked,
     string? IconKind);
@@ -25,6 +27,8 @@ public sealed record UpdateAccountCommand(
     string CurrencyCode,
     decimal OpeningBalance,
     bool IsActive,
+    bool? ExcludeFromBudget,
+    bool? ExcludeFromNetWorth,
     string? InstitutionName,
     string? AccountNumberMasked,
     string? IconKind);
@@ -39,6 +43,8 @@ public sealed record AccountDetails(
     decimal OpeningBalance,
     decimal CurrentBalance,
     bool IsActive,
+    bool ExcludeFromBudget,
+    bool ExcludeFromNetWorth,
     string? InstitutionName,
     string? AccountNumberMasked,
     string IconKind);
@@ -59,6 +65,8 @@ public interface IAccountStore
         string currencyCode,
         decimal openingBalance,
         bool isActive,
+        bool? excludeFromBudget,
+        bool? excludeFromNetWorth,
         string? institutionName,
         string? accountNumberMasked,
         AccountIconKind? iconKind,
@@ -140,6 +148,8 @@ public sealed class CreateAccountCommandHandler
                 Type = accountType,
                 CurrencyCode = command.CurrencyCode.ToUpperInvariant(),
                 OpeningBalance = command.OpeningBalance,
+                ExcludeFromBudget = command.ExcludeFromBudget,
+                ExcludeFromNetWorth = command.ExcludeFromNetWorth,
                 InstitutionName = command.InstitutionName,
                 AccountNumberMasked = command.AccountNumberMasked,
                 IconKind = iconKind
@@ -192,6 +202,8 @@ public sealed class UpdateAccountCommandHandler
             command.CurrencyCode.ToUpperInvariant(),
             command.OpeningBalance,
             command.IsActive,
+            command.ExcludeFromBudget,
+            command.ExcludeFromNetWorth,
             command.InstitutionName,
             command.AccountNumberMasked,
             iconKindToPersist,
@@ -266,6 +278,8 @@ internal static class AccountMappings
             account.OpeningBalance,
             AccountBalanceCalculator.Calculate(account, account.Transactions),
             account.IsActive,
+            account.ExcludeFromBudget,
+            account.ExcludeFromNetWorth,
             account.InstitutionName,
             account.AccountNumberMasked,
             account.IconKind.ToString());

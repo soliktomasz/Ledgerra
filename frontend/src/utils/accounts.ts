@@ -14,7 +14,7 @@ export function accountIconClass(iconKind: AccountIconKind): string {
 }
 
 export const ACCOUNT_GROUP_ORDER = [
-  "Checking", "Savings", "Credit", "Cash", "Investment", "Joint"
+  "Checking", "Savings", "Credit", "Cash", "Investment", "Mortgage", "Joint"
 ] as const;
 
 export type AccountGroupType = (typeof ACCOUNT_GROUP_ORDER)[number];
@@ -57,10 +57,15 @@ export function filterAccounts(accounts: Account[], query: string): Account[] {
 export type NetWorth = { value: number; currencyCode: string | null };
 
 export function computeNetWorth(accounts: Account[]): NetWorth {
-  if (accounts.length === 0) return { value: 0, currencyCode: null };
-  const value = accounts.reduce((sum, a) => sum + a.currentBalance, 0);
-  const currencies = new Set(accounts.map((a) => a.currencyCode));
-  const currencyCode = currencies.size === 1 ? accounts[0].currencyCode : null;
+  const includedAccounts = accounts.filter((a) => !a.excludeFromNetWorth);
+  if (includedAccounts.length === 0) {
+    const currencies = new Set(accounts.map((a) => a.currencyCode));
+    const currencyCode = accounts.length > 0 && currencies.size === 1 ? accounts[0].currencyCode : null;
+    return { value: 0, currencyCode };
+  }
+  const value = includedAccounts.reduce((sum, a) => sum + a.currentBalance, 0);
+  const currencies = new Set(includedAccounts.map((a) => a.currencyCode));
+  const currencyCode = currencies.size === 1 ? includedAccounts[0].currencyCode : null;
   return { value, currencyCode };
 }
 

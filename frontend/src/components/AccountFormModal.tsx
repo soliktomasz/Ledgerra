@@ -55,6 +55,8 @@ export function AccountFormModal({
           type: values.type,
           currencyCode: normalizeCurrencyCode(values.currencyCode),
           openingBalance: Number(values.openingBalance) || 0,
+          excludeFromBudget: values.excludeFromBudget,
+          excludeFromNetWorth: values.excludeFromNetWorth,
           institutionName: values.institutionName || null,
           accountNumberMasked: values.accountNumberMasked || null,
           iconKind: values.iconKind
@@ -75,6 +77,8 @@ export function AccountFormModal({
           // currentBalance is recomputed server-side; placeholder satisfies the payload shape.
           currentBalance: 0,
           isActive: values.isActive ?? true,
+          excludeFromBudget: values.excludeFromBudget,
+          excludeFromNetWorth: values.excludeFromNetWorth,
           institutionName: values.institutionName || null,
           accountNumberMasked: values.accountNumberMasked || null,
           iconKind: values.iconKind

@@ -19,6 +19,8 @@ public static class AccountSchemaInitializer
             ALTER TABLE "Accounts" ADD COLUMN IF NOT EXISTS "InstitutionName" character varying(120) NULL;
             ALTER TABLE "Accounts" ADD COLUMN IF NOT EXISTS "AccountNumberMasked" character varying(64) NULL;
             ALTER TABLE "Accounts" ADD COLUMN IF NOT EXISTS "IconKind" integer NOT NULL DEFAULT 1;
+            ALTER TABLE "Accounts" ADD COLUMN IF NOT EXISTS "ExcludeFromBudget" boolean NOT NULL DEFAULT false;
+            ALTER TABLE "Accounts" ADD COLUMN IF NOT EXISTS "ExcludeFromNetWorth" boolean NOT NULL DEFAULT false;
             """,
             cancellationToken);
     }

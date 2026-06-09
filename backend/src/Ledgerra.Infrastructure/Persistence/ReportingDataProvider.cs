@@ -17,7 +17,7 @@ public sealed class ReportingDataProvider : IReportingDataProvider
 
     public async Task<IReadOnlyList<Account>> GetAccountsAsync(Guid userId, Guid? accountId, CancellationToken cancellationToken)
     {
-        var query = _dbContext.Accounts.Where(item => item.UserId == userId);
+        var query = _dbContext.Accounts.Where(item => item.UserId == userId && !item.ExcludeFromNetWorth);
 
         if (accountId.HasValue)
         {
@@ -35,7 +35,8 @@ public sealed class ReportingDataProvider : IReportingDataProvider
         CancellationToken cancellationToken)
     {
         var query = _dbContext.Transactions
-            .Where(item => item.UserId == userId && item.OccurredOnUtc >= startUtc && item.OccurredOnUtc < endExclusiveUtc);
+            .Where(item => item.UserId == userId && item.OccurredOnUtc >= startUtc && item.OccurredOnUtc < endExclusiveUtc)
+            .Where(item => !item.Account!.ExcludeFromBudget);
 
         if (accountId.HasValue)
         {
@@ -70,7 +71,8 @@ public sealed class ReportingDataProvider : IReportingDataProvider
         CancellationToken cancellationToken)
     {
         var query = _dbContext.MonthlyAccountBalanceSnapshots
-            .Where(item => item.UserId == userId && item.MonthEndDate >= startMonthEnd && item.MonthEndDate <= endMonthEnd);
+            .Where(item => item.UserId == userId && item.MonthEndDate >= startMonthEnd && item.MonthEndDate <= endMonthEnd)
+            .Where(item => !item.Account!.ExcludeFromNetWorth);
 
         if (accountId.HasValue)
         {

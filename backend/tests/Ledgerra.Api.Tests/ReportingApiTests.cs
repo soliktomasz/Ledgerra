@@ -165,6 +165,88 @@ public sealed class ReportingApiTests : IClassFixture<LedgerraApiFactory>
     }
 
     [Fact]
+    public async Task Accounts_CreateSupportsMortgageAndSeparateAnalyticsExclusions()
+    {
+        using var client = _factory.CreateClient();
+        await AuthenticateAsync(client);
+
+        var response = await client.PostAsJsonAsync("/api/accounts", new
+        {
+            name = "Home loan",
+            type = "Mortgage",
+            currencyCode = "USD",
+            openingBalance = -250000m,
+            excludeFromBudget = true,
+            excludeFromNetWorth = false
+        });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Mortgage", payload.GetProperty("type").GetString());
+        Assert.True(payload.GetProperty("excludeFromBudget").GetBoolean());
+        Assert.False(payload.GetProperty("excludeFromNetWorth").GetBoolean());
+    }
+
+    [Fact]
+    public async Task BudgetSummary_ExcludesTransactionsFromBudgetExcludedAccounts()
+    {
+        using var client = _factory.CreateClient();
+        await AuthenticateAsync(client);
+
+        var checkingId = await CreateAccountAsync(client, "Checking", "Checking", "USD", 1000m);
+        var cardId = await CreateAccountAsync(client, "Card", "Credit", "USD", 0m, excludeFromBudget: true);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        await CreateTransactionAsync(client, checkingId, groceriesCategoryId, 120m, "Expense", "2026-04-10T08:00:00Z", "Checking groceries");
+        await CreateTransactionAsync(client, cardId, groceriesCategoryId, 80m, "Expense", "2026-04-11T08:00:00Z", "Card groceries");
+
+        var response = await client.PutAsJsonAsync("/api/budgets/2026/4", new
+        {
+            categoryLimits = new[]
+            {
+                new { categoryId = groceriesCategoryId, plannedAmount = 500m, carryOverUnspent = false }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(120m, payload.GetProperty("totalSpent").GetDecimal());
+        Assert.Equal(380m, payload.GetProperty("totalRemaining").GetDecimal());
+        var category = Assert.Single(payload.GetProperty("categories").EnumerateArray());
+        Assert.Equal(120m, category.GetProperty("spent").GetDecimal());
+    }
+
+    [Fact]
+    public async Task DashboardSummary_AppliesBudgetAndNetWorthExclusionsSeparately()
+    {
+        using var client = _factory.CreateClient();
+        await AuthenticateAsync(client);
+
+        var checkingId = await CreateAccountAsync(client, "Checking", "Checking", "USD", 1000m);
+        var cardId = await CreateAccountAsync(client, "Card", "Credit", "USD", 0m, excludeFromBudget: true);
+        await CreateAccountAsync(client, "Home loan", "Mortgage", "USD", -250000m, excludeFromNetWorth: true);
+        var groceriesCategoryId = await CreateCategoryAsync(client, "Groceries", "Expense");
+
+        await CreateTransactionAsync(client, checkingId, groceriesCategoryId, 120m, "Expense", "2026-04-10T08:00:00Z", "Checking groceries");
+        await CreateTransactionAsync(client, cardId, groceriesCategoryId, 80m, "Expense", "2026-04-11T08:00:00Z", "Card groceries");
+
+        var response = await client.GetAsync("/api/dashboard/summary?month=2026-04");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(120m, payload.GetProperty("expenses").GetDecimal());
+        Assert.Equal(-120m, payload.GetProperty("net").GetDecimal());
+
+        var topCategory = Assert.Single(payload.GetProperty("topCategories").EnumerateArray());
+        Assert.Equal(120m, topCategory.GetProperty("amount").GetDecimal());
+
+        var accounts = payload.GetProperty("accounts").EnumerateArray().ToArray();
+        Assert.Contains(accounts, item => item.GetProperty("name").GetString() == "Checking");
+        Assert.Contains(accounts, item => item.GetProperty("name").GetString() == "Card");
+        Assert.DoesNotContain(accounts, item => item.GetProperty("name").GetString() == "Home loan");
+    }
+
+    [Fact]
     public async Task DashboardSummary_ReturnsLightweightTrendsTeaser()
     {
         using var client = _factory.CreateClient();
@@ -204,14 +286,23 @@ public sealed class ReportingApiTests : IClassFixture<LedgerraApiFactory>
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", payload.GetProperty("accessToken").GetString());
     }
 
-    private static async Task<Guid> CreateAccountAsync(HttpClient client, string name, string type, string currencyCode, decimal openingBalance)
+    private static async Task<Guid> CreateAccountAsync(
+        HttpClient client,
+        string name,
+        string type,
+        string currencyCode,
+        decimal openingBalance,
+        bool excludeFromBudget = false,
+        bool excludeFromNetWorth = false)
     {
         var response = await client.PostAsJsonAsync("/api/accounts", new
         {
             name,
             type,
             currencyCode,
-            openingBalance
+            openingBalance,
+            excludeFromBudget,
+            excludeFromNetWorth
         });
 
         var payload = await response.Content.ReadFromJsonAsync<JsonElement>();

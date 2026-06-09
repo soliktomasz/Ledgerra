@@ -171,7 +171,7 @@ public sealed class MonthlyReportAnalysisJobStore : IDisposable
             using var scope = _scopeFactory.CreateScope();
             var handler = scope.ServiceProvider.GetRequiredService<AnalyzeMonthlyReportCommandHandler>();
             Update(jobId, job => job with { StatusMessage = "Preparing report context.", UpdatedAtUtc = DateTime.UtcNow });
-            var progress = new Progress<MonthlyReportAnalyzerProgress>(item => Update(jobId, job => job with
+            var progress = new InlineProgress<MonthlyReportAnalyzerProgress>(item => Update(jobId, job => job with
             {
                 StatusMessage = item.StatusMessage,
                 GeneratedOutputCharacters = item.GeneratedOutputCharacters ?? job.GeneratedOutputCharacters,
@@ -304,6 +304,14 @@ public sealed class MonthlyReportAnalysisJobStore : IDisposable
             draft.DuplicateTransactionId,
             draft.DuplicateReason,
             draft.IsSelectedByDefault);
+    }
+
+    private sealed class InlineProgress<T>(Action<T> onReport) : IProgress<T>
+    {
+        public void Report(T value)
+        {
+            onReport(value);
+        }
     }
 }
 

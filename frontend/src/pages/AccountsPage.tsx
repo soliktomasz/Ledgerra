@@ -18,7 +18,9 @@ function defaultFormValues(preferredCurrency: string): AccountFormValues {
     openingBalance: "0",
     institutionName: "",
     accountNumberMasked: "",
-    iconKind: "Bank"
+    iconKind: "Bank",
+    excludeFromBudget: false,
+    excludeFromNetWorth: false
   };
 }
 
@@ -31,6 +33,8 @@ function accountToFormValues(account: Account): AccountFormValues {
     institutionName: account.institutionName ?? "",
     accountNumberMasked: account.accountNumberMasked ?? "",
     iconKind: account.iconKind,
+    excludeFromBudget: account.excludeFromBudget ?? false,
+    excludeFromNetWorth: account.excludeFromNetWorth ?? false,
     isActive: account.isActive
   };
 }

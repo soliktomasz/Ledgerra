@@ -11,6 +11,8 @@
 .worktrees/
 frontend/node_modules/
 frontend/dist/
+graphify-out/
+.claude/settings.local.json
 *.tsbuildinfo
 
 # User-specific files

@@ -16,6 +16,8 @@ function groupLabel(t: ReturnType<typeof useI18n>["t"], type: AccountGroupType):
       return t("accounts.group.cash");
     case "Investment":
       return t("accounts.group.investment");
+    case "Mortgage":
+      return t("accounts.group.mortgage");
     case "Joint":
       return t("accounts.group.joint");
   }

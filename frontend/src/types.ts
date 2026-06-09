@@ -17,6 +17,8 @@ export type Account = {
   openingBalance: number;
   currentBalance: number;
   isActive: boolean;
+  excludeFromBudget?: boolean;
+  excludeFromNetWorth?: boolean;
   institutionName?: string | null;
   accountNumberMasked?: string | null;
   iconKind: AccountIconKind;
@@ -262,6 +264,8 @@ export type BackupAccount = {
   type: string;
   currencyCode: string;
   openingBalance: number;
+  excludeFromBudget?: boolean;
+  excludeFromNetWorth?: boolean;
   isActive: boolean;
   institutionName?: string | null;
   accountNumberMasked?: string | null;
